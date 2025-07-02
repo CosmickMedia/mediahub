@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "cosmickmedia",
+  "private_key_id": "bcfca29077eaaa4b50a99812765b7d92a98742b1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCgUiR76IMsrKtP\n23ORQNJENHidNBg5By841+WH6/TDz5LkpGf8b1Zrx8WqJQcWNfwAsirdg1fodKe1\nLnqh7BXLZFGsJaTHHhpqpAKY7SHlAXfLSrkbBIaT+Ve8pGuqJtTS8+6Z6lTP54g/\ncrY9cVGJ1HbXka2vuSjO/mRAKOt2wPs/ax8gNwAdiXmfG2C/Tb/NI5v8tylUeLmj\nH5mqx+vyevlbC2ZoQKSqK+E1phXKAnRWd8yt6a9JuqOLLzLP0kOjbVdjtjdOR6qP\nVmtxqWmvEApLd54zAgbJv88tBXguUgR3jfqAcokndoUBtm17xOiXCM54P0yMAs46\nJB5zz1U3AgMBAAECggEAM1R5d+6m6QvTwbq6krwVVl8Sawq94qxpMyL0y4MBmBwC\npQ/6dzlSiymoIOTAEx1vtO1Wihu+bp/C/mCGRQeoprlU6PAYhOQfgxtF9Z6e5oqE\nx2MCRyM4z3Ha5HwkOJM8Otp8/2ymgPZZii75KEz61U1gS37KBGQdK8EJaf1v/lIj\nf86MQZt5Be14LbsDzSJcqaIne1Ymjq+j637CNjd+H82J/z7WF6wMJRlQsN0KPgJK\nob2Krs84fStBtPN7aNM63/CRgho3MsZ3tNfqnkEdVWRrJvEmJfIxPXo8g3QJh31F\n27neN2PbxeZLJYrGAWftSPfaj3arZi0lV4xl1dV0KQKBgQDUaeLKfXB3HNTU41wl\naC1FrQSn6KQEvSgBY0K68na6QkYuftpBMFIIlkTMhN1WwakwumcLdRz8N4teqr3J\nDEL3jukWOXYJuty7mJ/PfGCVDehIM7YgJShDCNi6qJkJm99d4JgNYUWOP1A1XzqL\nThwyA3g0o4uP/mnEs/+HdDBybQKBgQDBN9Fo8pGzL8sBZIMaGtGLEmKzWXywgbfg\n5j4u/6TfRXUN2toanDR+2ypYC+lxHt0w3peDw7CJlcffYSRpjYEfwRKwLhjghL6o\nmboRh+Y+m5hP3mLXSUx+mABSohBOqWYtgE7Ut8n8BR/q4t28YSU1mHe66hMF4Q3D\ni+eYeNC/swKBgQCUw6/VVzMMCQI6Mx3XCPYkBT/shO9SblP1XNpgae2jF0VlzOv4\nmenqH6wBfNAzsaBYA0Sl7pilQBV48KXIh7DjBpDSQt4bhGaRcBwEybwuyDW1U5or\nOzrOcASx/eBorWUrr19uh4CaVldLee1boRH4KRvn6d6Vs33KCLJe4I4JpQKBgF5Z\nZVZ77I21LsoVTLd4lQ32AmBVuD9weFvH0mGcz+N+xTPoxEvuLuwrFTg9SNbGHXh5\nmT7sVc45Z4o6o08vm/fnjbqeJ+Oqrnch6ewZkmLME8oca+N4lXPTwYSYQqJGsfBS\nESxqOqVn0zgdY+1S+pp7QyvwlS1vwgrUzFh11mllAoGASu5onvzRuYaXzWDrdlBP\n4itu0+k0z+77bpA6r11wysfRFoAf1AugwLEgvrn1z4jo1/HlKzl2pcQ1lzQIBlyg\nHirFxJL6rc4qVgMYTOEOmfthXu0J3tNo2dtq4gjR057ZJNh7LHJBjKvmRvJClxVB\nOEN5EMeYi/GnrlYz1LIicMY=\n-----END PRIVATE KEY-----\n",
+  "client_email": "google-drive-cmupload@cosmickmedia.iam.gserviceaccount.com",
+  "client_id": "108507818808548506513",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/google-drive-cmupload%40cosmickmedia.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
