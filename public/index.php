@@ -8,6 +8,10 @@ $config = require __DIR__.'/../config.php';
 session_start();
 $errors = [];
 
+if (isset($_GET['logout'])) {
+    unset($_SESSION['store_id'], $_SESSION['store_pin']);
+}
+
 if (!isset($_SESSION['store_id'])) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
         $pin = $_POST['pin'];
@@ -23,10 +27,21 @@ if (!isset($_SESSION['store_id'])) {
     }
     if (!isset($_SESSION['store_id'])) {
         // show PIN form
-        echo '<!doctype html><html><head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"></head><body class="container"><h3>Enter Store PIN</h3>';
-        foreach ($errors as $e) echo "<p class=red-text>$e</p>";
-        echo '<form method="post"><div class="input-field"><input type="text" name="pin" id="pin" required><label for="pin">Store PIN</label></div><button class="btn" type="submit">Continue</button></form>';
-        echo '<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script></body></html>';
+        echo '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">';
+        echo '<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/material/bootstrap.min.css" rel="stylesheet">';
+        echo '</head><body>';
+        echo '<nav class="navbar navbar-expand-lg navbar-dark bg-primary">';
+        echo '<div class="container-fluid">';
+        echo '<a class="navbar-brand" href="#">Store Upload</a>';
+        echo '<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPublic" aria-controls="navbarPublic" aria-expanded="false" aria-label="Toggle navigation">';
+        echo '<span class="navbar-toggler-icon"></span></button>';
+        echo '<div class="collapse navbar-collapse" id="navbarPublic"></div></div></nav>';
+        echo '<div class="container mt-4"><h3>Enter Store PIN</h3>';
+        foreach ($errors as $e) echo "<div class=\"alert alert-danger\">$e</div>";
+        echo '<form method="post">';
+        echo '<div class="mb-3"><label for="pin" class="form-label">Store PIN</label><input type="text" name="pin" id="pin" class="form-control" required></div>';
+        echo '<button class="btn btn-primary" type="submit">Continue</button></form></div>';
+        echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script></body></html>';
         exit;
     }
 }
@@ -66,21 +81,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/material/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="container">
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Store Upload</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPublic2" aria-controls="navbarPublic2" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarPublic2">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="?logout=1">Change Store</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container mt-4">
 <h4>Upload Files for Store <?php echo htmlspecialchars($store_pin); ?></h4>
-<?php foreach ($errors as $e) echo "<p class=red-text>$e</p>"; ?>
+<?php foreach ($errors as $e) echo "<div class=\"alert alert-danger\">$e</div>"; ?>
 <form method="post" enctype="multipart/form-data" id="uploadForm">
-    <div class="file-field input-field">
-        <div class="btn"><span>Files</span><input type="file" name="files[]" multiple accept="image/*,video/*" capture="environment" required></div>
-        <div class="file-path-wrapper"><input class="file-path validate" type="text" placeholder="Upload one or more files"></div>
+    <div class="mb-3">
+        <label for="files" class="form-label">Files</label>
+        <input class="form-control" type="file" name="files[]" id="files" multiple accept="image/*,video/*" capture="environment" required>
     </div>
     <div id="descriptions"></div>
-    <button class="btn" type="submit">Upload</button>
+    <button class="btn btn-primary" type="submit">Upload</button>
 </form>
+</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const fileInput = document.querySelector('input[type=file]');
 fileInput.addEventListener('change', () => {
@@ -88,8 +118,8 @@ fileInput.addEventListener('change', () => {
   container.innerHTML = '';
   [...fileInput.files].forEach((f, i) => {
     const div = document.createElement('div');
-    div.className = 'input-field';
-    div.innerHTML = `<input type="text" name="desc[${i}]" id="desc${i}"><label for="desc${i}">Description for ${f.name}</label>`;
+    div.className = 'mb-3';
+    div.innerHTML = `<label class=\"form-label\" for=\"desc${i}\">Description for ${f.name}</label><input type=\"text\" name=\"desc[${i}]\" id=\"desc${i}\" class=\"form-control\">`;
     container.appendChild(div);
   });
 });
