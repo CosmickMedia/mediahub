@@ -28,3 +28,16 @@ function logout() {
     $_SESSION = [];
     session_destroy();
 }
+
+function login_with_google_email($email): bool {
+    $pdo = get_pdo();
+    $stmt = $pdo->prepare('SELECT id FROM users WHERE username=?');
+    $stmt->execute([$email]);
+    if ($row = $stmt->fetch()) {
+        session_start();
+        session_regenerate_id(true);
+        $_SESSION['user_id'] = $row['id'];
+        return true;
+    }
+    return false;
+}
