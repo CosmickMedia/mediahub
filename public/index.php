@@ -76,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
 }
 
 // show upload form
-?>
 include __DIR__.'/header.php';
 ?>
 <h4>Upload Files for Store <?php echo htmlspecialchars($store_pin); ?></h4>
