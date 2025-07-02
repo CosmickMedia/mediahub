@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $stores = $pdo->query('SELECT * FROM stores')->fetchAll(PDO::FETCH_ASSOC);
 $active = 'stores';
 include __DIR__.'/header.php';
+?>
 <h4>Store Management</h4>
 <table class="table table-striped">
 <tr><th>Name</th><th>PIN</th><th>Email</th><th>Folder</th><th></th></tr>
