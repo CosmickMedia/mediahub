@@ -1,5 +1,5 @@
 <?php
-/**
+/** 
  * Setup script to initialize database tables and create default admin user.
  */
 $config = require __DIR__.'/config.php';

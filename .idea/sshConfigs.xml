@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="35.196.5.93" id="740c849b-8b9c-4f75-860b-83b6fe297648" port="54409" nameFormat="DESCRIPTIVE" username="cmuploader" useOpenSSHConfig="true" />
+    </configs>
+  </component>
+</project>
