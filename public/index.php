@@ -3,7 +3,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/drive.php';
 
-$config = require __DIR__.'/../config.php';
+$config = get_config();
 
 session_start();
 $errors = [];

@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/config.php';
 
-$config = require __DIR__.'/../config.php';
+$config = get_config();
 
 if (!isset($_GET['code'])) {
     exit('Missing code');

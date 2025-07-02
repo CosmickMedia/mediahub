@@ -1,8 +1,9 @@
 <?php
-/** 
+/**
  * Setup script to initialize database tables and create default admin user.
  */
-$config = require __DIR__.'/config.php';
+require_once __DIR__.'/lib/config.php';
+$config = get_config();
 
 try {
     $pdo = new PDO("mysql:host={$config['db']['host']};dbname={$config['db']['dbname']};charset=utf8mb4", $config['db']['user'], $config['db']['pass']);
