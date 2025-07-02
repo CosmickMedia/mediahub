@@ -1,3 +1,4 @@
 config.php
+!lib/config.php
 service-account.json
 /tmp/

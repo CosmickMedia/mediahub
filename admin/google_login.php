@@ -1,5 +1,6 @@
 <?php
-$config = require __DIR__.'/../config.php';
+require_once __DIR__.'/../lib/config.php';
+$config = get_config();
 $params = [
     'client_id' => $config['google_oauth']['client_id'],
     'redirect_uri' => $config['google_oauth']['redirect_uri'],

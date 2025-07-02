@@ -1,8 +1,10 @@
 <?php
 /** Google Drive upload helper using service account and cURL */
 
+require_once __DIR__.'/config.php';
+
 function drive_get_access_token() {
-    $config = require __DIR__.'/../config.php';
+    $config = get_config();
     $creds = json_decode(file_get_contents($config['service_account_json']), true);
     $header = base64_encode(json_encode([
         'alg' => 'RS256',
