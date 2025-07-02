@@ -13,8 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Login failed';
     }
 }
+include __DIR__.'/login_header.php';
 ?>
-<?php include __DIR__.'/login_header.php'; ?>
 <h4>Admin Login</h4>
 <?php foreach ($errors as $e) echo "<div class=\"alert alert-danger\">$e</div>"; ?>
 <form method="post">
