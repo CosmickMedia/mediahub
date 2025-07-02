@@ -27,32 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $drive_folder = get_setting('drive_base_folder');
 $notify_email = get_setting('notification_email');
+$active = 'settings';
+include __DIR__.'/header.php';
 ?>
-<!doctype html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="../assets/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="index.php">Admin</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="adminNav">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="stores.php">Stores</a></li>
-        <li class="nav-item"><a class="nav-link" href="uploads.php">Uploads</a></li>
-        <li class="nav-item"><a class="nav-link active" href="settings.php">Settings</a></li>
-        <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-<div class="container">
 <h4>Settings</h4>
 <form method="post" enctype="multipart/form-data">
 <div class="mb-3">
@@ -69,7 +46,5 @@ $notify_email = get_setting('notification_email');
 </div>
 <button class="btn btn-primary" type="submit">Save</button>
 </form>
-</div>
-<script src="../assets/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php include __DIR__.'/footer.php'; ?>
+
