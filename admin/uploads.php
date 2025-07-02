@@ -22,32 +22,8 @@ $sql .= ' ORDER BY u.created_at DESC LIMIT 50';
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-<!doctype html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="../assets/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="index.php">Admin</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="adminNav">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="stores.php">Stores</a></li>
-        <li class="nav-item"><a class="nav-link active" href="uploads.php">Uploads</a></li>
-        <li class="nav-item"><a class="nav-link" href="settings.php">Settings</a></li>
-        <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-<div class="container">
+$active = 'uploads';
+include __DIR__.'/header.php';
 <h4>Recent Uploads</h4>
 <form method="get" class="row g-3 align-items-end">
 <div class="col-md-4">
@@ -78,6 +54,5 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php endforeach; ?>
 </div>
 </div>
-<script src="../assets/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php include __DIR__.'/footer.php'; ?>
+

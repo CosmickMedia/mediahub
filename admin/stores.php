@@ -15,32 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 $stores = $pdo->query('SELECT * FROM stores')->fetchAll(PDO::FETCH_ASSOC);
-?>
-<!doctype html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="../assets/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="index.php">Admin</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="adminNav">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link active" href="stores.php">Stores</a></li>
-        <li class="nav-item"><a class="nav-link" href="uploads.php">Uploads</a></li>
-        <li class="nav-item"><a class="nav-link" href="settings.php">Settings</a></li>
-        <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
-<div class="container">
+$active = 'stores';
+include __DIR__.'/header.php';
 <h4>Store Management</h4>
 <table class="table table-striped">
 <tr><th>Name</th><th>PIN</th><th>Email</th><th>Folder</th><th></th></tr>
@@ -67,7 +43,5 @@ $stores = $pdo->query('SELECT * FROM stores')->fetchAll(PDO::FETCH_ASSOC);
 <div class="mb-3"><label for="folder" class="form-label">Drive Folder ID</label><input type="text" name="folder" id="folder" class="form-control"></div>
 <button class="btn btn-primary" name="add" type="submit">Add</button>
 </form>
-</div>
-<script src="../assets/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php include __DIR__.'/footer.php'; ?>
+
