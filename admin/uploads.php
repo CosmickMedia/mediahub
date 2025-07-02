@@ -24,6 +24,7 @@ $stmt->execute($params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $active = 'uploads';
 include __DIR__.'/header.php';
+?>
 <h4>Recent Uploads</h4>
 <form method="get" class="row g-3 align-items-end">
 <div class="col-md-4">
