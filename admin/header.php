@@ -6,14 +6,36 @@ if (!isset($active)) { $active = ''; }
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - Store Upload</title>
+    <title>Admin - Content App Library</title>
     <!-- Bootstrap CSS from CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .navbar-brand { font-weight: 600; }
+        .navbar { background-color: #2c3e50 !important; }
+        body { background-color: #f8f9fa; }
+        .card { border: none; }
+        .btn-primary { background-color: #2c3e50; border-color: #2c3e50; }
+        .btn-primary:hover { background-color: #1a252f; border-color: #1a252f; }
+        .btn-outline-primary { color: #2c3e50; border-color: #2c3e50; }
+        .btn-outline-primary:hover { background-color: #2c3e50; border-color: #2c3e50; }
+        a { color: #2c3e50; }
+        a:hover { color: #1a252f; }
+        .page-link { color: #2c3e50; }
+        .page-item.active .page-link { background-color: #2c3e50; border-color: #2c3e50; }
+        .bg-primary { background-color: #2c3e50 !important; }
+        .text-primary { color: #2c3e50 !important; }
+        .clickable-card { cursor: pointer; transition: transform 0.2s; }
+        .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">Admin</a>
+        <a class="navbar-brand" href="index.php">
+            <i class="bi bi-gear"></i> Admin Panel
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -22,6 +44,7 @@ if (!isset($active)) { $active = ''; }
                 <li class="nav-item"><a class="nav-link<?php if($active==='dashboard') echo ' active'; ?>" href="index.php">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='stores') echo ' active'; ?>" href="stores.php">Stores</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='uploads') echo ' active'; ?>" href="uploads.php">Uploads</a></li>
+                <li class="nav-item"><a class="nav-link<?php if($active==='messages') echo ' active'; ?>" href="messages.php">Messages</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='settings') echo ' active'; ?>" href="settings.php">Settings</a></li>
                 <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
             </ul>

@@ -10,7 +10,9 @@ $errors = [];
 $success = [];
 
 if (isset($_GET['logout'])) {
-    unset($_SESSION['store_id'], $_SESSION['store_pin']);
+    unset($_SESSION['store_id'], $_SESSION['store_pin'], $_SESSION['store_name']);
+    header('Location: index.php');
+    exit;
 }
 
 if (!isset($_SESSION['store_id'])) {
@@ -31,17 +33,25 @@ if (!isset($_SESSION['store_id'])) {
         // show PIN form
         include __DIR__.'/header.php';
         ?>
-        <h3>Enter Store PIN</h3>
-        <?php foreach ($errors as $e): ?>
-            <div class="alert alert-danger"><?php echo htmlspecialchars($e); ?></div>
-        <?php endforeach; ?>
-        <form method="post">
-            <div class="mb-3">
-                <label for="pin" class="form-label">Store PIN</label>
-                <input type="text" name="pin" id="pin" class="form-control" required autofocus>
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">Store Login</h3>
+                        <?php foreach ($errors as $e): ?>
+                            <div class="alert alert-danger"><?php echo htmlspecialchars($e); ?></div>
+                        <?php endforeach; ?>
+                        <form method="post">
+                            <div class="mb-3">
+                                <label for="pin" class="form-label">Store PIN</label>
+                                <input type="text" name="pin" id="pin" class="form-control form-control-lg" required autofocus>
+                            </div>
+                            <button class="btn btn-primary btn-lg w-100" type="submit">Continue</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <button class="btn btn-primary" type="submit">Continue</button>
-        </form>
+        </div>
         <?php
         include __DIR__.'/footer.php';
         exit;
@@ -52,15 +62,61 @@ $store_id = $_SESSION['store_id'];
 $store_pin = $_SESSION['store_pin'];
 $store_name = $_SESSION['store_name'] ?? 'Store';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
-    $pdo = get_pdo();
+// Get store info for email
+$pdo = get_pdo();
+$stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
+$stmt->execute([$store_id]);
+$store = $stmt->fetch();
 
+// Get store messages - handle missing columns gracefully
+$messages = [];
+$replies = [];
+
+// Check if is_reply column exists
+$checkColumn = $pdo->query("SHOW COLUMNS FROM store_messages LIKE 'is_reply'");
+$hasReplyColumn = $checkColumn->fetch() !== false;
+
+if ($hasReplyColumn) {
+    // Column exists, use full query
+    $stmt = $pdo->prepare('
+        SELECT * FROM store_messages 
+        WHERE (store_id = ? OR store_id IS NULL) 
+        AND (is_reply = 0 OR is_reply IS NULL)
+        ORDER BY created_at DESC
+    ');
+    $stmt->execute([$store_id]);
+    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get reply messages
+    $stmt = $pdo->prepare('
+        SELECT m.*, u.filename 
+        FROM store_messages m 
+        LEFT JOIN uploads u ON m.upload_id = u.id 
+        WHERE m.store_id = ? AND m.is_reply = 1 
+        ORDER BY m.created_at DESC
+    ');
+    $stmt->execute([$store_id]);
+    $replies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    // Column doesn't exist, use simple query
+    $stmt = $pdo->prepare('
+        SELECT * FROM store_messages 
+        WHERE (store_id = ? OR store_id IS NULL) 
+        ORDER BY created_at DESC
+    ');
+    $stmt->execute([$store_id]);
+    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
     try {
         // Get or create store folder
         $storeFolderId = get_or_create_store_folder($store_id);
 
         $uploadCount = 0;
         $totalFiles = count($_FILES['files']['tmp_name']);
+        $customMessage = $_POST['custom_message'] ?? '';
+        $uploadedFiles = [];
 
         for ($i = 0; $i < $totalFiles; $i++) {
             if (!is_uploaded_file($_FILES['files']['tmp_name'][$i])) {
@@ -102,20 +158,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                 // Get description
                 $description = $_POST['descriptions'][$i] ?? '';
 
-                // Save to database
-                $stmt = $pdo->prepare('INSERT INTO uploads (store_id, filename, description, created_at, ip, mime, size, drive_id) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)');
-                $stmt->execute([
-                    $store_id,
-                    $originalName,
-                    $description,
-                    $_SERVER['REMOTE_ADDR'],
-                    $mimeType,
-                    $fileSize,
-                    $driveId
-                ]);
+                // Save to database with custom message
+                try {
+                    // Check if custom_message column exists
+                    $checkColumn = $pdo->query("SHOW COLUMNS FROM uploads LIKE 'custom_message'");
+                    $hasCustomMessage = $checkColumn->fetch() !== false;
 
-                $uploadCount++;
-                $success[] = "$originalName uploaded successfully";
+                    if ($hasCustomMessage) {
+                        $stmt = $pdo->prepare('INSERT INTO uploads (store_id, filename, description, custom_message, created_at, ip, mime, size, drive_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)');
+                        $stmt->execute([
+                            $store_id,
+                            $originalName,
+                            $description,
+                            $customMessage,
+                            $_SERVER['REMOTE_ADDR'],
+                            $mimeType,
+                            $fileSize,
+                            $driveId
+                        ]);
+                    } else {
+                        // Insert without custom_message column
+                        $stmt = $pdo->prepare('INSERT INTO uploads (store_id, filename, description, created_at, ip, mime, size, drive_id) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)');
+                        $stmt->execute([
+                            $store_id,
+                            $originalName,
+                            $description,
+                            $_SERVER['REMOTE_ADDR'],
+                            $mimeType,
+                            $fileSize,
+                            $driveId
+                        ]);
+                    }
+
+                    $uploadCount++;
+                    $uploadedFiles[] = $originalName;
+
+                } catch (PDOException $e) {
+                    error_log("Database insert error: " . $e->getMessage());
+                    $errors[] = "Failed to save $originalName to database: " . $e->getMessage();
+                }
 
             } catch (Exception $e) {
                 $errors[] = "Failed to upload $originalName: " . $e->getMessage();
@@ -125,15 +206,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
         if ($uploadCount > 0) {
             $success[] = "Successfully uploaded $uploadCount file(s)";
 
-            // Send notification email if configured
+            // Send notification emails
             $stmt = $pdo->prepare('SELECT value FROM settings WHERE name=?');
             $stmt->execute(['notification_email']);
-            $notifyEmail = $stmt->fetchColumn();
+            $notifyEmails = $stmt->fetchColumn();
 
-            if ($notifyEmail) {
+            if ($notifyEmails) {
+                // Split by comma for multiple emails
+                $emailList = array_map('trim', explode(',', $notifyEmails));
+
                 $subject = "New uploads from $store_name";
-                $message = "$uploadCount new file(s) uploaded from store: $store_name (PIN: $store_pin)";
-                mail($notifyEmail, $subject, $message);
+                $message = "$uploadCount new file(s) uploaded from store: $store_name\n\n";
+                $message .= "Files uploaded:\n";
+                foreach ($uploadedFiles as $file) {
+                    $message .= "- $file\n";
+                }
+                if ($customMessage) {
+                    $message .= "\nCustomer Message:\n$customMessage\n";
+                }
+
+                foreach ($emailList as $email) {
+                    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        mail($email, $subject, $message);
+                    }
+                }
+            }
+
+            // Send confirmation email to store if configured
+            if (!empty($store['admin_email'])) {
+                $confirmSubject = "Content Submission Confirmation - Cosmick Media";
+                $confirmMessage = "Dear $store_name,\n\n";
+                $confirmMessage .= "Thank you for your submission to the Cosmick Media Content Library.\n\n";
+                $confirmMessage .= "We have successfully received the following files:\n";
+                foreach ($uploadedFiles as $file) {
+                    $confirmMessage .= "- $file\n";
+                }
+                $confirmMessage .= "\nYour content is now pending curation by our team.\n";
+                $confirmMessage .= "We will review your submission and get back to you if we need any additional information.\n\n";
+                $confirmMessage .= "Best regards,\nCosmick Media Team";
+
+                mail($store['admin_email'], $confirmSubject, $confirmMessage);
             }
         }
 
@@ -166,8 +278,32 @@ function getUploadErrorMessage($code) {
 // show upload form
 include __DIR__.'/header.php';
 ?>
-    <h4>Upload Files for <?php echo htmlspecialchars($store_name); ?></h4>
-    <p class="text-muted">Store PIN: <?php echo htmlspecialchars($store_pin); ?></p>
+
+    <h2 class="mb-4">Welcome, <?php echo htmlspecialchars($store_name); ?>!</h2>
+
+<?php if (!empty($messages)): ?>
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <h5 class="alert-heading">Important Messages:</h5>
+        <?php foreach ($messages as $msg): ?>
+            <p class="mb-1"><?php echo nl2br(htmlspecialchars($msg['message'])); ?></p>
+        <?php endforeach; ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($replies)): ?>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <h5 class="alert-heading">Admin Feedback:</h5>
+        <?php foreach ($replies as $reply): ?>
+            <div class="mb-2">
+                <strong>Re: <?php echo htmlspecialchars($reply['filename']); ?></strong><br>
+                <?php echo nl2br(htmlspecialchars($reply['message'])); ?>
+                <small class="text-muted d-block"><?php echo date('Y-m-d H:i', strtotime($reply['created_at'])); ?></small>
+            </div>
+        <?php endforeach; ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
 
 <?php foreach ($errors as $e): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -183,32 +319,90 @@ include __DIR__.'/header.php';
     </div>
 <?php endforeach; ?>
 
-    <form method="post" enctype="multipart/form-data" id="uploadForm">
-        <div class="mb-3">
-            <label for="files" class="form-label">Select Photos/Videos</label>
-            <input class="form-control" type="file" name="files[]" id="files" multiple accept="image/*,video/*" capture="environment" required>
-            <div class="form-text">You can select multiple files. Maximum 20MB per file.</div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Upload Files</h4>
+                    <form method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="mb-3">
+                            <label for="files" class="form-label">Select Photos/Videos</label>
+                            <div class="input-group">
+                                <input class="form-control" type="file" name="files[]" id="files" multiple accept="image/*,video/*" capture="environment" required>
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('cameraInput').click();">
+                                    <i class="bi bi-camera"></i> Camera
+                                </button>
+                            </div>
+                            <input type="file" id="cameraInput" name="files[]" accept="image/*,video/*" capture="camera" style="display:none;" multiple>
+                            <div class="form-text">You can select multiple files. Maximum 20MB per file.</div>
+                        </div>
+
+                        <div id="fileList" class="mb-3"></div>
+
+                        <div class="mb-3">
+                            <label for="custom_message" class="form-label">Message (Optional)</label>
+                            <textarea class="form-control" name="custom_message" id="custom_message" rows="3"
+                                      placeholder="Add any special instructions or information about these files..."></textarea>
+                        </div>
+
+                        <button class="btn btn-primary" type="submit" id="uploadBtn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            Upload Files
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <div id="fileList" class="mb-3"></div>
-
-        <button class="btn btn-primary" type="submit" id="uploadBtn">
-            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-            Upload Files
-        </button>
-    </form>
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        <a href="history.php" class="btn btn-primary">
+                            <i class="bi bi-clock-history"></i> View Upload History
+                        </a>
+                        <a href="?logout=1" class="btn btn-secondary">
+                            <i class="bi bi-box-arrow-right"></i> Change Store
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const fileInput = document.getElementById('files');
+            const cameraInput = document.getElementById('cameraInput');
             const fileList = document.getElementById('fileList');
             const uploadForm = document.getElementById('uploadForm');
             const uploadBtn = document.getElementById('uploadBtn');
 
+            let allFiles = [];
+
+            function handleFileSelect(input) {
+                const newFiles = Array.from(input.files);
+                allFiles = allFiles.concat(newFiles);
+                updateFileList();
+            }
+
             fileInput.addEventListener('change', function() {
+                handleFileSelect(this);
+            });
+
+            cameraInput.addEventListener('change', function() {
+                handleFileSelect(this);
+                // Add camera files to main input
+                const dt = new DataTransfer();
+                allFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
+            });
+
+            function updateFileList() {
                 fileList.innerHTML = '';
 
-                if (this.files.length === 0) return;
+                if (allFiles.length === 0) return;
 
                 const table = document.createElement('table');
                 table.className = 'table table-sm';
@@ -219,7 +413,7 @@ include __DIR__.'/header.php';
 
                 const tbody = document.createElement('tbody');
 
-                Array.from(this.files).forEach((file, index) => {
+                allFiles.forEach((file, index) => {
                     const row = document.createElement('tr');
 
                     // File name
@@ -251,7 +445,7 @@ include __DIR__.'/header.php';
 
                 table.appendChild(tbody);
                 fileList.appendChild(table);
-            });
+            }
 
             uploadForm.addEventListener('submit', function(e) {
                 uploadBtn.disabled = true;

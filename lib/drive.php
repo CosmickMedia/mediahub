@@ -163,6 +163,29 @@ function drive_upload($filepath, $mime, $name, $folderId) {
     return $data['id'];
 }
 
+function drive_delete($fileId) {
+    $token = drive_get_access_token();
+
+    $ch = curl_init('https://www.googleapis.com/drive/v3/files/' . $fileId);
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => "DELETE",
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer $token"
+        ],
+        CURLOPT_RETURNTRANSFER => true
+    ]);
+
+    $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode !== 204 && $httpCode !== 200) {
+        throw new Exception('Failed to delete file: ' . $result);
+    }
+
+    return true;
+}
+
 function get_or_create_store_folder($storeId) {
     $pdo = get_pdo();
 
