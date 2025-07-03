@@ -1,4 +1,38 @@
+# Configuration files
 config.php
 !lib/config.php
+
+# Service account credentials - NEVER commit these!
 service-account.json
+cosmickmedia-*.json
+*.json
+
+# Temporary files
 /tmp/
+*.tmp
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+error_log
+
+# Uploaded files (if stored locally)
+uploads/
+public/uploads/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# PHP specific
+vendor/
+composer.lock
