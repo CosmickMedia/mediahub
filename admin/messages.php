@@ -1,14 +1,16 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/config.php';
 require_login();
 $pdo = get_pdo();
+$config = get_config();
 
 $success = [];
 $errors = [];
 
 // Handle message submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     $message = trim($_POST['message'] ?? '');
     $store_id = $_POST['store_id'] ?? null;
 
@@ -22,7 +24,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare('INSERT INTO store_messages (store_id, message, created_at) VALUES (?, ?, NOW())');
         $stmt->execute([$store_id, $message]);
 
-        $success[] = 'Message posted successfully';
+        // Get email settings
+        $emailSettings = [];
+        $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('email_from_name', 'email_from_address', 'store_message_subject')");
+        while ($row = $settingsQuery->fetch()) {
+            $emailSettings[$row['name']] = $row['value'];
+        }
+
+        $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
+        $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
+        $messageSubject = $emailSettings['store_message_subject'] ?? "New message from Cosmick Media";
+
+        $headers = "From: $fromName <$fromAddress>\r\n";
+        $headers .= "Reply-To: $fromAddress\r\n";
+        $headers .= "X-Mailer: PHP/" . phpversion();
+
+        // Get the base URL for the login link
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        $baseUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI']));
+        $loginUrl = $baseUrl . '/public/index.php';
+
+        if ($store_id) {
+            // Send to specific store
+            $stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
+            $stmt->execute([$store_id]);
+            $store = $stmt->fetch();
+
+            if ($store && !empty($store['admin_email'])) {
+                $subject = str_replace('{store_name}', $store['name'], $messageSubject);
+
+                $emailBody = "Dear {$store['name']},\n\n";
+                $emailBody .= "You have a new message from Cosmick Media:\n\n";
+                $emailBody .= "=====================================\n";
+                $emailBody .= $message . "\n";
+                $emailBody .= "=====================================\n\n";
+                $emailBody .= "To view this message and upload content, please visit:\n";
+                $emailBody .= $loginUrl . "\n\n";
+                $emailBody .= "Your PIN: {$store['pin']}\n\n";
+                $emailBody .= "Best regards,\n$fromName";
+
+                mail($store['admin_email'], $subject, $emailBody, $headers);
+            }
+        } else {
+            // Send to all stores
+            $stores = $pdo->query('SELECT * FROM stores WHERE admin_email IS NOT NULL AND admin_email != ""')->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($stores as $store) {
+                $subject = str_replace('{store_name}', $store['name'], $messageSubject);
+
+                $emailBody = "Dear {$store['name']},\n\n";
+                $emailBody .= "You have a new message from Cosmick Media:\n\n";
+                $emailBody .= "=====================================\n";
+                $emailBody .= $message . "\n";
+                $emailBody .= "=====================================\n\n";
+                $emailBody .= "To view this message and upload content, please visit:\n";
+                $emailBody .= $loginUrl . "\n\n";
+                $emailBody .= "Your PIN: {$store['pin']}\n\n";
+                $emailBody .= "Best regards,\n$fromName";
+
+                mail($store['admin_email'], $subject, $emailBody, $headers);
+            }
+        }
+
+        $success[] = 'Message posted and email notifications sent successfully';
     }
 }
 

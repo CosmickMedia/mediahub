@@ -117,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
         $totalFiles = count($_FILES['files']['tmp_name']);
         $customMessage = $_POST['custom_message'] ?? '';
         $uploadedFiles = [];
+        $processedHashes = []; // Track processed files to prevent duplicates
 
         for ($i = 0; $i < $totalFiles; $i++) {
             if (!is_uploaded_file($_FILES['files']['tmp_name'][$i])) {
@@ -127,6 +128,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
             $originalName = $_FILES['files']['name'][$i];
             $fileSize = $_FILES['files']['size'][$i];
             $fileError = $_FILES['files']['error'][$i];
+
+            // Create hash of file content to detect duplicates
+            $fileHash = md5_file($tmpFile);
+            if (in_array($fileHash, $processedHashes)) {
+                continue; // Skip duplicate file
+            }
+            $processedHashes[] = $fileHash;
 
             // Check for upload errors
             if ($fileError !== UPLOAD_ERR_OK) {
@@ -206,16 +214,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
         if ($uploadCount > 0) {
             $success[] = "Successfully uploaded $uploadCount file(s)";
 
-            // Send notification emails
-            $stmt = $pdo->prepare('SELECT value FROM settings WHERE name=?');
-            $stmt->execute(['notification_email']);
-            $notifyEmails = $stmt->fetchColumn();
+            // Get email settings
+            $emailSettings = [];
+            $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('notification_email', 'email_from_name', 'email_from_address', 'admin_notification_subject', 'store_notification_subject')");
+            while ($row = $settingsQuery->fetch()) {
+                $emailSettings[$row['name']] = $row['value'];
+            }
 
+            $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
+            $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
+            $adminSubject = $emailSettings['admin_notification_subject'] ?? "New uploads from {store_name}";
+            $storeSubject = $emailSettings['store_notification_subject'] ?? "Content Submission Confirmation - Cosmick Media";
+
+            // Replace placeholders
+            $adminSubject = str_replace('{store_name}', $store_name, $adminSubject);
+            $storeSubject = str_replace('{store_name}', $store_name, $storeSubject);
+
+            $headers = "From: $fromName <$fromAddress>\r\n";
+            $headers .= "Reply-To: $fromAddress\r\n";
+            $headers .= "X-Mailer: PHP/" . phpversion();
+
+            // Send notification emails to admin
+            $notifyEmails = $emailSettings['notification_email'] ?? '';
             if ($notifyEmails) {
                 // Split by comma for multiple emails
                 $emailList = array_map('trim', explode(',', $notifyEmails));
 
-                $subject = "New uploads from $store_name";
                 $message = "$uploadCount new file(s) uploaded from store: $store_name\n\n";
                 $message .= "Files uploaded:\n";
                 foreach ($uploadedFiles as $file) {
@@ -227,14 +251,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
 
                 foreach ($emailList as $email) {
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        mail($email, $subject, $message);
+                        mail($email, $adminSubject, $message, $headers);
                     }
                 }
             }
 
             // Send confirmation email to store if configured
             if (!empty($store['admin_email'])) {
-                $confirmSubject = "Content Submission Confirmation - Cosmick Media";
                 $confirmMessage = "Dear $store_name,\n\n";
                 $confirmMessage .= "Thank you for your submission to the Cosmick Media Content Library.\n\n";
                 $confirmMessage .= "We have successfully received the following files:\n";
@@ -243,9 +266,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                 }
                 $confirmMessage .= "\nYour content is now pending curation by our team.\n";
                 $confirmMessage .= "We will review your submission and get back to you if we need any additional information.\n\n";
-                $confirmMessage .= "Best regards,\nCosmick Media Team";
+                $confirmMessage .= "Best regards,\n$fromName";
 
-                mail($store['admin_email'], $confirmSubject, $confirmMessage);
+                mail($store['admin_email'], $storeSubject, $confirmMessage, $headers);
             }
         }
 
@@ -328,12 +351,12 @@ include __DIR__.'/header.php';
                         <div class="mb-3">
                             <label for="files" class="form-label">Select Photos/Videos</label>
                             <div class="input-group">
-                                <input class="form-control" type="file" name="files[]" id="files" multiple accept="image/*,video/*" capture="environment" required>
-                                <button type="button" class="btn btn-primary" onclick="document.getElementById('cameraInput').click();">
+                                <input class="form-control" type="file" name="files[]" id="files" multiple accept="image/*,video/*" required>
+                                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('cameraInput').click();">
                                     <i class="bi bi-camera"></i> Camera
                                 </button>
                             </div>
-                            <input type="file" id="cameraInput" name="files[]" accept="image/*,video/*" capture="camera" style="display:none;" multiple>
+                            <input type="file" id="cameraInput" accept="image/*,video/*" capture="camera" style="display:none;">
                             <div class="form-text">You can select multiple files. Maximum 20MB per file.</div>
                         </div>
 
@@ -383,8 +406,23 @@ include __DIR__.'/header.php';
 
             function handleFileSelect(input) {
                 const newFiles = Array.from(input.files);
-                allFiles = allFiles.concat(newFiles);
+
+                // For camera input, only add the single file
+                if (input.id === 'cameraInput' && newFiles.length > 0) {
+                    allFiles.push(newFiles[0]);
+                } else {
+                    // For regular file input, replace all files
+                    allFiles = newFiles;
+                }
+
                 updateFileList();
+                updateMainFileInput();
+            }
+
+            function updateMainFileInput() {
+                const dt = new DataTransfer();
+                allFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
             }
 
             fileInput.addEventListener('change', function() {
@@ -393,10 +431,8 @@ include __DIR__.'/header.php';
 
             cameraInput.addEventListener('change', function() {
                 handleFileSelect(this);
-                // Add camera files to main input
-                const dt = new DataTransfer();
-                allFiles.forEach(file => dt.items.add(file));
-                fileInput.files = dt.files;
+                // Clear camera input after processing to prevent re-adding
+                this.value = '';
             });
 
             function updateFileList() {
@@ -408,7 +444,7 @@ include __DIR__.'/header.php';
                 table.className = 'table table-sm';
 
                 const thead = document.createElement('thead');
-                thead.innerHTML = '<tr><th>File</th><th>Size</th><th>Description</th></tr>';
+                thead.innerHTML = '<tr><th>File</th><th>Size</th><th>Description</th><th></th></tr>';
                 table.appendChild(thead);
 
                 const tbody = document.createElement('tbody');
@@ -439,6 +475,20 @@ include __DIR__.'/header.php';
                     descInput.placeholder = 'Optional description';
                     descCell.appendChild(descInput);
                     row.appendChild(descCell);
+
+                    // Remove button
+                    const removeCell = document.createElement('td');
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-sm btn-outline-danger';
+                    removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+                    removeBtn.onclick = function() {
+                        allFiles.splice(index, 1);
+                        updateFileList();
+                        updateMainFileInput();
+                    };
+                    removeCell.appendChild(removeBtn);
+                    row.appendChild(removeCell);
 
                     tbody.appendChild(row);
                 });
