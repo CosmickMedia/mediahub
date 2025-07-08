@@ -1,13 +1,15 @@
 workflows:
   android_release:
     name: Android Release Workflow
-    triggers:
-      - push
+    trigger:
+      events:
+        - push
     environment:
       vars:
-        KEYSTORE_PASSWORD: Encrypted(...)   # fill in via UI
+        # These you’ll set up in the Codemagic UI as secure vars
+        KEYSTORE_PASSWORD: Encrypted(KEYSTORE_PASSWORD)
         KEY_ALIAS: storeuploader
-        KEY_PASSWORD: Encrypted(...)       # fill in via UI
+        KEY_PASSWORD: Encrypted(KEY_PASSWORD)
     scripts:
       - name: Install Cordova
         script: |
