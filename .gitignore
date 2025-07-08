@@ -9,7 +9,7 @@ cosmickmedia-*.json
 # Allow package.json to be tracked for CI build
 !package.json
 # Ignore all other JSON files
-*.json
+#*.json
 
 # Temporary files
 /tmp/
