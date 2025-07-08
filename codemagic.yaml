@@ -6,10 +6,9 @@ workflows:
         - push
     environment:
       vars:
-        # These should be created as Secret variables in the CM UI
-        KEYSTORE_PASSWORD: Encrypted(KEYSTORE_PASSWORD)
-        KEY_ALIAS: storeuploader
-        KEY_PASSWORD: Encrypted(KEY_PASSWORD)
+        KEYSTORE_PASSWORD: $KEYSTORE_PASSWORD
+        KEY_ALIAS:        storeuploader
+        KEY_PASSWORD:     $KEY_PASSWORD
     scripts:
       - name: Install Cordova
         script: |
