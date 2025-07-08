@@ -1,8 +1,6 @@
-// appflow.config.json
 {
   "build": {
     "android": {
-      // force Appflow to pick Java 11 instead of the default JDK 8
       "jdkVersion": "11"
     }
   }
