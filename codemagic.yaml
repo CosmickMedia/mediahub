@@ -1,0 +1,22 @@
+workflows:
+  android_release:
+    name: Android Release Workflow
+    triggers:
+      - push
+    environment:
+      vars:
+        KEYSTORE_PASSWORD: Encrypted(...)   # fill in via UI
+        KEY_ALIAS: storeuploader
+        KEY_PASSWORD: Encrypted(...)       # fill in via UI
+    scripts:
+      - name: Install Cordova
+        script: |
+          npm install -g cordova
+      - name: Add Android platform
+        script: |
+          cordova platform add android --no-fetch
+      - name: Build Release APK
+        script: |
+          cordova build android --release
+    artifacts:
+      - platforms/android/app/build/outputs/**/*.apk
