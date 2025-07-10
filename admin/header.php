@@ -32,9 +32,9 @@ if (!isset($active)) { $active = ''; }
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
-    <div class="container-fluid">
+    <div class="container-fluid"> 
         <a class="navbar-brand" href="index.php">
-            <i class="bi bi-gear"></i> Admin Panel
+            <i class="bi bi-gear"></i> MediaHub Admin
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
