@@ -28,13 +28,14 @@ if (!isset($active)) { $active = ''; }
         .text-primary { color: #2c3e50 !important; }
         .clickable-card { cursor: pointer; transition: transform 0.2s; }
         .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .navbar-logo { height: 35px; width: auto; }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
-    <div class="container-fluid"> 
-        <a class="navbar-brand" href="index.php">
-            <i class="bi bi-gear"></i> MediaHub Admin
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="index.php">
+            <img src="/assets/images/mediahub-admin-logo.png" alt="MediaHub Admin" class="navbar-logo">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

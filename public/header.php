@@ -18,13 +18,14 @@ if (!isset($_SESSION)) { session_start(); }
         .card { border: none; }
         .btn-primary { background-color: #3498db; border-color: #3498db; }
         .btn-primary:hover { background-color: #2980b9; border-color: #2980b9; }
+        .navbar-logo { height: 30px; width: auto; }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">
-            <i class="bi bi-cloud-upload"></i> Content App Library
+        <a class="navbar-brand d-flex align-items-center" href="index.php">
+            <img src="/assets/images/mediahub-logo.png" alt="MediaHub" class="navbar-logo me-2">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPublic" aria-controls="navbarPublic" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
