@@ -108,6 +108,11 @@ if ($hasReplyColumn) {
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// Get article count for badge
+$stmt = $pdo->prepare('SELECT COUNT(*) FROM articles WHERE store_id = ?');
+$stmt->execute([$store_id]);
+$article_count = $stmt->fetchColumn();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
     try {
         // Get or create store folder
@@ -382,6 +387,14 @@ include __DIR__.'/header.php';
                 <div class="card-body">
                     <h5 class="card-title">Quick Actions</h5>
                     <div class="d-grid gap-2">
+                        <a href="articles.php" class="btn btn-primary position-relative">
+                            <i class="bi bi-pencil-square"></i> Submit Articles
+                            <?php if ($article_count > 0): ?>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    <?php echo $article_count; ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
                         <a href="history.php" class="btn btn-primary">
                             <i class="bi bi-clock-history"></i> View Upload History
                         </a>

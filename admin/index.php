@@ -23,6 +23,19 @@ $stats['uploads_today'] = $stmt->fetchColumn();
 $stmt = $pdo->query('SELECT COUNT(*) FROM uploads WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)');
 $stats['uploads_week'] = $stmt->fetchColumn();
 
+// Articles statistics
+try {
+    $stmt = $pdo->query('SELECT COUNT(*) FROM articles');
+    $stats['total_articles'] = $stmt->fetchColumn();
+
+    $stmt = $pdo->query("SELECT COUNT(*) FROM articles WHERE status = 'submitted'");
+    $stats['pending_articles'] = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    // Table might not exist yet
+    $stats['total_articles'] = 0;
+    $stats['pending_articles'] = 0;
+}
+
 // Recent uploads
 $stmt = $pdo->query('
     SELECT u.*, s.name as store_name, u.mime, u.drive_id
@@ -32,6 +45,21 @@ $stmt = $pdo->query('
     LIMIT 5
 ');
 $recent_uploads = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Recent articles
+$recent_articles = [];
+try {
+    $stmt = $pdo->query('
+        SELECT a.*, s.name as store_name 
+        FROM articles a 
+        JOIN stores s ON a.store_id = s.id 
+        ORDER BY a.created_at DESC 
+        LIMIT 5
+    ');
+    $recent_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // Table might not exist yet
+}
 
 // Active messages count
 try {
@@ -75,13 +103,18 @@ include __DIR__.'/header.php';
             </a>
         </div>
         <div class="col-md-3">
-            <a href="uploads.php?date_range=day" class="text-decoration-none">
+            <a href="articles.php" class="text-decoration-none">
                 <div class="card text-white bg-info clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <i class="bi bi-calendar-day"></i> Today's Uploads
+                            <i class="bi bi-file-text"></i> Articles
                         </h5>
-                        <p class="card-text display-6"><?php echo $stats['uploads_today']; ?></p>
+                        <p class="card-text display-6">
+                            <?php echo $stats['total_articles']; ?>
+                            <?php if ($stats['pending_articles'] > 0): ?>
+                                <span class="fs-6">(<?php echo $stats['pending_articles']; ?> pending)</span>
+                            <?php endif; ?>
+                        </p>
                     </div>
                 </div>
             </a>
@@ -102,7 +135,8 @@ include __DIR__.'/header.php';
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card">
+            <!-- Recent Uploads Card -->
+            <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">Recent Uploads</h5>
                 </div>
@@ -151,6 +185,58 @@ include __DIR__.'/header.php';
                     <?php endif; ?>
                 </div>
             </div>
+
+            <!-- Recent Articles Card -->
+            <?php if (!empty($recent_articles)): ?>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Articles</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Store</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($recent_articles as $article): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars(substr($article['title'], 0, 40)) . '...'; ?></td>
+                                        <td><?php echo htmlspecialchars($article['store_name']); ?></td>
+                                        <td>
+                                            <?php
+                                            $statusClass = [
+                                                'draft' => 'bg-secondary',
+                                                'submitted' => 'bg-info',
+                                                'approved' => 'bg-success',
+                                                'rejected' => 'bg-danger'
+                                            ][$article['status']] ?? 'bg-secondary';
+                                            ?>
+                                            <span class="badge <?php echo $statusClass; ?>">
+                                            <?php echo ucfirst($article['status']); ?>
+                                        </span>
+                                        </td>
+                                        <td><?php echo date('m/d H:i', strtotime($article['created_at'])); ?></td>
+                                        <td>
+                                            <a href="articles.php" class="btn btn-sm btn-primary">Review</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="articles.php" class="btn btn-primary">View All Articles</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="col-lg-4">
@@ -164,7 +250,13 @@ include __DIR__.'/header.php';
                             <i class="bi bi-shop"></i> Manage Stores
                         </a>
                         <a href="uploads.php" class="btn btn-primary">
-                            <i class="bi bi-cloud-upload"></i> Review Content
+                            <i class="bi bi-cloud-upload"></i> Review Uploads
+                        </a>
+                        <a href="articles.php" class="btn btn-primary">
+                            <i class="bi bi-file-text"></i> Review Articles
+                            <?php if ($stats['pending_articles'] > 0): ?>
+                                <span class="badge bg-danger"><?php echo $stats['pending_articles']; ?></span>
+                            <?php endif; ?>
                         </a>
                         <a href="messages.php" class="btn btn-primary">
                             <i class="bi bi-chat-dots"></i> Post Messages

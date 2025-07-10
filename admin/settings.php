@@ -34,7 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'email_from_address' => $_POST['email_from_address'] ?? 'noreply@cosmickmedia.com',
         'admin_notification_subject' => $_POST['admin_notification_subject'] ?? 'New uploads from {store_name}',
         'store_notification_subject' => $_POST['store_notification_subject'] ?? 'Content Submission Confirmation - Cosmick Media',
-        'store_message_subject' => $_POST['store_message_subject'] ?? 'New message from Cosmick Media'
+        'store_message_subject' => $_POST['store_message_subject'] ?? 'New message from Cosmick Media',
+        'admin_article_notification_subject' => $_POST['admin_article_notification_subject'] ?? 'New article submission from {store_name}',
+        'store_article_notification_subject' => $_POST['store_article_notification_subject'] ?? 'Article Submission Confirmation - Cosmick Media',
+        'article_approval_subject' => $_POST['article_approval_subject'] ?? 'Article Status Update - Cosmick Media',
+        'max_article_length' => $_POST['max_article_length'] ?? '50000'
     ];
 
     foreach ($settings as $name => $value) {
@@ -52,6 +56,10 @@ $email_from_address = get_setting('email_from_address') ?: 'noreply@cosmickmedia
 $admin_notification_subject = get_setting('admin_notification_subject') ?: 'New uploads from {store_name}';
 $store_notification_subject = get_setting('store_notification_subject') ?: 'Content Submission Confirmation - Cosmick Media';
 $store_message_subject = get_setting('store_message_subject') ?: 'New message from Cosmick Media';
+$admin_article_notification_subject = get_setting('admin_article_notification_subject') ?: 'New article submission from {store_name}';
+$store_article_notification_subject = get_setting('store_article_notification_subject') ?: 'Article Submission Confirmation - Cosmick Media';
+$article_approval_subject = get_setting('article_approval_subject') ?: 'Article Status Update - Cosmick Media';
+$max_article_length = get_setting('max_article_length') ?: '50000';
 
 $active = 'settings';
 include __DIR__.'/header.php';
@@ -87,6 +95,20 @@ include __DIR__.'/header.php';
                         </div>
                     </div>
                 </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Article Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="max_article_length" class="form-label">Maximum Article Length (characters)</label>
+                            <input type="number" name="max_article_length" id="max_article_length" class="form-control"
+                                   value="<?php echo htmlspecialchars($max_article_length); ?>">
+                            <div class="form-text">Maximum character count allowed for article submissions</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col-lg-6">
@@ -99,7 +121,7 @@ include __DIR__.'/header.php';
                             <label for="notify_email" class="form-label">Admin Notification Email(s)</label>
                             <input type="text" name="notify_email" id="notify_email" class="form-control"
                                    value="<?php echo htmlspecialchars($notify_email); ?>">
-                            <div class="form-text">Comma-separated emails for upload notifications</div>
+                            <div class="form-text">Comma-separated emails for upload and article notifications</div>
                         </div>
                         <div class="mb-3">
                             <label for="email_from_name" class="form-label">From Name</label>
@@ -120,7 +142,7 @@ include __DIR__.'/header.php';
 
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="mb-0">Email Subject Lines</h5>
+                <h5 class="mb-0">Email Subject Lines - Uploads</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
@@ -140,6 +162,32 @@ include __DIR__.'/header.php';
                     <input type="text" name="store_message_subject" id="store_message_subject" class="form-control"
                            value="<?php echo htmlspecialchars($store_message_subject); ?>">
                     <div class="form-text">Subject for emails sent to stores when admin posts a message. Use {store_name} as placeholder.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Email Subject Lines - Articles</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="admin_article_notification_subject" class="form-label">Admin Notification Subject (New Articles)</label>
+                    <input type="text" name="admin_article_notification_subject" id="admin_article_notification_subject" class="form-control"
+                           value="<?php echo htmlspecialchars($admin_article_notification_subject); ?>">
+                    <div class="form-text">Subject for emails sent to admin when new article is submitted. Use {store_name} as placeholder.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="store_article_notification_subject" class="form-label">Store Confirmation Subject (Article Submission)</label>
+                    <input type="text" name="store_article_notification_subject" id="store_article_notification_subject" class="form-control"
+                           value="<?php echo htmlspecialchars($store_article_notification_subject); ?>">
+                    <div class="form-text">Subject for confirmation emails sent to stores after article submission. Use {store_name} as placeholder.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="article_approval_subject" class="form-label">Article Status Update Subject</label>
+                    <input type="text" name="article_approval_subject" id="article_approval_subject" class="form-control"
+                           value="<?php echo htmlspecialchars($article_approval_subject); ?>">
+                    <div class="form-text">Subject for emails sent when article status is updated. Use {store_name} as placeholder.</div>
                 </div>
             </div>
         </div>
