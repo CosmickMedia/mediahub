@@ -5,108 +5,153 @@ require_once __DIR__.'/../lib/drive.php';
 
 $config = get_config();
 
-session_start();
+// Start session with proper configuration
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    ini_set('session.cookie_samesite', 'Lax');
+
+    // Set session cookie parameters before starting session
+    $currentCookieParams = session_get_cookie_params();
+    session_set_cookie_params([
+        'lifetime' => 0, // Session cookie
+        'path' => '/',
+        'domain' => '', // Current domain
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
+    session_start();
+}
+
 $errors = [];
 $success = [];
 
+// Handle logout
 if (isset($_GET['logout'])) {
-    unset($_SESSION['store_id'], $_SESSION['store_pin'], $_SESSION['store_name']);
+    // Clear all store-related session data
+    unset($_SESSION['store_id']);
+    unset($_SESSION['store_pin']);
+    unset($_SESSION['store_name']);
+
+    // Regenerate session ID for security
+    session_regenerate_id(true);
+
     header('Location: index.php');
     exit;
 }
 
-if (!isset($_SESSION['store_id'])) {
+// Check if store is logged in - be very explicit about this check
+$isLoggedIn = isset($_SESSION['store_id']) &&
+    !empty($_SESSION['store_id']) &&
+    isset($_SESSION['store_pin']) &&
+    !empty($_SESSION['store_pin']);
+
+if (!$isLoggedIn) {
+    // Handle PIN submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
-        $pin = $_POST['pin'];
-        $pdo = get_pdo();
-        $stmt = $pdo->prepare('SELECT * FROM stores WHERE pin=?');
-        $stmt->execute([$pin]);
-        if ($store = $stmt->fetch()) {
-            $_SESSION['store_id'] = $store['id'];
-            $_SESSION['store_pin'] = $pin;
-            $_SESSION['store_name'] = $store['name'];
+        $pin = trim($_POST['pin']);
+        if (!empty($pin)) {
+            $pdo = get_pdo();
+            $stmt = $pdo->prepare('SELECT * FROM stores WHERE pin=?');
+            $stmt->execute([$pin]);
+            if ($store = $stmt->fetch()) {
+                // Regenerate session ID on login
+                session_regenerate_id(true);
+
+                $_SESSION['store_id'] = $store['id'];
+                $_SESSION['store_pin'] = $pin;
+                $_SESSION['store_name'] = $store['name'];
+
+                // Redirect to prevent form resubmission
+                header('Location: index.php');
+                exit;
+            } else {
+                $errors[] = 'Invalid PIN';
+            }
         } else {
-            $errors[] = 'Invalid PIN';
+            $errors[] = 'Please enter a PIN';
         }
     }
-    if (!isset($_SESSION['store_id'])) {
-        // show PIN form - NO HEADER HERE
-        ?>
-        <!doctype html>
-        <html lang="en">
-        <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>Store Login - MediaHub</title>
-            <!-- Bootstrap CSS from CDN -->
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-            <style>
-                body {
-                    background-color: #262829;
-                    display: flex;
-                    align-items: center;
-                    min-height: 100vh;
-                }
-                .login-logo {
-                    max-width: 200px;
-                    margin-bottom: 30px;
-                }
-                .btn-login {
-                    background-color: #ff675b;
-                    border-color: #ff675b;
-                    color: white;
-                }
-                .btn-login:hover {
-                    background-color: #e55750;
-                    border-color: #e55750;
-                    color: white;
-                }
-                .admin-link {
-                    margin-top: 20px;
-                    font-size: 0.875rem;
-                }
-                .store-pin-title {
-                    font-size: 1.5rem;
-                }
-            </style>
-        </head>
-        <body>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 col-lg-4">
-                    <div class="text-center">
-                        <img src="/assets/images/mediahub-logo.png" alt="MediaHub" class="login-logo">
-                    </div>
-                    <div class="card shadow">
-                        <div class="card-body">
-                            <h3 class="card-title text-center mb-4 store-pin-title">Store PIN</h3>
-                            <?php foreach ($errors as $e): ?>
-                                <div class="alert alert-danger"><?php echo htmlspecialchars($e); ?></div>
-                            <?php endforeach; ?>
-                            <form method="post">
-                                <div class="mb-3">
-                                    <label for="pin" class="form-label">Store PIN</label>
-                                    <input type="text" name="pin" id="pin" class="form-control form-control-lg" required autofocus>
-                                </div>
-                                <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
-                            </form>
-                            <div class="text-center admin-link">
-                                <a href="/admin" class="text-muted text-decoration-none">Admin Portal</a>
+
+    // Show PIN login form
+    ?>
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Store Login - MediaHub</title>
+        <!-- Bootstrap CSS from CDN -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+        <style>
+            body {
+                background-color: #262829;
+                display: flex;
+                align-items: center;
+                min-height: 100vh;
+            }
+            .login-logo {
+                max-width: 200px;
+                margin-bottom: 30px;
+            }
+            .btn-login {
+                background-color: #ff675b;
+                border-color: #ff675b;
+                color: white;
+            }
+            .btn-login:hover {
+                background-color: #e55750;
+                border-color: #e55750;
+                color: white;
+            }
+            .admin-link {
+                margin-top: 20px;
+                font-size: 0.875rem;
+            }
+            .store-pin-title {
+                font-size: 1.5rem;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="text-center">
+                    <img src="/assets/images/mediahub-logo.png" alt="MediaHub" class="login-logo">
+                </div>
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4 store-pin-title">Store PIN</h3>
+                        <?php foreach ($errors as $e): ?>
+                            <div class="alert alert-danger"><?php echo htmlspecialchars($e); ?></div>
+                        <?php endforeach; ?>
+                        <form method="post">
+                            <div class="mb-3">
+                                <label for="pin" class="form-label">Store PIN</label>
+                                <input type="text" name="pin" id="pin" class="form-control form-control-lg" required autofocus>
                             </div>
+                            <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
+                        </form>
+                        <div class="text-center admin-link">
+                            <a href="/admin" class="text-muted text-decoration-none">Admin Portal</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Bootstrap JS from CDN -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-        </body>
-        </html>
-        <?php
-        exit;
-    }
+    </div>
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    </body>
+    </html>
+    <?php
+    exit;
 }
 
+// If we get here, store is logged in
 $store_id = $_SESSION['store_id'];
 $store_pin = $_SESSION['store_pin'];
 $store_name = $_SESSION['store_name'] ?? 'Store';
@@ -116,6 +161,16 @@ $pdo = get_pdo();
 $stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
 $stmt->execute([$store_id]);
 $store = $stmt->fetch();
+
+// Verify store still exists
+if (!$store) {
+    // Store was deleted, log them out
+    unset($_SESSION['store_id']);
+    unset($_SESSION['store_pin']);
+    unset($_SESSION['store_name']);
+    header('Location: index.php');
+    exit;
+}
 
 // Get store messages - handle missing columns gracefully
 $messages = [];
@@ -440,8 +495,8 @@ include __DIR__.'/header.php';
                             <i class="bi bi-pencil-square"></i> Submit Articles
                             <?php if ($article_count > 0): ?>
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    <?php echo $article_count; ?>
-                                </span>
+                                <?php echo $article_count; ?>
+                            </span>
                             <?php endif; ?>
                         </a>
                         <a href="history.php" class="btn btn-primary">
