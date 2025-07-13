@@ -47,6 +47,7 @@ if (!isset($active)) { $active = ''; }
                 <li class="nav-item"><a class="nav-link<?php if($active==='uploads') echo ' active'; ?>" href="uploads.php">Uploads</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='messages') echo ' active'; ?>" href="messages.php">Messages</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='settings') echo ' active'; ?>" href="settings.php">Settings</a></li>
+                <li class="nav-item"><a class="nav-link<?php if($active==='users') echo ' active'; ?>" href="users.php">Users</a></li>
                 <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
             </ul>
         </div>

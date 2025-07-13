@@ -34,6 +34,7 @@ if (isset($_GET['logout'])) {
     unset($_SESSION['store_id']);
     unset($_SESSION['store_pin']);
     unset($_SESSION['store_name']);
+    unset($_SESSION['store_user_email']);
 
     // Regenerate session ID for security
     session_regenerate_id(true);
@@ -49,29 +50,27 @@ $isLoggedIn = isset($_SESSION['store_id']) &&
     !empty($_SESSION['store_pin']);
 
 if (!$isLoggedIn) {
-    // Handle PIN submission
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
+    // Handle PIN and email submission
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'], $_POST['email'])) {
         $pin = trim($_POST['pin']);
-        if (!empty($pin)) {
+        $email = trim($_POST['email']);
+        if ($pin !== '' && $email !== '') {
             $pdo = get_pdo();
-            $stmt = $pdo->prepare('SELECT * FROM stores WHERE pin=?');
-            $stmt->execute([$pin]);
+            $stmt = $pdo->prepare('SELECT s.* FROM stores s JOIN store_users u ON u.store_id = s.id WHERE s.pin = ? AND u.email = ?');
+            $stmt->execute([$pin, $email]);
             if ($store = $stmt->fetch()) {
-                // Regenerate session ID on login
                 session_regenerate_id(true);
-
                 $_SESSION['store_id'] = $store['id'];
                 $_SESSION['store_pin'] = $pin;
                 $_SESSION['store_name'] = $store['name'];
-
-                // Redirect to prevent form resubmission
+                $_SESSION['store_user_email'] = $email;
                 header('Location: index.php');
                 exit;
             } else {
-                $errors[] = 'Invalid PIN';
+                $errors[] = 'Invalid PIN or email';
             }
         } else {
-            $errors[] = 'Please enter a PIN';
+            $errors[] = 'Please enter a PIN and email';
         }
     }
 
@@ -130,8 +129,12 @@ if (!$isLoggedIn) {
                         <?php endforeach; ?>
                         <form method="post">
                             <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" id="email" class="form-control form-control-lg" required autofocus>
+                            </div>
+                            <div class="mb-3">
                                 <label for="pin" class="form-label">Store PIN</label>
-                                <input type="text" name="pin" id="pin" class="form-control form-control-lg" required autofocus>
+                                <input type="text" name="pin" id="pin" class="form-control form-control-lg" required>
                             </div>
                             <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
                         </form>
