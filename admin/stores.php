@@ -15,8 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder) VALUES (?, ?, ?, ?)');
-            $stmt->execute([$_POST['name'], $_POST['pin'], $_POST['email'], $_POST['folder']]);
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token) VALUES (?, ?, ?, ?, ?)');
+            $stmt->execute([
+                $_POST['name'],
+                $_POST['pin'],
+                $_POST['email'],
+                $_POST['folder'],
+                $_POST['hootsuite_token']
+            ]);
             $success[] = 'Store added successfully';
         }
     }
@@ -76,6 +82,7 @@ include __DIR__.'/header.php';
                         <th>PIN</th>
                         <th>Admin Email</th>
                         <th>Drive Folder ID</th>
+                        <th>Hootsuite Token</th>
                         <th>Uploads</th>
                         <th>Actions</th>
                     </tr>
@@ -94,6 +101,9 @@ include __DIR__.'/header.php';
                                 <?php else: ?>
                                     <span class="text-muted">Auto-create on first upload</span>
                                 <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php echo $s['hootsuite_token'] ? '<span class="badge bg-success">Set</span>' : '<span class="badge bg-secondary">None</span>'; ?>
                             </td>
                             <td>
                                 <span class="badge bg-info"><?php echo $s['upload_count']; ?></span>
@@ -143,6 +153,11 @@ include __DIR__.'/header.php';
                     <label for="folder" class="form-label">Drive Folder ID</label>
                     <input type="text" name="folder" id="folder" class="form-control">
                     <div class="form-text">Leave blank to auto-create on first upload</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="hootsuite_token" class="form-label">Hootsuite Access Token</label>
+                    <input type="text" name="hootsuite_token" id="hootsuite_token" class="form-control">
+                    <div class="form-text">Optional: token used to fetch scheduled posts</div>
                 </div>
                 <div class="col-12">
                     <button class="btn btn-primary" name="add" type="submit">Add Store</button>
