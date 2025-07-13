@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/helpers.php';
 
 session_start();
 
@@ -268,7 +269,7 @@ include __DIR__.'/header.php';
 
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted">
-                                    <i class="bi bi-calendar"></i> <?php echo date('M d, Y', strtotime($article['created_at'])); ?>
+                                    <i class="bi bi-calendar"></i> <?php echo format_ts($article['created_at']); ?>
                                 </small>
                                 <div>
                                     <button class="btn btn-sm btn-outline-primary" onclick="viewArticle(<?php echo $article['id']; ?>)">

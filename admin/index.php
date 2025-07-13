@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
 
@@ -167,7 +168,7 @@ include __DIR__.'/header.php';
                                                  alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                                                  loading="lazy">
                                         </td>
-                                        <td><?php echo date('H:i', strtotime($upload['created_at'])); ?></td>
+                                        <td><?php echo format_ts($upload['created_at']); ?></td>
                                         <td><?php echo htmlspecialchars($upload['store_name']); ?></td>
                                         <td><?php echo htmlspecialchars($upload['filename']); ?></td>
                                         <td>
@@ -222,7 +223,7 @@ include __DIR__.'/header.php';
                                             <?php echo ucfirst($article['status']); ?>
                                         </span>
                                         </td>
-                                        <td><?php echo date('m/d H:i', strtotime($article['created_at'])); ?></td>
+                                        <td><?php echo format_ts($article['created_at']); ?></td>
                                         <td>
                                             <a href="articles.php" class="btn btn-sm btn-primary">Review</a>
                                         </td>

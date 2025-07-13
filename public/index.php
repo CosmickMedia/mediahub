@@ -2,6 +2,7 @@
 // Store uploader main page
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/drive.php';
+require_once __DIR__.'/../lib/helpers.php';
 
 $config = get_config();
 
@@ -433,7 +434,7 @@ include __DIR__.'/header.php';
             <div class="mb-2">
                 <strong>Re: <?php echo htmlspecialchars($reply['filename']); ?></strong><br>
                 <?php echo nl2br(htmlspecialchars($reply['message'])); ?>
-                <small class="text-muted d-block"><?php echo date('Y-m-d H:i', strtotime($reply['created_at'])); ?></small>
+                <small class="text-muted d-block"><?php echo format_ts($reply['created_at']); ?></small>
             </div>
         <?php endforeach; ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

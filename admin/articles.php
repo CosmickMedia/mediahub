@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
 
@@ -252,7 +253,7 @@ include __DIR__.'/header.php';
                                         <?php echo ucfirst($article['status']); ?>
                                     </span>
                                 </td>
-                                <td><?php echo date('Y-m-d', strtotime($article['created_at'])); ?></td>
+                                <td><?php echo format_ts($article['created_at']); ?></td>
                                 <td class="article-excerpt">
                                     <?php
                                     $excerpt = $article['excerpt'] ?: strip_tags($article['content']);

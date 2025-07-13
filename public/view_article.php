@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
+require_once __DIR__.'/../lib/helpers.php';
 
 session_start();
 
@@ -30,9 +31,9 @@ if (!$article) {
 }
 
 // Format the response
-$article['created_at'] = date('F j, Y g:i A', strtotime($article['created_at']));
+$article['created_at'] = format_ts($article['created_at']);
 if ($article['updated_at']) {
-    $article['updated_at'] = date('F j, Y g:i A', strtotime($article['updated_at']));
+    $article['updated_at'] = format_ts($article['updated_at']);
 }
 
 echo json_encode([

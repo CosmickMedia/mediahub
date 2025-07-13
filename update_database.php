@@ -90,12 +90,30 @@ try {
     echo "• address column might already exist\n";
 }
 
-// Ensure admin users table has a created_at column
+// Ensure admin users table has required columns
 try {
     $pdo->exec("ALTER TABLE users ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
     echo "✓ Added created_at column to users table\n";
 } catch (PDOException $e) {
     echo "• created_at column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN first_name VARCHAR(100) AFTER password");
+    echo "✓ Added first_name column to users table\n";
+} catch (PDOException $e) {
+    echo "• first_name column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN last_name VARCHAR(100) AFTER first_name");
+    echo "✓ Added last_name column to users table\n";
+} catch (PDOException $e) {
+    echo "• last_name column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN email VARCHAR(255) AFTER last_name");
+    echo "✓ Added email column to users table\n";
+} catch (PDOException $e) {
+    echo "• email column might already exist\n";
 }
 
 echo "\n✓ Database update complete!\n";

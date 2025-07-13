@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/helpers.php';
 
 session_start();
 
@@ -106,7 +107,7 @@ include __DIR__.'/header.php';
                              alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                              loading="lazy">
                     </td>
-                    <td><?php echo date('Y-m-d H:i', strtotime($upload['created_at'])); ?></td>
+                    <td><?php echo format_ts($upload['created_at']); ?></td>
                     <td><?php echo htmlspecialchars($upload['filename']); ?></td>
                     <td><?php echo htmlspecialchars($upload['description']); ?></td>
                     <td>
