@@ -68,8 +68,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_message'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_status'])) {
     $upload_id = intval($_POST['upload_id']);
     $status_id = $_POST['status_id'] !== '' ? intval($_POST['status_id']) : null;
+    $oldStmt = $pdo->prepare('SELECT status_id FROM uploads WHERE id = ?');
+    $oldStmt->execute([$upload_id]);
+    $old_status = $oldStmt->fetchColumn();
+
     $stmt = $pdo->prepare('UPDATE uploads SET status_id = ? WHERE id = ?');
     $stmt->execute([$status_id, $upload_id]);
+
+    $hist = $pdo->prepare('INSERT INTO upload_status_history (upload_id, user_id, old_status_id, new_status_id, changed_at) VALUES (?, ?, ?, ?, NOW())');
+    $hist->execute([$upload_id, $_SESSION['user_id'], $old_status, $status_id]);
     $success = 'Status updated successfully';
 }
 
@@ -119,7 +126,21 @@ $per_page = 50;
 $offset = ($page - 1) * $per_page;
 
 // Build main query
-$sql = 'SELECT u.*, s.name as store_name, s.pin, us.name AS status_name, us.color AS status_color, u.status_id FROM uploads u JOIN stores s ON u.store_id=s.id LEFT JOIN upload_statuses us ON u.status_id = us.id';
+$sql = 'SELECT u.*, s.name as store_name, s.pin, us.name AS status_name, us.color AS status_color, u.status_id,
+        uh.changed_at AS last_modified, ua.first_name AS modifier_first, ua.last_name AS modifier_last
+        FROM uploads u
+        JOIN stores s ON u.store_id=s.id
+        LEFT JOIN upload_statuses us ON u.status_id = us.id
+        LEFT JOIN (
+            SELECT h.upload_id, h.changed_at, h.user_id
+            FROM upload_status_history h
+            JOIN (
+                SELECT upload_id, MAX(changed_at) AS max_changed
+                FROM upload_status_history
+                GROUP BY upload_id
+            ) hm ON h.upload_id = hm.upload_id AND h.changed_at = hm.max_changed
+        ) uh ON u.id = uh.upload_id
+        LEFT JOIN users ua ON uh.user_id = ua.id';
 if ($where) {
     $sql .= ' WHERE '.implode(' AND ', $where);
 }
@@ -150,7 +171,7 @@ include __DIR__.'/header.php';
         .upload-card {
             height: 100%;
             transition: all 0.3s ease;
-            border: 1px solid #e9ecef;
+            border: 1px solid #c3c3c3;
             padding: 0.25rem;
         }
         .upload-card:hover {
@@ -322,6 +343,13 @@ include __DIR__.'/header.php';
                         <?php if (!empty($r['description'])): ?>
                             <p class="card-text small">
                                 <strong>Description:</strong> <?php echo htmlspecialchars($r['description']); ?>
+                            </p>
+                        <?php endif; ?>
+
+                        <?php if (!empty($r['last_modified'])): ?>
+                            <p class="card-text small text-muted">
+                                Last modified by <?php echo htmlspecialchars(trim($r['modifier_first'] . ' ' . $r['modifier_last'])); ?>
+                                on <?php echo format_ts($r['last_modified']); ?>
                             </p>
                         <?php endif; ?>
 

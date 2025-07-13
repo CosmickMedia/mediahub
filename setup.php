@@ -97,6 +97,20 @@ $queries = [
         color VARCHAR(20) NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
+    // Upload status history table
+    "CREATE TABLE IF NOT EXISTS upload_status_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        upload_id INT NOT NULL,
+        user_id INT NOT NULL,
+        old_status_id INT DEFAULT NULL,
+        new_status_id INT DEFAULT NULL,
+        changed_at DATETIME NOT NULL,
+        FOREIGN KEY (upload_id) REFERENCES uploads(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_upload_id (upload_id),
+        INDEX idx_changed_at (changed_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
     // Logs table
     "CREATE TABLE IF NOT EXISTS logs (
         id INT AUTO_INCREMENT PRIMARY KEY,
