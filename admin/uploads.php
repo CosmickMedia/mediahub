@@ -99,6 +99,16 @@ if (!empty($_GET['date_range'])) {
     }
 }
 
+// Status filter
+if (isset($_GET['status_id']) && $_GET['status_id'] !== '') {
+    if ($_GET['status_id'] === 'none') {
+        $where[] = 'u.status_id IS NULL';
+    } else {
+        $where[] = 'u.status_id = ?';
+        $params[] = $_GET['status_id'];
+    }
+}
+
 // Get all stores for dropdown
 $stores = $pdo->query('SELECT id, name, pin FROM stores ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
 $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
@@ -140,6 +150,8 @@ include __DIR__.'/header.php';
         .upload-card {
             height: 100%;
             transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            padding: 0.25rem;
         }
         .upload-card:hover {
             transform: translateY(-2px);
@@ -187,7 +199,7 @@ include __DIR__.'/header.php';
     <form method="get" class="card mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="store_id" class="form-label">Store</label>
                     <select name="store_id" id="store_id" class="form-select">
                         <option value="">All Stores</option>
@@ -198,7 +210,7 @@ include __DIR__.'/header.php';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="date_range" class="form-label">Date Range</label>
                     <select name="date_range" id="date_range" class="form-select">
                         <option value="all" <?php echo ($_GET['date_range'] ?? 'all') == 'all' ? 'selected' : ''; ?>>All Time</option>
@@ -207,7 +219,17 @@ include __DIR__.'/header.php';
                         <option value="month" <?php echo ($_GET['date_range'] ?? '') == 'month' ? 'selected' : ''; ?>>Last 30 Days</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label for="status_id" class="form-label">Status</label>
+                    <select name="status_id" id="status_id" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="none" <?php echo ($_GET['status_id'] ?? '') === 'none' ? 'selected' : ''; ?>>No Status</option>
+                        <?php foreach ($statuses as $st): ?>
+                            <option value="<?php echo $st['id']; ?>" <?php echo ($_GET['status_id'] ?? '') == $st['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($st['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <button class="btn btn-primary" type="submit">Filter</button>
                     <a href="uploads.php" class="btn btn-secondary">Clear</a>
                 </div>
@@ -220,6 +242,7 @@ include __DIR__.'/header.php';
             <table class="table table-sm align-middle">
                 <thead>
                 <tr>
+                    <th style="width: 60px;">Preview</th>
                     <th>File</th>
                     <th>Store</th>
                     <th>Date</th>
@@ -230,6 +253,9 @@ include __DIR__.'/header.php';
                 <tbody>
                 <?php foreach ($rows as $r): ?>
                 <tr>
+                    <td>
+                        <img src="thumbnail.php?id=<?php echo $r['id']; ?>&size=small" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;" alt="<?php echo htmlspecialchars($r['filename']); ?>" loading="lazy">
+                    </td>
                     <td><?php echo htmlspecialchars($r['filename']); ?></td>
                     <td><?php echo htmlspecialchars($r['store_name']); ?></td>
                     <td><?php echo format_ts($r['created_at']); ?></td>
@@ -299,6 +325,17 @@ include __DIR__.'/header.php';
                             </p>
                         <?php endif; ?>
 
+                        <form method="post" class="mt-2">
+                            <input type="hidden" name="set_status" value="1">
+                            <input type="hidden" name="upload_id" value="<?php echo $r['id']; ?>">
+                            <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="">No Status</option>
+                                <?php foreach ($statuses as $st): ?>
+                                    <option value="<?php echo $st['id']; ?>" <?php echo $r['status_id']==$st['id']?'selected':''; ?>><?php echo htmlspecialchars($st['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </form>
+
                         <?php if (!empty($r['custom_message'])): ?>
                             <div class="alert alert-info py-2 small mb-2">
                                 <strong>Customer Message:</strong><br>
@@ -332,16 +369,6 @@ include __DIR__.'/header.php';
                             </div>
                         </form>
 
-                        <form method="post" class="mt-2">
-                            <input type="hidden" name="set_status" value="1">
-                            <input type="hidden" name="upload_id" value="<?php echo $r['id']; ?>">
-                            <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
-                                <option value="">No Status</option>
-                                <?php foreach ($statuses as $st): ?>
-                                    <option value="<?php echo $st['id']; ?>" <?php echo $r['status_id']==$st['id']?'selected':''; ?>><?php echo htmlspecialchars($st['name']); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </form>
                     </div>
                 </div>
             </div>

@@ -372,7 +372,6 @@ include __DIR__.'/header.php';
             </div>
 
         </div>
-        </div>
 
         <div class="col-lg-4">
             <div class="card mb-3">
