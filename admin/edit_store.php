@@ -17,29 +17,57 @@ if (!$store) {
 $errors = [];
 $success = false;
 
+// Fetch store users
+$userStmt = $pdo->prepare('SELECT * FROM store_users WHERE store_id = ? ORDER BY email');
+$userStmt->execute([$id]);
+$store_users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $stmt = $pdo->prepare('SELECT id FROM stores WHERE pin = ? AND id <> ?');
-    $stmt->execute([$_POST['pin'], $id]);
-    if ($stmt->fetch()) {
-        $errors[] = 'PIN already exists';
-    } else {
-        $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, first_name=?, last_name=?, phone=?, address=? WHERE id=?');
-        $update->execute([
-            $_POST['name'],
-            $_POST['pin'],
-            $_POST['email'],
-            $_POST['folder'],
-            $_POST['hootsuite_token'],
-            $_POST['first_name'] ?? null,
-            $_POST['last_name'] ?? null,
-            $_POST['phone'] ?? null,
-            $_POST['address'] ?? null,
-            $id
-        ]);
+    if (isset($_POST['save_store'])) {
+        $stmt = $pdo->prepare('SELECT id FROM stores WHERE pin = ? AND id <> ?');
+        $stmt->execute([$_POST['pin'], $id]);
+        if ($stmt->fetch()) {
+            $errors[] = 'PIN already exists';
+        } else {
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, first_name=?, last_name=?, phone=?, address=? WHERE id=?');
+            $update->execute([
+                $_POST['name'],
+                $_POST['pin'],
+                $_POST['email'],
+                $_POST['folder'],
+                $_POST['hootsuite_token'],
+                $_POST['first_name'] ?? null,
+                $_POST['last_name'] ?? null,
+                $_POST['phone'] ?? null,
+                $_POST['address'] ?? null,
+                $id
+            ]);
+            $success = true;
+            $stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
+            $stmt->execute([$id]);
+            $store = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+    } elseif (isset($_POST['add_user'])) {
+        $email = trim($_POST['user_email']);
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            try {
+                $stmt = $pdo->prepare('INSERT INTO store_users (store_id, email) VALUES (?, ?)');
+                $stmt->execute([$id, $email]);
+                $success = true;
+                $store_users[] = ['id' => $pdo->lastInsertId(), 'email' => $email];
+            } catch (PDOException $e) {
+                $errors[] = 'User already exists for this store';
+            }
+        } else {
+            $errors[] = 'Invalid email';
+        }
+    } elseif (isset($_POST['delete_user'])) {
+        $stmt = $pdo->prepare('DELETE FROM store_users WHERE id=? AND store_id=?');
+        $stmt->execute([$_POST['user_id'], $id]);
         $success = true;
-        $stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
-        $stmt->execute([$id]);
-        $store = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Refresh user list
+        $userStmt->execute([$id]);
+        $store_users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 
@@ -102,10 +130,41 @@ include __DIR__.'/header.php';
                 <input type="text" name="hootsuite_token" id="hootsuite_token" class="form-control" value="<?php echo htmlspecialchars($store['hootsuite_token']); ?>">
             </div>
             <div class="col-12">
-                <button class="btn btn-primary" type="submit">Save Changes</button>
+                <button class="btn btn-primary" name="save_store" type="submit">Save Changes</button>
             </div>
         </form>
     </div>
 </div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Store Users</h5>
+    </div>
+    <div class="card-body">
+        <ul class="list-group mb-3">
+            <?php foreach ($store_users as $u): ?>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <?php echo htmlspecialchars($u['email']); ?>
+                    <form method="post" class="m-0">
+                        <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
+                        <button class="btn btn-sm btn-danger" name="delete_user" onclick="return confirm('Remove this user?')">Remove</button>
+                    </form>
+                </li>
+            <?php endforeach; ?>
+            <?php if (empty($store_users)): ?>
+                <li class="list-group-item text-muted">No users</li>
+            <?php endif; ?>
+        </ul>
+        <form method="post" class="row g-3">
+            <div class="col-md-6">
+                <input type="email" name="user_email" class="form-control" placeholder="User Email" required>
+            </div>
+            <div class="col-md-6">
+                <button class="btn btn-secondary" name="add_user" type="submit">Add User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <?php include __DIR__.'/footer.php';
 ?>

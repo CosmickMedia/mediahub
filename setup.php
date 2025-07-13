@@ -36,6 +36,16 @@ $queries = [
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
+    // Store users table
+    "CREATE TABLE IF NOT EXISTS store_users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        store_id INT NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY store_email_unique (store_id, email),
+        FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
     // Uploads table with custom_message field
     "CREATE TABLE IF NOT EXISTS uploads (
         id INT AUTO_INCREMENT PRIMARY KEY,

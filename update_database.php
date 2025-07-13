@@ -38,6 +38,21 @@ foreach ($defaultSettings as $name => $value) {
     }
 }
 
+// Create store_users table if not exists
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS store_users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        store_id INT NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY store_email_unique (store_id, email),
+        FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "✓ Created store_users table\n";
+} catch (PDOException $e) {
+    echo "✗ Error creating store_users table: " . $e->getMessage() . "\n";
+}
+
 // Add hootsuite_token column to stores table
 try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_token VARCHAR(255) AFTER drive_folder");
