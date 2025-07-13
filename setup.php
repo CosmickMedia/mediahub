@@ -44,6 +44,8 @@ $queries = [
         id INT AUTO_INCREMENT PRIMARY KEY,
         store_id INT NOT NULL,
         email VARCHAR(255) NOT NULL,
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY store_email_unique (store_id, email),
         FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
@@ -166,6 +168,21 @@ try {
 try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN address VARCHAR(255) AFTER phone");
     echo "✓ Added address column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+// Ensure store_users table has name columns
+try {
+    $pdo->exec("ALTER TABLE store_users ADD COLUMN first_name VARCHAR(100) AFTER email");
+    echo "✓ Added first_name column to store_users table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE store_users ADD COLUMN last_name VARCHAR(100) AFTER first_name");
+    echo "✓ Added last_name column to store_users table\n";
 } catch (PDOException $e) {
     // Column might already exist
 }
