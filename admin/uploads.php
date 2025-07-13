@@ -6,6 +6,12 @@ require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
 
+// Determine preferred view
+$view = $_GET['view'] ?? ($_COOKIE['uploads_view'] ?? 'grid');
+if (isset($_GET['view'])) {
+    setcookie('uploads_view', $view, time() + 31536000, '/');
+}
+
 // Handle delete action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $upload_id = $_POST['delete_id'];
@@ -58,6 +64,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_message'])) {
     }
 }
 
+// Handle status update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_status'])) {
+    $upload_id = intval($_POST['upload_id']);
+    $status_id = $_POST['status_id'] !== '' ? intval($_POST['status_id']) : null;
+    $stmt = $pdo->prepare('UPDATE uploads SET status_id = ? WHERE id = ?');
+    $stmt->execute([$status_id, $upload_id]);
+    $success = 'Status updated successfully';
+}
+
 // Build query
 $where = [];
 $params = [];
@@ -86,6 +101,7 @@ if (!empty($_GET['date_range'])) {
 
 // Get all stores for dropdown
 $stores = $pdo->query('SELECT id, name, pin FROM stores ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
+$statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 
 // Pagination
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -93,7 +109,7 @@ $per_page = 50;
 $offset = ($page - 1) * $per_page;
 
 // Build main query
-$sql = 'SELECT u.*, s.name as store_name, s.pin FROM uploads u JOIN stores s ON u.store_id=s.id';
+$sql = 'SELECT u.*, s.name as store_name, s.pin, us.name AS status_name, us.color AS status_color, u.status_id FROM uploads u JOIN stores s ON u.store_id=s.id LEFT JOIN upload_statuses us ON u.status_id = us.id';
 if ($where) {
     $sql .= ' WHERE '.implode(' AND ', $where);
 }
@@ -152,8 +168,12 @@ include __DIR__.'/header.php';
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4>Content Review</h4>
-        <div>
+        <div class="d-flex align-items-center gap-3">
             <span class="badge bg-secondary">Total: <?php echo $total_count; ?> files</span>
+            <div class="btn-group" role="group" aria-label="View switch">
+                <a href="?<?php echo http_build_query(array_merge($_GET, ['view' => 'grid'])); ?>" class="btn btn-sm <?php echo $view==='grid' ? 'btn-primary' : 'btn-outline-primary'; ?>">Grid</a>
+                <a href="?<?php echo http_build_query(array_merge($_GET, ['view' => 'list'])); ?>" class="btn btn-sm <?php echo $view==='list' ? 'btn-primary' : 'btn-outline-primary'; ?>">List</a>
+            </div>
         </div>
     </div>
 
@@ -195,6 +215,41 @@ include __DIR__.'/header.php';
         </div>
     </form>
 
+    <?php if ($view === 'list'): ?>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Store</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($rows as $r): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($r['filename']); ?></td>
+                    <td><?php echo htmlspecialchars($r['store_name']); ?></td>
+                    <td><?php echo format_ts($r['created_at']); ?></td>
+                    <td>
+                        <?php if ($r['status_name']): ?>
+                            <span class="badge" style="background-color: <?php echo htmlspecialchars($r['status_color']); ?>;">
+                                <?php echo htmlspecialchars($r['status_name']); ?>
+                            </span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" href="https://drive.google.com/file/d/<?php echo $r['drive_id']; ?>/view" target="_blank">View</a>
+                        <a class="btn btn-sm btn-primary" href="download.php?id=<?php echo $r['id']; ?>" target="_blank">Download</a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php else: ?>
     <div class="row">
         <?php foreach ($rows as $r):
             $uploadTime = new DateTime($r['created_at']);
@@ -205,6 +260,11 @@ include __DIR__.'/header.php';
             ?>
             <div class="col-12 col-md-6 col-lg-4 mb-4">
                 <div class="card upload-card <?php echo $isOld ? 'opacity-75' : ''; ?>">
+                    <?php if ($r['status_name']): ?>
+                        <span class="position-absolute top-0 start-0 m-2 badge" style="background-color: <?php echo htmlspecialchars($r['status_color']); ?>;">
+                            <?php echo htmlspecialchars($r['status_name']); ?>
+                        </span>
+                    <?php endif; ?>
                     <?php if ($isNew): ?>
                         <span class="new-badge badge bg-warning text-dark">NEW</span>
                     <?php endif; ?>
@@ -271,11 +331,23 @@ include __DIR__.'/header.php';
                                 </button>
                             </div>
                         </form>
+
+                        <form method="post" class="mt-2">
+                            <input type="hidden" name="set_status" value="1">
+                            <input type="hidden" name="upload_id" value="<?php echo $r['id']; ?>">
+                            <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="">No Status</option>
+                                <?php foreach ($statuses as $st): ?>
+                                    <option value="<?php echo $st['id']; ?>" <?php echo $r['status_id']==$st['id']?'selected':''; ?>><?php echo htmlspecialchars($st['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </form>
                     </div>
                 </div>
             </div>
         <?php endforeach; ?>
     </div>
+    <?php endif; ?>
 
 <?php if (empty($rows)): ?>
     <div class="alert alert-info">

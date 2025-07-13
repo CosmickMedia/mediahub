@@ -46,12 +46,15 @@ if (!isset($active)) { $active = ''; }
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link<?php if($active==='dashboard') echo ' active'; ?>" href="index.php">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='stores') echo ' active'; ?>" href="stores.php">Stores</a></li>
-                <li class="nav-item"><a class="nav-link<?php if($active==='uploads') echo ' active'; ?>" href="uploads.php">Uploads</a></li>
+                <li class="nav-item"><a class="nav-link<?php if($active==='uploads') echo ' active'; ?>" href="uploads.php">Content Review</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='messages') echo ' active'; ?>" href="messages.php">Messages</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='settings') echo ' active'; ?>" href="settings.php">Settings</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='users') echo ' active'; ?>" href="users.php">Users</a></li>
-                <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
             </ul>
+            <div class="ms-auto text-end small text-white">
+                Logged in as: <?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?><br>
+                <a href="logout.php" class="text-white text-decoration-none">Logout</a>
+            </div>
         </div>
     </div>
 </nav>

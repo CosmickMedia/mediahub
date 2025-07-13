@@ -6,6 +6,9 @@ $pdo = get_pdo();
 
 $success = false;
 
+// Fetch upload statuses
+$statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+
 function get_setting($name) {
     global $pdo;
     $stmt = $pdo->prepare('SELECT value FROM settings WHERE name=?');
@@ -43,6 +46,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     foreach ($settings as $name => $value) {
         set_setting($name, $value);
+    }
+
+    // Save statuses
+    if (isset($_POST['status_name'])) {
+        $ids = $_POST['status_id'] ?? [];
+        $names = $_POST['status_name'];
+        $colors = $_POST['status_color'];
+        foreach ($names as $i => $name) {
+            $name = trim($name);
+            $color = $colors[$i] ?? '#000000';
+            $id = $ids[$i] ?? '';
+            if ($name === '' && $id) {
+                $stmt = $pdo->prepare('DELETE FROM upload_statuses WHERE id = ?');
+                $stmt->execute([$id]);
+                continue;
+            }
+            if ($name === '') { continue; }
+            if ($id) {
+                $stmt = $pdo->prepare('UPDATE upload_statuses SET name=?, color=? WHERE id=?');
+                $stmt->execute([$name, $color, $id]);
+            } else {
+                $stmt = $pdo->prepare('INSERT INTO upload_statuses (name, color) VALUES (?, ?)');
+                $stmt->execute([$name, $color]);
+            }
+        }
+        $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
     }
 
     $success = true;
@@ -192,7 +221,54 @@ include __DIR__.'/header.php';
             </div>
         </div>
 
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Upload Statuses</h5>
+            </div>
+            <div class="card-body">
+                <table class="table" id="statusTable">
+                    <thead>
+                    <tr><th>Name</th><th>Color</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($statuses as $st): ?>
+                        <tr>
+                            <td>
+                                <input type="hidden" name="status_id[]" value="<?php echo $st['id']; ?>">
+                                <input type="text" name="status_name[]" class="form-control" value="<?php echo htmlspecialchars($st['name']); ?>">
+                            </td>
+                            <td><input type="color" name="status_color[]" class="form-control form-control-color" value="<?php echo htmlspecialchars($st['color']); ?>"></td>
+                            <td><button type="button" class="btn btn-sm btn-danger remove-status">Delete</button></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-sm btn-secondary" id="addStatus">Add Status</button>
+            </div>
+        </div>
+
         <button class="btn btn-primary" type="submit">Save Settings</button>
     </form>
+
+    <script>
+        document.getElementById('addStatus').addEventListener('click', function () {
+            const tbody = document.querySelector('#statusTable tbody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <input type="hidden" name="status_id[]" value="">
+                    <input type="text" name="status_name[]" class="form-control">
+                </td>
+                <td><input type="color" name="status_color[]" class="form-control form-control-color" value="#000000"></td>
+                <td><button type="button" class="btn btn-sm btn-danger remove-status">Delete</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+        document.addEventListener('click', function(e){
+            if(e.target.classList.contains('remove-status')){
+                e.target.closest('tr').remove();
+            }
+        });
+    </script>
 
 <?php include __DIR__.'/footer.php'; ?>

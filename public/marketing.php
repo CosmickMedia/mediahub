@@ -28,6 +28,6 @@ include __DIR__.'/header.php';
         window.addEventListener('resize',resizeFrame);
     </script>
 <?php else: ?>
-    <div class="alert alert-info">No marketing report available.</div>
+    <div class="alert alert-warning">Marketing report not setup yet.</div>
 <?php endif; ?>
 <?php include __DIR__.'/footer.php'; ?>

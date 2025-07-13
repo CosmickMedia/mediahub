@@ -90,6 +90,13 @@ $queries = [
         INDEX idx_created_at (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
+    // Upload statuses table
+    "CREATE TABLE IF NOT EXISTS upload_statuses (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        color VARCHAR(20) NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
     // Logs table
     "CREATE TABLE IF NOT EXISTS logs (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -118,6 +125,14 @@ try {
     echo "✓ Added custom_message column to uploads table\n";
 } catch (PDOException $e) {
     // Column might already exist, that's okay
+}
+
+try {
+    $pdo->exec("ALTER TABLE uploads ADD COLUMN status_id INT DEFAULT NULL AFTER drive_id");
+    $pdo->exec("ALTER TABLE uploads ADD CONSTRAINT fk_status_id FOREIGN KEY (status_id) REFERENCES upload_statuses(id)");
+    echo "✓ Added status_id column to uploads table\n";
+} catch (PDOException $e) {
+    // Column might already exist
 }
 
 // Add is_reply and upload_id columns to store_messages if they don't exist
@@ -215,6 +230,21 @@ try {
     echo "✓ Added email column to users table\n";
 } catch (PDOException $e) {
     // Column might already exist
+}
+
+// Insert default upload statuses
+$defaultStatuses = [
+    ['Reviewed', '#198754'],
+    ['Pending Submission', '#ffc107'],
+    ['Scheduled', '#0dcaf0']
+];
+foreach ($defaultStatuses as $st) {
+    try {
+        $stmt = $pdo->prepare("INSERT IGNORE INTO upload_statuses (name, color) VALUES (?, ?)");
+        $stmt->execute($st);
+    } catch (PDOException $e) {
+        // Ignore if exists
+    }
 }
 
 // Create default admin user

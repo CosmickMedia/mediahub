@@ -140,5 +140,41 @@ try {
     echo "• email column might already exist\n";
 }
 
+// Create upload_statuses table
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS upload_statuses (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        color VARCHAR(20) NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "✓ Created upload_statuses table\n";
+} catch (PDOException $e) {
+    echo "✗ Error creating upload_statuses table: " . $e->getMessage() . "\n";
+}
+
+// Add status_id column to uploads
+try {
+    $pdo->exec("ALTER TABLE uploads ADD COLUMN status_id INT DEFAULT NULL AFTER drive_id");
+    $pdo->exec("ALTER TABLE uploads ADD CONSTRAINT fk_status_id FOREIGN KEY (status_id) REFERENCES upload_statuses(id)");
+    echo "✓ Added status_id column to uploads table\n";
+} catch (PDOException $e) {
+    echo "• status_id column might already exist\n";
+}
+
+// Insert default statuses
+$defaultStatuses = [
+    ['Reviewed', '#198754'],
+    ['Pending Submission', '#ffc107'],
+    ['Scheduled', '#0dcaf0']
+];
+foreach ($defaultStatuses as $st) {
+    try {
+        $stmt = $pdo->prepare("INSERT IGNORE INTO upload_statuses (name, color) VALUES (?, ?)");
+        $stmt->execute($st);
+    } catch (PDOException $e) {
+        // ignore
+    }
+}
+
 echo "\n✓ Database update complete!\n";
 ?>

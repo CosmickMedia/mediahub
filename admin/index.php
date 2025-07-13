@@ -155,6 +155,10 @@ try {
     // Table might not exist yet
 }
 
+// Recent broadcast messages
+$stmt = $pdo->query("SELECT message, created_at FROM store_messages WHERE store_id IS NULL ORDER BY created_at DESC LIMIT 5");
+$recent_broadcasts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Active messages count
 try {
     $stmt = $pdo->query('SELECT COUNT(*) FROM store_messages WHERE is_reply = 0 OR is_reply IS NULL');
@@ -345,6 +349,29 @@ include __DIR__.'/header.php';
                     </div>
                 </div>
             <?php endif; ?>
+
+            <!-- Recent Broadcast Messages Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Broadcast Messages</h5>
+                </div>
+                <div class="card-body">
+                    <?php if (empty($recent_broadcasts)): ?>
+                        <p class="text-muted">No recent messages</p>
+                    <?php else: ?>
+                        <ul class="list-group list-group-flush">
+                            <?php foreach ($recent_broadcasts as $bm): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <span><?php echo htmlspecialchars($bm['message']); ?></span>
+                                    <small class="text-muted ms-2"><?php echo format_ts($bm['created_at']); ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+        </div>
         </div>
 
         <div class="col-lg-4">
