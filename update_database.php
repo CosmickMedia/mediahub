@@ -176,5 +176,24 @@ foreach ($defaultStatuses as $st) {
     }
 }
 
+// Create upload_status_history table
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS upload_status_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        upload_id INT NOT NULL,
+        user_id INT NOT NULL,
+        old_status_id INT DEFAULT NULL,
+        new_status_id INT DEFAULT NULL,
+        changed_at DATETIME NOT NULL,
+        FOREIGN KEY (upload_id) REFERENCES uploads(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_upload_id (upload_id),
+        INDEX idx_changed_at (changed_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "✓ Created upload_status_history table\n";
+} catch (PDOException $e) {
+    echo "✗ Error creating upload_status_history table: " . $e->getMessage() . "\n";
+}
+
 echo "\n✓ Database update complete!\n";
 ?>
