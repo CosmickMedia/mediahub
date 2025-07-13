@@ -49,12 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['add_user'])) {
         $email = trim($_POST['user_email']);
+        $first = trim($_POST['user_first_name'] ?? '');
+        $last = trim($_POST['user_last_name'] ?? '');
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             try {
-                $stmt = $pdo->prepare('INSERT INTO store_users (store_id, email) VALUES (?, ?)');
-                $stmt->execute([$id, $email]);
+                $stmt = $pdo->prepare('INSERT INTO store_users (store_id, email, first_name, last_name) VALUES (?, ?, ?, ?)');
+                $stmt->execute([$id, $email, $first ?: null, $last ?: null]);
                 $success = true;
-                $store_users[] = ['id' => $pdo->lastInsertId(), 'email' => $email];
+                $store_users[] = ['id' => $pdo->lastInsertId(), 'email' => $email, 'first_name' => $first, 'last_name' => $last];
             } catch (PDOException $e) {
                 $errors[] = 'User already exists for this store';
             }
@@ -144,11 +146,17 @@ include __DIR__.'/header.php';
         <ul class="list-group mb-3">
             <?php foreach ($store_users as $u): ?>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <?php echo htmlspecialchars($u['email']); ?>
-                    <form method="post" class="m-0">
-                        <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
-                        <button class="btn btn-sm btn-danger" name="delete_user" onclick="return confirm('Remove this user?')">Remove</button>
-                    </form>
+                    <div>
+                        <?php echo htmlspecialchars(trim(($u['first_name'] ?? '') . ' ' . ($u['last_name'] ?? ''))); ?>
+                        <div class="text-muted small"><?php echo htmlspecialchars($u['email']); ?></div>
+                    </div>
+                    <div>
+                        <a href="edit_store_user.php?store_id=<?php echo $id; ?>&id=<?php echo $u['id']; ?>" class="btn btn-sm btn-secondary me-1">Edit</a>
+                        <form method="post" class="d-inline m-0">
+                            <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
+                            <button class="btn btn-sm btn-danger" name="delete_user" onclick="return confirm('Remove this user?')">Remove</button>
+                        </form>
+                    </div>
                 </li>
             <?php endforeach; ?>
             <?php if (empty($store_users)): ?>
@@ -156,10 +164,16 @@ include __DIR__.'/header.php';
             <?php endif; ?>
         </ul>
         <form method="post" class="row g-3">
-            <div class="col-md-6">
-                <input type="email" name="user_email" class="form-control" placeholder="User Email" required>
+            <div class="col-md-4">
+                <input type="text" name="user_first_name" class="form-control" placeholder="First Name">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <input type="text" name="user_last_name" class="form-control" placeholder="Last Name">
+            </div>
+            <div class="col-md-4">
+                <input type="email" name="user_email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="col-12">
                 <button class="btn btn-secondary" name="add_user" type="submit">Add User</button>
             </div>
         </form>

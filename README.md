@@ -13,6 +13,7 @@ Standalone PHP application for uploading store photos/videos to Google Drive.
 
 If you update the application and encounter errors related to missing database columns,
 run `php update_database.php` to apply the latest schema changes.
+This includes the new `first_name` and `last_name` columns for store users.
 
 ### Google Login
 
