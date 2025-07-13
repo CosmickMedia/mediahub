@@ -5,6 +5,85 @@ require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
 
+$quick_errors = [];
+$quick_success = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_message'])) {
+    $message = trim($_POST['quick_message']);
+    $store_id = $_POST['quick_store_id'] ?? null;
+
+    if ($message === '') {
+        $quick_errors[] = 'Message cannot be empty';
+    } else {
+        if ($store_id === 'all' || empty($store_id)) {
+            $store_id = null;
+        }
+
+        $stmt = $pdo->prepare('INSERT INTO store_messages (store_id, message, created_at) VALUES (?, ?, NOW())');
+        $stmt->execute([$store_id, $message]);
+
+        $emailSettings = [];
+        $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('email_from_name', 'email_from_address', 'store_message_subject')");
+        while ($row = $settingsQuery->fetch()) {
+            $emailSettings[$row['name']] = $row['value'];
+        }
+
+        $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
+        $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
+        $subjectTemplate = $emailSettings['store_message_subject'] ?? 'New message from Cosmick Media';
+
+        $headers = "From: $fromName <$fromAddress>\r\n";
+        $headers .= "Reply-To: $fromAddress\r\n";
+        $headers .= "X-Mailer: PHP/" . phpversion();
+
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        $baseUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI']));
+        $loginUrl = $baseUrl . '/public/index.php';
+
+        if ($store_id) {
+            $stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
+            $stmt->execute([$store_id]);
+            $store = $stmt->fetch();
+
+            if ($store && !empty($store['admin_email'])) {
+                $subject = str_replace('{store_name}', $store['name'], $subjectTemplate);
+
+                $body = "Dear {$store['name']},\n\n";
+                $body .= "You have a new message from Cosmick Media:\n\n";
+                $body .= "=====================================\n";
+                $body .= $message . "\n";
+                $body .= "=====================================\n\n";
+                $body .= "To view this message and upload content, please visit:\n";
+                $body .= $loginUrl . "\n\n";
+                $body .= "Your PIN: {$store['pin']}\n\n";
+                $body .= "Best regards,\n$fromName";
+
+                mail($store['admin_email'], $subject, $body, $headers);
+            }
+        } else {
+            $stores = $pdo->query('SELECT * FROM stores WHERE admin_email IS NOT NULL AND admin_email != ""')->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($stores as $store) {
+                $subject = str_replace('{store_name}', $store['name'], $subjectTemplate);
+
+                $body = "Dear {$store['name']},\n\n";
+                $body .= "You have a new message from Cosmick Media:\n\n";
+                $body .= "=====================================\n";
+                $body .= $message . "\n";
+                $body .= "=====================================\n\n";
+                $body .= "To view this message and upload content, please visit:\n";
+                $body .= $loginUrl . "\n\n";
+                $body .= "Your PIN: {$store['pin']}\n\n";
+                $body .= "Best regards,\n$fromName";
+
+                mail($store['admin_email'], $subject, $body, $headers);
+            }
+        }
+
+        $quick_success[] = 'Message posted successfully';
+    }
+}
+
 // Get statistics
 $stats = [];
 
@@ -85,6 +164,8 @@ try {
     $stmt = $pdo->query('SELECT COUNT(*) FROM store_messages');
     $stats['active_messages'] = $stmt->fetchColumn();
 }
+
+$stores = $pdo->query('SELECT id, name FROM stores ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
 
 $active = 'dashboard';
 include __DIR__.'/header.php';
@@ -267,6 +348,39 @@ include __DIR__.'/header.php';
         </div>
 
         <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Messages</h5>
+                </div>
+                <div class="card-body">
+                    <?php foreach ($quick_errors as $e): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <?php echo htmlspecialchars($e); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endforeach; ?>
+                    <?php foreach ($quick_success as $s): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?php echo htmlspecialchars($s); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endforeach; ?>
+                    <form method="post" class="mb-3">
+                        <div class="mb-2">
+                            <select name="quick_store_id" class="form-select">
+                                <option value="all">All Stores</option>
+                                <?php foreach ($stores as $s): ?>
+                                    <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <textarea name="quick_message" class="form-control" rows="3" placeholder="Message" required></textarea>
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit">Send</button>
+                    </form>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Quick Actions</h5>

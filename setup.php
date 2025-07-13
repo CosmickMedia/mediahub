@@ -25,6 +25,7 @@ $queries = [
         last_name VARCHAR(100),
         phone VARCHAR(50),
         address VARCHAR(255),
+        marketing_report_url VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
@@ -168,6 +169,13 @@ try {
 try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN address VARCHAR(255) AFTER phone");
     echo "✓ Added address column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN marketing_report_url VARCHAR(255) AFTER address");
+    echo "✓ Added marketing_report_url column to stores table\n";
 } catch (PDOException $e) {
     // Column might already exist
 }

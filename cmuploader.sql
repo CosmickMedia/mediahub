@@ -100,18 +100,19 @@ CREATE TABLE `stores` (
   `first_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL
+  `address` varchar(255) DEFAULT NULL,
+  `marketing_report_url` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `stores`
 --
 
-INSERT INTO `stores` (`id`, `name`, `pin`, `admin_email`, `drive_folder`, `hootsuite_token`, `first_name`, `last_name`, `phone`, `address`) VALUES
-(1, 'test', '1111', 'test@none.com', '', NULL, NULL, NULL, NULL, NULL),
-(2, 'testing', '1234', 'test@none.com', '16FMaL4Lv0V6_ZVxBQRpg-3GaUyfeu0G3', NULL, NULL, NULL, NULL, NULL),
-(3, 'Petland Cosmick', '2547', 'cosmicktechnologies@gmail.com', '1srY5v90SaXNgWsl56K_e9F0YaSN43Hc-', '', 'Carley', 'Kuehner', '', '1147 Jacobsburg Road, Wind Gap, PA 18091'),
-(4, 'Petland Phoenix', '2345', 'kim@cosmickmedia.com', '1VvZT3W4_ADzo1nRXPg98n8wOROIov9lC', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `stores` (`id`, `name`, `pin`, `admin_email`, `drive_folder`, `hootsuite_token`, `first_name`, `last_name`, `phone`, `address`, `marketing_report_url`) VALUES
+(1, 'test', '1111', 'test@none.com', '', NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'testing', '1234', 'test@none.com', '16FMaL4Lv0V6_ZVxBQRpg-3GaUyfeu0G3', NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 'Petland Cosmick', '2547', 'cosmicktechnologies@gmail.com', '1srY5v90SaXNgWsl56K_e9F0YaSN43Hc-', '', 'Carley', 'Kuehner', '', '1147 Jacobsburg Road, Wind Gap, PA 18091', NULL),
+(4, 'Petland Phoenix', '2345', 'kim@cosmickmedia.com', '1VvZT3W4_ADzo1nRXPg98n8wOROIov9lC', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

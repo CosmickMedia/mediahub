@@ -107,6 +107,13 @@ try {
     echo "• address column might already exist\n";
 }
 
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN marketing_report_url VARCHAR(255) AFTER address");
+    echo "✓ Added marketing_report_url column to stores table\n";
+} catch (PDOException $e) {
+    echo "• marketing_report_url column might already exist\n";
+}
+
 // Ensure admin users table has required columns
 try {
     $pdo->exec("ALTER TABLE users ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
