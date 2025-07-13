@@ -49,6 +49,11 @@ if (!isset($_SESSION)) { session_start(); }
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="marketing.php">
+                            <i class="bi bi-graph-up"></i> Marketing Report
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="?logout=1">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </a>

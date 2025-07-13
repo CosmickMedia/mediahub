@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token, first_name, last_name, phone, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token, first_name, last_name, phone, address, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -25,7 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
                 $_POST['phone'] ?? null,
-                $_POST['address'] ?? null
+                $_POST['address'] ?? null,
+                $_POST['marketing_report_url'] ?? null
             ]);
             $success[] = 'Store added successfully';
         }
@@ -181,6 +182,10 @@ include __DIR__.'/header.php';
                     <label for="hootsuite_token" class="form-label">Hootsuite Access Token</label>
                     <input type="text" name="hootsuite_token" id="hootsuite_token" class="form-control">
                     <div class="form-text">Optional: token used to fetch scheduled posts</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="marketing_report_url" class="form-label">Marketing Report URL</label>
+                    <input type="url" name="marketing_report_url" id="marketing_report_url" class="form-control">
                 </div>
                 <div class="col-12">
                     <button class="btn btn-primary" name="add" type="submit">Add Store</button>

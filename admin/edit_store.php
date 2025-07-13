@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, first_name=?, last_name=?, phone=?, address=? WHERE id=?');
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, first_name=?, last_name=?, phone=?, address=?, marketing_report_url=? WHERE id=?');
             $update->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['last_name'] ?? null,
                 $_POST['phone'] ?? null,
                 $_POST['address'] ?? null,
+                $_POST['marketing_report_url'] ?? null,
                 $id
             ]);
             $success = true;
@@ -92,9 +93,10 @@ include __DIR__.'/header.php';
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
-<div class="card">
-    <div class="card-body">
-        <form method="post" class="row g-3">
+<form method="post">
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Store Details</h5></div>
+        <div class="card-body row g-3">
             <div class="col-md-6">
                 <label for="name" class="form-label">Store Name *</label>
                 <input type="text" name="name" id="name" class="form-control" required value="<?php echo htmlspecialchars($store['name']); ?>">
@@ -102,10 +104,6 @@ include __DIR__.'/header.php';
             <div class="col-md-6">
                 <label for="pin" class="form-label">PIN *</label>
                 <input type="text" name="pin" id="pin" class="form-control" required value="<?php echo htmlspecialchars($store['pin']); ?>">
-            </div>
-            <div class="col-md-6">
-                <label for="email" class="form-label">Admin Email</label>
-                <input type="email" name="email" id="email" class="form-control" value="<?php echo htmlspecialchars($store['admin_email']); ?>">
             </div>
             <div class="col-md-6">
                 <label for="first_name" class="form-label">First Name</label>
@@ -116,6 +114,10 @@ include __DIR__.'/header.php';
                 <input type="text" name="last_name" id="last_name" class="form-control" value="<?php echo htmlspecialchars($store['last_name']); ?>">
             </div>
             <div class="col-md-6">
+                <label for="email" class="form-label">Admin Email</label>
+                <input type="email" name="email" id="email" class="form-control" value="<?php echo htmlspecialchars($store['admin_email']); ?>">
+            </div>
+            <div class="col-md-6">
                 <label for="phone" class="form-label">Phone</label>
                 <input type="text" name="phone" id="phone" class="form-control" value="<?php echo htmlspecialchars($store['phone']); ?>">
             </div>
@@ -124,6 +126,15 @@ include __DIR__.'/header.php';
                 <input type="text" name="address" id="address" class="form-control" value="<?php echo htmlspecialchars($store['address']); ?>">
             </div>
             <div class="col-md-6">
+                <label for="marketing_report_url" class="form-label">Marketing Report URL</label>
+                <input type="url" name="marketing_report_url" id="marketing_report_url" class="form-control" value="<?php echo htmlspecialchars($store['marketing_report_url']); ?>">
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">API Settings</h5></div>
+        <div class="card-body row g-3">
+            <div class="col-md-6">
                 <label for="folder" class="form-label">Drive Folder ID</label>
                 <input type="text" name="folder" id="folder" class="form-control" value="<?php echo htmlspecialchars($store['drive_folder']); ?>">
             </div>
@@ -131,12 +142,12 @@ include __DIR__.'/header.php';
                 <label for="hootsuite_token" class="form-label">Hootsuite Access Token</label>
                 <input type="text" name="hootsuite_token" id="hootsuite_token" class="form-control" value="<?php echo htmlspecialchars($store['hootsuite_token']); ?>">
             </div>
-            <div class="col-12">
-                <button class="btn btn-primary" name="save_store" type="submit">Save Changes</button>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+    <div class="text-end mb-4">
+        <button class="btn btn-primary" name="save_store" type="submit">Save Changes</button>
+    </div>
+</form>
 
 <div class="card mt-4">
     <div class="card-header">
