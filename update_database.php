@@ -38,5 +38,13 @@ foreach ($defaultSettings as $name => $value) {
     }
 }
 
+// Add hootsuite_token column to stores table
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_token VARCHAR(255) AFTER drive_folder");
+    echo "✓ Added hootsuite_token column to stores table\n";
+} catch (PDOException $e) {
+    echo "• hootsuite_token column might already exist\n";
+}
+
 echo "\n✓ Database update complete!\n";
 ?>

@@ -502,6 +502,9 @@ include __DIR__.'/header.php';
                         <a href="history.php" class="btn btn-primary">
                             <i class="bi bi-clock-history"></i> View Upload History
                         </a>
+                        <a href="calendar.php" class="btn btn-primary">
+                            <i class="bi bi-calendar-event"></i> View Calendar
+                        </a>
                         <a href="?logout=1" class="btn btn-secondary">
                             <i class="bi bi-box-arrow-right"></i> Change Store
                         </a>

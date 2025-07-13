@@ -20,6 +20,7 @@ $queries = [
         pin VARCHAR(50) NOT NULL UNIQUE,
         admin_email VARCHAR(255),
         drive_folder VARCHAR(255),
+        hootsuite_token VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
@@ -111,6 +112,14 @@ try {
     $pdo->exec("ALTER TABLE store_messages ADD COLUMN upload_id INT DEFAULT NULL AFTER is_reply");
     $pdo->exec("ALTER TABLE store_messages ADD CONSTRAINT fk_upload_id FOREIGN KEY (upload_id) REFERENCES uploads(id) ON DELETE CASCADE");
     echo "✓ Added upload_id column to store_messages table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+// Add hootsuite_token column to stores table if not exists
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_token VARCHAR(255) AFTER drive_folder");
+    echo "✓ Added hootsuite_token column to stores table\n";
 } catch (PDOException $e) {
     // Column might already exist
 }
