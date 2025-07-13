@@ -90,5 +90,13 @@ try {
     echo "• address column might already exist\n";
 }
 
+// Ensure admin users table has a created_at column
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+    echo "✓ Added created_at column to users table\n";
+} catch (PDOException $e) {
+    echo "• created_at column might already exist\n";
+}
+
 echo "\n✓ Database update complete!\n";
 ?>
