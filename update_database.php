@@ -46,5 +46,34 @@ try {
     echo "• hootsuite_token column might already exist\n";
 }
 
+// New contact columns for stores
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN first_name VARCHAR(100) AFTER hootsuite_token");
+    echo "✓ Added first_name column to stores table\n";
+} catch (PDOException $e) {
+    echo "• first_name column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN last_name VARCHAR(100) AFTER first_name");
+    echo "✓ Added last_name column to stores table\n";
+} catch (PDOException $e) {
+    echo "• last_name column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN phone VARCHAR(50) AFTER last_name");
+    echo "✓ Added phone column to stores table\n";
+} catch (PDOException $e) {
+    echo "• phone column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN address VARCHAR(255) AFTER phone");
+    echo "✓ Added address column to stores table\n";
+} catch (PDOException $e) {
+    echo "• address column might already exist\n";
+}
+
 echo "\n✓ Database update complete!\n";
 ?>

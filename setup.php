@@ -21,6 +21,10 @@ $queries = [
         admin_email VARCHAR(255),
         drive_folder VARCHAR(255),
         hootsuite_token VARCHAR(255),
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        phone VARCHAR(50),
+        address VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
@@ -120,6 +124,35 @@ try {
 try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_token VARCHAR(255) AFTER drive_folder");
     echo "✓ Added hootsuite_token column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+// Additional store contact columns
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN first_name VARCHAR(100) AFTER hootsuite_token");
+    echo "✓ Added first_name column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN last_name VARCHAR(100) AFTER first_name");
+    echo "✓ Added last_name column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN phone VARCHAR(50) AFTER last_name");
+    echo "✓ Added phone column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN address VARCHAR(255) AFTER phone");
+    echo "✓ Added address column to stores table\n";
 } catch (PDOException $e) {
     // Column might already exist
 }
