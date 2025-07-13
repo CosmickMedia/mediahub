@@ -37,6 +37,20 @@ try {
     $stats['pending_articles'] = 0;
 }
 
+// Store users (main + additional)
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) FROM stores WHERE admin_email IS NOT NULL AND admin_email <> ''");
+    $stats['store_users'] = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    $stats['store_users'] = 0;
+}
+try {
+    $stmt = $pdo->query('SELECT COUNT(*) FROM store_users');
+    $stats['store_users'] += $stmt->fetchColumn();
+} catch (PDOException $e) {
+    // Table might not exist yet
+}
+
 // Recent uploads
 $stmt = $pdo->query('
     SELECT u.*, s.name as store_name, u.mime, u.drive_id
@@ -78,8 +92,8 @@ include __DIR__.'/header.php';
 
     <h4 class="mb-4">Admin Dashboard</h4>
 
-    <div class="row mb-4">
-        <div class="col-md-3">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 g-3 mb-4">
+        <div class="col">
             <a href="stores.php" class="text-decoration-none">
                 <div class="card text-white bg-primary clickable-card">
                     <div class="card-body">
@@ -91,7 +105,7 @@ include __DIR__.'/header.php';
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col">
             <a href="uploads.php" class="text-decoration-none">
                 <div class="card text-white bg-success clickable-card">
                     <div class="card-body">
@@ -103,7 +117,7 @@ include __DIR__.'/header.php';
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col">
             <a href="articles.php" class="text-decoration-none">
                 <div class="card text-white bg-info clickable-card">
                     <div class="card-body">
@@ -120,7 +134,7 @@ include __DIR__.'/header.php';
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
+        <div class="col">
             <a href="messages.php" class="text-decoration-none">
                 <div class="card text-white bg-warning clickable-card">
                     <div class="card-body">
@@ -128,6 +142,18 @@ include __DIR__.'/header.php';
                             <i class="bi bi-chat-dots"></i> Active Messages
                         </h5>
                         <p class="card-text display-6"><?php echo $stats['active_messages']; ?></p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="stores.php" class="text-decoration-none">
+                <div class="card text-white bg-secondary clickable-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-people"></i> Store Users
+                        </h5>
+                        <p class="card-text display-6"><?php echo $stats['store_users']; ?></p>
                     </div>
                 </div>
             </a>

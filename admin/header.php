@@ -25,6 +25,8 @@ if (!isset($active)) { $active = ''; }
         .page-link { color: #2c3e50; }
         .page-item.active .page-link { background-color: #2c3e50; border-color: #2c3e50; }
         .bg-primary { background-color: #2c3e50 !important; }
+        .bg-warning { background-color: #d39e00 !important; color: #fff !important; }
+        .bg-info { background-color: #17a2b8 !important; color: #fff !important; }
         .text-primary { color: #2c3e50 !important; }
         .clickable-card { cursor: pointer; transition: transform 0.2s; }
         .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
