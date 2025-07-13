@@ -9,6 +9,11 @@ Standalone PHP application for uploading store photos/videos to Google Drive.
 3. Upload the project files to your PHP host.
 4. Access `public/index.php` for store uploads and `admin/login.php` for the admin portal.
 
+### Upgrading
+
+If you update the application and encounter errors related to missing database columns,
+run `php update_database.php` to apply the latest schema changes.
+
 ### Google Login
 
 Fill in the `google_oauth` settings in `config.php` to enable "Login with Google" on the admin login page. The email returned by Google must match a username in the `users` table.
