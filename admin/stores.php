@@ -15,13 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token) VALUES (?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token, first_name, last_name, phone, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
                 $_POST['pin'],
                 $_POST['email'],
                 $_POST['folder'],
-                $_POST['hootsuite_token']
+                $_POST['hootsuite_token'],
+                $_POST['first_name'] ?? null,
+                $_POST['last_name'] ?? null,
+                $_POST['phone'] ?? null,
+                $_POST['address'] ?? null
             ]);
             $success[] = 'Store added successfully';
         }
@@ -90,7 +94,7 @@ include __DIR__.'/header.php';
                     <tbody>
                     <?php foreach ($stores as $s): ?>
                         <tr>
-                            <td><strong><?php echo htmlspecialchars($s['name']); ?></strong></td>
+                            <td><strong><a href="edit_store.php?id=<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></a></strong></td>
                             <td><code><?php echo htmlspecialchars($s['pin']); ?></code></td>
                             <td><?php echo htmlspecialchars($s['admin_email']); ?></td>
                             <td>
@@ -111,6 +115,9 @@ include __DIR__.'/header.php';
                             <td>
                                 <a href="uploads.php?store_id=<?php echo $s['id']; ?>" class="btn btn-sm btn-primary">
                                     View Uploads
+                                </a>
+                                <a href="edit_store.php?id=<?php echo $s['id']; ?>" class="btn btn-sm btn-secondary">
+                                    Edit
                                 </a>
                                 <form method="post" class="d-inline">
                                     <input type="hidden" name="id" value="<?php echo $s['id']; ?>">
@@ -148,6 +155,22 @@ include __DIR__.'/header.php';
                     <label for="email" class="form-label">Admin Email</label>
                     <input type="email" name="email" id="email" class="form-control">
                     <div class="form-text">For notifications specific to this store</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" name="first_name" id="first_name" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" name="last_name" id="last_name" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="text" name="phone" id="phone" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="address" class="form-label">Address</label>
+                    <input type="text" name="address" id="address" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label for="folder" class="form-label">Drive Folder ID</label>
