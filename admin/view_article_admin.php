@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/helpers.php';
 require_login();
 
 $article_id = $_GET['id'] ?? 0;
@@ -28,9 +29,9 @@ if (!$article) {
 }
 
 // Format dates
-$article['created_at'] = date('F j, Y g:i A', strtotime($article['created_at']));
+$article['created_at'] = format_ts($article['created_at']);
 if ($article['updated_at']) {
-    $article['updated_at'] = date('F j, Y g:i A', strtotime($article['updated_at']));
+    $article['updated_at'] = format_ts($article['updated_at']);
 }
 
 // Get status class for badge

@@ -33,6 +33,9 @@ $queries = [
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(50) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        email VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
@@ -167,11 +170,35 @@ try {
     // Column might already exist
 }
 
+// Ensure users table has new contact columns
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN first_name VARCHAR(100) AFTER password");
+    echo "✓ Added first_name column to users table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN last_name VARCHAR(100) AFTER first_name");
+    echo "✓ Added last_name column to users table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN email VARCHAR(255) AFTER last_name");
+    echo "✓ Added email column to users table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
 // Create default admin user
 $username = 'admin';
 $password = password_hash($config['admin_password'], PASSWORD_DEFAULT);
+$email = $config['notification_email'] ?? 'admin@example.com';
 try {
-    $pdo->prepare("INSERT IGNORE INTO users (username, password) VALUES (?, ?)")->execute([$username, $password]);
+    $pdo->prepare("INSERT IGNORE INTO users (username, password, first_name, last_name, email) VALUES (?, ?, ?, ?, ?)")
+        ->execute([$username, $password, 'Admin', '', $email]);
     echo "✓ Default admin user created/verified\n";
 } catch (PDOException $e) {
     echo "✗ Error creating admin user: " . $e->getMessage() . "\n";

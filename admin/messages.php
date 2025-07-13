@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/config.php';
+require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
 $config = get_config();
@@ -181,7 +182,7 @@ include __DIR__.'/header.php';
                                                 <span class="badge bg-warning text-dark">All Stores</span>
                                             <?php endif; ?>
                                         </h6>
-                                        <small><?php echo date('Y-m-d H:i', strtotime($msg['created_at'])); ?></small>
+                                        <small><?php echo format_ts($msg['created_at']); ?></small>
                                     </div>
                                     <p class="mb-1"><?php echo nl2br(htmlspecialchars($msg['message'])); ?></p>
                                     <a href="?delete=<?php echo $msg['id']; ?>"

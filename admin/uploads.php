@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/drive.php';
+require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
 
@@ -227,7 +228,7 @@ include __DIR__.'/header.php';
                         <p class="card-text">
                             <strong class="text-primary"><?php echo htmlspecialchars($r['store_name']); ?></strong><br>
                             <small class="text-muted">
-                                <?php echo date('Y-m-d H:i', strtotime($r['created_at'])); ?><br>
+                                <?php echo format_ts($r['created_at']); ?><br>
                                 <?php echo number_format($r['size'] / 1024 / 1024, 2); ?> MB • <?php echo htmlspecialchars(explode('/', $r['mime'])[0]); ?>
                             </small>
                         </p>
