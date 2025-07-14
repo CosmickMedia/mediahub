@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/dripley.php';
 require_login();
 $pdo = get_pdo();
 
 $success = false;
+$test_result = null;
 
 // Fetch upload statuses
 $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
@@ -41,7 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'admin_article_notification_subject' => $_POST['admin_article_notification_subject'] ?? 'New article submission from {store_name}',
         'store_article_notification_subject' => $_POST['store_article_notification_subject'] ?? 'Article Submission Confirmation - Cosmick Media',
         'article_approval_subject' => $_POST['article_approval_subject'] ?? 'Article Status Update - Cosmick Media',
-        'max_article_length' => $_POST['max_article_length'] ?? '50000'
+        'max_article_length' => $_POST['max_article_length'] ?? '50000',
+        'dripley_site_url' => trim($_POST['dripley_site_url'] ?? ''),
+        'dripley_username' => trim($_POST['dripley_username'] ?? ''),
+        'dripley_app_password' => trim($_POST['dripley_app_password'] ?? '')
     ];
 
     foreach ($settings as $name => $value) {
@@ -74,6 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    if (isset($_POST['test_dripley'])) {
+        [$ok, $msg] = test_dripley_connection();
+        $test_result = [$ok, $msg];
+    }
     $success = true;
 }
 
@@ -89,6 +98,9 @@ $admin_article_notification_subject = get_setting('admin_article_notification_su
 $store_article_notification_subject = get_setting('store_article_notification_subject') ?: 'Article Submission Confirmation - Cosmick Media';
 $article_approval_subject = get_setting('article_approval_subject') ?: 'Article Status Update - Cosmick Media';
 $max_article_length = get_setting('max_article_length') ?: '50000';
+$dripley_site_url = get_setting('dripley_site_url');
+$dripley_username = get_setting('dripley_username');
+$dripley_app_password = get_setting('dripley_app_password');
 
 $active = 'settings';
 include __DIR__.'/header.php';
@@ -101,6 +113,17 @@ include __DIR__.'/header.php';
         Settings saved successfully!
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+<?php endif; ?>
+<?php if ($test_result !== null): ?>
+    <?php if ($test_result[0]): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">Dripley connection successful!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php else: ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">Dripley connection failed: <?php echo htmlspecialchars($test_result[1]); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
 <?php endif; ?>
 
     <form method="post" enctype="multipart/form-data">
@@ -166,6 +189,27 @@ include __DIR__.'/header.php';
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Dripley CRM Integration</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="dripley_site_url" class="form-label">WordPress Site URL</label>
+                    <input type="text" name="dripley_site_url" id="dripley_site_url" class="form-control" value="<?php echo htmlspecialchars($dripley_site_url); ?>" placeholder="https://crm.example.com">
+                </div>
+                <div class="mb-3">
+                    <label for="dripley_username" class="form-label">Dripley API Username</label>
+                    <input type="text" name="dripley_username" id="dripley_username" class="form-control" value="<?php echo htmlspecialchars($dripley_username); ?>">
+                </div>
+                <div class="mb-3">
+                    <label for="dripley_app_password" class="form-label">Dripley API App Password</label>
+                    <input type="password" name="dripley_app_password" id="dripley_app_password" class="form-control" value="<?php echo htmlspecialchars($dripley_app_password); ?>">
+                </div>
+                <button class="btn btn-secondary" type="submit" name="test_dripley">Test Connection</button>
             </div>
         </div>
 

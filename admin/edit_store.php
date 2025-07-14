@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/dripley.php';
 require_login();
 $pdo = get_pdo();
 
@@ -56,8 +57,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $stmt = $pdo->prepare('INSERT INTO store_users (store_id, email, first_name, last_name) VALUES (?, ?, ?, ?)');
                 $stmt->execute([$id, $email, $first ?: null, $last ?: null]);
+                $insertId = $pdo->lastInsertId();
                 $success = true;
-                $store_users[] = ['id' => $pdo->lastInsertId(), 'email' => $email, 'first_name' => $first, 'last_name' => $last];
+                $store_users[] = ['id' => $insertId, 'email' => $email, 'first_name' => $first, 'last_name' => $last];
+
+                // Send to Dripley
+                $contact = [
+                    'first_name'   => $first,
+                    'last_name'    => $last,
+                    'email'        => $email,
+                    'phone'        => $store['phone'] ?? '',
+                    'company_name' => $store['name'] ?? '',
+                    'user_role'    => 'Store Admin',
+                    'tags'         => ['media-hub', 'store-onboarding'],
+                    'store_id'     => (int)$id
+                ];
+                send_contact_to_dripley($contact);
             } catch (PDOException $e) {
                 $errors[] = 'User already exists for this store';
             }
