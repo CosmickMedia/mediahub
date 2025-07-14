@@ -36,3 +36,5 @@ To sync new store contacts with your Groundhogg installation, open **Admin → S
 3. **Groundhogg API App Password** – an [application password](https://wordpress.org/support/article/application-passwords/) generated for that user.
 
 After saving, use the **Test Connection** button to verify communication with your Groundhogg REST API.
+
+If you need to troubleshoot API issues, enable **Debug Logging** in the settings panel. When enabled, detailed request and response information is written to `logs/groundhogg.log` in the project root.

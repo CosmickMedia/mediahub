@@ -46,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'max_article_length' => $_POST['max_article_length'] ?? '50000',
         'groundhogg_site_url' => trim($_POST['groundhogg_site_url'] ?? ''),
         'groundhogg_username' => trim($_POST['groundhogg_username'] ?? ''),
-        'groundhogg_app_password' => trim($_POST['groundhogg_app_password'] ?? '')
+        'groundhogg_app_password' => trim($_POST['groundhogg_app_password'] ?? ''),
+        'groundhogg_debug' => isset($_POST['groundhogg_debug']) ? '1' : '0'
     ];
 
     foreach ($settings as $name => $value) {
@@ -101,6 +102,7 @@ $max_article_length = get_setting('max_article_length') ?: '50000';
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
 $groundhogg_app_password = get_setting('groundhogg_app_password');
+$groundhogg_debug = get_setting('groundhogg_debug');
 
 $active = 'settings';
 include __DIR__.'/header.php';
@@ -208,6 +210,11 @@ include __DIR__.'/header.php';
                 <div class="mb-3">
                     <label for="groundhogg_app_password" class="form-label">Groundhogg API App Password</label>
                     <input type="password" name="groundhogg_app_password" id="groundhogg_app_password" class="form-control" value="<?php echo htmlspecialchars($groundhogg_app_password); ?>">
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" name="groundhogg_debug" id="groundhogg_debug" class="form-check-input" value="1" <?php if ($groundhogg_debug === '1') echo 'checked'; ?>>
+                    <label for="groundhogg_debug" class="form-check-label">Enable Debug Logging</label>
+                    <div class="form-text">Logs API communication to <code>logs/groundhogg.log</code></div>
                 </div>
                 <button class="btn btn-secondary" type="submit" name="test_groundhogg">Test Connection</button>
             </div>
