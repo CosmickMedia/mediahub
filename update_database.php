@@ -70,6 +70,14 @@ try {
     echo "• last_name column might already exist\n";
 }
 
+// Add sender column to store_messages table
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN sender ENUM('admin','store') DEFAULT 'admin' AFTER store_id");
+    echo "✓ Added sender column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• sender column might already exist\n";
+}
+
 // Add hootsuite_token column to stores table
 try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_token VARCHAR(255) AFTER drive_folder");

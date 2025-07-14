@@ -123,6 +123,7 @@ INSERT INTO `stores` (`id`, `name`, `pin`, `admin_email`, `drive_folder`, `hoots
 CREATE TABLE `store_messages` (
   `id` int(11) NOT NULL,
   `store_id` int(11) DEFAULT NULL,
+  `sender` enum('admin','store') DEFAULT 'admin',
   `message` text NOT NULL,
   `is_reply` tinyint(1) DEFAULT 0,
   `upload_id` int(11) DEFAULT NULL,
@@ -134,12 +135,12 @@ CREATE TABLE `store_messages` (
 -- Dumping data for table `store_messages`
 --
 
-INSERT INTO `store_messages` (`id`, `store_id`, `message`, `is_reply`, `upload_id`, `article_id`, `created_at`) VALUES
-(1, 2, 'Dont forget to create your content.', 0, NULL, NULL, '2025-07-03 04:26:20'),
-(2, 4, 'Where do these messages go?', 0, NULL, NULL, '2025-07-03 13:46:08'),
-(3, 4, 'Please don\'t forget to upload new social content!', 0, NULL, NULL, '2025-07-03 13:49:44'),
-(4, 3, 'Hey there, it\'s Cassandra. Great to see you here! Don\'t forget to upload your content!', 0, NULL, NULL, '2025-07-03 13:52:29'),
-(5, 4, 'Please don\'t forget to upload new social content!', 0, NULL, NULL, '2025-07-03 18:43:53');
+INSERT INTO `store_messages` (`id`, `store_id`, `sender`, `message`, `is_reply`, `upload_id`, `article_id`, `created_at`) VALUES
+(1, 2, 'admin', 'Dont forget to create your content.', 0, NULL, NULL, '2025-07-03 04:26:20'),
+(2, 4, 'admin', 'Where do these messages go?', 0, NULL, NULL, '2025-07-03 13:46:08'),
+(3, 4, 'admin', 'Please don\'t forget to upload new social content!', 0, NULL, NULL, '2025-07-03 13:49:44'),
+(4, 3, 'admin', 'Hey there, it\'s Cassandra. Great to see you here! Don\'t forget to upload your content!', 0, NULL, NULL, '2025-07-03 13:52:29'),
+(5, 4, 'admin', 'Please don\'t forget to upload new social content!', 0, NULL, NULL, '2025-07-03 18:43:53');
 
 -- --------------------------------------------------------
 

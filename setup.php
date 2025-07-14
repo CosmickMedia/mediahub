@@ -80,6 +80,7 @@ $queries = [
     "CREATE TABLE IF NOT EXISTS store_messages (
         id INT AUTO_INCREMENT PRIMARY KEY,
         store_id INT DEFAULT NULL,
+        sender ENUM('admin','store') DEFAULT 'admin',
         message TEXT NOT NULL,
         is_reply TINYINT(1) DEFAULT 0,
         upload_id INT DEFAULT NULL,
@@ -153,6 +154,13 @@ try {
 try {
     $pdo->exec("ALTER TABLE store_messages ADD COLUMN is_reply TINYINT(1) DEFAULT 0 AFTER message");
     echo "✓ Added is_reply column to store_messages table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN sender ENUM('admin','store') DEFAULT 'admin' AFTER store_id");
+    echo "✓ Added sender column to store_messages table\n";
 } catch (PDOException $e) {
     // Column might already exist
 }
