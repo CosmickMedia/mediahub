@@ -114,7 +114,7 @@ $active = 'messages';
 include __DIR__.'/header.php';
 ?>
 
-    <h4>Store Messages</h4>
+    <h4>Store Broadcasts</h4>
 
 <?php foreach ($errors as $e): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -134,7 +134,7 @@ include __DIR__.'/header.php';
         <div class="col-lg-5">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">Post New Message</h5>
+                    <h5 class="mb-0">Post New Broadcast</h5>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -163,7 +163,7 @@ include __DIR__.'/header.php';
         <div class="col-lg-7">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Active Messages</h5>
+                    <h5 class="mb-0">Active Broadcasts</h5>
                 </div>
                 <div class="card-body">
                     <?php if (empty($messages)): ?>

@@ -376,7 +376,7 @@ include __DIR__.'/header.php';
         <div class="col-lg-4">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0">Quick Messages</h5>
+                    <h5 class="mb-0">Quick Broadcast</h5>
                 </div>
                 <div class="card-body">
                     <?php foreach ($quick_errors as $e): ?>

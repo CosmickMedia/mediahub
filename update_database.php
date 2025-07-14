@@ -97,6 +97,31 @@ try {
     echo "• read_by_store column might already exist\n";
 }
 
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN like_by_store TINYINT(1) DEFAULT 0 AFTER read_by_store");
+    echo "✓ Added like_by_store column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• like_by_store column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN like_by_admin TINYINT(1) DEFAULT 0 AFTER like_by_store");
+    echo "✓ Added like_by_admin column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• like_by_admin column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN love_by_store TINYINT(1) DEFAULT 0 AFTER like_by_admin");
+    echo "✓ Added love_by_store column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• love_by_store column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN love_by_admin TINYINT(1) DEFAULT 0 AFTER love_by_store");
+    echo "✓ Added love_by_admin column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• love_by_admin column might already exist\n";
+}
+
 // Add hootsuite_token column to stores table
 try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_token VARCHAR(255) AFTER drive_folder");

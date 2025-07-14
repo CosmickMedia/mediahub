@@ -11,13 +11,13 @@ $store_id = intval($_GET['store_id'] ?? 0);
 // handle ajax fetch
 if (isset($_GET['load'])) {
     if ($store_id > 0) {
-        $stmt = $pdo->prepare('SELECT id, sender, message, created_at FROM store_messages WHERE store_id = ? ORDER BY created_at');
+        $stmt = $pdo->prepare('SELECT id, sender, message, created_at, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at');
         $stmt->execute([$store_id]);
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
             ->execute([$store_id]);
     } else {
-        $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
+        $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     }
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $store_
 $stores = $pdo->query('SELECT id, name FROM stores ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
 
 if ($store_id > 0) {
-    $stmt = $pdo->prepare('SELECT sender, message, created_at, read_by_admin, read_by_store FROM store_messages WHERE store_id = ? ORDER BY created_at');
+    $stmt = $pdo->prepare('SELECT sender, message, created_at, read_by_admin, read_by_store, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at');
     $stmt->execute([$store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $store_stmt = $pdo->prepare("SELECT s.name, u.first_name, u.last_name
@@ -64,7 +64,7 @@ if ($store_id > 0) {
     $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
         ->execute([$store_id]);
 } else {
-    $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
+    $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     $store_name = 'All Stores';
@@ -104,8 +104,8 @@ include __DIR__.'/header.php';
                     <?php endif; ?>
                 </small>
                 <span class="ms-1 reactions">
-                    <i class="bi bi-hand-thumbs-up" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
-                    <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                    <i class="bi bi-hand-thumbs-up<?php if($msg['like_by_admin']||$msg['like_by_store']) echo ' text-danger'; ?>" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
+                    <i class="bi bi-heart<?php if($msg['love_by_admin']||$msg['love_by_store']) echo ' text-danger'; ?>" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                 </span>
             </div>
         </div>
@@ -140,7 +140,11 @@ function refreshMessages(){
                 let readIcon='';
                 if(m.sender==='admin' && m.read_by_store==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
                 if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
-                div.innerHTML='<strong>'+sender+':</strong> '+m.message.replace(/\n/g,'<br>')+' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small> <span class="ms-1 reactions"><i class="bi bi-hand-thumbs-up" data-id="'+m.id+'" data-type="like"></i> <i class="bi bi-heart" data-id="'+m.id+'" data-type="love"></i></span>';
+                div.innerHTML='<strong>'+sender+':</strong> '+m.message.replace(/\n/g,'<br>')+
+                    ' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small>'+
+                    ' <span class="ms-1 reactions">'+
+                    '<i class="bi bi-hand-thumbs-up'+((m.like_by_admin||m.like_by_store)?' text-danger':'')+'" data-id="'+m.id+'" data-type="like"></i> '+
+                    '<i class="bi bi-heart'+((m.love_by_admin||m.love_by_store)?' text-danger':'')+'" data-id="'+m.id+'" data-type="love"></i></span>';
                 wrap.appendChild(div);
                 container.appendChild(wrap);
             });
@@ -176,10 +180,13 @@ if(document.getElementById('chatForm')){
 refreshMessages();
 function initReactions(){
     document.querySelectorAll('.reactions i').forEach(icon=>{
-        const key='react_'+icon.dataset.id+'_'+icon.dataset.type;
-        if(localStorage.getItem(key)) icon.classList.add('text-danger');
         icon.addEventListener('click',()=>{
-            if(icon.classList.contains('text-danger')){icon.classList.remove('text-danger');localStorage.removeItem(key);}else{icon.classList.add('text-danger');localStorage.setItem(key,'1');}
+            const form=new FormData();
+            form.append('id',icon.dataset.id);
+            form.append('type',icon.dataset.type);
+            fetch('../react.php',{method:'POST',body:form})
+                .then(r=>r.json())
+                .then(()=>{refreshMessages();});
         });
     });
 }
