@@ -29,8 +29,8 @@ $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 include __DIR__.'/header.php';
 ?>
-<h2>Conversation</h2>
-<div id="messages" class="mb-4">
+<h2>Chat</h2>
+<div id="messages" class="mb-4 border rounded p-3" style="max-height:400px;overflow-y:auto;">
     <?php foreach ($messages as $msg): ?>
         <div class="mb-2">
             <strong><?php echo $msg['sender'] === 'admin' ? 'Admin' : 'You'; ?>:</strong>
@@ -39,9 +39,10 @@ include __DIR__.'/header.php';
         </div>
     <?php endforeach; ?>
 </div>
-<form method="post" action="send_message.php" id="msgForm">
-    <textarea name="message" class="form-control mb-2" rows="3" required></textarea>
+<form method="post" action="send_message.php" id="msgForm" class="input-group">
+    <textarea name="message" class="form-control" rows="2" placeholder="Type message" required></textarea>
     <button type="submit" class="btn btn-primary">Send</button>
+    <input type="hidden" name="ajax" value="1">
 </form>
 <script>
 function refreshMessages() {
@@ -58,8 +59,16 @@ function refreshMessages() {
                     ` <small class="text-muted ms-2">${m.created_at}</small>`;
                 container.appendChild(div);
             });
+            container.scrollTop = container.scrollHeight;
         });
 }
-setInterval(refreshMessages, 30000);
+setInterval(refreshMessages, 5000);
+document.getElementById('msgForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    fetch('send_message.php', {method:'POST', body:new FormData(this)})
+        .then(r=>r.json())
+        .then(()=>{ this.reset(); refreshMessages(); });
+});
+refreshMessages();
 </script>
 <?php include __DIR__.'/footer.php'; ?>

@@ -54,6 +54,11 @@ if (!isset($_SESSION)) { session_start(); }
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="messages.php">
+                            <i class="bi bi-chat-dots"></i> Chat
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="?logout=1">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </a>
