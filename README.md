@@ -22,3 +22,7 @@ Fill in the `google_oauth` settings in `config.php` to enable "Login with Google
 ## Deployment
 
 A simple `deploy.sh` script is provided to rsync the files to a remote host. Edit the script with your server details.
+
+## Versioning
+
+The current version is tracked in the `VERSION` file. Run `php scripts/bump_version.php` after committing changes to automatically bump the patch number and append the latest commit message to `CHANGELOG.md`. The admin interface displays this version in the bottom-right corner.
