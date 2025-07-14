@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
-require_once __DIR__.'/../lib/dripley.php';
+require_once __DIR__.'/../lib/groundhogg.php';
 require_login();
 $pdo = get_pdo();
 
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $success = true;
                 $store_users[] = ['id' => $insertId, 'email' => $email, 'first_name' => $first, 'last_name' => $last];
 
-                // Send to Dripley
+                // Send to Groundhogg
                 $contact = [
                     'first_name'   => $first,
                     'last_name'    => $last,
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'tags'         => ['media-hub', 'store-onboarding'],
                     'store_id'     => (int)$id
                 ];
-                send_contact_to_dripley($contact);
+                groundhogg_send_contact($contact);
             } catch (PDOException $e) {
                 $errors[] = 'User already exists for this store';
             }

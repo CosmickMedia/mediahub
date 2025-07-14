@@ -1,22 +1,22 @@
 <?php
 /**
- * Helper functions for Dripley CRM integration
+ * Helper functions for Groundhogg CRM integration
  */
 require_once __DIR__.'/db.php';
 
-function dripley_get_settings(): array {
+function groundhogg_get_settings(): array {
     $pdo = get_pdo();
-    $stmt = $pdo->prepare("SELECT name, value FROM settings WHERE name IN ('dripley_site_url','dripley_username','dripley_app_password')");
+    $stmt = $pdo->prepare("SELECT name, value FROM settings WHERE name IN ('groundhogg_site_url','groundhogg_username','groundhogg_app_password')");
     $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
     return [
-        'site_url'  => $rows['dripley_site_url'] ?? '',
-        'username'  => $rows['dripley_username'] ?? '',
-        'app_pass'  => $rows['dripley_app_password'] ?? ''
+        'site_url'  => $rows['groundhogg_site_url'] ?? '',
+        'username'  => $rows['groundhogg_username'] ?? '',
+        'app_pass'  => $rows['groundhogg_app_password'] ?? ''
     ];
 }
 
-function dripley_log(string $message, ?int $store_id = null, string $action = 'dripley'): void {
+function groundhogg_log(string $message, ?int $store_id = null, string $action = 'groundhogg'): void {
     try {
         $pdo = get_pdo();
         $stmt = $pdo->prepare('INSERT INTO logs (store_id, action, message, created_at, ip) VALUES (?, ?, ?, NOW(), ?)');
@@ -27,8 +27,8 @@ function dripley_log(string $message, ?int $store_id = null, string $action = 'd
     }
 }
 
-function send_contact_to_dripley(array $contactData): bool {
-    $settings = dripley_get_settings();
+function groundhogg_send_contact(array $contactData): bool {
+    $settings = groundhogg_get_settings();
     if (!$settings['site_url'] || !$settings['username'] || !$settings['app_pass']) {
         return false;
     }
@@ -49,13 +49,13 @@ function send_contact_to_dripley(array $contactData): bool {
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    dripley_log("POST $url HTTP $httpCode Response: $response", $contactData['store_id'] ?? null, 'dripley_contact');
+    groundhogg_log("POST $url HTTP $httpCode Response: $response", $contactData['store_id'] ?? null, 'groundhogg_contact');
 
     return $httpCode >= 200 && $httpCode < 300;
 }
 
-function test_dripley_connection(): array {
-    $settings = dripley_get_settings();
+function test_groundhogg_connection(): array {
+    $settings = groundhogg_get_settings();
     if (!$settings['site_url'] || !$settings['username'] || !$settings['app_pass']) {
         return [false, 'Missing configuration'];
     }
@@ -74,7 +74,7 @@ function test_dripley_connection(): array {
     curl_close($ch);
 
     $success = $httpCode >= 200 && $httpCode < 300;
-    dripley_log("GET $url HTTP $httpCode Response: $response", null, 'dripley_test');
+    groundhogg_log("GET $url HTTP $httpCode Response: $response", null, 'groundhogg_test');
 
     return [$success, $response ?: ''];
 }

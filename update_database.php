@@ -10,6 +10,27 @@ $pdo = get_pdo();
 
 echo "Starting database update...\n\n";
 
+// Migrate old Dripley settings to Groundhogg naming
+$mapping = [
+    'dripley_site_url' => 'groundhogg_site_url',
+    'dripley_username' => 'groundhogg_username',
+    'dripley_app_password' => 'groundhogg_app_password'
+];
+foreach ($mapping as $old => $new) {
+    try {
+        $stmt = $pdo->prepare("SELECT value FROM settings WHERE name = ?");
+        $stmt->execute([$old]);
+        $value = $stmt->fetchColumn();
+        if ($value !== false) {
+            $pdo->prepare("INSERT INTO settings (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=VALUES(value)")->execute([$new, $value]);
+            $pdo->prepare("DELETE FROM settings WHERE name = ?")->execute([$old]);
+            echo "✓ Migrated setting $old to $new\n";
+        }
+    } catch (PDOException $e) {
+        echo "✗ Error migrating $old: " . $e->getMessage() . "\n";
+    }
+}
+
 // Default email settings to add
 $defaultSettings = [
     'email_from_name' => 'Cosmick Media',

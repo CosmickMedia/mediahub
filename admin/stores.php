@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
-require_once __DIR__.'/../lib/dripley.php';
+require_once __DIR__.'/../lib/groundhogg.php';
 require_login();
 $pdo = get_pdo();
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $storeId = $pdo->lastInsertId();
             $success[] = 'Store added successfully';
 
-            // Send to Dripley
+            // Send to Groundhogg
             $contact = [
                 'first_name'   => $_POST['first_name'] ?? '',
                 'last_name'    => $_POST['last_name'] ?? '',
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'tags'         => ['media-hub', 'store-onboarding'],
                 'store_id'     => (int)$storeId
             ];
-            send_contact_to_dripley($contact);
+            groundhogg_send_contact($contact);
         }
     }
     if (isset($_POST['delete'])) {
