@@ -33,15 +33,15 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 <li class="nav-item"><a class="nav-link<?php if($active==='settings') echo ' active'; ?>" href="settings.php">Settings</a></li>
                 <li class="nav-item"><a class="nav-link<?php if($active==='users') echo ' active'; ?>" href="users.php">Users</a></li>
             </ul>
-            <div class="ms-auto text-end small text-white">
+            <div id="adminUserInfo" class="ms-auto text-end small text-white d-flex align-items-center">
+                <span class="me-2">Logged in as: <?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?></span>
                 <span class="position-relative me-2">
                     <i class="bi bi-bell" id="notifyBell"></i>
                     <span class="position-absolute start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount">0</span>
-                </span><br>
-                Logged in as: <?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?><br>
-                <a href="logout.php" class="text-white text-decoration-none">Logout</a>
+                </span>
+                <a href="logout.php" class="text-white text-decoration-none"><i class="bi bi-box-arrow-right"></i></a>
             </div>
         </div>
     </div>
 </nav>
-<div class="container pb-5">
+<div class="container-fluid pb-5">

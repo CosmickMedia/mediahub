@@ -23,47 +23,24 @@ if (!isset($_SESSION)) { session_start(); }
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarPublic">
-            <ul class="navbar-nav ms-auto">
-                <?php if(isset($_SESSION['store_id'])): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="history.php">
-                            <i class="bi bi-clock-history"></i> History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="calendar.php">
-                            <i class="bi bi-calendar-event"></i> Calendar
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="marketing.php">
-                            <i class="bi bi-graph-up"></i> Marketing Report
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="messages.php">
-                            <i class="bi bi-chat-dots"></i> Chat
-                        </a>
-                    </li>
-                    <li class="nav-item position-relative ms-lg-3">
-                        <a class="nav-link" href="messages.php">
-                            <i class="bi bi-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount">0</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="?logout=1">
-                            <i class="bi bi-box-arrow-right"></i>
-                        </a>
-                    </li>
-                <?php endif; ?>
+            <?php if(isset($_SESSION['store_id'])): ?>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="history.php"><i class="bi bi-clock-history"></i> History</a></li>
+                <li class="nav-item"><a class="nav-link" href="calendar.php"><i class="bi bi-calendar-event"></i> Calendar</a></li>
+                <li class="nav-item"><a class="nav-link" href="marketing.php"><i class="bi bi-graph-up"></i> Marketing Report</a></li>
+                <li class="nav-item"><a class="nav-link" href="messages.php"><i class="bi bi-chat-dots"></i> Chat</a></li>
             </ul>
+            <div id="publicUserInfo" class="ms-auto d-flex align-items-center navbar-text small text-white">
+                <span class="me-2">Logged in as: <?php echo htmlspecialchars(trim(($_SESSION['store_first_name'] ?? '') . ' ' . ($_SESSION['store_last_name'] ?? ''))); ?></span>
+                <a class="nav-link position-relative text-white me-2" href="messages.php">
+                    <i class="bi bi-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount">0</span>
+                </a>
+                <a class="nav-link text-white" href="?logout=1"><i class="bi bi-box-arrow-right"></i></a>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </nav>
-<div class="container mt-4">
+<div class="container-fluid mt-4">

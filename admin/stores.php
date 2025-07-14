@@ -48,10 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get stores sorted by name
-$stores = $pdo->query('SELECT s.*, COUNT(u.id) as upload_count 
-                       FROM stores s 
-                       LEFT JOIN uploads u ON s.id = u.store_id 
-                       GROUP BY s.id 
+$stores = $pdo->query('SELECT s.*, COUNT(u.id) as upload_count,
+                       (SELECT COUNT(*) FROM store_messages m WHERE m.store_id = s.id) as chat_count
+                       FROM stores s
+                       LEFT JOIN uploads u ON s.id = u.store_id
+                       GROUP BY s.id
                        ORDER BY s.name ASC')->fetchAll(PDO::FETCH_ASSOC);
 
 $active = 'stores';
@@ -87,7 +88,7 @@ include __DIR__.'/header.php';
                         <th>PIN</th>
                         <th>Admin Email</th>
                         <th>Drive Folder ID</th>
-                        <th>Hootsuite Token</th>
+                        <th>Total Chats</th>
                         <th>Uploads</th>
                         <th>Actions</th>
                     </tr>
@@ -108,7 +109,7 @@ include __DIR__.'/header.php';
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php echo $s['hootsuite_token'] ? '<span class="badge bg-success">Set</span>' : '<span class="badge bg-secondary">None</span>'; ?>
+                                <span class="badge bg-info"><?php echo $s['chat_count']; ?></span>
                             </td>
                             <td>
                                 <span class="badge bg-info"><?php echo $s['upload_count']; ?></span>
