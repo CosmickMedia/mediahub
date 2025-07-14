@@ -12,6 +12,27 @@ function format_ts($time): string {
 function sanitize_message(string $msg): string {
     $msg = trim($msg);
     // Allow simple formatting tags
-    $allowed = '<b><i><u><strong><em>';    
+    $allowed = '<b><i><u><strong><em>';
     return strip_tags($msg, $allowed);
+}
+
+/**
+ * Shorten a filename to prevent overly long text in tables.
+ * Shows the first part of the basename followed by the extension.
+ */
+function shorten_filename(string $filename, int $baseLength = 8): string {
+    $dotPos = strrpos($filename, '.');
+    if ($dotPos === false) {
+        $base = $filename;
+        $ext = '';
+    } else {
+        $base = substr($filename, 0, $dotPos);
+        $ext = substr($filename, $dotPos);
+    }
+
+    if (strlen($base) <= $baseLength) {
+        return $filename;
+    }
+
+    return substr($base, 0, $baseLength) . '...' . $ext;
 }
