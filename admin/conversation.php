@@ -11,7 +11,12 @@ if (!$store_id) {
     exit;
 }
 
-$stmt = $pdo->prepare('SELECT name, first_name, last_name FROM stores WHERE id = ?');
+$stmt = $pdo->prepare("SELECT s.name, u.first_name, u.last_name
+    FROM stores s
+    LEFT JOIN store_users u ON u.store_id = s.id
+    WHERE s.id = ?
+    ORDER BY u.id
+    LIMIT 1");
 $stmt->execute([$store_id]);
 $store = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$store) {
@@ -36,7 +41,7 @@ if (isset($_GET['load'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
-    $message = trim($_POST['message']);
+    $message = sanitize_message($_POST['message']);
     if ($message !== '') {
         $parent = intval($_POST['parent_id'] ?? 0) ?: null;
         $ins = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, parent_id, created_at, read_by_admin, read_by_store) VALUES (?, 'admin', ?, ?, NOW(), 1, 0)");
@@ -64,7 +69,7 @@ include __DIR__.'/header.php';
         <div class="mb-2 <?php echo $msg['sender']==='admin'?'mine':'theirs'; ?>">
             <div class="bubble">
                 <strong><?php echo $msg['sender']==='admin'?htmlspecialchars($admin_name):htmlspecialchars($store_contact ?: 'Store'); ?>:</strong>
-                <span><?php echo nl2br(htmlspecialchars($msg['message'])); ?></span>
+                <span><?php echo nl2br($msg['message']); ?></span>
                 <small class="text-muted ms-2">
                     <?php echo format_ts($msg['created_at']); ?>
                     <?php if($msg['sender']==='admin' && ($msg['read_by_store']??0)): ?>

@@ -25,7 +25,7 @@ if (isset($_GET['load'])) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT sender, message, created_at, read_by_store, read_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at");
+$stmt = $pdo->prepare("SELECT id, sender, message, created_at, read_by_store, read_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at");
 $stmt->execute([$store_id]);
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $pdo->prepare("UPDATE store_messages SET read_by_store=1 WHERE store_id=? AND sender='admin' AND read_by_store=0")
@@ -43,13 +43,12 @@ include __DIR__.'/header.php';
     #messages .mine .bubble{background:#d1e7dd;}
     #messages .theirs .bubble{background:#e2e3e5;}
 </style>
-<h2>Chat</h2>
-<div id="messages" class="mb-4 border rounded p-3" style="max-height:400px;overflow-y:auto;">
+<div id="messages" class="mb-4 border rounded p-2" style="height:70vh;overflow-y:auto;margin-left:0.5rem;margin-right:0.5rem;">
     <?php foreach ($messages as $msg): ?>
         <div class="mb-2 <?php echo $msg['sender'] === 'admin' ? 'theirs' : 'mine'; ?>">
             <div class="bubble">
                 <strong><?php echo $msg['sender'] === 'admin' ? htmlspecialchars($admin_name) : htmlspecialchars($your_name); ?>:</strong>
-                <span><?php echo nl2br(htmlspecialchars($msg['message'])); ?></span>
+                <span><?php echo nl2br($msg['message']); ?></span>
                 <small class="text-muted ms-2">
                     <?php echo format_ts($msg['created_at']); ?>
                     <?php if($msg['sender']==='admin' && $msg['read_by_store']): ?>
@@ -58,6 +57,10 @@ include __DIR__.'/header.php';
                         <i class="bi bi-check2-all text-primary"></i>
                     <?php endif; ?>
                 </small>
+                <span class="ms-1 reactions">
+                    <i class="bi bi-hand-thumbs-up" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
+                    <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                </span>
             </div>
         </div>
     <?php endforeach; ?>
@@ -90,11 +93,13 @@ function refreshMessages() {
                 if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
                 div.innerHTML=`<strong>${m.sender==='admin'?ADMIN_NAME:YOUR_NAME}:</strong> `+
                     m.message.replace(/\n/g,'<br>')+
-                    ` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`;
+                    ` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`+
+                    ` <span class="ms-1 reactions"><i class="bi bi-hand-thumbs-up" data-id="${m.id}" data-type="like"></i> <i class="bi bi-heart" data-id="${m.id}" data-type="love"></i></span>`;
                 wrap.appendChild(div);
                 container.appendChild(wrap);
             });
             container.scrollTop = container.scrollHeight;
+            initReactions();
         });
 }
 setInterval(refreshMessages, 5000);
@@ -120,6 +125,22 @@ picker.addEventListener('emoji-click', e=>{
     picker.style.display='none';
     ta.focus();
 });
+function initReactions(){
+    document.querySelectorAll('.reactions i').forEach(icon=>{
+        const key='react_'+icon.dataset.id+'_'+icon.dataset.type;
+        if(localStorage.getItem(key)) icon.classList.add('text-danger');
+        icon.addEventListener('click',()=>{
+            if(icon.classList.contains('text-danger')){
+                icon.classList.remove('text-danger');
+                localStorage.removeItem(key);
+            }else{
+                icon.classList.add('text-danger');
+                localStorage.setItem(key,'1');
+            }
+        });
+    });
+}
 refreshMessages();
+initReactions();
 </script>
 <?php include __DIR__.'/footer.php'; ?>

@@ -55,7 +55,7 @@ if (!isset($active)) { $active = ''; }
             <div class="ms-auto text-end small text-white">
                 <span class="position-relative me-2">
                     <i class="bi bi-bell" id="notifyBell"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount" style="display:none;">0</span>
+                    <span class="position-absolute start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount" style="display:none; top:-10px;">0</span>
                 </span><br>
                 Logged in as: <?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?><br>
                 <a href="logout.php" class="text-white text-decoration-none">Logout</a>
