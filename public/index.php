@@ -386,11 +386,7 @@ function getUploadErrorMessage($code) {
 include __DIR__.'/header.php';
 ?>
 
-    <div class="mb-4">
-        <h2 class="mb-0">Welcome</h2>
-        <div class="small"><?php echo htmlspecialchars($your_name); ?> from</div>
-        <h3 class="mt-1"><?php echo htmlspecialchars($store_name); ?></h3>
-    </div>
+
 
 <?php if (!empty($latest_broadcast)): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert" id="broadcastAlert" data-id="<?php echo $latest_broadcast['id']; ?>">
@@ -489,7 +485,7 @@ include __DIR__.'/header.php';
                         <a href="calendar.php" class="btn btn-primary">
                             <i class="bi bi-calendar-event"></i> View Calendar
                         </a>
-                        <a href="?logout=1" class="btn btn-secondary">
+                        <a href="?logout=1" class="btn btn-primary">
                             <i class="bi bi-box-arrow-right"></i> Change Store
                         </a>
                     </div>
