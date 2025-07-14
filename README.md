@@ -31,10 +31,9 @@ The current version is tracked in the `VERSION` file. Run `php scripts/bump_vers
 
 To sync new store contacts with your Groundhogg installation, open **Admin → Settings** and enter the following details under **Groundhogg CRM Integration**:
 
-1. **WordPress Site URL** – the base URL of the site where Groundhogg is installed.
-2. **Groundhogg API Username** – the WordPress user to authenticate with.
-3. **Groundhogg API App Password** – legacy method using a WordPress application password.
-4. **Public Key / Token / Secret Key** – credentials for the advanced API authentication.
+1. **Groundhogg Site URL** – the base URL of the site where Groundhogg is installed. The API endpoints are automatically appended (e.g. `/wp-json/gh/v4`).
+2. **Groundhogg API Username** – the WordPress user associated with your API keys.
+3. **Public Key / Token / Secret Key** – credentials for the advanced API authentication.
 
 After saving, use the **Test Connection** button to verify communication with your Groundhogg REST API. If public key credentials are provided, the advanced authentication method is used.
 

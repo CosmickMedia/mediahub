@@ -13,8 +13,7 @@ echo "Starting database update...\n\n";
 // Migrate old Dripley settings to Groundhogg naming
 $mapping = [
     'dripley_site_url' => 'groundhogg_site_url',
-    'dripley_username' => 'groundhogg_username',
-    'dripley_app_password' => 'groundhogg_app_password'
+    'dripley_username' => 'groundhogg_username'
 ];
 foreach ($mapping as $old => $new) {
     try {

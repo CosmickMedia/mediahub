@@ -10,7 +10,6 @@ function groundhogg_get_settings(): array {
         "SELECT name, value FROM settings WHERE name IN (
             'groundhogg_site_url',
             'groundhogg_username',
-            'groundhogg_app_password',
             'groundhogg_public_key',
             'groundhogg_token',
             'groundhogg_secret_key',
@@ -22,7 +21,6 @@ function groundhogg_get_settings(): array {
     return [
         'site_url'   => $rows['groundhogg_site_url'] ?? '',
         'username'   => $rows['groundhogg_username'] ?? '',
-        'app_pass'   => $rows['groundhogg_app_password'] ?? '',
         'public_key' => $rows['groundhogg_public_key'] ?? '',
         'token'      => $rows['groundhogg_token'] ?? '',
         'secret_key' => $rows['groundhogg_secret_key'] ?? '',
@@ -75,9 +73,6 @@ function groundhogg_send_contact(array $contactData): bool {
         $headers[] = 'X-GH-PUBLIC-KEY: ' . $settings['public_key'];
         $headers[] = 'X-GH-TOKEN: ' . $settings['token'];
         $headers[] = 'X-GH-SIGNATURE: ' . $signature;
-    } elseif ($settings['username'] && $settings['app_pass']) {
-        $auth = base64_encode($settings['username'] . ':' . $settings['app_pass']);
-        $headers[] = 'Authorization: Basic ' . $auth;
     } else {
         return false;
     }
@@ -118,9 +113,6 @@ function test_groundhogg_connection(): array {
         $headers[] = 'X-GH-PUBLIC-KEY: ' . $settings['public_key'];
         $headers[] = 'X-GH-TOKEN: ' . $settings['token'];
         $headers[] = 'X-GH-SIGNATURE: ' . $signature;
-    } elseif ($settings['username'] && $settings['app_pass']) {
-        $auth = base64_encode($settings['username'] . ':' . $settings['app_pass']);
-        $headers[] = 'Authorization: Basic ' . $auth;
     } else {
         return [false, 'Missing configuration'];
     }
