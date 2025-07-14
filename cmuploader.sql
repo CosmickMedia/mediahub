@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 13, 2025 at 08:15 PM
+-- Generation Time: Jul 14, 2025 at 01:25 AM
 -- Server version: 11.4.7-MariaDB-ubu2404
 -- PHP Version: 8.2.28
 
@@ -123,7 +123,6 @@ INSERT INTO `stores` (`id`, `name`, `pin`, `admin_email`, `drive_folder`, `hoots
 CREATE TABLE `store_messages` (
   `id` int(11) NOT NULL,
   `store_id` int(11) DEFAULT NULL,
-  `sender` enum('admin','store') DEFAULT 'admin',
   `message` text NOT NULL,
   `is_reply` tinyint(1) DEFAULT 0,
   `upload_id` int(11) DEFAULT NULL,
@@ -135,12 +134,12 @@ CREATE TABLE `store_messages` (
 -- Dumping data for table `store_messages`
 --
 
-INSERT INTO `store_messages` (`id`, `store_id`, `sender`, `message`, `is_reply`, `upload_id`, `article_id`, `created_at`) VALUES
-(1, 2, 'admin', 'Dont forget to create your content.', 0, NULL, NULL, '2025-07-03 04:26:20'),
-(2, 4, 'admin', 'Where do these messages go?', 0, NULL, NULL, '2025-07-03 13:46:08'),
-(3, 4, 'admin', 'Please don\'t forget to upload new social content!', 0, NULL, NULL, '2025-07-03 13:49:44'),
-(4, 3, 'admin', 'Hey there, it\'s Cassandra. Great to see you here! Don\'t forget to upload your content!', 0, NULL, NULL, '2025-07-03 13:52:29'),
-(5, 4, 'admin', 'Please don\'t forget to upload new social content!', 0, NULL, NULL, '2025-07-03 18:43:53');
+INSERT INTO `store_messages` (`id`, `store_id`, `message`, `is_reply`, `upload_id`, `article_id`, `created_at`) VALUES
+(1, 2, 'Dont forget to create your content.', 0, NULL, NULL, '2025-07-03 04:26:20'),
+(2, 4, 'Where do these messages go?', 0, NULL, NULL, '2025-07-03 13:46:08'),
+(3, 4, 'Please don\'t forget to upload new social content!', 0, NULL, NULL, '2025-07-03 13:49:44'),
+(4, 3, 'Hey there, it\'s Cassandra. Great to see you here! Don\'t forget to upload your content!', 0, NULL, NULL, '2025-07-03 13:52:29'),
+(5, 4, 'Please don\'t forget to upload new social content!', 0, NULL, NULL, '2025-07-03 18:43:53');
 
 -- --------------------------------------------------------
 
@@ -156,6 +155,13 @@ CREATE TABLE `store_users` (
   `last_name` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `store_users`
+--
+
+INSERT INTO `store_users` (`id`, `store_id`, `email`, `first_name`, `last_name`, `created_at`) VALUES
+(1, 3, 'ckuehner@cosmickmedia.com', 'dfgfg', 'dfgdfgdf', '2025-07-13 20:38:47');
 
 -- --------------------------------------------------------
 
@@ -173,38 +179,69 @@ CREATE TABLE `uploads` (
   `ip` varchar(45) NOT NULL,
   `mime` varchar(100) NOT NULL,
   `size` int(11) NOT NULL,
-  `drive_id` varchar(255) DEFAULT NULL
+  `drive_id` varchar(255) DEFAULT NULL,
+  `status_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `uploads`
 --
 
-INSERT INTO `uploads` (`id`, `store_id`, `filename`, `description`, `custom_message`, `created_at`, `ip`, `mime`, `size`, `drive_id`) VALUES
-(1, 1, 'cosmick-media-dark (2).png', '', NULL, '2025-07-02 16:25:14', '24.115.186.198', 'image/png', 1799025, NULL),
-(2, 1, 'Available Kittens Banner (1).png', 'Kittne banner', NULL, '2025-07-02 17:36:30', '24.115.186.198', 'image/png', 3289377, NULL),
-(3, 2, '20250702_2009_Robot Overlooks Nerd_remix_01jz6st9hrf299c8r09pedecrb.png', 'Robot', NULL, '2025-07-03 03:51:16', '24.115.186.198', 'image/png', 1507264, '1UOUzJG8Dwg0hZOD4xmpOzX_IrB89Q8i1'),
-(4, 2, '20250702_2009_Robot Overlooks Nerd_remix_01jz6st9hte9a8qkvs7kcm7wsz.png', 'Hello', 'THis is my test message that goes along with my submissions.', '2025-07-03 04:19:51', '24.115.186.198', 'image/png', 1253574, '1L8v6aeWXtIpozxUCGMrApKJZEeuU5Rvx'),
-(5, 2, 'Add-Health-Routines-‹-Petland-Murfreesboro-Tennessee-—-WordPress-03-11-2025_09_37_PM.png', 'hero', 'this is a message that goes along with these uploads.', '2025-07-03 04:49:33', '24.115.186.198', 'image/png', 956162, '1Ri4VBqM2t_siEri8baA4197K9Ir434yG'),
-(6, 3, 'AdobeStock_65404043.jpeg', 'adobe stock', 'THis is a my test instructions', '2025-07-03 05:00:52', '24.115.186.198', 'image/jpeg', 5816833, '1AFVV6s1WCRdyEjvl7HSFh0nmJVdsEQIz'),
-(7, 3, 'kanguro.jpg', '', '', '2025-07-03 05:33:44', '24.115.186.198', 'image/jpeg', 270962, '1pv8fpdk65kxw8HDWtxu0tTORRHCRLEZf'),
-(9, 3, 'image.jpg', '', 'My luggage lol', '2025-07-03 13:31:22', '12.75.117.33', 'image/jpeg', 2269028, '1jRUZ8rF6MiidUfoV6IW2YwCJD-U4HQ8t'),
-(10, 3, 'image.jpg', '', 'My luggage lol', '2025-07-03 13:31:23', '12.75.117.33', 'image/jpeg', 2269028, '1Sg00LLqOqUoK_4-TcwkihFxL3VzxIkeo'),
-(11, 3, '77324235760__9FF03D95-1AC9-40D3-9A20-7077AA1D19CC.MOV', '', '', '2025-07-03 13:33:08', '12.75.117.33', 'video/quicktime', 1170292, '124i5vRRavjAC2E5gOsRxhmxaY4xVALtG'),
-(12, 3, '77324235760__9FF03D95-1AC9-40D3-9A20-7077AA1D19CC.MOV', '', '', '2025-07-03 13:33:09', '12.75.117.33', 'video/quicktime', 1170292, '1YyZENtHBd2bF21oPHYHlBfLyvdT0ZfsM'),
-(13, 4, 'image.jpg', '', '', '2025-07-03 13:37:43', '12.75.117.33', 'image/jpeg', 2708753, '1y24HQ8qkHY5axp0vg2Jy5TS1KgzITbEp'),
-(14, 4, 'image.jpg', '', '', '2025-07-03 13:37:45', '12.75.117.33', 'image/jpeg', 2334883, '1Yi6uFH02uexryKiuNhleSAyRHaVSmshz'),
-(15, 4, 'image.jpg', '', '', '2025-07-03 13:37:46', '12.75.117.33', 'image/jpeg', 2334883, '1AKYq3TBWjXJ8YGGapvvKPGbZPckY_N2C'),
-(16, 4, '77324285643__BB0B555A-5505-47AB-941C-4B86C2969CB6.MOV', '', 'Goldfish chaos', '2025-07-03 13:41:21', '12.75.117.33', 'video/quicktime', 358185, '1Y9W6d-dUdBO1dxpCGEk5ktwUYoQAnJAq'),
-(17, 4, '77324285643__BB0B555A-5505-47AB-941C-4B86C2969CB6.MOV', '', 'Goldfish chaos', '2025-07-03 13:41:22', '12.75.117.33', 'video/quicktime', 358185, '1NkKIeuKQcCcsJmTsdZWRstdUAjRJygnw'),
-(18, 3, 'pet-safety-4th-of-july (2).jpg', '', '', '2025-07-03 13:41:49', '64.121.214.159', 'image/jpeg', 262914, '19EqS0ojQA4tYGpngXSywsesxpxdBnOIz'),
-(19, 3, 'pet-safety-4th-of-july (2).jpg', '', '', '2025-07-03 13:41:50', '64.121.214.159', 'image/jpeg', 262914, '1XXAdH_7PlADU4bwwS6QziAGbGTODpzDS'),
-(20, 3, 'image.jpg', '', 'Desk', '2025-07-03 13:44:02', '64.121.214.159', 'image/jpeg', 2636725, '1c1C2oDcQyLa2ycocqE7ddtMagdmL2Aaw'),
-(21, 3, 'image.jpg', '', 'Desk', '2025-07-03 13:44:03', '64.121.214.159', 'image/jpeg', 2636725, '1I-9Rb8_NtknSGUNNJMobF_MydPJxrw1d'),
-(22, 3, '77324318489__37964C8D-2C9C-4278-9186-51383A935488.MOV', '', 'My front window ', '2025-07-03 13:46:37', '131.106.93.49', 'video/quicktime', 201723, '1Mq5zlgm1aUKb2IWQC0dm9a6WKRjPnp_K'),
-(23, 4, '77324285643__BB0B555A-5505-47AB-941C-4B86C2969CB6.MOV', '', 'Goldfish chaos', '2025-07-03 13:49:55', '12.75.117.33', 'video/quicktime', 358185, '1DeL3AN_oV3FcP0f7sBqp-G10Po_yxrIY'),
-(24, 4, '77324285643__BB0B555A-5505-47AB-941C-4B86C2969CB6.MOV', '', 'Goldfish chaos', '2025-07-03 13:49:56', '12.75.117.33', 'video/quicktime', 358185, '1qscNWv-cFDHh_xpeN9lEUlmk9FdB2ZZh'),
-(25, 4, 'IMG_6074.jpeg', '', 'Adding from my photo library ', '2025-07-03 21:11:48', '108.147.173.95', 'image/jpeg', 4163896, '1lTyd6YuaJZO6u63MgdH_clxfnubk1oYE');
+INSERT INTO `uploads` (`id`, `store_id`, `filename`, `description`, `custom_message`, `created_at`, `ip`, `mime`, `size`, `drive_id`, `status_id`) VALUES
+(1, 1, 'cosmick-media-dark (2).png', '', NULL, '2025-07-02 16:25:14', '24.115.186.198', 'image/png', 1799025, NULL, NULL),
+(2, 1, 'Available Kittens Banner (1).png', 'Kittne banner', NULL, '2025-07-02 17:36:30', '24.115.186.198', 'image/png', 3289377, NULL, NULL),
+(3, 2, '20250702_2009_Robot Overlooks Nerd_remix_01jz6st9hrf299c8r09pedecrb.png', 'Robot', NULL, '2025-07-03 03:51:16', '24.115.186.198', 'image/png', 1507264, '1UOUzJG8Dwg0hZOD4xmpOzX_IrB89Q8i1', NULL),
+(4, 2, '20250702_2009_Robot Overlooks Nerd_remix_01jz6st9hte9a8qkvs7kcm7wsz.png', 'Hello', 'THis is my test message that goes along with my submissions.', '2025-07-03 04:19:51', '24.115.186.198', 'image/png', 1253574, '1L8v6aeWXtIpozxUCGMrApKJZEeuU5Rvx', NULL),
+(5, 2, 'Add-Health-Routines-‹-Petland-Murfreesboro-Tennessee-—-WordPress-03-11-2025_09_37_PM.png', 'hero', 'this is a message that goes along with these uploads.', '2025-07-03 04:49:33', '24.115.186.198', 'image/png', 956162, '1Ri4VBqM2t_siEri8baA4197K9Ir434yG', NULL),
+(6, 3, 'AdobeStock_65404043.jpeg', 'adobe stock', 'THis is a my test instructions', '2025-07-03 05:00:52', '24.115.186.198', 'image/jpeg', 5816833, '1AFVV6s1WCRdyEjvl7HSFh0nmJVdsEQIz', NULL),
+(7, 3, 'kanguro.jpg', '', '', '2025-07-03 05:33:44', '24.115.186.198', 'image/jpeg', 270962, '1pv8fpdk65kxw8HDWtxu0tTORRHCRLEZf', NULL),
+(9, 3, 'image.jpg', '', 'My luggage lol', '2025-07-03 13:31:22', '12.75.117.33', 'image/jpeg', 2269028, '1jRUZ8rF6MiidUfoV6IW2YwCJD-U4HQ8t', NULL),
+(10, 3, 'image.jpg', '', 'My luggage lol', '2025-07-03 13:31:23', '12.75.117.33', 'image/jpeg', 2269028, '1Sg00LLqOqUoK_4-TcwkihFxL3VzxIkeo', NULL),
+(11, 3, '77324235760__9FF03D95-1AC9-40D3-9A20-7077AA1D19CC.MOV', '', '', '2025-07-03 13:33:08', '12.75.117.33', 'video/quicktime', 1170292, '124i5vRRavjAC2E5gOsRxhmxaY4xVALtG', NULL),
+(12, 3, '77324235760__9FF03D95-1AC9-40D3-9A20-7077AA1D19CC.MOV', '', '', '2025-07-03 13:33:09', '12.75.117.33', 'video/quicktime', 1170292, '1YyZENtHBd2bF21oPHYHlBfLyvdT0ZfsM', NULL),
+(13, 4, 'image.jpg', '', '', '2025-07-03 13:37:43', '12.75.117.33', 'image/jpeg', 2708753, '1y24HQ8qkHY5axp0vg2Jy5TS1KgzITbEp', NULL),
+(14, 4, 'image.jpg', '', '', '2025-07-03 13:37:45', '12.75.117.33', 'image/jpeg', 2334883, '1Yi6uFH02uexryKiuNhleSAyRHaVSmshz', NULL),
+(15, 4, 'image.jpg', '', '', '2025-07-03 13:37:46', '12.75.117.33', 'image/jpeg', 2334883, '1AKYq3TBWjXJ8YGGapvvKPGbZPckY_N2C', NULL),
+(16, 4, '77324285643__BB0B555A-5505-47AB-941C-4B86C2969CB6.MOV', '', 'Goldfish chaos', '2025-07-03 13:41:21', '12.75.117.33', 'video/quicktime', 358185, '1Y9W6d-dUdBO1dxpCGEk5ktwUYoQAnJAq', NULL),
+(17, 4, '77324285643__BB0B555A-5505-47AB-941C-4B86C2969CB6.MOV', '', 'Goldfish chaos', '2025-07-03 13:41:22', '12.75.117.33', 'video/quicktime', 358185, '1NkKIeuKQcCcsJmTsdZWRstdUAjRJygnw', NULL),
+(18, 3, 'pet-safety-4th-of-july (2).jpg', '', '', '2025-07-03 13:41:49', '64.121.214.159', 'image/jpeg', 262914, '19EqS0ojQA4tYGpngXSywsesxpxdBnOIz', NULL),
+(19, 3, 'pet-safety-4th-of-july (2).jpg', '', '', '2025-07-03 13:41:50', '64.121.214.159', 'image/jpeg', 262914, '1XXAdH_7PlADU4bwwS6QziAGbGTODpzDS', NULL),
+(20, 3, 'image.jpg', '', 'Desk', '2025-07-03 13:44:02', '64.121.214.159', 'image/jpeg', 2636725, '1c1C2oDcQyLa2ycocqE7ddtMagdmL2Aaw', NULL),
+(21, 3, 'image.jpg', '', 'Desk', '2025-07-03 13:44:03', '64.121.214.159', 'image/jpeg', 2636725, '1I-9Rb8_NtknSGUNNJMobF_MydPJxrw1d', NULL),
+(22, 3, '77324318489__37964C8D-2C9C-4278-9186-51383A935488.MOV', '', 'My front window ', '2025-07-03 13:46:37', '131.106.93.49', 'video/quicktime', 201723, '1Mq5zlgm1aUKb2IWQC0dm9a6WKRjPnp_K', NULL),
+(23, 4, '77324285643__BB0B555A-5505-47AB-941C-4B86C2969CB6.MOV', '', 'Goldfish chaos', '2025-07-03 13:49:55', '12.75.117.33', 'video/quicktime', 358185, '1DeL3AN_oV3FcP0f7sBqp-G10Po_yxrIY', 8),
+(24, 4, '77324285643__BB0B555A-5505-47AB-941C-4B86C2969CB6.MOV', '', 'Goldfish chaos', '2025-07-03 13:49:56', '12.75.117.33', 'video/quicktime', 358185, '1qscNWv-cFDHh_xpeN9lEUlmk9FdB2ZZh', 9),
+(25, 4, 'IMG_6074.jpeg', '', 'Adding from my photo library ', '2025-07-03 21:11:48', '108.147.173.95', 'image/jpeg', 4163896, '1lTyd6YuaJZO6u63MgdH_clxfnubk1oYE', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `upload_statuses`
+--
+
+CREATE TABLE `upload_statuses` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `color` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `upload_statuses`
+--
+
+INSERT INTO `upload_statuses` (`id`, `name`, `color`) VALUES
+(1, 'Reviewed', '#198754'),
+(2, 'Pending Submission', '#ffc107'),
+(3, 'Scheduled', '#0dcaf0'),
+(4, 'Reviewed', '#198754'),
+(5, 'Pending Submission', '#ffc107'),
+(6, 'Scheduled', '#0dcaf0'),
+(7, 'Reviewed', '#198754'),
+(8, 'Pending Submission', '#ffc107'),
+(9, 'Scheduled', '#0dcaf0'),
+(10, 'Reviewed', '#198754'),
+(11, 'Pending Submission', '#ffc107'),
+(12, 'Scheduled', '#0dcaf0');
 
 -- --------------------------------------------------------
 
@@ -218,7 +255,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `first_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
-  `email` varchar(255) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -227,7 +264,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `first_name`, `last_name`, `email`, `created_at`) VALUES
-(1, 'admin', '$2y$10$aIKmnAZxd/D5WdCHFMmto.tMsL3os10L8yUC5W4XMSdeKee/8vGpi', 'Admin', '', 'admin@example.com', '2025-07-13 20:14:56');
+(1, 'admin', '$2y$10$aIKmnAZxd/D5WdCHFMmto.tMsL3os10L8yUC5W4XMSdeKee/8vGpi', 'Carley', 'Kuehner', 'carley@cosmickmedia.com', '2025-07-13 20:14:56');
 
 --
 -- Indexes for dumped tables
@@ -284,7 +321,14 @@ ALTER TABLE `store_users`
 --
 ALTER TABLE `uploads`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `store_id` (`store_id`);
+  ADD KEY `store_id` (`store_id`),
+  ADD KEY `fk_status_id` (`status_id`);
+
+--
+-- Indexes for table `upload_statuses`
+--
+ALTER TABLE `upload_statuses`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `users`
@@ -313,7 +357,7 @@ ALTER TABLE `logs`
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `stores`
@@ -331,7 +375,7 @@ ALTER TABLE `store_messages`
 -- AUTO_INCREMENT for table `store_users`
 --
 ALTER TABLE `store_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `uploads`
@@ -340,10 +384,16 @@ ALTER TABLE `uploads`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
+-- AUTO_INCREMENT for table `upload_statuses`
+--
+ALTER TABLE `upload_statuses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
@@ -373,6 +423,7 @@ ALTER TABLE `store_users`
 -- Constraints for table `uploads`
 --
 ALTER TABLE `uploads`
+  ADD CONSTRAINT `fk_status_id` FOREIGN KEY (`status_id`) REFERENCES `upload_statuses` (`id`),
   ADD CONSTRAINT `uploads_ibfk_1` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`);
 COMMIT;
 
