@@ -277,7 +277,7 @@ include __DIR__.'/header.php';
                     <td>
                         <img src="thumbnail.php?id=<?php echo $r['id']; ?>&size=small" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;" alt="<?php echo htmlspecialchars($r['filename']); ?>" loading="lazy">
                     </td>
-                    <td><?php echo htmlspecialchars($r['filename']); ?></td>
+                    <td><?php echo htmlspecialchars(shorten_filename($r['filename'])); ?></td>
                     <td><?php echo htmlspecialchars($r['store_name']); ?></td>
                     <td><?php echo format_ts($r['created_at']); ?></td>
                     <td>
@@ -329,7 +329,7 @@ include __DIR__.'/header.php';
 
                     <div class="card-body">
                         <h6 class="card-title text-truncate" title="<?php echo htmlspecialchars($r['filename']); ?>">
-                            <?php echo htmlspecialchars($r['filename']); ?>
+                            <?php echo htmlspecialchars(shorten_filename($r['filename'])); ?>
                         </h6>
 
                         <p class="card-text">
