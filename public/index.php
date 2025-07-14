@@ -414,7 +414,11 @@ function getUploadErrorMessage($code) {
 include __DIR__.'/header.php';
 ?>
 
-    <h2 class="mb-4">Welcome, <?php echo htmlspecialchars($store_name); ?>!</h2>
+    <div class="mb-4">
+        <h2 class="mb-0">Welcome</h2>
+        <div class="small"><?php echo htmlspecialchars($your_name); ?> from</div>
+        <h3 class="mt-1"><?php echo htmlspecialchars($store_name); ?></h3>
+    </div>
 
 <?php if (!empty($latest_broadcast)): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert" id="broadcastAlert" data-id="<?php echo $latest_broadcast['id']; ?>">
@@ -426,7 +430,6 @@ include __DIR__.'/header.php';
 
 <?php if (!empty($latest_chat)): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert" id="chatAlert" data-id="<?php echo $latest_chat['id']; ?>">
-        <h5 class="alert-heading">Latest Chat:</h5>
         <p class="mb-1"><?php echo nl2br(htmlspecialchars($latest_chat['message'])); ?></p>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
@@ -527,7 +530,7 @@ include __DIR__.'/header.php';
         <div class="col">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Latest Chats</h5>
+                    <h5 class="card-title">Chat Feed</h5>
                     <style>
                         #latestChats .mine { text-align:right; }
                         #latestChats .bubble{display:inline-block;padding:6px 12px;border-radius:12px;margin-bottom:4px;max-width:70%;}

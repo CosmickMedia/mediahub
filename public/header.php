@@ -16,8 +16,12 @@ if (!isset($_SESSION)) { session_start(); }
         .navbar { background-color: #2c3e50 !important; }
         body { background-color: #f8f9fa; }
         .card { border: none; }
-        .btn-primary { background-color: #3498db; border-color: #3498db; }
-        .btn-primary:hover { background-color: #2980b9; border-color: #2980b9; }
+        .btn-primary { background-color: #2c3e50; border-color: #2c3e50; }
+        .btn-primary:hover { background-color: #1a252f; border-color: #1a252f; }
+        .btn-outline-primary { color: #2c3e50; border-color: #2c3e50; }
+        .btn-outline-primary:hover { background-color: #2c3e50; border-color: #2c3e50; }
+        .page-link { color: #2c3e50; }
+        .page-item.active .page-link { background-color: #2c3e50; border-color: #2c3e50; }
         .navbar-logo { height: 30px; width: auto; }
     </style>
 </head>

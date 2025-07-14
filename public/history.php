@@ -81,8 +81,12 @@ include __DIR__.'/header.php';
     <div class="alert alert-info">No uploads found.</div>
 <?php else: ?>
 
+    <div class="mb-3">
+        <input type="text" id="searchFilter" class="form-control" placeholder="Search uploads...">
+    </div>
+
     <div class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover align-middle" id="uploadsTable">
             <thead>
             <tr>
                 <th style="width: 100px;">Preview</th>
@@ -108,7 +112,7 @@ include __DIR__.'/header.php';
                              loading="lazy">
                     </td>
                     <td><?php echo format_ts($upload['created_at']); ?></td>
-                    <td><?php echo htmlspecialchars($upload['filename']); ?></td>
+                    <td><?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?></td>
                     <td><?php echo htmlspecialchars($upload['description']); ?></td>
                     <td>
                         <?php if (!empty($upload['custom_message'])): ?>
@@ -154,4 +158,12 @@ include __DIR__.'/header.php';
 
 <?php endif; ?>
 
+<script>
+document.getElementById('searchFilter').addEventListener('input', function(){
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#uploadsTable tbody tr').forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+});
+</script>
 <?php include __DIR__.'/footer.php'; ?>
