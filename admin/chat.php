@@ -17,7 +17,7 @@ if (isset($_GET['load'])) {
         $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
             ->execute([$store_id]);
     } else {
-        $stmt = $pdo->query('SELECT m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, s.name AS store_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id ORDER BY m.created_at');
+        $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     }
@@ -30,7 +30,7 @@ if (isset($_GET['load'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $store_id > 0) {
-    $message = trim($_POST['message']);
+    $message = sanitize_message($_POST['message']);
     if ($message !== '') {
         $parent = intval($_POST['parent_id'] ?? 0) ?: null;
         $ins = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, parent_id, created_at, read_by_admin, read_by_store) VALUES (?, 'admin', ?, ?, NOW(), 1, 0)");
@@ -51,7 +51,12 @@ if ($store_id > 0) {
     $stmt = $pdo->prepare('SELECT sender, message, created_at, read_by_admin, read_by_store FROM store_messages WHERE store_id = ? ORDER BY created_at');
     $stmt->execute([$store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $store_stmt = $pdo->prepare('SELECT name, first_name, last_name FROM stores WHERE id = ?');
+    $store_stmt = $pdo->prepare("SELECT s.name, u.first_name, u.last_name
+        FROM stores s
+        LEFT JOIN store_users u ON u.store_id = s.id
+        WHERE s.id = ?
+        ORDER BY u.id
+        LIMIT 1");
     $store_stmt->execute([$store_id]);
     $store = $store_stmt->fetch(PDO::FETCH_ASSOC);
     $store_name = $store['name'] ?? '';
@@ -59,7 +64,7 @@ if ($store_id > 0) {
     $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
         ->execute([$store_id]);
 } else {
-    $stmt = $pdo->query('SELECT m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, s.name AS store_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id ORDER BY m.created_at');
+    $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     $store_name = 'All Stores';
@@ -89,7 +94,7 @@ include __DIR__.'/header.php';
         <div class="mb-2 <?php echo $msg['sender']==='admin'?'mine':'theirs'; ?>">
             <div class="bubble">
                 <strong><?php echo $msg['sender']==='admin'?htmlspecialchars($admin_name):htmlspecialchars($store_contact ?: ($msg['store_name'] ?? 'Store')); ?>:</strong>
-                <span><?php echo nl2br(htmlspecialchars($msg['message'])); ?></span>
+                <span><?php echo nl2br($msg['message']); ?></span>
                 <small class="text-muted ms-2">
                     <?php echo format_ts($msg['created_at']); ?>
                     <?php if($msg['sender']==='admin' && ($msg['read_by_store']??0)): ?>
@@ -98,6 +103,10 @@ include __DIR__.'/header.php';
                         <i class="bi bi-check2-all text-primary"></i>
                     <?php endif; ?>
                 </small>
+                <span class="ms-1 reactions">
+                    <i class="bi bi-hand-thumbs-up" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
+                    <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                </span>
             </div>
         </div>
     <?php endforeach; ?>
@@ -131,11 +140,12 @@ function refreshMessages(){
                 let readIcon='';
                 if(m.sender==='admin' && m.read_by_store==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
                 if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
-                div.innerHTML='<strong>'+sender+':</strong> '+m.message.replace(/\n/g,'<br>')+' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small>';
+                div.innerHTML='<strong>'+sender+':</strong> '+m.message.replace(/\n/g,'<br>')+' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small> <span class="ms-1 reactions"><i class="bi bi-hand-thumbs-up" data-id="'+m.id+'" data-type="like"></i> <i class="bi bi-heart" data-id="'+m.id+'" data-type="love"></i></span>';
                 wrap.appendChild(div);
                 container.appendChild(wrap);
             });
             container.scrollTop = container.scrollHeight;
+            initReactions();
         });
 }
 setInterval(refreshMessages,5000);
@@ -164,5 +174,15 @@ if(document.getElementById('chatForm')){
     });
 }
 refreshMessages();
+function initReactions(){
+    document.querySelectorAll('.reactions i').forEach(icon=>{
+        const key='react_'+icon.dataset.id+'_'+icon.dataset.type;
+        if(localStorage.getItem(key)) icon.classList.add('text-danger');
+        icon.addEventListener('click',()=>{
+            if(icon.classList.contains('text-danger')){icon.classList.remove('text-danger');localStorage.removeItem(key);}else{icon.classList.add('text-danger');localStorage.setItem(key,'1');}
+        });
+    });
+}
+initReactions();
 </script>
 <?php include __DIR__.'/footer.php'; ?>

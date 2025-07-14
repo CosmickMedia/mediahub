@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
+require_once __DIR__.'/../lib/helpers.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -12,7 +13,7 @@ if (!isset($_SESSION['store_id'])) {
     exit('Not logged in');
 }
 
-$message = trim($_POST['message'] ?? '');
+$message = sanitize_message($_POST['message'] ?? '');
 if ($message === '') {
     http_response_code(400);
     exit('Message cannot be empty');

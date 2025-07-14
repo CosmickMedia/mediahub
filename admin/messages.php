@@ -12,7 +12,7 @@ $errors = [];
 
 // Handle message submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
-    $message = trim($_POST['message'] ?? '');
+    $message = sanitize_message($_POST['message'] ?? '');
     $store_id = $_POST['store_id'] ?? null;
 
     if (empty($message)) {
