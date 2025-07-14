@@ -260,7 +260,7 @@ include __DIR__.'/header.php';
                             <table class="table table-sm">
                                 <thead>
                                 <tr>
-                                    <th style="width: 60px;">Preview</th>
+                                    <th class="preview-col-sm">Preview</th>
                                     <th>Time</th>
                                     <th>Store</th>
                                     <th>File</th>
@@ -274,8 +274,7 @@ include __DIR__.'/header.php';
                                     <tr>
                                         <td>
                                             <img src="thumbnail.php?id=<?php echo $upload['id']; ?>&size=small"
-                                                 class="img-thumbnail"
-                                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                                 class="img-thumbnail preview-img-sm"
                                                  alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                                                  loading="lazy">
                                         </td>

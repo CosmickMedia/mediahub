@@ -1,0 +1,38 @@
+/* Public styles */
+.navbar-brand { font-weight: 600; }
+.navbar { background-color: #2c3e50 !important; }
+body { background-color: #f8f9fa; }
+.card { border: none; }
+.btn-primary { background-color: #2c3e50; border-color: #2c3e50; }
+.btn-primary:hover { background-color: #1a252f; border-color: #1a252f; }
+.btn-outline-primary { color: #2c3e50; border-color: #2c3e50; }
+.btn-outline-primary:hover { background-color: #2c3e50; border-color: #2c3e50; }
+.page-link { color: #2c3e50; }
+.page-item.active .page-link { background-color: #2c3e50; border-color: #2c3e50; }
+.navbar-logo { height: 30px; width: auto; }
+#notifyCount { display: none; }
+#cameraInput { display: none; }
+#latestChats { max-height: 300px; overflow-y: auto; }
+#latestChats .mine { text-align: right; }
+#latestChats .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 70%; }
+#latestChats .mine .bubble { background: #d1e7dd; }
+#latestChats .theirs .bubble { background: #e2e3e5; }
+#messages { height: 70vh; overflow-y: auto; margin-left: 0.5rem; margin-right: 0.5rem; }
+#messages .mine { text-align: right; }
+#messages .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 70%; }
+#messages .mine .bubble { background: #d1e7dd; }
+#messages .theirs .bubble { background: #e2e3e5; }
+#emojiPicker { display: none; position: absolute; bottom: 60px; right: 20px; }
+#reportFrame { width: 100%; border: 0; }
+.preview-col { width: 100px; }
+.preview-img { width: 80px; height: 80px; object-fit: cover; }
+.login-page { background-color: #262829; display: flex; align-items: center; min-height: 100vh; }
+.login-page .login-logo { max-width: 200px; margin-bottom: 30px; }
+.login-page .btn-login { background-color: #ff675b; border-color: #ff675b; color: white; }
+.login-page .btn-login:hover { background-color: #e55750; border-color: #e55750; color: white; }
+.login-page .admin-link { margin-top: 20px; font-size: 0.875rem; }
+.login-page .store-pin-title { font-size: 1.5rem; }
+.ck-editor__editable { min-height: 400px; }
+.article-status { font-size: 0.875rem; font-weight: 500; }
+.article-card { transition: all 0.3s ease; }
+.article-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }

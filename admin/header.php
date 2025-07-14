@@ -11,27 +11,7 @@ if (!isset($active)) { $active = ''; }
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        .navbar-brand { font-weight: 600; }
-        .navbar { background-color: #2c3e50 !important; }
-        body { background-color: #f8f9fa; }
-        .card { border: none; }
-        .btn-primary { background-color: #2c3e50; border-color: #2c3e50; }
-        .btn-primary:hover { background-color: #1a252f; border-color: #1a252f; }
-        .btn-outline-primary { color: #2c3e50; border-color: #2c3e50; }
-        .btn-outline-primary:hover { background-color: #2c3e50; border-color: #2c3e50; }
-        a { color: #2c3e50; }
-        a:hover { color: #1a252f; }
-        .page-link { color: #2c3e50; }
-        .page-item.active .page-link { background-color: #2c3e50; border-color: #2c3e50; }
-        .bg-primary { background-color: #2c3e50 !important; }
-        .bg-warning { background-color: #d39e00 !important; color: #fff !important; }
-        .bg-info { background-color: #17a2b8 !important; color: #fff !important; }
-        .text-primary { color: #2c3e50 !important; }
-        .clickable-card { cursor: pointer; transition: transform 0.2s; }
-        .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .navbar-logo { height: 35px; width: auto; }
-    </style>
+    <link rel="stylesheet" href="inc/css/style.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
@@ -55,7 +35,7 @@ if (!isset($active)) { $active = ''; }
             <div class="ms-auto text-end small text-white">
                 <span class="position-relative me-2">
                     <i class="bi bi-bell" id="notifyBell"></i>
-                    <span class="position-absolute start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount" style="display:none; top:-10px;">0</span>
+                    <span class="position-absolute start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount">0</span>
                 </span><br>
                 Logged in as: <?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?><br>
                 <a href="logout.php" class="text-white text-decoration-none">Logout</a>

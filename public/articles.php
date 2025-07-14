@@ -136,23 +136,6 @@ $tab = $_GET['tab'] ?? 'submit';
 include __DIR__.'/header.php';
 ?>
 
-    <style>
-        .ck-editor__editable {
-            min-height: 400px;
-        }
-        .article-status {
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        .article-card {
-            transition: all 0.3s ease;
-        }
-        .article-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-    </style>
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Content Articles - <?php echo htmlspecialchars($store_name); ?></h2>
         <a href="index.php" class="btn btn-secondary">Back to Uploads</a>

@@ -141,19 +141,6 @@ $active = 'articles';
 include __DIR__.'/header.php';
 ?>
 
-    <style>
-        .article-excerpt {
-            max-width: 500px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .status-badge {
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-    </style>
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4>Article Management</h4>
         <div class="d-flex gap-2">

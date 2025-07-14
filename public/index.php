@@ -72,37 +72,9 @@ if (!$isLoggedIn) {
         <title>Store Login - MediaHub</title>
         <!-- Bootstrap CSS from CDN -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-        <style>
-            body {
-                background-color: #262829;
-                display: flex;
-                align-items: center;
-                min-height: 100vh;
-            }
-            .login-logo {
-                max-width: 200px;
-                margin-bottom: 30px;
-            }
-            .btn-login {
-                background-color: #ff675b;
-                border-color: #ff675b;
-                color: white;
-            }
-            .btn-login:hover {
-                background-color: #e55750;
-                border-color: #e55750;
-                color: white;
-            }
-            .admin-link {
-                margin-top: 20px;
-                font-size: 0.875rem;
-            }
-            .store-pin-title {
-                font-size: 1.5rem;
-            }
-        </style>
+        <link rel="stylesheet" href="inc/css/style.css">
     </head>
-    <body>
+    <body class="login-page">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-4">
@@ -477,7 +449,7 @@ include __DIR__.'/header.php';
                                     <i class="bi bi-camera"></i> Camera
                                 </button>
                             </div>
-                            <input type="file" id="cameraInput" accept="image/*,video/*" capture="camera" style="display:none;">
+                            <input type="file" id="cameraInput" accept="image/*,video/*" capture="camera">
                             <div class="form-text">You can select multiple files. Maximum 20MB per file.</div>
                         </div>
 
@@ -531,13 +503,7 @@ include __DIR__.'/header.php';
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Chat Feed</h5>
-                    <style>
-                        #latestChats .mine { text-align:right; }
-                        #latestChats .bubble{display:inline-block;padding:6px 12px;border-radius:12px;margin-bottom:4px;max-width:70%;}
-                        #latestChats .mine .bubble{background:#d1e7dd;}
-                        #latestChats .theirs .bubble{background:#e2e3e5;}
-                    </style>
-                    <div id="latestChats" style="max-height:300px;overflow-y:auto;">
+                    <div id="latestChats">
                         <?php foreach ($recent_chats as $msg): ?>
                             <div class="mb-2 <?php echo $msg['sender']==='admin'?'theirs':'mine'; ?>">
                                 <div class="bubble">

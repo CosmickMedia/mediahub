@@ -11,19 +11,7 @@ if (!isset($_SESSION)) { session_start(); }
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        .navbar-brand { font-weight: 600; }
-        .navbar { background-color: #2c3e50 !important; }
-        body { background-color: #f8f9fa; }
-        .card { border: none; }
-        .btn-primary { background-color: #2c3e50; border-color: #2c3e50; }
-        .btn-primary:hover { background-color: #1a252f; border-color: #1a252f; }
-        .btn-outline-primary { color: #2c3e50; border-color: #2c3e50; }
-        .btn-outline-primary:hover { background-color: #2c3e50; border-color: #2c3e50; }
-        .page-link { color: #2c3e50; }
-        .page-item.active .page-link { background-color: #2c3e50; border-color: #2c3e50; }
-        .navbar-logo { height: 30px; width: auto; }
-    </style>
+    <link rel="stylesheet" href="inc/css/style.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
@@ -65,7 +53,7 @@ if (!isset($_SESSION)) { session_start(); }
                     <li class="nav-item position-relative ms-lg-3">
                         <a class="nav-link" href="messages.php">
                             <i class="bi bi-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount" style="display:none;">0</span>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount">0</span>
                         </a>
                     </li>
                     <li class="nav-item">
