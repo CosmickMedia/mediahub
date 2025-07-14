@@ -7,15 +7,26 @@ require_once __DIR__.'/db.php';
 function groundhogg_get_settings(): array {
     $pdo = get_pdo();
     $stmt = $pdo->prepare(
-        "SELECT name, value FROM settings WHERE name IN ('groundhogg_site_url','groundhogg_username','groundhogg_app_password','groundhogg_debug')"
+        "SELECT name, value FROM settings WHERE name IN (
+            'groundhogg_site_url',
+            'groundhogg_username',
+            'groundhogg_app_password',
+            'groundhogg_public_key',
+            'groundhogg_token',
+            'groundhogg_secret_key',
+            'groundhogg_debug'
+        )"
     );
     $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
     return [
-        'site_url'  => $rows['groundhogg_site_url'] ?? '',
-        'username'  => $rows['groundhogg_username'] ?? '',
-        'app_pass'  => $rows['groundhogg_app_password'] ?? '',
-        'debug'     => $rows['groundhogg_debug'] ?? ''
+        'site_url'   => $rows['groundhogg_site_url'] ?? '',
+        'username'   => $rows['groundhogg_username'] ?? '',
+        'app_pass'   => $rows['groundhogg_app_password'] ?? '',
+        'public_key' => $rows['groundhogg_public_key'] ?? '',
+        'token'      => $rows['groundhogg_token'] ?? '',
+        'secret_key' => $rows['groundhogg_secret_key'] ?? '',
+        'debug'      => $rows['groundhogg_debug'] ?? ''
     ];
 }
 
@@ -50,23 +61,35 @@ function groundhogg_log(string $message, ?int $store_id = null, string $action =
 
 function groundhogg_send_contact(array $contactData): bool {
     $settings = groundhogg_get_settings();
-    if (!$settings['site_url'] || !$settings['username'] || !$settings['app_pass']) {
+    if (!$settings['site_url']) {
         return false;
     }
-    $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts';
-    $auth = base64_encode($settings['username'] . ':' . $settings['app_pass']);
 
-    groundhogg_debug_log('POST ' . $url . ' Payload: ' . json_encode($contactData));
+    $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts';
+    $payload = json_encode($contactData);
+    $headers = ['Content-Type: application/json'];
+
+    if ($settings['public_key'] && $settings['token'] && $settings['secret_key']) {
+        $signature = hash_hmac('sha256', $payload, $settings['secret_key']);
+        $headers[] = 'X-GH-USER: ' . $settings['username'];
+        $headers[] = 'X-GH-PUBLIC-KEY: ' . $settings['public_key'];
+        $headers[] = 'X-GH-TOKEN: ' . $settings['token'];
+        $headers[] = 'X-GH-SIGNATURE: ' . $signature;
+    } elseif ($settings['username'] && $settings['app_pass']) {
+        $auth = base64_encode($settings['username'] . ':' . $settings['app_pass']);
+        $headers[] = 'Authorization: Basic ' . $auth;
+    } else {
+        return false;
+    }
+
+    groundhogg_debug_log('POST ' . $url . ' Payload: ' . $payload);
 
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => [
-            'Content-Type: application/json',
-            'Authorization: Basic ' . $auth
-        ],
-        CURLOPT_POSTFIELDS => json_encode($contactData)
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_POSTFIELDS => $payload
     ]);
     $response = curl_exec($ch);
     if ($response === false) {
@@ -83,20 +106,31 @@ function groundhogg_send_contact(array $contactData): bool {
 
 function test_groundhogg_connection(): array {
     $settings = groundhogg_get_settings();
-    if (!$settings['site_url'] || !$settings['username'] || !$settings['app_pass']) {
+    if (!$settings['site_url']) {
         return [false, 'Missing configuration'];
     }
     $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/ping';
-    $auth = base64_encode($settings['username'] . ':' . $settings['app_pass']);
+    $headers = [];
+
+    if ($settings['public_key'] && $settings['token'] && $settings['secret_key']) {
+        $signature = hash_hmac('sha256', 'ping', $settings['secret_key']);
+        $headers[] = 'X-GH-USER: ' . $settings['username'];
+        $headers[] = 'X-GH-PUBLIC-KEY: ' . $settings['public_key'];
+        $headers[] = 'X-GH-TOKEN: ' . $settings['token'];
+        $headers[] = 'X-GH-SIGNATURE: ' . $signature;
+    } elseif ($settings['username'] && $settings['app_pass']) {
+        $auth = base64_encode($settings['username'] . ':' . $settings['app_pass']);
+        $headers[] = 'Authorization: Basic ' . $auth;
+    } else {
+        return [false, 'Missing configuration'];
+    }
 
     groundhogg_debug_log('GET ' . $url . ' (test connection)');
 
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => [
-            'Authorization: Basic ' . $auth
-        ]
+        CURLOPT_HTTPHEADER => $headers
     ]);
     $response = curl_exec($ch);
     if ($response === false) {

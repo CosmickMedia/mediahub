@@ -289,6 +289,9 @@ try {
 $defaultSettings = [
     'drive_base_folder' => $config['drive_base_folder'] ?? '',
     'notification_email' => $config['notification_email'] ?? '',
+    'groundhogg_public_key' => '',
+    'groundhogg_token' => '',
+    'groundhogg_secret_key' => ''
 ];
 
 foreach ($defaultSettings as $name => $value) {

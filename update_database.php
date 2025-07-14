@@ -31,6 +31,21 @@ foreach ($mapping as $old => $new) {
     }
 }
 
+// Ensure new Groundhogg API settings exist
+$newGhSettings = ['groundhogg_public_key', 'groundhogg_token', 'groundhogg_secret_key'];
+foreach ($newGhSettings as $setting) {
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM settings WHERE name = ?");
+        $stmt->execute([$setting]);
+        if (!$stmt->fetchColumn()) {
+            $pdo->prepare("INSERT INTO settings (name, value) VALUES (?, '')")->execute([$setting]);
+            echo "✓ Added setting $setting\n";
+        }
+    } catch (PDOException $e) {
+        echo "✗ Error adding $setting: " . $e->getMessage() . "\n";
+    }
+}
+
 // Default email settings to add
 $defaultSettings = [
     'email_from_name' => 'Cosmick Media',
