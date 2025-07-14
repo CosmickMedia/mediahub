@@ -59,8 +59,16 @@ include __DIR__.'/header.php';
                     <?php endif; ?>
                 </small>
                 <span class="ms-1 reactions">
-                    <i class="bi bi-hand-thumbs-up<?php if($msg['like_by_admin']||$msg['like_by_store']) echo ' text-danger'; ?>" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
-                    <i class="bi bi-heart<?php if($msg['love_by_admin']||$msg['love_by_store']) echo ' text-danger'; ?>" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                    <?php if($msg['like_by_admin']||$msg['like_by_store']): ?>
+                        <i class="bi bi-hand-thumbs-up-fill text-danger" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
+                    <?php else: ?>
+                        <i class="bi bi-hand-thumbs-up" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
+                    <?php endif; ?>
+                    <?php if($msg['love_by_admin']||$msg['love_by_store']): ?>
+                        <i class="bi bi-heart-fill text-danger" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                    <?php else: ?>
+                        <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                    <?php endif; ?>
                 </span>
             </div>
         </div>
@@ -95,7 +103,14 @@ function refreshMessages() {
                 div.innerHTML=`<strong>${m.sender==='admin'?ADMIN_NAME:YOUR_NAME}:</strong> `+
                     m.message.replace(/\n/g,'<br>')+
                     ` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`+
-                    ` <span class="ms-1 reactions"><i class="bi bi-hand-thumbs-up${(m.like_by_admin||m.like_by_store)?' text-danger':''}" data-id="${m.id}" data-type="like"></i> <i class="bi bi-heart${(m.love_by_admin||m.love_by_store)?' text-danger':''}" data-id="${m.id}" data-type="love"></i></span>`;
+                    ' <span class="ms-1 reactions">'+
+                    (m.like_by_admin||m.like_by_store?
+                        `<i class="bi bi-hand-thumbs-up-fill text-danger" data-id="${m.id}" data-type="like"></i>`:
+                        `<i class="bi bi-hand-thumbs-up" data-id="${m.id}" data-type="like"></i>`)+' '+
+                    (m.love_by_admin||m.love_by_store?
+                        `<i class="bi bi-heart-fill text-danger" data-id="${m.id}" data-type="love"></i>`:
+                        `<i class="bi bi-heart" data-id="${m.id}" data-type="love"></i>`)+
+                    '</span>';
                 wrap.appendChild(div);
                 container.appendChild(wrap);
             });
