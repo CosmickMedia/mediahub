@@ -166,30 +166,38 @@ if (!$store) {
 // Get store messages - handle missing columns gracefully
 $messages = [];
 $replies = [];
+$latest_broadcast = null;
+$latest_chat = null;
+$recent_chats = [];
 
 // Check if is_reply column exists
 $checkColumn = $pdo->query("SHOW COLUMNS FROM store_messages LIKE 'is_reply'");
 $hasReplyColumn = $checkColumn->fetch() !== false;
 
 if ($hasReplyColumn) {
-    // Column exists, use full query
-    $stmt = $pdo->prepare('
-        SELECT * FROM store_messages 
-        WHERE (store_id = ? OR store_id IS NULL) 
-        AND (is_reply = 0 OR is_reply IS NULL)
-        ORDER BY created_at DESC
-    ');
+    // Column exists, get latest broadcast and chats
+    $stmt = $pdo->prepare(
+        "SELECT * FROM store_messages WHERE store_id IS NULL AND sender='admin' ORDER BY created_at DESC LIMIT 1"
+    );
+    $stmt->execute();
+    $latest_broadcast = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $stmt = $pdo->prepare(
+        "SELECT * FROM store_messages WHERE store_id = ? AND sender='admin' AND (is_reply = 0 OR is_reply IS NULL) ORDER BY created_at DESC LIMIT 1"
+    );
     $stmt->execute([$store_id]);
-    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $latest_chat = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $stmt = $pdo->prepare(
+        "SELECT id, sender, message, created_at, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at DESC LIMIT 10"
+    );
+    $stmt->execute([$store_id]);
+    $recent_chats = array_reverse($stmt->fetchAll(PDO::FETCH_ASSOC));
 
     // Get reply messages
-    $stmt = $pdo->prepare('
-        SELECT m.*, u.filename 
-        FROM store_messages m 
-        LEFT JOIN uploads u ON m.upload_id = u.id 
-        WHERE m.store_id = ? AND m.is_reply = 1 
-        ORDER BY m.created_at DESC
-    ');
+    $stmt = $pdo->prepare(
+        "SELECT m.*, u.filename FROM store_messages m LEFT JOIN uploads u ON m.upload_id = u.id WHERE m.store_id = ? AND m.is_reply = 1 ORDER BY m.created_at DESC"
+    );
     $stmt->execute([$store_id]);
     $replies = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
@@ -207,6 +215,10 @@ if ($hasReplyColumn) {
 $stmt = $pdo->prepare('SELECT COUNT(*) FROM articles WHERE store_id = ?');
 $stmt->execute([$store_id]);
 $article_count = $stmt->fetchColumn();
+
+$adminRow = $pdo->query('SELECT first_name, last_name FROM users ORDER BY id LIMIT 1')->fetch(PDO::FETCH_ASSOC);
+$admin_name = trim(($adminRow['first_name'] ?? '') . ' ' . ($adminRow['last_name'] ?? ''));
+$your_name = trim(($_SESSION['store_first_name'] ?? '') . ' ' . ($_SESSION['store_last_name'] ?? ''));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
     try {
@@ -404,12 +416,18 @@ include __DIR__.'/header.php';
 
     <h2 class="mb-4">Welcome, <?php echo htmlspecialchars($store_name); ?>!</h2>
 
-<?php if (!empty($messages)): ?>
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <h5 class="alert-heading">Important Messages:</h5>
-        <?php foreach ($messages as $msg): ?>
-            <p class="mb-1"><?php echo nl2br(htmlspecialchars($msg['message'])); ?></p>
-        <?php endforeach; ?>
+<?php if (!empty($latest_broadcast)): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="broadcastAlert" data-id="<?php echo $latest_broadcast['id']; ?>">
+        <h5 class="alert-heading">Broadcast:</h5>
+        <p class="mb-1"><?php echo nl2br(htmlspecialchars($latest_broadcast['message'])); ?></p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($latest_chat)): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="chatAlert" data-id="<?php echo $latest_chat['id']; ?>">
+        <h5 class="alert-heading">Latest Chat:</h5>
+        <p class="mb-1"><?php echo nl2br(htmlspecialchars($latest_chat['message'])); ?></p>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
@@ -505,6 +523,39 @@ include __DIR__.'/header.php';
         </div>
     </div>
 
+    <div class="row mt-4">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Latest Chats</h5>
+                    <style>
+                        #latestChats .mine { text-align:right; }
+                        #latestChats .bubble{display:inline-block;padding:6px 12px;border-radius:12px;margin-bottom:4px;max-width:70%;}
+                        #latestChats .mine .bubble{background:#d1e7dd;}
+                        #latestChats .theirs .bubble{background:#e2e3e5;}
+                    </style>
+                    <div id="latestChats" style="max-height:300px;overflow-y:auto;">
+                        <?php foreach ($recent_chats as $msg): ?>
+                            <div class="mb-2 <?php echo $msg['sender']==='admin'?'theirs':'mine'; ?>">
+                                <div class="bubble">
+                                    <strong><?php echo $msg['sender']==='admin'?htmlspecialchars($admin_name):htmlspecialchars($your_name); ?>:</strong>
+                                    <span><?php echo nl2br($msg['message']); ?></span>
+                                    <small class="text-muted ms-2"><?php echo format_ts($msg['created_at']); ?></small>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <form method="post" action="send_message.php" id="quickChatForm" class="input-group mt-3">
+                        <input type="text" name="message" class="form-control" placeholder="Reply..." required>
+                        <button class="btn btn-primary" type="submit">Send</button>
+                        <input type="hidden" name="ajax" value="1">
+                        <input type="hidden" name="parent_id" id="parent_id" value="">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const fileInput = document.getElementById('files');
@@ -512,6 +563,38 @@ include __DIR__.'/header.php';
             const fileList = document.getElementById('fileList');
             const uploadForm = document.getElementById('uploadForm');
             const uploadBtn = document.getElementById('uploadBtn');
+            const bcAlert = document.getElementById('broadcastAlert');
+            const chatAlert = document.getElementById('chatAlert');
+            if(bcAlert){
+                const id = bcAlert.dataset.id;
+                if(localStorage.getItem('closedBroadcastId')==id){
+                    bcAlert.remove();
+                }else{
+                    bcAlert.querySelector('.btn-close').addEventListener('click',()=>{
+                        localStorage.setItem('closedBroadcastId',id);
+                    });
+                }
+            }
+            if(chatAlert){
+                const id = chatAlert.dataset.id;
+                if(localStorage.getItem('closedChatId')==id){
+                    chatAlert.remove();
+                }else{
+                    chatAlert.querySelector('.btn-close').addEventListener('click',()=>{
+                        localStorage.setItem('closedChatId',id);
+                    });
+                }
+            }
+
+            const quickForm = document.getElementById('quickChatForm');
+            if(quickForm){
+                quickForm.addEventListener('submit',function(e){
+                    e.preventDefault();
+                    fetch('send_message.php',{method:'POST',body:new FormData(this)})
+                        .then(r=>r.json())
+                        .then(()=>{ location.reload(); });
+                });
+            }
 
             let allFiles = [];
 

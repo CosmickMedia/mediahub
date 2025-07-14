@@ -34,8 +34,8 @@ if (!isset($_SESSION)) { session_start(); }
             <ul class="navbar-nav ms-auto">
                 <?php if(isset($_SESSION['store_id'])): ?>
                     <li class="nav-item">
-                        <a class="nav-link disabled" href="#">
-                            <i class="bi bi-shop"></i> <?php echo htmlspecialchars($_SESSION['store_name'] ?? 'Store'); ?>
+                        <a class="nav-link" href="index.php">
+                            <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
@@ -53,15 +53,20 @@ if (!isset($_SESSION)) { session_start(); }
                             <i class="bi bi-graph-up"></i> Marketing Report
                         </a>
                     </li>
-                    <li class="nav-item position-relative">
+                    <li class="nav-item">
                         <a class="nav-link" href="messages.php">
                             <i class="bi bi-chat-dots"></i> Chat
+                        </a>
+                    </li>
+                    <li class="nav-item position-relative ms-lg-3">
+                        <a class="nav-link" href="messages.php">
+                            <i class="bi bi-bell"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount" style="display:none;">0</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="?logout=1">
-                            <i class="bi bi-box-arrow-right"></i> Logout
+                            <i class="bi bi-box-arrow-right"></i>
                         </a>
                     </li>
                 <?php endif; ?>
