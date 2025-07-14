@@ -26,3 +26,13 @@ A simple `deploy.sh` script is provided to rsync the files to a remote host. Edi
 ## Versioning
 
 The current version is tracked in the `VERSION` file. Run `php scripts/bump_version.php` after committing changes to automatically bump the patch number and append the latest commit message to `CHANGELOG.md`. The admin interface displays this version in the bottom-right corner.
+
+### Groundhogg CRM Integration
+
+To sync new store contacts with your Groundhogg installation, open **Admin → Settings** and enter the following details under **Groundhogg CRM Integration**:
+
+1. **WordPress Site URL** – the base URL of the site where Groundhogg is installed.
+2. **Groundhogg API Username** – the WordPress user to authenticate with.
+3. **Groundhogg API App Password** – an [application password](https://wordpress.org/support/article/application-passwords/) generated for that user.
+
+After saving, use the **Test Connection** button to verify communication with your Groundhogg REST API.
