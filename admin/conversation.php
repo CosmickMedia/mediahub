@@ -11,18 +11,22 @@ if (!$store_id) {
     exit;
 }
 
-$stmt = $pdo->prepare('SELECT name FROM stores WHERE id = ?');
+$stmt = $pdo->prepare('SELECT name, first_name, last_name FROM stores WHERE id = ?');
 $stmt->execute([$store_id]);
 $store = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$store) {
     echo 'Store not found';
     exit;
 }
+$store_contact = trim(($store['first_name'] ?? '') . ' ' . ($store['last_name'] ?? ''));
+$admin_name = trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''));
 
 if (isset($_GET['load'])) {
-    $s = $pdo->prepare('SELECT sender, message, created_at FROM store_messages WHERE store_id = ? ORDER BY created_at');
+    $s = $pdo->prepare('SELECT id, sender, message, created_at, read_by_admin, read_by_store FROM store_messages WHERE store_id = ? ORDER BY created_at');
     $s->execute([$store_id]);
     $msgs = $s->fetchAll(PDO::FETCH_ASSOC);
+    $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
+        ->execute([$store_id]);
     foreach ($msgs as &$m) {
         $m['created_at'] = format_ts($m['created_at']);
     }
@@ -34,33 +38,56 @@ if (isset($_GET['load'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     $message = trim($_POST['message']);
     if ($message !== '') {
-        $ins = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, created_at) VALUES (?, 'admin', ?, NOW())");
-        $ins->execute([$store_id, $message]);
+        $parent = intval($_POST['parent_id'] ?? 0) ?: null;
+        $ins = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, parent_id, created_at, read_by_admin, read_by_store) VALUES (?, 'admin', ?, ?, NOW(), 1, 0)");
+        $ins->execute([$store_id, $message, $parent]);
     }
 }
 
-$s = $pdo->prepare('SELECT sender, message, created_at FROM store_messages WHERE store_id = ? ORDER BY created_at');
+$s = $pdo->prepare('SELECT sender, message, created_at, read_by_admin, read_by_store FROM store_messages WHERE store_id = ? ORDER BY created_at');
 $s->execute([$store_id]);
 $messages = $s->fetchAll(PDO::FETCH_ASSOC);
+$pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")->execute([$store_id]);
 
 $active = 'messages';
 include __DIR__.'/header.php';
 ?>
 <h4>Conversation with <?php echo htmlspecialchars($store['name']); ?></h4>
+<style>
+    #messages .mine{ text-align:right; }
+    #messages .bubble{display:inline-block;padding:6px 12px;border-radius:12px;margin-bottom:4px;max-width:70%;}
+    #messages .mine .bubble{background:#d1e7dd;}
+    #messages .theirs .bubble{background:#e2e3e5;}
+</style>
 <div id="messages" class="mb-4">
     <?php foreach ($messages as $msg): ?>
-        <div class="mb-2">
-            <strong><?php echo $msg['sender'] === 'admin' ? 'Admin' : 'Store'; ?>:</strong>
-            <span><?php echo nl2br(htmlspecialchars($msg['message'])); ?></span>
-            <small class="text-muted ms-2"><?php echo format_ts($msg['created_at']); ?></small>
+        <div class="mb-2 <?php echo $msg['sender']==='admin'?'mine':'theirs'; ?>">
+            <div class="bubble">
+                <strong><?php echo $msg['sender']==='admin'?htmlspecialchars($admin_name):htmlspecialchars($store_contact ?: 'Store'); ?>:</strong>
+                <span><?php echo nl2br(htmlspecialchars($msg['message'])); ?></span>
+                <small class="text-muted ms-2">
+                    <?php echo format_ts($msg['created_at']); ?>
+                    <?php if($msg['sender']==='admin' && ($msg['read_by_store']??0)): ?>
+                        <i class="bi bi-check2-all text-primary"></i>
+                    <?php elseif($msg['sender']==='store' && ($msg['read_by_admin']??0)): ?>
+                        <i class="bi bi-check2-all text-primary"></i>
+                    <?php endif; ?>
+                </small>
+            </div>
         </div>
     <?php endforeach; ?>
 </div>
-<form method="post">
-    <textarea name="message" class="form-control mb-2" rows="3" required></textarea>
+<form method="post" id="convForm" class="input-group align-items-end mt-3">
+    <textarea name="message" class="form-control" rows="2" required></textarea>
+    <button type="button" id="emojiBtn" class="btn btn-light border"><i class="bi bi-emoji-smile"></i></button>
     <button class="btn btn-primary" type="submit">Send</button>
+    <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1"></script>
+<emoji-picker style="display:none; position:absolute; bottom:60px; right:20px;" id="emojiPicker"></emoji-picker>
 <script>
+const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
+const STORE_CONTACT = <?php echo json_encode($store_contact); ?>;
 function refreshMessages() {
     fetch('conversation.php?store_id=<?php echo $store_id; ?>&load=1')
         .then(r => r.json())
@@ -68,15 +95,44 @@ function refreshMessages() {
             const container = document.getElementById('messages');
             container.innerHTML = '';
             data.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'mb-2';
-                div.innerHTML = `<strong>${m.sender === 'admin' ? 'Admin' : 'Store'}:</strong> ` +
+                const wrap=document.createElement('div');
+                wrap.className='mb-2 '+(m.sender==='admin'?'mine':'theirs');
+                const div=document.createElement('div');
+                div.className='bubble';
+                const sender=m.sender==='admin'?ADMIN_NAME:(STORE_CONTACT||'Store');
+                let readIcon='';
+                if(m.sender==='admin' && m.read_by_store==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
+                if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
+                div.innerHTML=`<strong>${sender}:</strong> ` +
                     m.message.replace(/\n/g,'<br>') +
-                    ` <small class="text-muted ms-2">${m.created_at}</small>`;
-                container.appendChild(div);
+                    ` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`;
+                wrap.appendChild(div);
+                container.appendChild(wrap);
             });
         });
 }
 setInterval(refreshMessages, 30000);
+document.getElementById('convForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    fetch('conversation.php?store_id=<?php echo $store_id; ?>', {method:'POST', body:new FormData(this)})
+        .then(()=>{ this.reset(); refreshMessages(); });
+});
+document.querySelector('#convForm textarea').addEventListener('keydown', function(e){
+    if(e.key==='Enter' && !e.shiftKey){
+        e.preventDefault();
+        document.getElementById('convForm').dispatchEvent(new Event('submit'));
+    }
+});
+const picker=document.getElementById('emojiPicker');
+document.getElementById('emojiBtn').addEventListener('click',()=>{
+    picker.style.display = picker.style.display==='none' ? 'block':'none';
+});
+picker.addEventListener('emoji-click',e=>{
+    const ta=document.querySelector('#convForm textarea');
+    ta.value+=e.detail.unicode;
+    picker.style.display='none';
+    ta.focus();
+});
+refreshMessages();
 </script>
 <?php include __DIR__.'/footer.php'; ?>

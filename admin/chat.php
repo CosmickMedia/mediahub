@@ -4,18 +4,22 @@ require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
+$admin_name = trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''));
 
 $store_id = intval($_GET['store_id'] ?? 0);
 
 // handle ajax fetch
 if (isset($_GET['load'])) {
     if ($store_id > 0) {
-        $stmt = $pdo->prepare('SELECT sender, message, created_at FROM store_messages WHERE store_id = ? ORDER BY created_at');
+        $stmt = $pdo->prepare('SELECT id, sender, message, created_at FROM store_messages WHERE store_id = ? ORDER BY created_at');
         $stmt->execute([$store_id]);
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
+            ->execute([$store_id]);
     } else {
-        $stmt = $pdo->query('SELECT m.sender, m.message, m.created_at, s.name AS store_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id ORDER BY m.created_at');
+        $stmt = $pdo->query('SELECT m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, s.name AS store_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id ORDER BY m.created_at');
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     }
     foreach ($messages as &$m) {
         $m['created_at'] = format_ts($m['created_at']);
@@ -28,8 +32,9 @@ if (isset($_GET['load'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $store_id > 0) {
     $message = trim($_POST['message']);
     if ($message !== '') {
-        $ins = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, created_at) VALUES (?, 'admin', ?, NOW())");
-        $ins->execute([$store_id, $message]);
+        $parent = intval($_POST['parent_id'] ?? 0) ?: null;
+        $ins = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, parent_id, created_at, read_by_admin, read_by_store) VALUES (?, 'admin', ?, ?, NOW(), 1, 0)");
+        $ins->execute([$store_id, $message, $parent]);
     }
     if (!empty($_POST['ajax'])) {
         echo json_encode(['success' => true]);
@@ -43,16 +48,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $store_
 $stores = $pdo->query('SELECT id, name FROM stores ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
 
 if ($store_id > 0) {
-    $stmt = $pdo->prepare('SELECT sender, message, created_at FROM store_messages WHERE store_id = ? ORDER BY created_at');
+    $stmt = $pdo->prepare('SELECT sender, message, created_at, read_by_admin, read_by_store FROM store_messages WHERE store_id = ? ORDER BY created_at');
     $stmt->execute([$store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $store_stmt = $pdo->prepare('SELECT name FROM stores WHERE id = ?');
+    $store_stmt = $pdo->prepare('SELECT name, first_name, last_name FROM stores WHERE id = ?');
     $store_stmt->execute([$store_id]);
     $store = $store_stmt->fetch(PDO::FETCH_ASSOC);
     $store_name = $store['name'] ?? '';
+    $store_contact = trim(($store['first_name'] ?? '') . ' ' . ($store['last_name'] ?? ''));
+    $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
+        ->execute([$store_id]);
 } else {
-    $stmt = $pdo->query('SELECT m.sender, m.message, m.created_at, s.name AS store_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id ORDER BY m.created_at');
+    $stmt = $pdo->query('SELECT m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, s.name AS store_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id ORDER BY m.created_at');
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     $store_name = 'All Stores';
 }
 
@@ -69,25 +78,44 @@ include __DIR__.'/header.php';
         <?php endforeach; ?>
     </select>
 </form>
+<style>
+    #messages .mine{ text-align:right; }
+    #messages .bubble{display:inline-block;padding:6px 12px;border-radius:12px;margin-bottom:4px;max-width:70%;}
+    #messages .mine .bubble{background:#d1e7dd;}
+    #messages .theirs .bubble{background:#e2e3e5;}
+</style>
 <div id="messages" class="mb-4" style="max-height:400px; overflow-y:auto;">
     <?php foreach ($messages as $msg): ?>
-        <div class="mb-2">
-            <strong>
-                <?php echo $msg['sender'] === 'admin' ? 'Admin' : ($msg['store_name'] ?? 'Store'); ?>:
-            </strong>
-            <span><?php echo nl2br(htmlspecialchars($msg['message'])); ?></span>
-            <small class="text-muted ms-2"><?php echo format_ts($msg['created_at']); ?></small>
+        <div class="mb-2 <?php echo $msg['sender']==='admin'?'mine':'theirs'; ?>">
+            <div class="bubble">
+                <strong><?php echo $msg['sender']==='admin'?htmlspecialchars($admin_name):htmlspecialchars($store_contact ?: ($msg['store_name'] ?? 'Store')); ?>:</strong>
+                <span><?php echo nl2br(htmlspecialchars($msg['message'])); ?></span>
+                <small class="text-muted ms-2">
+                    <?php echo format_ts($msg['created_at']); ?>
+                    <?php if($msg['sender']==='admin' && ($msg['read_by_store']??0)): ?>
+                        <i class="bi bi-check2-all text-primary"></i>
+                    <?php elseif($msg['sender']==='store' && ($msg['read_by_admin']??0)): ?>
+                        <i class="bi bi-check2-all text-primary"></i>
+                    <?php endif; ?>
+                </small>
+            </div>
         </div>
     <?php endforeach; ?>
 </div>
 <?php if ($store_id > 0): ?>
-<form method="post" id="chatForm" class="input-group">
+<form method="post" id="chatForm" class="input-group align-items-end">
     <textarea name="message" class="form-control" rows="2" placeholder="Type message" required></textarea>
+    <button type="button" id="emojiBtn" class="btn btn-light border"><i class="bi bi-emoji-smile"></i></button>
     <button class="btn btn-primary" type="submit">Send</button>
     <input type="hidden" name="ajax" value="1">
+    <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1"></script>
+<emoji-picker style="display:none; position:absolute; bottom:60px; right:20px;" id="emojiPicker"></emoji-picker>
 <?php endif; ?>
 <script>
+const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
+const STORE_CONTACT = <?php echo json_encode($store_contact ?? ''); ?>;
 function refreshMessages(){
     fetch('chat.php?store_id=<?php echo $store_id; ?>&load=1')
         .then(r=>r.json())
@@ -95,11 +123,17 @@ function refreshMessages(){
             const container=document.getElementById('messages');
             container.innerHTML='';
             data.forEach(m=>{
+                const wrap=document.createElement('div');
+                wrap.className='mb-2 '+(m.sender==='admin'?'mine':'theirs');
                 const div=document.createElement('div');
-                div.className='mb-2';
-                const sender=m.sender==='admin'?'Admin':(m.store_name||'Store');
-                div.innerHTML='<strong>'+sender+':</strong> '+m.message.replace(/\n/g,'<br>')+' <small class="text-muted ms-2">'+m.created_at+'</small>';
-                container.appendChild(div);
+                div.className='bubble';
+                const sender=m.sender==='admin'?ADMIN_NAME:(STORE_CONTACT||m.store_name||'Store');
+                let readIcon='';
+                if(m.sender==='admin' && m.read_by_store==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
+                if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
+                div.innerHTML='<strong>'+sender+':</strong> '+m.message.replace(/\n/g,'<br>')+' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small>';
+                wrap.appendChild(div);
+                container.appendChild(wrap);
             });
             container.scrollTop = container.scrollHeight;
         });
@@ -111,6 +145,22 @@ if(document.getElementById('chatForm')){
         fetch('chat.php?store_id=<?php echo $store_id; ?>', {method:'POST', body:new FormData(this)})
             .then(r=>r.json())
             .then(()=>{this.reset(); refreshMessages();});
+    });
+    document.querySelector('#chatForm textarea').addEventListener('keydown',function(e){
+        if(e.key==='Enter' && !e.shiftKey){
+            e.preventDefault();
+            document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+        }
+    });
+    const picker=document.getElementById('emojiPicker');
+    document.getElementById('emojiBtn').addEventListener('click',()=>{
+        picker.style.display=picker.style.display==='none'?'block':'none';
+    });
+    picker.addEventListener('emoji-click',e=>{
+        const ta=document.querySelector('#chatForm textarea');
+        ta.value+=e.detail.unicode;
+        picker.style.display='none';
+        ta.focus();
     });
 }
 refreshMessages();

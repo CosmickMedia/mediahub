@@ -57,7 +57,7 @@ if (!$isLoggedIn) {
         $email = trim($_POST['email']);
         if ($pin !== '' && $email !== '') {
             $pdo = get_pdo();
-            $stmt = $pdo->prepare('SELECT s.* FROM stores s JOIN store_users u ON u.store_id = s.id WHERE s.pin = ? AND u.email = ?');
+            $stmt = $pdo->prepare('SELECT s.*, u.first_name AS ufname, u.last_name AS ulname FROM stores s JOIN store_users u ON u.store_id = s.id WHERE s.pin = ? AND u.email = ?');
             $stmt->execute([$pin, $email]);
             if ($store = $stmt->fetch()) {
                 session_regenerate_id(true);
@@ -65,6 +65,8 @@ if (!$isLoggedIn) {
                 $_SESSION['store_pin'] = $pin;
                 $_SESSION['store_name'] = $store['name'];
                 $_SESSION['store_user_email'] = $email;
+                $_SESSION['store_first_name'] = $store['ufname'] ?? '';
+                $_SESSION['store_last_name'] = $store['ulname'] ?? '';
                 header('Location: index.php');
                 exit;
             } else {

@@ -77,6 +77,25 @@ try {
 } catch (PDOException $e) {
     echo "• sender column might already exist\n";
 }
+// Additional messaging columns
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN parent_id INT DEFAULT NULL AFTER sender");
+    echo "✓ Added parent_id column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• parent_id column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN read_by_admin TINYINT(1) DEFAULT 0 AFTER created_at");
+    echo "✓ Added read_by_admin column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• read_by_admin column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN read_by_store TINYINT(1) DEFAULT 0 AFTER read_by_admin");
+    echo "✓ Added read_by_store column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• read_by_store column might already exist\n";
+}
 
 // Add hootsuite_token column to stores table
 try {

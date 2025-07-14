@@ -53,9 +53,10 @@ if (!isset($_SESSION)) { session_start(); }
                             <i class="bi bi-graph-up"></i> Marketing Report
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item position-relative">
                         <a class="nav-link" href="messages.php">
                             <i class="bi bi-chat-dots"></i> Chat
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount" style="display:none;">0</span>
                         </a>
                     </li>
                     <li class="nav-item">

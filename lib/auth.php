@@ -50,7 +50,7 @@ function login($username, $password): bool {
     ensure_session();
 
     $pdo = get_pdo();
-    $stmt = $pdo->prepare('SELECT id, password FROM users WHERE username=?');
+    $stmt = $pdo->prepare('SELECT id, password, first_name, last_name FROM users WHERE username=?');
     $stmt->execute([$username]);
     if ($row = $stmt->fetch()) {
         if (password_verify($password, $row['password'])) {
@@ -59,6 +59,8 @@ function login($username, $password): bool {
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['username'] = $username;
             $_SESSION['login_time'] = time();
+            $_SESSION['first_name'] = $row['first_name'] ?? '';
+            $_SESSION['last_name'] = $row['last_name'] ?? '';
 
             return true;
         }
@@ -89,13 +91,15 @@ function login_with_google_email($email): bool {
     ensure_session();
 
     $pdo = get_pdo();
-    $stmt = $pdo->prepare('SELECT id FROM users WHERE username=?');
+    $stmt = $pdo->prepare('SELECT id, first_name, last_name FROM users WHERE username=?');
     $stmt->execute([$email]);
     if ($row = $stmt->fetch()) {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['username'] = $email;
         $_SESSION['login_time'] = time();
+        $_SESSION['first_name'] = $row['first_name'] ?? '';
+        $_SESSION['last_name'] = $row['last_name'] ?? '';
         return true;
     }
     return false;
