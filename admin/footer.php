@@ -18,5 +18,9 @@ function checkNotifications(){
 setInterval(checkNotifications,10000);
 checkNotifications();
 </script>
+<?php $version = trim(file_get_contents(__DIR__.'/../VERSION')); ?>
+<div class="position-fixed bottom-0 end-0 p-2 text-muted small">
+    v<?php echo $version; ?>
+</div>
 </body>
 </html>
