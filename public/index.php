@@ -3,28 +3,11 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/drive.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/auth.php';
 
 $config = get_config();
 
-// Start session with proper configuration
-if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.use_only_cookies', 1);
-    ini_set('session.cookie_samesite', 'Lax');
-
-    // Set session cookie parameters before starting session
-    $currentCookieParams = session_get_cookie_params();
-    session_set_cookie_params([
-        'lifetime' => 0, // Session cookie
-        'path' => '/',
-        'domain' => '', // Current domain
-        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
-
-    session_start();
-}
+ensure_session();
 
 $errors = [];
 $success = [];
@@ -36,9 +19,11 @@ if (isset($_GET['logout'])) {
     unset($_SESSION['store_pin']);
     unset($_SESSION['store_name']);
     unset($_SESSION['store_user_email']);
+    unset($_SESSION['store_first_name']);
+    unset($_SESSION['store_last_name']);
 
-    // Regenerate session ID for security
-    session_regenerate_id(true);
+    // Destroy the session completely
+    session_destroy();
 
     header('Location: index.php');
     exit;

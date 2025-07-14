@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/helpers.php';
-session_start();
+require_once __DIR__.'/../lib/auth.php';
+ensure_session();
 
 if (!isset($_SESSION['store_id'])) {
     header('Location: index.php');
@@ -12,7 +13,7 @@ $pdo = get_pdo();
 $store_id = $_SESSION['store_id'];
 
 if (isset($_GET['load'])) {
-    $stmt = $pdo->prepare("SELECT id, sender, message, created_at, read_by_store, read_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at");
+    $stmt = $pdo->prepare("SELECT id, sender, message, created_at, read_by_store, read_by_admin, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at");
     $stmt->execute([$store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($messages as &$m) {
@@ -25,7 +26,7 @@ if (isset($_GET['load'])) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT id, sender, message, created_at, read_by_store, read_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at");
+$stmt = $pdo->prepare("SELECT id, sender, message, created_at, read_by_store, read_by_admin, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at");
 $stmt->execute([$store_id]);
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $pdo->prepare("UPDATE store_messages SET read_by_store=1 WHERE store_id=? AND sender='admin' AND read_by_store=0")
@@ -58,8 +59,8 @@ include __DIR__.'/header.php';
                     <?php endif; ?>
                 </small>
                 <span class="ms-1 reactions">
-                    <i class="bi bi-hand-thumbs-up" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
-                    <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                    <i class="bi bi-hand-thumbs-up<?php if($msg['like_by_admin']||$msg['like_by_store']) echo ' text-danger'; ?>" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
+                    <i class="bi bi-heart<?php if($msg['love_by_admin']||$msg['love_by_store']) echo ' text-danger'; ?>" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                 </span>
             </div>
         </div>
@@ -94,7 +95,7 @@ function refreshMessages() {
                 div.innerHTML=`<strong>${m.sender==='admin'?ADMIN_NAME:YOUR_NAME}:</strong> `+
                     m.message.replace(/\n/g,'<br>')+
                     ` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`+
-                    ` <span class="ms-1 reactions"><i class="bi bi-hand-thumbs-up" data-id="${m.id}" data-type="like"></i> <i class="bi bi-heart" data-id="${m.id}" data-type="love"></i></span>`;
+                    ` <span class="ms-1 reactions"><i class="bi bi-hand-thumbs-up${(m.like_by_admin||m.like_by_store)?' text-danger':''}" data-id="${m.id}" data-type="like"></i> <i class="bi bi-heart${(m.love_by_admin||m.love_by_store)?' text-danger':''}" data-id="${m.id}" data-type="love"></i></span>`;
                 wrap.appendChild(div);
                 container.appendChild(wrap);
             });
@@ -127,16 +128,13 @@ picker.addEventListener('emoji-click', e=>{
 });
 function initReactions(){
     document.querySelectorAll('.reactions i').forEach(icon=>{
-        const key='react_'+icon.dataset.id+'_'+icon.dataset.type;
-        if(localStorage.getItem(key)) icon.classList.add('text-danger');
         icon.addEventListener('click',()=>{
-            if(icon.classList.contains('text-danger')){
-                icon.classList.remove('text-danger');
-                localStorage.removeItem(key);
-            }else{
-                icon.classList.add('text-danger');
-                localStorage.setItem(key,'1');
-            }
+            const form=new FormData();
+            form.append('id',icon.dataset.id);
+            form.append('type',icon.dataset.type);
+            fetch('../react.php',{method:'POST',body:form})
+                .then(r=>r.json())
+                .then(()=>{refreshMessages();});
         });
     });
 }
