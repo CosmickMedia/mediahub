@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
             $store_id = null; // NULL means global message
         }
 
-        $stmt = $pdo->prepare('INSERT INTO store_messages (store_id, message, created_at) VALUES (?, ?, NOW())');
+        $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, created_at) VALUES (?, 'admin', ?, NOW())");
         $stmt->execute([$store_id, $message]);
 
         // Get email settings

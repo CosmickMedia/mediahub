@@ -51,12 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reply_message'])) {
         if ($store_id) {
             // Insert reply as a special message
             try {
-                $stmt = $pdo->prepare('INSERT INTO store_messages (store_id, message, is_reply, upload_id, created_at) VALUES (?, ?, 1, ?, NOW())');
+                $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, is_reply, upload_id, created_at) VALUES (?, 'admin', ?, 1, ?, NOW())");
                 $stmt->execute([$store_id, $reply_message, $upload_id]);
                 $success = 'Reply sent successfully';
             } catch (PDOException $e) {
                 // If is_reply column doesn't exist, try without it
-                $stmt = $pdo->prepare('INSERT INTO store_messages (store_id, message, created_at) VALUES (?, ?, NOW())');
+                $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, created_at) VALUES (?, 'admin', ?, NOW())");
                 $stmt->execute([$store_id, "Re: File - " . $reply_message]);
                 $success = 'Reply sent successfully';
             }
