@@ -33,8 +33,9 @@ To sync new store contacts with your Groundhogg installation, open **Admin → S
 
 1. **WordPress Site URL** – the base URL of the site where Groundhogg is installed.
 2. **Groundhogg API Username** – the WordPress user to authenticate with.
-3. **Groundhogg API App Password** – an [application password](https://wordpress.org/support/article/application-passwords/) generated for that user.
+3. **Groundhogg API App Password** – legacy method using a WordPress application password.
+4. **Public Key / Token / Secret Key** – credentials for the advanced API authentication.
 
-After saving, use the **Test Connection** button to verify communication with your Groundhogg REST API.
+After saving, use the **Test Connection** button to verify communication with your Groundhogg REST API. If public key credentials are provided, the advanced authentication method is used.
 
 If you need to troubleshoot API issues, enable **Debug Logging** in the settings panel. When enabled, detailed request and response information is written to `logs/groundhogg.log` in the project root.
