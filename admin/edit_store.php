@@ -45,6 +45,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id
             ]);
             $success = true;
+
+            // If email is set, sync with Groundhogg
+            if (!empty($_POST['email'])) {
+                $contact = [
+                    'email'        => $_POST['email'],
+                    'first_name'   => $_POST['first_name'] ?? '',
+                    'last_name'    => $_POST['last_name'] ?? '',
+                    'phone'        => $_POST['phone'] ?? '',
+                    'company_name' => $_POST['name'] ?? '',
+                    'user_role'    => 'Store Admin',
+                    'tags'         => ['media-hub', 'store-onboarding'],
+                    'store_id'     => (int)$id
+                ];
+
+                [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
+                if ($ghSuccess) {
+                    $success[] = $ghMessage;
+                } else {
+                    $errors[] = 'Store updated but Groundhogg sync failed: ' . $ghMessage;
+                }
+            }
+
             $stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
             $stmt->execute([$id]);
             $store = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -63,16 +85,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Send to Groundhogg
                 $contact = [
+                    'email'        => $email,
                     'first_name'   => $first,
                     'last_name'    => $last,
-                    'email'        => $email,
                     'phone'        => $store['phone'] ?? '',
                     'company_name' => $store['name'] ?? '',
                     'user_role'    => 'Store Admin',
                     'tags'         => ['media-hub', 'store-onboarding'],
                     'store_id'     => (int)$id
                 ];
-                groundhogg_send_contact($contact);
+
+                [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
+                if ($ghSuccess) {
+                    $success[] = 'User added and ' . $ghMessage;
+                } else {
+                    $errors[] = 'User added but Groundhogg sync failed: ' . $ghMessage;
+                }
             } catch (PDOException $e) {
                 $errors[] = 'User already exists for this store';
             }
@@ -206,5 +234,4 @@ include __DIR__.'/header.php';
     </div>
 </div>
 
-<?php include __DIR__.'/footer.php';
-?>
+<?php include __DIR__.'/footer.php'; ?>

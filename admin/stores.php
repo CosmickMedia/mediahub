@@ -32,18 +32,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $storeId = $pdo->lastInsertId();
             $success[] = 'Store added successfully';
 
-            // Send to Groundhogg
-            $contact = [
-                'first_name'   => $_POST['first_name'] ?? '',
-                'last_name'    => $_POST['last_name'] ?? '',
-                'email'        => $_POST['email'] ?? '',
-                'phone'        => $_POST['phone'] ?? '',
-                'company_name' => $_POST['name'] ?? '',
-                'user_role'    => 'Store Admin',
-                'tags'         => ['media-hub', 'store-onboarding'],
-                'store_id'     => (int)$storeId
-            ];
-            groundhogg_send_contact($contact);
+            // Send to Groundhogg if email is provided
+            if (!empty($_POST['email'])) {
+                $contact = [
+                    'email'        => $_POST['email'],
+                    'first_name'   => $_POST['first_name'] ?? '',
+                    'last_name'    => $_POST['last_name'] ?? '',
+                    'phone'        => $_POST['phone'] ?? '',
+                    'company_name' => $_POST['name'] ?? '',
+                    'user_role'    => 'Store Admin',
+                    'tags'         => ['media-hub', 'store-onboarding'],
+                    'store_id'     => (int)$storeId
+                ];
+
+                [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
+                if ($ghSuccess) {
+                    $success[] = $ghMessage;
+                } else {
+                    $errors[] = 'Store created but Groundhogg sync failed: ' . $ghMessage;
+                }
+            }
         }
     }
     if (isset($_POST['delete'])) {

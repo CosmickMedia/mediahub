@@ -230,6 +230,10 @@ include __DIR__.'/header.php';
                 </div>
                 <button class="btn btn-secondary" type="submit" name="test_groundhogg">Test Connection</button>
             </div>
+
+            <button class="btn btn-secondary" type="submit" name="test_groundhogg">Test Connection</button>
+            <a href="sync_groundhogg.php" class="btn btn-secondary">Sync All Stores</a>
+
         </div>
 
         <div class="card mb-4">
