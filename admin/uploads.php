@@ -277,9 +277,13 @@ include __DIR__.'/header.php';
                     <td>
                         <img src="thumbnail.php?id=<?php echo $r['id']; ?>&size=small" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;" alt="<?php echo htmlspecialchars($r['filename']); ?>" loading="lazy">
                     </td>
-                    <td><?php echo htmlspecialchars($r['filename']); ?></td>
-                    <td><?php echo htmlspecialchars($r['store_name']); ?></td>
-                    <td><?php echo format_ts($r['created_at']); ?></td>
+                    <td class="text-nowrap" style="max-width:150px;">
+                        <span title="<?php echo htmlspecialchars($r['filename']); ?>">
+                            <?php echo htmlspecialchars(shorten_filename($r['filename'])); ?>
+                        </span>
+                    </td>
+                    <td class="text-nowrap"><?php echo htmlspecialchars($r['store_name']); ?></td>
+                    <td class="text-nowrap"><?php echo format_ts($r['created_at']); ?></td>
                     <td>
                         <?php if ($r['status_name']): ?>
                             <span class="badge" style="background-color: <?php echo htmlspecialchars($r['status_color']); ?>;">
@@ -329,7 +333,7 @@ include __DIR__.'/header.php';
 
                     <div class="card-body">
                         <h6 class="card-title text-truncate" title="<?php echo htmlspecialchars($r['filename']); ?>">
-                            <?php echo htmlspecialchars($r['filename']); ?>
+                            <?php echo htmlspecialchars(shorten_filename($r['filename'], 12)); ?>
                         </h6>
 
                         <p class="card-text">
