@@ -46,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'max_article_length' => $_POST['max_article_length'] ?? '50000',
         'groundhogg_site_url'     => trim($_POST['groundhogg_site_url'] ?? ''),
         'groundhogg_username'     => trim($_POST['groundhogg_username'] ?? ''),
-        'groundhogg_app_password' => trim($_POST['groundhogg_app_password'] ?? ''),
         'groundhogg_public_key'   => trim($_POST['groundhogg_public_key'] ?? ''),
         'groundhogg_token'        => trim($_POST['groundhogg_token'] ?? ''),
         'groundhogg_secret_key'   => trim($_POST['groundhogg_secret_key'] ?? ''),
@@ -104,7 +103,6 @@ $article_approval_subject = get_setting('article_approval_subject') ?: 'Article 
 $max_article_length = get_setting('max_article_length') ?: '50000';
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
-$groundhogg_app_password = get_setting('groundhogg_app_password');
 $groundhogg_public_key = get_setting('groundhogg_public_key');
 $groundhogg_token = get_setting('groundhogg_token');
 $groundhogg_secret_key = get_setting('groundhogg_secret_key');
@@ -206,16 +204,12 @@ include __DIR__.'/header.php';
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label for="groundhogg_site_url" class="form-label">WordPress Site URL</label>
-                    <input type="text" name="groundhogg_site_url" id="groundhogg_site_url" class="form-control" value="<?php echo htmlspecialchars($groundhogg_site_url); ?>" placeholder="https://crm.example.com">
+                    <label for="groundhogg_site_url" class="form-label">Groundhogg Site URL</label>
+                    <input type="text" name="groundhogg_site_url" id="groundhogg_site_url" class="form-control" value="<?php echo htmlspecialchars($groundhogg_site_url); ?>" placeholder="https://www.cosmickmedia.com">
                 </div>
                 <div class="mb-3">
                     <label for="groundhogg_username" class="form-label">Groundhogg API Username</label>
                     <input type="text" name="groundhogg_username" id="groundhogg_username" class="form-control" value="<?php echo htmlspecialchars($groundhogg_username); ?>">
-                </div>
-                <div class="mb-3">
-                    <label for="groundhogg_app_password" class="form-label">Groundhogg API App Password</label>
-                    <input type="password" name="groundhogg_app_password" id="groundhogg_app_password" class="form-control" value="<?php echo htmlspecialchars($groundhogg_app_password); ?>">
                 </div>
                 <div class="mb-3">
                     <label for="groundhogg_public_key" class="form-label">Public Key</label>
