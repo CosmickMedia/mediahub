@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/dripley.php';
 require_login();
 $pdo = get_pdo();
 
@@ -28,7 +29,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['address'] ?? null,
                 $_POST['marketing_report_url'] ?? null
             ]);
+            $storeId = $pdo->lastInsertId();
             $success[] = 'Store added successfully';
+
+            // Send to Dripley
+            $contact = [
+                'first_name'   => $_POST['first_name'] ?? '',
+                'last_name'    => $_POST['last_name'] ?? '',
+                'email'        => $_POST['email'] ?? '',
+                'phone'        => $_POST['phone'] ?? '',
+                'company_name' => $_POST['name'] ?? '',
+                'user_role'    => 'Store Admin',
+                'tags'         => ['media-hub', 'store-onboarding'],
+                'store_id'     => (int)$storeId
+            ];
+            send_contact_to_dripley($contact);
         }
     }
     if (isset($_POST['delete'])) {
