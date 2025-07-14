@@ -89,7 +89,7 @@ include __DIR__.'/header.php';
         <table class="table table-hover align-middle" id="uploadsTable">
             <thead>
             <tr>
-                <th style="width: 100px;">Preview</th>
+                <th class="preview-col">Preview</th>
                 <th>Date</th>
                 <th>File Name</th>
                 <th>Description</th>
@@ -106,8 +106,7 @@ include __DIR__.'/header.php';
                 <tr>
                     <td>
                         <img src="thumbnail.php?id=<?php echo $upload['id']; ?>&size=small"
-                             class="img-thumbnail"
-                             style="width: 80px; height: 80px; object-fit: cover;"
+                             class="img-thumbnail preview-img"
                              alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                              loading="lazy">
                     </td>

@@ -1,0 +1,41 @@
+/* Admin styles */
+.navbar-brand { font-weight: 600; }
+.navbar { background-color: #2c3e50 !important; }
+body { background-color: #f8f9fa; }
+.card { border: none; }
+.btn-primary { background-color: #2c3e50; border-color: #2c3e50; }
+.btn-primary:hover { background-color: #1a252f; border-color: #1a252f; }
+.btn-outline-primary { color: #2c3e50; border-color: #2c3e50; }
+.btn-outline-primary:hover { background-color: #2c3e50; border-color: #2c3e50; }
+a { color: #2c3e50; }
+a:hover { color: #1a252f; }
+.page-link { color: #2c3e50; }
+.page-item.active .page-link { background-color: #2c3e50; border-color: #2c3e50; }
+.bg-primary { background-color: #2c3e50 !important; }
+.bg-warning { background-color: #d39e00 !important; color: #fff !important; }
+.bg-info { background-color: #17a2b8 !important; color: #fff !important; }
+.text-primary { color: #2c3e50 !important; }
+.clickable-card { cursor: pointer; transition: transform 0.2s; }
+.clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.navbar-logo { height: 35px; width: auto; }
+#notifyCount { display: none; top:-10px; }
+#messages { max-height: 400px; overflow-y: auto; }
+#messages .mine { text-align: right; }
+#messages .bubble { display:inline-block; padding:6px 12px; border-radius:12px; margin-bottom:4px; max-width:70%; }
+#messages .mine .bubble { background:#d1e7dd; }
+#messages .theirs .bubble { background:#e2e3e5; }
+#emojiPicker { display:none; position:absolute; bottom:60px; right:20px; }
+.preview-col-sm { width: 60px; }
+.preview-img-sm { width: 50px; height: 50px; object-fit: cover; }
+.upload-card { height: 100%; transition: all 0.3s ease; border: 1px solid #c3c3c3; padding: 0.25rem; }
+.upload-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.new-badge { position: absolute; top: 10px; right: 10px; z-index: 10; }
+.card-img-top { height: 200px; object-fit: cover; background-color: #f8f9fa; }
+.video-thumbnail { background-color: #000; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 3rem; }
+.article-excerpt { max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status-badge { font-size: 0.875rem; font-weight: 500; }
+.login-page { background-color: #262829; display: flex; align-items: center; min-height: 100vh; }
+.login-page .login-logo { max-width: 200px; margin-bottom: 30px; }
+.login-page .btn-login { background-color: #ff675b; border-color: #ff675b; color: white; }
+.login-page .btn-login:hover { background-color: #e55750; border-color: #e55750; color: white; }
+

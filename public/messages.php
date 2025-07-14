@@ -38,13 +38,7 @@ $your_name = trim(($_SESSION['store_first_name'] ?? '') . ' ' . ($_SESSION['stor
 
 include __DIR__.'/header.php';
 ?>
-<style>
-    #messages .mine { text-align:right; }
-    #messages .bubble{display:inline-block;padding:6px 12px;border-radius:12px;margin-bottom:4px;max-width:70%;}
-    #messages .mine .bubble{background:#d1e7dd;}
-    #messages .theirs .bubble{background:#e2e3e5;}
-</style>
-<div id="messages" class="mb-4 border rounded p-2" style="height:70vh;overflow-y:auto;margin-left:0.5rem;margin-right:0.5rem;">
+<div id="messages" class="mb-4 border rounded p-2">
     <?php foreach ($messages as $msg): ?>
         <div class="mb-2 <?php echo $msg['sender'] === 'admin' ? 'theirs' : 'mine'; ?>">
             <div class="bubble">
@@ -82,7 +76,7 @@ include __DIR__.'/header.php';
     <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1"></script>
-<emoji-picker style="display:none; position:absolute; bottom:60px; right:20px;" id="emojiPicker"></emoji-picker>
+<emoji-picker id="emojiPicker"></emoji-picker>
 <script>
 const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
 const YOUR_NAME = <?php echo json_encode($your_name); ?>;

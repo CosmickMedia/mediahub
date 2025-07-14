@@ -167,38 +167,6 @@ $active = 'uploads';
 include __DIR__.'/header.php';
 ?>
 
-    <style>
-        .upload-card {
-            height: 100%;
-            transition: all 0.3s ease;
-            border: 1px solid #c3c3c3;
-            padding: 0.25rem;
-        }
-        .upload-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .new-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 10;
-        }
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
-            background-color: #f8f9fa;
-        }
-        .video-thumbnail {
-            background-color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 3rem;
-        }
-    </style>
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4>Content Review</h4>
         <div class="d-flex align-items-center gap-3">
@@ -263,7 +231,7 @@ include __DIR__.'/header.php';
             <table class="table table-sm align-middle">
                 <thead>
                 <tr>
-                    <th style="width: 60px;">Preview</th>
+                    <th class="preview-col-sm">Preview</th>
                     <th>File</th>
                     <th>Store</th>
                     <th>Date</th>
@@ -275,7 +243,7 @@ include __DIR__.'/header.php';
                 <?php foreach ($rows as $r): ?>
                 <tr>
                     <td>
-                        <img src="thumbnail.php?id=<?php echo $r['id']; ?>&size=small" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;" alt="<?php echo htmlspecialchars($r['filename']); ?>" loading="lazy">
+                        <img src="thumbnail.php?id=<?php echo $r['id']; ?>&size=small" class="img-thumbnail preview-img-sm" alt="<?php echo htmlspecialchars($r['filename']); ?>" loading="lazy">
                     </td>
                     <td><?php echo htmlspecialchars(shorten_filename($r['filename'])); ?></td>
                     <td><?php echo htmlspecialchars($r['store_name']); ?></td>

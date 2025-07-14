@@ -32,10 +32,10 @@ if (isset($_GET['action'])) {
     if ($_GET['action'] === 'set') {
         $_SESSION['test'] = 'Session is working!';
         $_SESSION['time'] = date('Y-m-d H:i:s');
-        echo "<p style='color:green;'>Session test data set!</p>";
+        echo "<p class='text-success'>Session test data set!</p>";
     } elseif ($_GET['action'] === 'clear') {
         session_destroy();
-        echo "<p style='color:red;'>Session destroyed!</p>";
+        echo "<p class='text-danger'>Session destroyed!</p>";
     }
 }
 ?>

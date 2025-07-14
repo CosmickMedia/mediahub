@@ -18,7 +18,7 @@ include __DIR__.'/header.php';
     <a href="index.php" class="btn btn-primary">Back to Upload</a>
 </div>
 <?php if ($url): ?>
-    <iframe id="reportFrame" src="<?php echo htmlspecialchars($url); ?>" style="width:100%; border:0;" allowfullscreen></iframe>
+    <iframe id="reportFrame" src="<?php echo htmlspecialchars($url); ?>" allowfullscreen></iframe>
     <script>
         function resizeFrame(){
             var iframe=document.getElementById('reportFrame');
