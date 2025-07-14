@@ -1,3 +1,59 @@
+## Commit: f78ce2e
+Author: Carley Kuehner
+Date: 2025-07-14
+
+Merge pull request #34 from CosmickMedia/codex/update-admin-and-public-ui-elements
+
+Update navigation layout and add chat counts
+------------------------
+## Commit: 373f26a
+Author: Carley Kuehner
+Date: 2025-07-14
+
+Update navigation layouts and store table
+
+
+------------------------
+## Commit: 3d16ba8
+Author: Carley Kuehner
+Date: 2025-07-14
+
+Merge pull request #33 from CosmickMedia/codex/add-automated-version-bumping-and-changelog
+
+Add version tracking
+------------------------
+## Commit: 6a7f7b0
+Author: Carley Kuehner
+Date: 2025-07-14
+
+Add version tracking and changelog
+
+
+------------------------
+## Commit: f2a426e
+Author: Carley Kuehner
+Date: 2025-07-14
+
+Create full-changelog.md
+
+
+------------------------
+## Commit: 43d630a
+Author: Carley Kuehner
+Date: 2025-07-14
+
+Merge pull request #32 from CosmickMedia/codex/add-css-files-for-public-and-admin
+
+Extract inline styles to CSS files
+------------------------
+## Commit: 13178c4
+Author: Carley Kuehner
+Date: 2025-07-14
+
+Add separate stylesheets and remove inline styles
+
+
+------------------------
 ## Commit: f79ab39
 Author: Carley Kuehner
 Date: 2025-07-14
