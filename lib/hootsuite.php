@@ -2,7 +2,7 @@
 /**
  * Minimal Hootsuite API helper. Currently only fetches scheduled messages.
  */
-function hootsuite_get_scheduled_posts(string $token): array {
+function hootsuite_get_scheduled_posts(?string $token): array {
     if (empty($token)) {
         return [];
     }
