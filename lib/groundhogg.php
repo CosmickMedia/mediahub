@@ -116,10 +116,8 @@ function groundhogg_send_contact(array $contactData): array {
 
     $headers = [
         'Content-Type: application/json',
-        'X-GH-USER: ' . $settings['username'],
-        'X-GH-PUBLIC-KEY: ' . $settings['public_key'],
-        'X-GH-TOKEN: ' . $settings['token'],
-        'X-GH-SIGNATURE: ' . $signature
+        'Gh-Token: ' . $settings['token'],
+        'Gh-Public-Key: ' . $settings['public_key']
     ];
 
     groundhogg_debug_log('POST ' . $url);
