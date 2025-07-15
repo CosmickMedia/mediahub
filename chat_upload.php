@@ -15,7 +15,7 @@ if ($isAdmin) {
 } else {
     $store_id = intval($_SESSION['store_id'] ?? 0);
 }
-if ($store_id <= 0 || empty($_FILES['file']['tmp_name'])) {
+if ($store_id <= 0 || !isset($_FILES['file']) || !is_uploaded_file($_FILES['file']['tmp_name'])) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid request']);
     exit;

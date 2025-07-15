@@ -36,6 +36,12 @@ $adminRow = $pdo->query('SELECT first_name, last_name FROM users ORDER BY id LIM
 $admin_name = trim(($adminRow['first_name'] ?? '') . ' ' . ($adminRow['last_name'] ?? ''));
 $your_name = trim(($_SESSION['store_first_name'] ?? '') . ' ' . ($_SESSION['store_last_name'] ?? ''));
 
+$mentionNames = $pdo->query("SELECT CONCAT(first_name,' ',last_name) AS name FROM users")->fetchAll(PDO::FETCH_COLUMN);
+$stmtMent = $pdo->prepare("SELECT CONCAT(first_name,' ',last_name) AS name FROM store_users WHERE store_id=?");
+$stmtMent->execute([$store_id]);
+$mentionNames = array_merge($mentionNames, $stmtMent->fetchAll(PDO::FETCH_COLUMN));
+$mentionNames = array_values(array_filter(array_unique($mentionNames)));
+
 include __DIR__.'/header.php';
 ?>
 <div id="messages" class="mb-4 border rounded p-2">
@@ -86,13 +92,40 @@ include __DIR__.'/header.php';
     <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>
 <div id="emojiPicker"></div>
+<div id="mentionBox" class="mention-box"></div>
 <script src="../assets/js/emoji-picker.js"></script>
 <script>
-initEmojiPicker(document.querySelector('#msgForm textarea'), document.getElementById('emojiBtn'), document.getElementById('emojiPicker'));
+const textarea = document.querySelector('#msgForm textarea');
+initEmojiPicker(textarea, document.getElementById('emojiBtn'), document.getElementById('emojiPicker'));
+const mentionBox=document.getElementById('mentionBox');
+textarea.addEventListener('keyup',e=>{
+    const pre=textarea.value.substring(0,textarea.selectionStart);
+    const m=pre.match(/@(\w*)$/);
+    if(m){
+        const term=m[1].toLowerCase();
+        const matches=MENTION_NAMES.filter(n=>n.toLowerCase().startsWith(term));
+        if(matches.length){
+            mentionBox.innerHTML=matches.map(n=>`<div>${n}</div>`).join('');
+            const rect=textarea.getBoundingClientRect();
+            mentionBox.style.left=rect.left+'px';
+            mentionBox.style.top=(rect.bottom)+'px';
+            mentionBox.style.display='block';
+        }else{mentionBox.style.display='none';}
+    }else{mentionBox.style.display='none';}
+});
+mentionBox.addEventListener('click',e=>{
+    if(e.target.tagName==='DIV'){
+        const pre=textarea.value.substring(0,textarea.selectionStart).replace(/@\w*$/, '@'+e.target.textContent);
+        textarea.value=pre+textarea.value.substring(textarea.selectionStart);
+        textarea.focus();
+        mentionBox.style.display='none';
+    }
+});
 </script>
 <script>
 const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
 const YOUR_NAME = <?php echo json_encode($your_name); ?>;
+const MENTION_NAMES = <?php echo json_encode($mentionNames); ?>;
 function refreshMessages() {
     fetch('messages.php?load=1')
         .then(r => r.json())
@@ -132,6 +165,7 @@ function refreshMessages() {
             container.scrollTop = container.scrollHeight;
             initReactions();
             initReplyLinks();
+            if(typeof checkNotifications==='function'){checkNotifications();}
         });
 }
 setInterval(refreshMessages, 5000);
@@ -142,12 +176,12 @@ document.getElementById('msgForm').addEventListener('submit', function(e){
         fd.append('ajax','1');
         fetch('../chat_upload.php',{method:'POST',body:fd})
             .then(async r=>{try{return await r.json();}catch(e){return {error:'Upload failed'};}})
-            .then(res=>{ if(res.success){ this.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); } else { alert(res.error||'Upload failed'); } });
-    }else{
-        fetch('send_message.php', {method:'POST', body:fd})
-            .then(async r=>{try{return await r.json();}catch(e){return {error:'Send failed'};}})
-            .then(res=>{ if(res.success){ this.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); } else { alert(res.error||'Send failed'); } });
-    }
+            .then(res=>{ if(res.success){ this.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();} } else { alert(res.error||'Upload failed'); } });
+        }else{
+            fetch('send_message.php', {method:'POST', body:fd})
+                .then(async r=>{try{return await r.json();}catch(e){return {error:'Send failed'};}})
+                .then(res=>{ if(res.success){ this.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();} } else { alert(res.error||'Send failed'); } });
+        }
 });
 document.querySelector('#msgForm textarea').addEventListener('keydown', function(e){
     if(e.key === 'Enter' && !e.shiftKey){
@@ -179,11 +213,12 @@ function initReactions(){
             form.append('type',icon.dataset.type);
             fetch('../react.php',{method:'POST',body:form})
                 .then(r=>r.json())
-                .then(()=>{refreshMessages();});
+                .then(()=>{refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();}});
         });
     });
 }
 refreshMessages();
+if(typeof checkNotifications==='function'){checkNotifications();}
 initReactions();
 function initReplyLinks(){
     document.querySelectorAll('.reply-link').forEach(l=>{

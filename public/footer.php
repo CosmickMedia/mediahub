@@ -6,16 +6,19 @@ function checkNotifications(){
     fetch('notifications.php')
         .then(r=>r.json())
         .then(d=>{
-            const el=document.getElementById('notifyCount');
-            if(el){
-                if(d.count>0){
-                    el.style.display='inline-block';
-                    el.textContent=d.count;
-                }else{el.style.display='none';}
+            const wrap=document.getElementById('notifyWrap');
+            const count=document.getElementById('notifyCount');
+            if(!wrap) return;
+            if(d.count>0){
+                wrap.style.display='inline-block';
+                count.style.display='inline-block';
+                count.textContent=d.count;
+            }else{
+                wrap.style.display='none';
             }
         });
 }
-setInterval(checkNotifications,10000);
+setInterval(checkNotifications,5000);
 checkNotifications();
 </script>
 </body>
