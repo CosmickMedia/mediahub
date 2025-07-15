@@ -54,12 +54,12 @@ include __DIR__.'/header.php';
                 </small>
                 <span class="ms-1 reactions">
                     <?php if($msg['like_by_admin']||$msg['like_by_store']): ?>
-                        <i class="bi bi-hand-thumbs-up-fill text-danger" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
+                        <i class="bi bi-hand-thumbs-up-fill text-like" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
                     <?php else: ?>
                         <i class="bi bi-hand-thumbs-up" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
                     <?php endif; ?>
                     <?php if($msg['love_by_admin']||$msg['love_by_store']): ?>
-                        <i class="bi bi-heart-fill text-danger" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                        <i class="bi bi-heart-fill text-love" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                     <?php else: ?>
                         <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                     <?php endif; ?>
@@ -99,10 +99,10 @@ function refreshMessages() {
                     ` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`+
                     ' <span class="ms-1 reactions">'+
                     (m.like_by_admin||m.like_by_store?
-                        `<i class="bi bi-hand-thumbs-up-fill text-danger" data-id="${m.id}" data-type="like"></i>`:
+                        `<i class="bi bi-hand-thumbs-up-fill text-like" data-id="${m.id}" data-type="like"></i>`:
                         `<i class="bi bi-hand-thumbs-up" data-id="${m.id}" data-type="like"></i>`)+' '+
                     (m.love_by_admin||m.love_by_store?
-                        `<i class="bi bi-heart-fill text-danger" data-id="${m.id}" data-type="love"></i>`:
+                        `<i class="bi bi-heart-fill text-love" data-id="${m.id}" data-type="love"></i>`:
                         `<i class="bi bi-heart" data-id="${m.id}" data-type="love"></i>`)+
                     '</span>';
                 wrap.appendChild(div);

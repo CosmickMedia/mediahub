@@ -7,6 +7,7 @@ $pdo = get_pdo();
 
 $success = false;
 $test_result = null;
+$active_tab = $_POST['active_tab'] ?? 'general';
 
 // Fetch upload statuses
 $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
@@ -83,7 +84,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    if (isset($_POST['test_groundhogg'])) {
+    if (isset($_POST['delete_chats'])) {
+        $pdo->exec('DELETE FROM store_messages WHERE store_id IS NOT NULL');
+        $active_tab = 'reset';
+    } elseif (isset($_POST['delete_broadcasts'])) {
+        $pdo->exec('DELETE FROM store_messages WHERE store_id IS NULL');
+        $active_tab = 'reset';
+    } elseif (isset($_POST['delete_uploads'])) {
+        $pdo->exec('DELETE FROM uploads');
+        $active_tab = 'reset';
+    } elseif (isset($_POST['delete_store_users'])) {
+        $pdo->exec('DELETE FROM store_users');
+        $active_tab = 'reset';
+    } elseif (isset($_POST['delete_stores'])) {
+        $pdo->exec('DELETE FROM stores');
+        $active_tab = 'reset';
+    } elseif (isset($_POST['test_groundhogg'])) {
         [$ok, $msg] = test_groundhogg_connection();
         $test_result = [$ok, $msg];
     }
@@ -137,20 +153,23 @@ include __DIR__.'/header.php';
     <form method="post" enctype="multipart/form-data">
         <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">General</button>
+                <button class="nav-link<?php if($active_tab==='general') echo ' active'; ?>" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">General</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="dripley-tab" data-bs-toggle="tab" data-bs-target="#dripley" type="button" role="tab">Dripley CRM</button>
+                <button class="nav-link<?php if($active_tab==='dripley') echo ' active'; ?>" id="dripley-tab" data-bs-toggle="tab" data-bs-target="#dripley" type="button" role="tab">Dripley CRM</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="subjects-tab" data-bs-toggle="tab" data-bs-target="#subjects" type="button" role="tab">Email Subjects</button>
+                <button class="nav-link<?php if($active_tab==='subjects') echo ' active'; ?>" id="subjects-tab" data-bs-toggle="tab" data-bs-target="#subjects" type="button" role="tab">Email Subjects</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="statuses-tab" data-bs-toggle="tab" data-bs-target="#statuses" type="button" role="tab">Statuses</button>
+                <button class="nav-link<?php if($active_tab==='statuses') echo ' active'; ?>" id="statuses-tab" data-bs-toggle="tab" data-bs-target="#statuses" type="button" role="tab">Statuses</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link<?php if($active_tab==='reset') echo ' active'; ?>" id="reset-tab" data-bs-toggle="tab" data-bs-target="#reset" type="button" role="tab">Reset</button>
             </li>
         </ul>
         <div class="tab-content pt-3">
-            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+            <div class="tab-pane fade<?php if($active_tab==='general') echo ' show active'; ?>" id="general" role="tabpanel" aria-labelledby="general-tab">
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="card mb-4">
@@ -212,7 +231,7 @@ include __DIR__.'/header.php';
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="dripley" role="tabpanel" aria-labelledby="dripley-tab">
+            <div class="tab-pane fade<?php if($active_tab==='dripley') echo ' show active'; ?>" id="dripley" role="tabpanel" aria-labelledby="dripley-tab">
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">Dripley CRM Integration</h5>
@@ -256,7 +275,7 @@ include __DIR__.'/header.php';
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="subjects" role="tabpanel" aria-labelledby="subjects-tab">
+            <div class="tab-pane fade<?php if($active_tab==='subjects') echo ' show active'; ?>" id="subjects" role="tabpanel" aria-labelledby="subjects-tab">
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">Email Subject Lines - Uploads</h5>
@@ -304,7 +323,7 @@ include __DIR__.'/header.php';
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="statuses" role="tabpanel" aria-labelledby="statuses-tab">
+            <div class="tab-pane fade<?php if($active_tab==='statuses') echo ' show active'; ?>" id="statuses" role="tabpanel" aria-labelledby="statuses-tab">
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">Statuses</h5>
@@ -331,8 +350,31 @@ include __DIR__.'/header.php';
                     </div>
                 </div>
             </div>
-        </div>
 
+            <div class="tab-pane fade<?php if($active_tab==='reset') echo ' show active'; ?>" id="reset" role="tabpanel" aria-labelledby="reset-tab">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p class="text-danger">These actions cannot be undone.</p>
+                        <div class="mb-2">
+                            <button class="btn btn-danger" type="submit" name="delete_chats" onclick="return confirm('Delete all chats?');">Delete All Chats</button>
+                        </div>
+                        <div class="mb-2">
+                            <button class="btn btn-danger" type="submit" name="delete_broadcasts" onclick="return confirm('Delete all broadcasts?');">Delete All Broadcasts</button>
+                        </div>
+                        <div class="mb-2">
+                            <button class="btn btn-danger" type="submit" name="delete_uploads" onclick="return confirm('Delete all uploads?');">Delete All Uploads</button>
+                        </div>
+                        <div class="mb-2">
+                            <button class="btn btn-danger" type="submit" name="delete_store_users" onclick="return confirm('Delete all store users?');">Delete All Store Users</button>
+                        </div>
+                        <div class="mb-2">
+                            <button class="btn btn-danger" type="submit" name="delete_stores" onclick="return confirm('Delete all stores?');">Delete All Stores</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="active_tab" id="active_tab" value="<?php echo htmlspecialchars($active_tab); ?>">
         <button class="btn btn-primary" type="submit">Save Settings</button>
     </form>
 
@@ -350,10 +392,15 @@ include __DIR__.'/header.php';
             `;
             tbody.appendChild(row);
         });
-        document.addEventListener('click', function(e){
+       document.addEventListener('click', function(e){
             if(e.target.classList.contains('remove-status')){
                 e.target.closest('tr').remove();
             }
+        });
+        document.querySelectorAll('#settingsTabs button[data-bs-toggle="tab"]').forEach(btn=>{
+            btn.addEventListener('shown.bs.tab', e=>{
+                document.getElementById('active_tab').value = e.target.id.replace('-tab','');
+            });
         });
     </script>
 

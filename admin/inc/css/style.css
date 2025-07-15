@@ -23,8 +23,8 @@ a:hover { color: #1a252f; }
 #messages { max-height: 400px; overflow-y: auto; }
 #messages .mine { text-align: right; }
 #messages .bubble { display:inline-block; padding:6px 12px; border-radius:12px; margin-bottom:4px; max-width:70%; }
-#messages .mine .bubble { background:#d1e7dd; }
-#messages .theirs .bubble { background:#e2e3e5; }
+#messages .mine .bubble { background:#E6FAF1; }
+#messages .theirs .bubble { background:#E8F0FE; }
 #emojiPicker { display:none; position:absolute; bottom:60px; right:20px; }
 .preview-col-sm { width: 60px; }
 .preview-img-sm { width: 50px; height: 50px; object-fit: cover; }
@@ -48,3 +48,12 @@ a:hover { color: #1a252f; }
     color: #2c3e50;
 }
 
+/* Pastel palette */
+.bg-pastel-blue { background-color: #E8F0FE !important; }
+.bg-pastel-yellow { background-color: #FEF7E1 !important; }
+.bg-pastel-mint { background-color: #E6FAF1 !important; }
+.bg-pastel-peach { background-color: #FFF1E6 !important; }
+.bg-pastel-pink { background-color: #FDE8E6 !important; }
+.text-like { color: #E8F0FE !important; }
+.text-love { color: #FDE8E6 !important; }
+#messages .bubble.broadcast { background:#FDE8E6; }
