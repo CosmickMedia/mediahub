@@ -180,7 +180,7 @@ include __DIR__.'/header.php';
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 g-3 mb-4">
         <div class="col">
             <a href="stores.php" class="text-decoration-none">
-                <div class="card text-white bg-primary clickable-card">
+                <div class="card bg-pastel-blue clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-shop"></i> Total Stores
@@ -192,7 +192,7 @@ include __DIR__.'/header.php';
         </div>
         <div class="col">
             <a href="uploads.php" class="text-decoration-none">
-                <div class="card text-white bg-success clickable-card">
+                <div class="card bg-pastel-yellow clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-cloud-upload"></i> Total Uploads
@@ -204,7 +204,7 @@ include __DIR__.'/header.php';
         </div>
         <div class="col">
             <a href="articles.php" class="text-decoration-none">
-                <div class="card text-white bg-info clickable-card">
+                <div class="card bg-pastel-mint clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-file-text"></i> Articles
@@ -221,7 +221,7 @@ include __DIR__.'/header.php';
         </div>
         <div class="col">
             <a href="messages.php" class="text-decoration-none">
-                <div class="card text-white bg-warning clickable-card">
+                <div class="card bg-pastel-peach clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-chat-dots"></i> Active Messages
@@ -233,7 +233,7 @@ include __DIR__.'/header.php';
         </div>
         <div class="col">
             <a href="stores.php" class="text-decoration-none">
-                <div class="card text-white bg-secondary clickable-card">
+                <div class="card bg-pastel-pink clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-people"></i> Store Users
@@ -375,6 +375,33 @@ include __DIR__.'/header.php';
         <div class="col-lg-4">
             <div class="card mb-3">
                 <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="stores.php" class="btn btn-primary">
+                            <i class="bi bi-shop"></i> Manage Stores
+                        </a>
+                        <a href="uploads.php" class="btn btn-primary">
+                            <i class="bi bi-cloud-upload"></i> Review Uploads
+                        </a>
+                        <a href="articles.php" class="btn btn-primary">
+                            <i class="bi bi-file-text"></i> Review Articles
+                            <?php if ($stats['pending_articles'] > 0): ?>
+                                <span class="badge bg-danger"><?php echo $stats['pending_articles']; ?></span>
+                            <?php endif; ?>
+                        </a>
+                        <a href="messages.php" class="btn btn-primary">
+                            <i class="bi bi-chat-dots"></i> Post Messages
+                        </a>
+                        <a href="settings.php" class="btn btn-primary">
+                            <i class="bi bi-gear"></i> Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
                     <h5 class="mb-0">Quick Broadcast</h5>
                 </div>
                 <div class="card-body">
@@ -404,33 +431,6 @@ include __DIR__.'/header.php';
                         </div>
                         <button class="btn btn-primary w-100" type="submit">Send</button>
                     </form>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="stores.php" class="btn btn-primary">
-                            <i class="bi bi-shop"></i> Manage Stores
-                        </a>
-                        <a href="uploads.php" class="btn btn-primary">
-                            <i class="bi bi-cloud-upload"></i> Review Uploads
-                        </a>
-                        <a href="articles.php" class="btn btn-primary">
-                            <i class="bi bi-file-text"></i> Review Articles
-                            <?php if ($stats['pending_articles'] > 0): ?>
-                                <span class="badge bg-danger"><?php echo $stats['pending_articles']; ?></span>
-                            <?php endif; ?>
-                        </a>
-                        <a href="messages.php" class="btn btn-primary">
-                            <i class="bi bi-chat-dots"></i> Post Messages
-                        </a>
-                        <a href="settings.php" class="btn btn-primary">
-                            <i class="bi bi-gear"></i> Settings
-                        </a>
-                    </div>
                 </div>
             </div>
 

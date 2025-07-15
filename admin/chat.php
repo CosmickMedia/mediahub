@@ -17,7 +17,7 @@ if (isset($_GET['load'])) {
         $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
             ->execute([$store_id]);
     } else {
-        $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
+        $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, m.store_id, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     }
@@ -86,8 +86,14 @@ include __DIR__.'/header.php';
 <div id="messages" class="mb-4">
     <?php foreach ($messages as $msg): ?>
         <div class="mb-2 <?php echo $msg['sender']==='admin'?'mine':'theirs'; ?>">
-            <div class="bubble">
-                <strong><?php echo $msg['sender']==='admin'?htmlspecialchars($admin_name):htmlspecialchars($store_contact ?: ($msg['store_name'] ?? 'Store')); ?>:</strong>
+            <div class="bubble<?php if($store_id===0 && $msg['store_id']===null) echo ' broadcast'; ?>">
+                <strong><?php
+                    if($store_id===0 && $msg['store_id']===null && $msg['sender']==='admin'){
+                        echo 'BROADCAST ANNOUNCEMENT';
+                    } else {
+                        echo $msg['sender']==='admin'?htmlspecialchars($admin_name):htmlspecialchars($store_contact ?: ($msg['store_name'] ?? 'Store'));
+                    }
+                ?>:</strong>
                 <span><?php echo nl2br($msg['message']); ?></span>
                 <small class="text-muted ms-2">
                     <?php echo format_ts($msg['created_at']); ?>
@@ -99,12 +105,12 @@ include __DIR__.'/header.php';
                 </small>
                 <span class="ms-1 reactions">
                     <?php if($msg['like_by_admin']||$msg['like_by_store']): ?>
-                        <i class="bi bi-hand-thumbs-up-fill text-danger" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
+                        <i class="bi bi-hand-thumbs-up-fill text-like" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
                     <?php else: ?>
                         <i class="bi bi-hand-thumbs-up" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
                     <?php endif; ?>
                     <?php if($msg['love_by_admin']||$msg['love_by_store']): ?>
-                        <i class="bi bi-heart-fill text-danger" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
+                        <i class="bi bi-heart-fill text-love" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                     <?php else: ?>
                         <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                     <?php endif; ?>
@@ -127,6 +133,7 @@ include __DIR__.'/header.php';
 <script>
 const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
 const STORE_CONTACT = <?php echo json_encode($store_contact ?? ''); ?>;
+const STORE_ID = <?php echo json_encode($store_id); ?>;
 function refreshMessages(){
     fetch('chat.php?store_id=<?php echo $store_id; ?>&load=1')
         .then(r=>r.json())
@@ -137,8 +144,8 @@ function refreshMessages(){
                 const wrap=document.createElement('div');
                 wrap.className='mb-2 '+(m.sender==='admin'?'mine':'theirs');
                 const div=document.createElement('div');
-                div.className='bubble';
-                const sender=m.sender==='admin'?ADMIN_NAME:(STORE_CONTACT||m.store_name||'Store');
+                div.className='bubble'+((STORE_ID===0 && m.store_id===null && m.sender==='admin')?' broadcast':'');
+                const sender=(STORE_ID===0 && m.store_id===null && m.sender==='admin')?'BROADCAST ANNOUNCEMENT':(m.sender==='admin'?ADMIN_NAME:(STORE_CONTACT||m.store_name||'Store'));
                 let readIcon='';
                 if(m.sender==='admin' && m.read_by_store==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
                 if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
@@ -146,10 +153,10 @@ function refreshMessages(){
                     ' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small>'+
                     ' <span class="ms-1 reactions">'+
                     (m.like_by_admin||m.like_by_store?
-                        '<i class="bi bi-hand-thumbs-up-fill text-danger" data-id="'+m.id+'" data-type="like"></i>' :
+                        '<i class="bi bi-hand-thumbs-up-fill text-like" data-id="'+m.id+'" data-type="like"></i>' :
                         '<i class="bi bi-hand-thumbs-up" data-id="'+m.id+'" data-type="like"></i>')+' '+
                     (m.love_by_admin||m.love_by_store?
-                        '<i class="bi bi-heart-fill text-danger" data-id="'+m.id+'" data-type="love"></i>' :
+                        '<i class="bi bi-heart-fill text-love" data-id="'+m.id+'" data-type="love"></i>' :
                         '<i class="bi bi-heart" data-id="'+m.id+'" data-type="love"></i>')+
                     '</span>';
                 wrap.appendChild(div);
