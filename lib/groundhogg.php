@@ -3,6 +3,7 @@
  * Helper functions for Groundhogg CRM integration
  */
 require_once __DIR__.'/db.php';
+require_once __DIR__.'/helpers.php';
 
 function groundhogg_get_settings(): array {
     $pdo = get_pdo();
@@ -103,6 +104,7 @@ function groundhogg_send_contact(array $contactData): array {
 
     // Add optional fields to data array
     $phone = $contactData['mobile_phone'] ?? ($contactData['phone'] ?? '');
+    $phone = format_mobile_number($phone);
     if ($phone !== '') {
         $groundhoggData['data']['mobile_phone'] = $phone;
         $groundhoggData['data']['primary_phone'] = $phone;
@@ -112,6 +114,14 @@ function groundhogg_send_contact(array $contactData): array {
         if (!empty($contactData[$field])) {
             $groundhoggData['data'][$field] = $contactData[$field];
         }
+    }
+
+    // Provide alternate field names expected by some Groundhogg setups
+    if (!empty($contactData['address'])) {
+        $groundhoggData['data']['address_line_1'] = $contactData['address'];
+    }
+    if (!empty($contactData['zip'])) {
+        $groundhoggData['data']['postal_zip'] = $contactData['zip'];
     }
 
     if (!empty($contactData['opt_in_status'])) {
@@ -362,12 +372,12 @@ function groundhogg_sync_admin_users(): array {
             'email'       => $user['email'],
             'first_name'  => $user['first_name'] ?? '',
             'last_name'   => $user['last_name'] ?? '',
-            'mobile_phone'=> $user['mobile_phone'] ?? '',
+            'mobile_phone'=> format_mobile_number($user['mobile_phone'] ?? ''),
             'address'     => '1147 Jacobsburg Rd.',
             'city'        => 'Wind Gap',
             'state'       => 'Pennsylvania',
             'zip'         => '18091',
-            'country'     => 'United States',
+            'country'     => 'US',
             'company_name'=> 'Cosmick Media',
             'user_role'   => 'Admin User',
             'lead_source' => 'cosmick-employee',
