@@ -51,3 +51,30 @@ function format_mobile_number(string $number): string {
     }
     return '+' . $digits;
 }
+
+/**
+ * Generate common phone number variations for Groundhogg.
+ *
+ * @param string $number Raw phone number from user input
+ * @return array [digits, with country code, dashed]
+ */
+function phone_number_variations(string $number): array {
+    $digits = preg_replace('/\D+/', '', $number);
+    if ($digits === '') {
+        return [];
+    }
+    $intl = $digits;
+    if (strlen($intl) === 10) {
+        $intl = '1' . $intl;
+    }
+    $intl = '+' . $intl;
+
+    $dash = $digits;
+    if (strlen($digits) === 11 && $digits[0] === '1') {
+        $dash = substr($digits, 1, 3) . '-' . substr($digits, 4, 3) . '-' . substr($digits, 7);
+    } elseif (strlen($digits) === 10) {
+        $dash = substr($digits, 0, 3) . '-' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+    }
+
+    return [$digits, $intl, $dash];
+}
