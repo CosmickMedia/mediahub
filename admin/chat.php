@@ -74,13 +74,13 @@ $active = 'chat';
 include __DIR__.'/header.php';
 ?>
 <div class="row">
-  <div class="col-lg-9 mb-3">
-    <h4>Chat - <?php echo htmlspecialchars($store_name); ?></h4>
+  <div class="col-lg-9 mb-3" id="chatMain">
+    <h4 class="d-none">Chat - <?php echo htmlspecialchars($store_name); ?></h4>
     <div id="unreadAlert" class="alert alert-warning alert-dismissible fade show" role="alert" style="display:none;">
         You have <span id="totalUnread">0</span> new message(s) from <span id="unreadStores">0</span> stores.
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <form method="get" class="mb-3" id="storeSelectForm">
+    <form method="get" class="mb-3 d-none" id="storeSelectForm">
         <label class="form-label">Select Store</label>
         <select name="store_id" class="form-select" id="storeSelect" onchange="document.getElementById('storeSelectForm').submit();">
             <option value="0" disabled<?php if($store_id===0) echo ' selected'; ?>>Please select store</option>
@@ -181,9 +181,12 @@ mentionBox.addEventListener('click',e=>{
 </script>
 <?php endif; ?>
   </div>
-  <div class="col-lg-3">
+  <div class="col-lg-3" id="chatSidebar">
     <div class="card h-100">
-      <div class="card-header"><h5 class="mb-0">Stores</h5></div>
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Store Chats</h5>
+        <button type="button" id="sidebarToggle" class="btn btn-sm btn-light"><i class="bi bi-chevron-right"></i></button>
+      </div>
       <div class="card-body p-0">
         <ul class="list-group list-group-flush" id="storeList">
           <?php foreach($stores as $s): ?>
@@ -197,6 +200,7 @@ mentionBox.addEventListener('click',e=>{
     </div>
   </div>
 </div>
+<div id="sidebarTab" class="sidebar-tab"><i class="bi bi-chevron-left"></i></div>
 <script>
 const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
 const STORE_CONTACT = <?php echo json_encode($store_contact ?? ''); ?>;
@@ -341,5 +345,18 @@ document.querySelectorAll('.store-link').forEach(l=>{
         document.getElementById('storeSelectForm').submit();
     });
 });
+const sidebarToggle=document.getElementById('sidebarToggle');
+const sidebarTab=document.getElementById('sidebarTab');
+function hideSidebar(){
+    document.body.classList.add('sidebar-hidden');
+    localStorage.setItem('chatSidebarHidden','1');
+}
+function showSidebar(){
+    document.body.classList.remove('sidebar-hidden');
+    localStorage.setItem('chatSidebarHidden','0');
+}
+if(sidebarToggle){sidebarToggle.addEventListener('click',hideSidebar);} 
+if(sidebarTab){sidebarTab.addEventListener('click',showSidebar);} 
+if(localStorage.getItem('chatSidebarHidden')==='1'){hideSidebar();}
 </script>
 <?php include __DIR__.'/footer.php'; ?>

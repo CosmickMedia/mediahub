@@ -182,16 +182,16 @@ include __DIR__.'/header.php';
                     <div class="form-text">For notifications specific to this store</div>
                 </div>
                 <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="text" name="phone" id="phone" class="form-control">
+                </div>
+                <div class="col-md-6">
                     <label for="first_name" class="form-label">First Name</label>
                     <input type="text" name="first_name" id="first_name" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label for="last_name" class="form-label">Last Name</label>
                     <input type="text" name="last_name" id="last_name" class="form-control">
-                </div>
-                <div class="col-md-6">
-                    <label for="phone" class="form-label">Phone</label>
-                    <input type="text" name="phone" id="phone" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label for="address" class="form-label">Address</label>
