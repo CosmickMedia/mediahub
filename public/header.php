@@ -37,10 +37,12 @@ if (!isset($_SESSION)) { session_start(); }
             </ul>
             <div id="publicUserInfo" class="ms-auto d-flex align-items-center navbar-text small text-white">
                 <span class="me-2">Logged in as: <?php echo htmlspecialchars(trim(($_SESSION['store_first_name'] ?? '') . ' ' . ($_SESSION['store_last_name'] ?? ''))); ?></span>
-                <a class="nav-link position-relative text-white me-2" href="messages.php">
-                    <i class="bi bi-bell"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount">0</span>
-                </a>
+                <span id="notifyWrap" class="position-relative me-2">
+                    <a id="notifyBell" class="nav-link position-relative text-white p-0" href="messages.php">
+                        <i class="bi bi-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount">0</span>
+                    </a>
+                </span>
                 <a class="nav-link text-white" href="?logout=1"><i class="bi bi-box-arrow-right"></i></a>
             </div>
             <?php endif; ?>

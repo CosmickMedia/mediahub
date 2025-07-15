@@ -39,7 +39,7 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
             </ul>
             <div id="adminUserInfo" class="ms-auto text-end small text-white d-flex align-items-center">
                 <span class="me-2">Logged in as: <?php echo htmlspecialchars(trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''))); ?></span>
-                <span class="position-relative me-2">
+                <span id="notifyWrap" class="position-relative me-2">
                     <i class="bi bi-bell" id="notifyBell"></i>
                     <span class="position-absolute start-100 translate-middle badge rounded-pill bg-danger" id="notifyCount">0</span>
                 </span>

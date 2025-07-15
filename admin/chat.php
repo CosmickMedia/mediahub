@@ -59,8 +59,8 @@ if ($store_id > 0) {
         LIMIT 1");
     $store_stmt->execute([$store_id]);
     $store = $store_stmt->fetch(PDO::FETCH_ASSOC);
-    $store_name = $store['name'] ?? '';
-    $store_contact = trim(($store['first_name'] ?? '') . ' ' . ($store['last_name'] ?? ''));
+$store_name = $store['name'] ?? '';
+$store_contact = trim(($store['first_name'] ?? '') . ' ' . ($store['last_name'] ?? ''));
     $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
         ->execute([$store_id]);
 } else {
@@ -69,6 +69,10 @@ if ($store_id > 0) {
     $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     $store_name = 'All Stores';
 }
+
+$mentionNames = $pdo->query("SELECT CONCAT(first_name,' ',last_name) AS name FROM users")->fetchAll(PDO::FETCH_COLUMN);
+$mentionNames = array_merge($mentionNames, $pdo->query("SELECT CONCAT(first_name,' ',last_name) AS name FROM store_users")->fetchAll(PDO::FETCH_COLUMN));
+$mentionNames = array_values(array_filter(array_unique($mentionNames)));
 
 $active = 'chat';
 include __DIR__.'/header.php';
@@ -138,15 +142,42 @@ include __DIR__.'/header.php';
     <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>
 <div id="emojiPicker"></div>
+<div id="mentionBox" class="mention-box"></div>
 <script src="../assets/js/emoji-picker.js"></script>
 <script>
-initEmojiPicker(document.querySelector('#chatForm textarea'), document.getElementById('emojiBtn'), document.getElementById('emojiPicker'));
+const textarea=document.querySelector('#chatForm textarea');
+initEmojiPicker(textarea, document.getElementById('emojiBtn'), document.getElementById('emojiPicker'));
+const mentionBox=document.getElementById('mentionBox');
+textarea.addEventListener('keyup',e=>{
+    const pre=textarea.value.substring(0,textarea.selectionStart);
+    const m=pre.match(/@(\w*)$/);
+    if(m){
+        const term=m[1].toLowerCase();
+        const matches=MENTION_NAMES.filter(n=>n.toLowerCase().startsWith(term));
+        if(matches.length){
+            mentionBox.innerHTML=matches.map(n=>`<div>${n}</div>`).join('');
+            const rect=textarea.getBoundingClientRect();
+            mentionBox.style.left=rect.left+'px';
+            mentionBox.style.top=(rect.bottom)+'px';
+            mentionBox.style.display='block';
+        }else{mentionBox.style.display='none';}
+    }else{mentionBox.style.display='none';}
+});
+mentionBox.addEventListener('click',e=>{
+    if(e.target.tagName==='DIV'){
+        const pre=textarea.value.substring(0,textarea.selectionStart).replace(/@\w*$/, '@'+e.target.textContent);
+        textarea.value=pre+textarea.value.substring(textarea.selectionStart);
+        textarea.focus();
+        mentionBox.style.display='none';
+    }
+});
 </script>
 <?php endif; ?>
 <script>
 const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
 const STORE_CONTACT = <?php echo json_encode($store_contact ?? ''); ?>;
 const STORE_ID = <?php echo json_encode($store_id); ?>;
+const MENTION_NAMES = <?php echo json_encode($mentionNames); ?>;
 function refreshMessages(){
     fetch('chat.php?store_id=<?php echo $store_id; ?>&load=1')
         .then(r=>r.json())
@@ -203,11 +234,11 @@ if(document.getElementById('chatForm')){
             fd.append('store_id',STORE_ID);
             fetch('../chat_upload.php',{method:'POST',body:fd})
                 .then(async r=>{try{return await r.json();}catch(e){return {error:'Upload failed'};}})
-                .then(res=>{if(res.success){formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages();}else{alert(res.error||'Upload failed');}});
+                .then(res=>{if(res.success){formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();}}else{alert(res.error||'Upload failed');}});
         } else {
             fetch('chat.php?store_id=<?php echo $store_id; ?>',{method:'POST',body:fd})
                 .then(async r=>{try{return await r.json();}catch(e){return {error:'Send failed'};}})
-                .then(res=>{if(res.success){formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages();}else{alert(res.error||'Send failed');}});
+                .then(res=>{if(res.success){formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();}}else{alert(res.error||'Send failed');}});
         }
     });
     document.querySelector('#chatForm textarea').addEventListener('keydown',function(e){
@@ -234,6 +265,7 @@ if(document.getElementById('chatForm')){
     });
 }
 refreshMessages();
+if(typeof checkNotifications==='function'){checkNotifications();}
 function initReactions(){
     document.querySelectorAll('.reactions i').forEach(icon=>{
         icon.addEventListener('click',()=>{
@@ -242,7 +274,7 @@ function initReactions(){
             form.append('type',icon.dataset.type);
             fetch('../react.php',{method:'POST',body:form})
                 .then(r=>r.json())
-                .then(()=>{refreshMessages();});
+                .then(()=>{refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();}});
         });
     });
 }
