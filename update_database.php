@@ -251,18 +251,26 @@ try {
     echo "• status_id column might already exist\n";
 }
 
-// Insert default statuses
+// Insert default statuses if not already present
 $defaultStatuses = [
     ['Reviewed', '#198754'],
     ['Pending Submission', '#ffc107'],
     ['Scheduled', '#0dcaf0']
 ];
 foreach ($defaultStatuses as $st) {
+    list($name, $color) = $st;
     try {
-        $stmt = $pdo->prepare("INSERT INTO upload_statuses (name, color) VALUES (?, ?) ON DUPLICATE KEY UPDATE color=VALUES(color)");
-        $stmt->execute($st);
+        $check = $pdo->prepare('SELECT COUNT(*) FROM upload_statuses WHERE name = ?');
+        $check->execute([$name]);
+        if (!$check->fetchColumn()) {
+            $stmt = $pdo->prepare('INSERT INTO upload_statuses (name, color) VALUES (?, ?)');
+            $stmt->execute([$name, $color]);
+            echo "✓ Added upload status $name\n";
+        } else {
+            echo "• Upload status already exists: $name\n";
+        }
     } catch (PDOException $e) {
-        // ignore
+        echo "✗ Error adding status $name: " . $e->getMessage() . "\n";
     }
 }
 
