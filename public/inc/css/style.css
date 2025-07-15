@@ -24,7 +24,8 @@ body { background-color: #f8f9fa; font-family: 'Montserrat', sans-serif; }
 #messages .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 70%; }
 #messages .mine .bubble { background: #d1e7dd; }
 #messages .theirs .bubble { background: #e2e3e5; }
-#emojiPicker { display: none; position: absolute; bottom: 60px; right: 20px; background:#fff; border:1px solid #ccc; padding:4px; border-radius:4px; }
+.chat-form { position: relative; }
+#emojiPicker { display: none; position: absolute; bottom: 100%; right: 0; background:#fff; border:1px solid #ccc; padding:4px; border-radius:4px; margin-bottom:.5rem; }
 .emoji-option { font-size: 1.2rem; padding:2px; cursor:pointer; }
 #reportFrame { width: 100%; border: 0; }
 .preview-col { width: 100px; }
@@ -51,7 +52,7 @@ table th, table td {
 .text-like { color: #0d6efd !important; }
 .text-love { color: #dc3545 !important; }
 .reply-preview { font-size: 0.8rem; color: #666; border-left: 2px solid #ccc; padding-left:4px; margin-bottom:4px; }
-.bubble-container{position:relative;padding-bottom:18px;}
+.bubble-container{position:relative;padding-bottom:18px;display:inline-block;}
 .reply-link{display:none;position:absolute;bottom:0;right:0;color:#888;font-size:0.8rem;cursor:pointer;}
 .bubble-container:hover .reply-link{display:block;}
 .mention-box{position:absolute;background:#fff;border:1px solid #ccc;z-index:1000;max-height:150px;overflow-y:auto;padding:2px;display:none;}

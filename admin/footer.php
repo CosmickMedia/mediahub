@@ -3,19 +3,22 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 <script>
 function checkNotifications(){
-    fetch('notifications.php')
+    fetch('store_counts.php')
         .then(r=>r.json())
-        .then(d=>{
+        .then(list=>{
+            const total=list.reduce((s,v)=>s+parseInt(v.unread||0),0);
             const wrap=document.getElementById('notifyWrap');
             const countEl=document.getElementById('notifyCount');
-            if(!wrap) return;
-            if(d.count>0){
-                wrap.style.display='inline-block';
-                countEl.style.display='inline-block';
-                countEl.textContent=d.count;
-            }else{
-                wrap.style.display='none';
+            if(wrap){
+                if(total>0){
+                    wrap.style.display='inline-block';
+                    countEl.style.display='inline-block';
+                    countEl.textContent=total;
+                }else{
+                    wrap.style.display='none';
+                }
             }
+            if(typeof updateStoreCounts==='function'){updateStoreCounts(list,total);}
         });
 }
 setInterval(checkNotifications,5000);

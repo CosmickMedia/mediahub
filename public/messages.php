@@ -90,8 +90,8 @@ include __DIR__.'/header.php';
     <button type="submit" class="btn btn-send">Send</button>
     <input type="hidden" name="ajax" value="1">
     <input type="hidden" name="parent_id" id="parent_id" value="">
+    <div id="emojiPicker"></div>
 </form>
-<div id="emojiPicker"></div>
 <div id="mentionBox" class="mention-box"></div>
 <script src="../assets/js/emoji-picker.js"></script>
 <script>

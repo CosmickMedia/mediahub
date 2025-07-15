@@ -26,7 +26,8 @@ a:hover { color: #1a252f; }
 #messages .bubble { display:inline-block; padding:6px 12px; border-radius:12px; margin-bottom:4px; max-width:70%; }
 #messages .mine .bubble { background:#E6FAF1; }
 #messages .theirs .bubble { background:#E8F0FE; }
-#emojiPicker { display:none; position:absolute; bottom:60px; right:20px; background:#fff; border:1px solid #ccc; padding:4px; border-radius:4px; }
+.chat-form { position: relative; }
+#emojiPicker { display:none; position:absolute; bottom:100%; right:0; background:#fff; border:1px solid #ccc; padding:4px; border-radius:4px; margin-bottom:.5rem; }
 .emoji-option{font-size:1.2rem; padding:2px; cursor:pointer;}
 .preview-col-sm { width: 60px; }
 .preview-img-sm { width: 50px; height: 50px; object-fit: cover; }
@@ -79,9 +80,11 @@ table th, table td {
 .chat-form textarea { height: 38px; resize: none; }
 #messages .bubble small { color: #999; }
 .reply-preview { font-size: 0.8rem; color: #666; border-left: 2px solid #ccc; padding-left:4px; margin-bottom:4px; }
-.bubble-container{position:relative;padding-bottom:18px;}
+.bubble-container{position:relative;padding-bottom:18px;display:inline-block;}
 .reply-link{display:none;position:absolute;bottom:0;right:0;color:#888;font-size:0.8rem;cursor:pointer;}
 .bubble-container:hover .reply-link{display:block;}
 .mention-box{position:absolute;background:#fff;border:1px solid #ccc;z-index:1000;max-height:150px;overflow-y:auto;padding:2px;display:none;}
 .mention-box div{padding:2px 4px;cursor:pointer;}
 .mention-box div:hover{background:#f0f0f0;}
+.sidebar-locked .offcanvas-end{transform:none!important;visibility:visible!important;}
+.sidebar-locked .offcanvas-backdrop{display:none;}
