@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'phone'        => $_POST['phone'] ?? '',
                     'company_name' => $_POST['name'] ?? '',
                     'user_role'    => 'Store Admin',
-                    'tags'         => ['media-hub', 'store-onboarding'],
+                    'tags'         => groundhogg_get_default_tags(),
                     'store_id'     => (int)$storeId
                 ];
 

@@ -16,7 +16,7 @@ if (!$store) {
 }
 
 $errors = [];
-$success = false;
+$success = [];
 
 // Fetch store users
 $userStmt = $pdo->prepare('SELECT * FROM store_users WHERE store_id = ? ORDER BY email');
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['marketing_report_url'] ?? null,
                 $id
             ]);
-            $success = true;
+            $success[] = 'Store updated successfully';
 
             // If email is set, sync with Groundhogg
             if (!empty($_POST['email'])) {
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'phone'        => $_POST['phone'] ?? '',
                     'company_name' => $_POST['name'] ?? '',
                     'user_role'    => 'Store Admin',
-                    'tags'         => ['media-hub', 'store-onboarding'],
+                    'tags'         => groundhogg_get_default_tags(),
                     'store_id'     => (int)$id
                 ];
 
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare('INSERT INTO store_users (store_id, email, first_name, last_name) VALUES (?, ?, ?, ?)');
                 $stmt->execute([$id, $email, $first ?: null, $last ?: null]);
                 $insertId = $pdo->lastInsertId();
-                $success = true;
+                $success[] = 'User added';
                 $store_users[] = ['id' => $insertId, 'email' => $email, 'first_name' => $first, 'last_name' => $last];
 
                 // Send to Groundhogg
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'phone'        => $store['phone'] ?? '',
                     'company_name' => $store['name'] ?? '',
                     'user_role'    => 'Store Admin',
-                    'tags'         => ['media-hub', 'store-onboarding'],
+                    'tags'         => groundhogg_get_default_tags(),
                     'store_id'     => (int)$id
                 ];
 
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['delete_user'])) {
         $stmt = $pdo->prepare('DELETE FROM store_users WHERE id=? AND store_id=?');
         $stmt->execute([$_POST['user_id'], $id]);
-        $success = true;
+        $success[] = 'User removed';
         // Refresh user list
         $userStmt->execute([$id]);
         $store_users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -130,12 +130,12 @@ include __DIR__.'/header.php';
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endforeach; ?>
-<?php if ($success): ?>
+<?php foreach ($success as $s): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Store updated successfully
+        <?php echo htmlspecialchars($s); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-<?php endif; ?>
+<?php endforeach; ?>
 <form method="post">
     <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0">Store Details</h5></div>

@@ -31,7 +31,7 @@ foreach ($mapping as $old => $new) {
 }
 
 // Ensure new Groundhogg API settings exist
-$newGhSettings = ['groundhogg_public_key', 'groundhogg_token', 'groundhogg_secret_key'];
+$newGhSettings = ['groundhogg_public_key', 'groundhogg_token', 'groundhogg_secret_key', 'groundhogg_contact_tags'];
 foreach ($newGhSettings as $setting) {
     try {
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM settings WHERE name = ?");
@@ -51,7 +51,9 @@ $defaultSettings = [
     'email_from_address' => 'noreply@cosmickmedia.com',
     'admin_notification_subject' => 'New uploads from {store_name}',
     'store_notification_subject' => 'Content Submission Confirmation - Cosmick Media',
-    'store_message_subject' => 'New message from Cosmick Media'
+    'store_message_subject' => 'New message from Cosmick Media',
+    // Default tags for Groundhogg contacts
+    'groundhogg_contact_tags' => 'media-hub, store-onboarding'
 ];
 
 foreach ($defaultSettings as $name => $value) {
