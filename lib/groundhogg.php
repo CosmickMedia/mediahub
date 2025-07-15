@@ -107,10 +107,11 @@ function groundhogg_build_contact_structure(array $contactData): array {
     if (!empty($formats)) {
         [$digits, $intl, $dash] = $formats;
         $phones = [
-            'phone'        => $digits,
-            'mobile_phone' => $intl,
-            'primary_phone'=> $dash,
-            'phone_number' => $digits
+            'phone'         => $digits,
+            'mobile_phone'  => $intl,
+            // Store primary phone using the same format as mobile
+            'primary_phone' => $intl,
+            'phone_number'  => $digits
         ];
         foreach ($phones as $field => $value) {
             $data[$field] = $value;
