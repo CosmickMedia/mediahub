@@ -13,7 +13,8 @@ function groundhogg_get_settings(): array {
             'groundhogg_public_key',
             'groundhogg_token',
             'groundhogg_secret_key',
-            'groundhogg_debug'
+            'groundhogg_debug',
+            'groundhogg_contact_tags'
         )"
     );
     $stmt->execute();
@@ -23,8 +24,9 @@ function groundhogg_get_settings(): array {
         'username'   => $rows['groundhogg_username'] ?? '',
         'public_key' => $rows['groundhogg_public_key'] ?? '',
         'token'      => $rows['groundhogg_token'] ?? '',
-        'secret_key' => $rows['groundhogg_secret_key'] ?? '',
-        'debug'      => $rows['groundhogg_debug'] ?? ''
+        'secret_key'    => $rows['groundhogg_secret_key'] ?? '',
+        'debug'         => $rows['groundhogg_debug'] ?? '',
+        'contact_tags'  => $rows['groundhogg_contact_tags'] ?? ''
     ];
 }
 
@@ -55,6 +57,20 @@ function groundhogg_log(string $message, ?int $store_id = null, string $action =
     } catch (Exception $e) {
         groundhogg_debug_log('Failed to write to logs table: ' . $e->getMessage());
     }
+}
+
+/**
+ * Get default tags for Groundhogg contacts from settings.
+ *
+ * @return array
+ */
+function groundhogg_get_default_tags(): array {
+    $settings = groundhogg_get_settings();
+    $tags = array_filter(array_map('trim', explode(',', $settings['contact_tags'] ?? '')));
+    if (empty($tags)) {
+        $tags = ['media-hub', 'store-onboarding'];
+    }
+    return $tags;
 }
 
 function groundhogg_send_contact(array $contactData): array {
@@ -106,6 +122,8 @@ function groundhogg_send_contact(array $contactData): array {
     // Handle tags - Groundhogg expects an array of tag names or IDs
     if (!empty($contactData['tags']) && is_array($contactData['tags'])) {
         $groundhoggData['tags'] = $contactData['tags'];
+    } else {
+        $groundhoggData['tags'] = groundhogg_get_default_tags();
     }
 
     $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts';
@@ -269,7 +287,7 @@ function groundhogg_sync_store_contacts(int $store_id): array {
             'phone'        => $store['phone'] ?? '',
             'company_name' => $store['name'],
             'user_role'    => 'Store Admin',
-            'tags'         => ['media-hub', 'store-onboarding'],
+            'tags'         => groundhogg_get_default_tags(),
             'store_id'     => $store_id
         ];
 
@@ -294,7 +312,7 @@ function groundhogg_sync_store_contacts(int $store_id): array {
             'phone'        => $store['phone'] ?? '',
             'company_name' => $store['name'],
             'user_role'    => 'Store Admin',
-            'tags'         => ['media-hub', 'store-onboarding'],
+            'tags'         => groundhogg_get_default_tags(),
             'store_id'     => $store_id
         ];
 

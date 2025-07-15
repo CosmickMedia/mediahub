@@ -291,7 +291,9 @@ $defaultSettings = [
     'notification_email' => $config['notification_email'] ?? '',
     'groundhogg_public_key' => '',
     'groundhogg_token' => '',
-    'groundhogg_secret_key' => ''
+    'groundhogg_secret_key' => '',
+    // Default tags applied to contacts created in Groundhogg
+    'groundhogg_contact_tags' => 'media-hub, store-onboarding'
 ];
 
 foreach ($defaultSettings as $name => $value) {

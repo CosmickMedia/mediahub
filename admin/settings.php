@@ -49,7 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'groundhogg_public_key'   => trim($_POST['groundhogg_public_key'] ?? ''),
         'groundhogg_token'        => trim($_POST['groundhogg_token'] ?? ''),
         'groundhogg_secret_key'   => trim($_POST['groundhogg_secret_key'] ?? ''),
-        'groundhogg_debug'        => isset($_POST['groundhogg_debug']) ? '1' : '0'
+        'groundhogg_debug'        => isset($_POST['groundhogg_debug']) ? '1' : '0',
+        'groundhogg_contact_tags' => trim($_POST['groundhogg_contact_tags'] ?? '')
     ];
 
     foreach ($settings as $name => $value) {
@@ -107,6 +108,7 @@ $groundhogg_public_key = get_setting('groundhogg_public_key');
 $groundhogg_token = get_setting('groundhogg_token');
 $groundhogg_secret_key = get_setting('groundhogg_secret_key');
 $groundhogg_debug = get_setting('groundhogg_debug');
+$groundhogg_contact_tags = get_setting('groundhogg_contact_tags');
 
 $active = 'settings';
 include __DIR__.'/header.php';
@@ -228,12 +230,16 @@ include __DIR__.'/header.php';
                     <label for="groundhogg_debug" class="form-check-label">Enable Debug Logging</label>
                     <div class="form-text">Logs API communication to <code>logs/groundhogg.log</code></div>
                 </div>
-                <button class="btn btn-secondary" type="submit" name="test_groundhogg">Test Connection</button>
+                <div class="mb-3">
+                    <label for="groundhogg_contact_tags" class="form-label">Default Contact Tags</label>
+                    <input type="text" name="groundhogg_contact_tags" id="groundhogg_contact_tags" class="form-control" value="<?php echo htmlspecialchars($groundhogg_contact_tags); ?>">
+                    <div class="form-text">Comma-separated tags applied to new contacts</div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-secondary" type="submit" name="test_groundhogg">Test Connection</button>
+                    <a href="sync_groundhogg.php" class="btn btn-secondary">Sync Contacts</a>
+                </div>
             </div>
-
-            <button class="btn btn-secondary" type="submit" name="test_groundhogg">Test Connection</button>
-            <a href="sync_groundhogg.php" class="btn btn-secondary">Sync All Stores</a>
-
         </div>
 
         <div class="card mb-4">
