@@ -11,13 +11,13 @@ $store_id = intval($_GET['store_id'] ?? 0);
 // handle ajax fetch
 if (isset($_GET['load'])) {
     if ($store_id > 0) {
-        $stmt = $pdo->prepare('SELECT id, sender, message, created_at, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at');
+        $stmt = $pdo->prepare('SELECT m.id, m.sender, m.message, m.created_at, m.parent_id, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, p.message AS parent_message, u.filename, u.drive_id FROM store_messages m LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads u ON m.upload_id=u.id WHERE m.store_id = ? ORDER BY m.created_at');
         $stmt->execute([$store_id]);
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
             ->execute([$store_id]);
     } else {
-        $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, m.store_id, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
+        $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, m.store_id, s.name AS store_name, u.first_name, u.last_name, m.parent_id, p.message AS parent_message, up.filename, up.drive_id FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads up ON m.upload_id=up.id ORDER BY m.created_at');
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     }
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $store_
 $stores = $pdo->query('SELECT id, name FROM stores ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
 
 if ($store_id > 0) {
-    $stmt = $pdo->prepare('SELECT sender, message, created_at, read_by_admin, read_by_store, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at');
+    $stmt = $pdo->prepare('SELECT m.id, m.sender, m.message, m.created_at, m.parent_id, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, p.message AS parent_message, u.filename, u.drive_id FROM store_messages m LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads u ON m.upload_id=u.id WHERE m.store_id = ? ORDER BY m.created_at');
     $stmt->execute([$store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $store_stmt = $pdo->prepare("SELECT s.name, u.first_name, u.last_name
@@ -64,7 +64,7 @@ if ($store_id > 0) {
     $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
         ->execute([$store_id]);
 } else {
-    $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, s.name AS store_name, u.first_name, u.last_name FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id ORDER BY m.created_at');
+    $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, s.name AS store_name, u.first_name, u.last_name, m.parent_id, p.message AS parent_message, up.filename, up.drive_id FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads up ON m.upload_id=up.id ORDER BY m.created_at');
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
     $store_name = 'All Stores';
@@ -86,7 +86,10 @@ include __DIR__.'/header.php';
 <div id="messages" class="mb-4">
     <?php foreach ($messages as $msg): ?>
         <div class="mb-2 <?php echo $msg['sender']==='admin'?'mine':'theirs'; ?>">
-            <div class="bubble<?php if($store_id===0 && $msg['store_id']===null) echo ' broadcast'; ?>">
+            <div class="bubble-container"><div class="bubble<?php if($store_id===0 && $msg['store_id']===null) echo ' broadcast'; ?>">
+                <?php if(!empty($msg['parent_message'])): ?>
+                    <div class="reply-preview"><?php echo htmlspecialchars(substr($msg['parent_message'],0,50)); ?></div>
+                <?php endif; ?>
                 <strong><?php
                     if($store_id===0 && $msg['store_id']===null && $msg['sender']==='admin'){
                         echo 'BROADCAST ANNOUNCEMENT';
@@ -94,6 +97,9 @@ include __DIR__.'/header.php';
                         echo $msg['sender']==='admin'?htmlspecialchars($admin_name):htmlspecialchars($store_contact ?: ($msg['store_name'] ?? 'Store'));
                     }
                 ?>:</strong>
+                <?php if(!empty($msg['filename'])): ?>
+                    <a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view" target="_blank"><?php echo htmlspecialchars($msg['filename']); ?></a>
+                <?php endif; ?>
                 <span><?php echo nl2br($msg['message']); ?></span>
                 <small class="text-muted ms-2">
                     <?php echo format_ts($msg['created_at']); ?>
@@ -115,13 +121,17 @@ include __DIR__.'/header.php';
                         <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                     <?php endif; ?>
                 </span>
-            </div>
+                <span class="reply-link" data-id="<?php echo $msg['id']; ?>">Reply</span>
+            </div></div>
         </div>
     <?php endforeach; ?>
 </div>
 <?php if ($store_id > 0): ?>
-<form method="post" id="chatForm" class="input-group align-items-end">
-    <textarea name="message" class="form-control" rows="2" placeholder="Type message" required></textarea>
+<form method="post" id="chatForm" class="input-group align-items-end chat-form" enctype="multipart/form-data">
+    <div id="replyTo" class="reply-preview" style="display:none;"></div>
+    <textarea name="message" class="form-control" rows="2" placeholder="Type message"></textarea>
+    <button type="button" id="fileBtn" class="btn btn-light border"><i class="bi bi-paperclip"></i></button>
+    <input type="file" id="fileInput" name="file" class="d-none">
     <button type="button" id="emojiBtn" class="btn btn-light border"><i class="bi bi-emoji-smile"></i></button>
     <button class="btn btn-send" type="submit">Send</button>
     <input type="hidden" name="ajax" value="1">
@@ -143,15 +153,25 @@ function refreshMessages(){
             data.forEach(m=>{
                 const wrap=document.createElement('div');
                 wrap.className='mb-2 '+(m.sender==='admin'?'mine':'theirs');
+                const holder=document.createElement('div');
+                holder.className='bubble-container';
                 const div=document.createElement('div');
                 div.className='bubble'+((STORE_ID===0 && m.store_id===null && m.sender==='admin')?' broadcast':'');
                 const sender=(STORE_ID===0 && m.store_id===null && m.sender==='admin')?'BROADCAST ANNOUNCEMENT':(m.sender==='admin'?ADMIN_NAME:(STORE_CONTACT||m.store_name||'Store'));
                 let readIcon='';
                 if(m.sender==='admin' && m.read_by_store==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
                 if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
-                div.innerHTML='<strong>'+sender+':</strong> '+m.message.replace(/\n/g,'<br>')+
-                    ' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small>'+
-                    ' <span class="ms-1 reactions">'+
+                let html='';
+                if(m.parent_message){
+                    html+='<div class="reply-preview">'+m.parent_message.substring(0,50)+'</div>';
+                }
+                html+='<strong>'+sender+':</strong> ';
+                if(m.filename){
+                    html+='<a href="https://drive.google.com/file/d/'+m.drive_id+'/view" target="_blank">'+m.filename+'</a> ';
+                }
+                html+=m.message.replace(/\n/g,'<br>');
+                html+=' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small>';
+                html+=' <span class="ms-1 reactions">'+
                     (m.like_by_admin||m.like_by_store?
                         '<i class="bi bi-hand-thumbs-up-fill text-like" data-id="'+m.id+'" data-type="like"></i>' :
                         '<i class="bi bi-hand-thumbs-up" data-id="'+m.id+'" data-type="like"></i>')+' '+
@@ -159,25 +179,44 @@ function refreshMessages(){
                         '<i class="bi bi-heart-fill text-love" data-id="'+m.id+'" data-type="love"></i>' :
                         '<i class="bi bi-heart" data-id="'+m.id+'" data-type="love"></i>')+
                     '</span>';
-                wrap.appendChild(div);
+                html+='<span class="reply-link" data-id="'+m.id+'">Reply</span>';
+                div.innerHTML=html;
+                holder.appendChild(div);
+                wrap.appendChild(holder);
                 container.appendChild(wrap);
             });
             container.scrollTop = container.scrollHeight;
             initReactions();
+            initReplyLinks();
         });
 }
 setInterval(refreshMessages,5000);
 if(document.getElementById('chatForm')){
-    document.getElementById('chatForm').addEventListener('submit',function(e){
+    const formEl=document.getElementById('chatForm');
+    formEl.addEventListener('submit',function(e){
         e.preventDefault();
-        fetch('chat.php?store_id=<?php echo $store_id; ?>', {method:'POST', body:new FormData(this)})
-            .then(r=>r.json())
-            .then(()=>{this.reset(); refreshMessages();});
+        const fd=new FormData(this);
+        if(document.getElementById('fileInput').files.length){
+            fd.append('store_id',STORE_ID);
+            fetch('../chat_upload.php',{method:'POST',body:fd})
+                .then(r=>r.json())
+                .then(()=>{formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages();});
+        } else {
+            fetch('chat.php?store_id=<?php echo $store_id; ?>',{method:'POST',body:fd})
+                .then(r=>r.json())
+                .then(()=>{formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages();});
+        }
     });
     document.querySelector('#chatForm textarea').addEventListener('keydown',function(e){
         if(e.key==='Enter' && !e.shiftKey){
             e.preventDefault();
             document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+        }
+    });
+    document.getElementById('fileBtn').addEventListener('click',()=>document.getElementById('fileInput').click());
+    document.getElementById('fileInput').addEventListener('change',()=>{
+        if(document.getElementById('fileInput').files.length){
+            formEl.dispatchEvent(new Event('submit'));
         }
     });
     const picker=document.getElementById('emojiPicker');
@@ -205,5 +244,15 @@ function initReactions(){
     });
 }
 initReactions();
+function initReplyLinks(){
+    document.querySelectorAll('.reply-link').forEach(l=>{
+        l.addEventListener('click',()=>{
+            document.getElementById('parent_id').value=l.dataset.id;
+            document.getElementById('replyTo').textContent='Replying to: '+l.parentElement.querySelector('span').textContent;
+            document.getElementById('replyTo').style.display='block';
+        });
+    });
+}
+initReplyLinks();
 </script>
 <?php include __DIR__.'/footer.php'; ?>

@@ -21,7 +21,7 @@ a:hover { color: #1a252f; }
 .navbar-logo { height: 35px; width: auto; }
 #adminUserInfo a { color: #fff; }
 #notifyCount { display: none; top:-10px; }
-#messages { max-height: 400px; overflow-y: auto; }
+#messages { height: 70vh; overflow-y: auto; }
 #messages .mine { text-align: right; }
 #messages .bubble { display:inline-block; padding:6px 12px; border-radius:12px; margin-bottom:4px; max-width:70%; }
 #messages .mine .bubble { background:#E6FAF1; }
@@ -55,8 +55,8 @@ a:hover { color: #1a252f; }
 .bg-pastel-mint { background-color: #E6FAF1 !important; }
 .bg-pastel-peach { background-color: #FFF1E6 !important; }
 .bg-pastel-pink { background-color: #FDE8E6 !important; }
-.text-like { color: #E8F0FE !important; }
-.text-love { color: #FDE8E6 !important; }
+.text-like { color: #0d6efd !important; }
+.text-love { color: #dc3545 !important; }
 #messages .bubble.broadcast { background:#FDE8E6; }
 .bg-dashboard { background-color: #18bc9c !important; color: #fff !important; }
 .btn-dashboard { background-color: #6c757d; border-color: #6c757d; color: #fff; }
@@ -75,3 +75,8 @@ table th, table td {
 
 .btn-send { background-color: #18bc9c; border-color: #18bc9c; color: #fff; }
 .btn-send:hover { background-color: #17a689; border-color: #17a689; color: #fff; }
+.chat-form textarea { height: 38px; resize: none; }
+#messages .bubble small { color: #999; }
+.reply-preview { font-size: 0.8rem; color: #666; border-left: 2px solid #ccc; padding-left:4px; margin-bottom:4px; }
+.reply-link { display:none; margin-left:4px; cursor:pointer; color:#0d6efd; font-size:0.8rem; }
+.bubble-container:hover .reply-link { display:inline-block; }
