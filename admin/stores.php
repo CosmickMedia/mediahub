@@ -75,9 +75,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($count > 0) {
             $errors[] = 'Cannot delete store with existing uploads';
         } else {
+            $emailStmt = $pdo->prepare('SELECT admin_email FROM stores WHERE id=?');
+            $emailStmt->execute([$_POST['id']]);
+            $storeEmail = $emailStmt->fetchColumn();
+
+            $userStmt = $pdo->prepare('SELECT email FROM store_users WHERE store_id=?');
+            $userStmt->execute([$_POST['id']]);
+            $userEmails = $userStmt->fetchAll(PDO::FETCH_COLUMN);
+
             $stmt = $pdo->prepare('DELETE FROM stores WHERE id=?');
             $stmt->execute([$_POST['id']]);
+
+            $stmt = $pdo->prepare('DELETE FROM store_users WHERE store_id=?');
+            $stmt->execute([$_POST['id']]);
+
             $success[] = 'Store deleted successfully';
+
+            if ($storeEmail) {
+                [$delSuccess, $delMsg] = groundhogg_delete_contact($storeEmail);
+                if (!$delSuccess) {
+                    $errors[] = 'Groundhogg delete failed for main contact: ' . $delMsg;
+                }
+            }
+            foreach ($userEmails as $email) {
+                [$delSuccess, $delMsg] = groundhogg_delete_contact($email);
+                if (!$delSuccess) {
+                    $errors[] = 'Groundhogg delete failed for ' . $email . ': ' . $delMsg;
+                }
+            }
         }
     }
 }

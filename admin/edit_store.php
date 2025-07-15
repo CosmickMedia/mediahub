@@ -129,9 +129,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Invalid email';
         }
     } elseif (isset($_POST['delete_user'])) {
+        $stmt = $pdo->prepare('SELECT email FROM store_users WHERE id=? AND store_id=?');
+        $stmt->execute([$_POST['user_id'], $id]);
+        $email = $stmt->fetchColumn();
+
         $stmt = $pdo->prepare('DELETE FROM store_users WHERE id=? AND store_id=?');
         $stmt->execute([$_POST['user_id'], $id]);
         $success[] = 'User removed';
+
+        if ($email) {
+            [$delSuccess, $delMsg] = groundhogg_delete_contact($email);
+            if (!$delSuccess) {
+                $errors[] = 'Groundhogg delete failed: ' . $delMsg;
+            }
+        }
+
         // Refresh user list
         $userStmt->execute([$id]);
         $store_users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
