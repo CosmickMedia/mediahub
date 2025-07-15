@@ -294,7 +294,12 @@ $defaultSettings = [
     'groundhogg_token' => '',
     'groundhogg_secret_key' => '',
     // Default tags applied to contacts created in Groundhogg
-    'groundhogg_contact_tags' => 'media-hub, store-onboarding'
+    'groundhogg_contact_tags' => 'media-hub, store-onboarding',
+    'company_address' => '',
+    'company_city' => '',
+    'company_state' => '',
+    'company_zip' => '',
+    'company_country' => ''
 ];
 
 foreach ($defaultSettings as $name => $value) {
