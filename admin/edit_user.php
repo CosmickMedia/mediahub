@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
             'mobile_phone'=> $mobile,
             'address'     => '1147 Jacobsburg Rd.',
             'city'        => 'Wind Gap',
-            'state'       => 'Pennsylvania',
+            'state'       => 'PA',
             'zip'         => '18091',
             'country'     => 'US',
             'user_role'   => 'Admin User',

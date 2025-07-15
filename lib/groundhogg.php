@@ -110,18 +110,26 @@ function groundhogg_send_contact(array $contactData): array {
         $groundhoggData['data']['primary_phone'] = $phone;
     }
 
-    foreach (['address','city','state','zip','country','lead_source'] as $field) {
-        if (!empty($contactData[$field])) {
-            $groundhoggData['data'][$field] = $contactData[$field];
-        }
-    }
-
-    // Provide alternate field names expected by some Groundhogg setups
+    // Address fields
     if (!empty($contactData['address'])) {
+        $groundhoggData['data']['street_address_1'] = $contactData['address'];
+        // Legacy/alternate key for some installs
         $groundhoggData['data']['address_line_1'] = $contactData['address'];
+    }
+    if (!empty($contactData['city'])) {
+        $groundhoggData['data']['city'] = $contactData['city'];
+    }
+    if (!empty($contactData['state'])) {
+        $groundhoggData['data']['region'] = $contactData['state'];
     }
     if (!empty($contactData['zip'])) {
         $groundhoggData['data']['postal_zip'] = $contactData['zip'];
+    }
+    if (!empty($contactData['country'])) {
+        $groundhoggData['data']['country'] = $contactData['country'];
+    }
+    if (!empty($contactData['lead_source'])) {
+        $groundhoggData['data']['lead_source'] = $contactData['lead_source'];
     }
 
     if (!empty($contactData['opt_in_status'])) {
@@ -216,6 +224,66 @@ function groundhogg_send_contact(array $contactData): array {
         groundhogg_debug_log('API Error: ' . $errorMessage);
         return [false, 'Groundhogg API error: ' . $errorMessage];
     }
+}
+
+function groundhogg_delete_contact(string $email): array {
+    $settings = groundhogg_get_settings();
+
+    if (!$settings['site_url']) {
+        return [false, 'Groundhogg integration not configured: missing site URL'];
+    }
+
+    if (!$settings['username'] || !$settings['public_key'] || !$settings['token'] || !$settings['secret_key']) {
+        return [false, 'Groundhogg integration not configured: missing API credentials'];
+    }
+
+    if ($email === '') {
+        return [false, 'Email address is required'];
+    }
+
+    $query = http_build_query(['search' => $email]);
+    $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts?' . $query;
+
+    $signature = hash_hmac('sha256', '', $settings['secret_key']);
+
+    $headers = [
+        'X-GH-USER: ' . $settings['username'],
+        'X-GH-PUBLIC-KEY: ' . $settings['public_key'],
+        'X-GH-TOKEN: ' . $settings['token'],
+        'X-GH-SIGNATURE: ' . $signature
+    ];
+
+    groundhogg_debug_log('DELETE ' . $url);
+    groundhogg_debug_log('Headers: ' . json_encode($headers));
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => 'DELETE',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2
+    ]);
+
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    groundhogg_log("DELETE $url HTTP $httpCode Response: $response", null, 'groundhogg_contact');
+
+    if ($error) {
+        return [false, 'Connection error: ' . $error];
+    }
+
+    if ($httpCode >= 200 && $httpCode < 300) {
+        return [true, 'Contact removed from Groundhogg'];
+    }
+
+    $data = json_decode($response, true);
+    $message = $data['message'] ?? $data['error'] ?? ('HTTP ' . $httpCode);
+    return [false, 'Groundhogg API error: ' . $message];
 }
 
 function test_groundhogg_connection(): array {
@@ -375,7 +443,7 @@ function groundhogg_sync_admin_users(): array {
             'mobile_phone'=> format_mobile_number($user['mobile_phone'] ?? ''),
             'address'     => '1147 Jacobsburg Rd.',
             'city'        => 'Wind Gap',
-            'state'       => 'Pennsylvania',
+            'state'       => 'PA',
             'zip'         => '18091',
             'country'     => 'US',
             'company_name'=> 'Cosmick Media',

@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'mobile_phone'=> $mobile,
                     'address'     => '1147 Jacobsburg Rd.',
                     'city'        => 'Wind Gap',
-                    'state'       => 'Pennsylvania',
+                    'state'       => 'PA',
                     'zip'         => '18091',
                     'country'     => 'US',
                     'user_role'   => 'Admin User',
@@ -54,9 +54,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } elseif (isset($_POST['delete']) && isset($_POST['id'])) {
+        $stmt = $pdo->prepare('SELECT email FROM users WHERE id=?');
+        $stmt->execute([$_POST['id']]);
+        $email = $stmt->fetchColumn();
+
         $stmt = $pdo->prepare('DELETE FROM users WHERE id=?');
         $stmt->execute([$_POST['id']]);
         $success[] = 'User deleted';
+
+        if ($email) {
+            [$delSuccess, $delMsg] = groundhogg_delete_contact($email);
+            if (!$delSuccess) {
+                $errors[] = 'Groundhogg delete failed: ' . $delMsg;
+            }
+        }
     }
 }
 
