@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/groundhogg.php';
+require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
 
@@ -16,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token, first_name, last_name, phone, address, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -25,8 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['hootsuite_token'],
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
-                $_POST['phone'] ?? null,
+                format_mobile_number($_POST['phone'] ?? ''),
                 $_POST['address'] ?? null,
+                $_POST['city'] ?? null,
+                $_POST['state'] ?? null,
+                $_POST['zip_code'] ?? null,
+                $_POST['country'] ?? null,
                 $_POST['marketing_report_url'] ?? null
             ]);
             $storeId = $pdo->lastInsertId();
@@ -38,9 +43,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email'        => $_POST['email'],
                     'first_name'   => $_POST['first_name'] ?? '',
                     'last_name'    => $_POST['last_name'] ?? '',
-                    'phone'        => $_POST['phone'] ?? '',
+                    'mobile_phone' => format_mobile_number($_POST['phone'] ?? ''),
+                    'address'      => $_POST['address'] ?? '',
+                    'city'         => $_POST['city'] ?? '',
+                    'state'        => $_POST['state'] ?? '',
+                    'zip'          => $_POST['zip_code'] ?? '',
+                    'country'      => $_POST['country'] ?? '',
                     'company_name' => $_POST['name'] ?? '',
                     'user_role'    => 'Store Admin',
+                    'lead_source'  => 'mediahub',
+                    'opt_in_status'=> 'confirmed',
                     'tags'         => groundhogg_get_default_tags(),
                     'store_id'     => (int)$storeId
                 ];
@@ -196,6 +208,22 @@ include __DIR__.'/header.php';
                 <div class="col-md-6">
                     <label for="address" class="form-label">Address</label>
                     <input type="text" name="address" id="address" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" name="city" id="city" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="state" class="form-label">State</label>
+                    <input type="text" name="state" id="state" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="zip_code" class="form-label">Zip Code</label>
+                    <input type="text" name="zip_code" id="zip_code" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="country" class="form-label">Country</label>
+                    <input type="text" name="country" id="country" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label for="folder" class="form-label">Drive Folder ID</label>
