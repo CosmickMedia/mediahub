@@ -222,7 +222,8 @@ INSERT INTO `uploads` (`id`, `store_id`, `filename`, `description`, `custom_mess
 CREATE TABLE `upload_statuses` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `color` varchar(20) NOT NULL
+  `color` varchar(20) NOT NULL,
+  UNIQUE KEY `name_unique` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -232,16 +233,7 @@ CREATE TABLE `upload_statuses` (
 INSERT INTO `upload_statuses` (`id`, `name`, `color`) VALUES
 (1, 'Reviewed', '#198754'),
 (2, 'Pending Submission', '#ffc107'),
-(3, 'Scheduled', '#0dcaf0'),
-(4, 'Reviewed', '#198754'),
-(5, 'Pending Submission', '#ffc107'),
-(6, 'Scheduled', '#0dcaf0'),
-(7, 'Reviewed', '#198754'),
-(8, 'Pending Submission', '#ffc107'),
-(9, 'Scheduled', '#0dcaf0'),
-(10, 'Reviewed', '#198754'),
-(11, 'Pending Submission', '#ffc107'),
-(12, 'Scheduled', '#0dcaf0');
+(3, 'Scheduled', '#0dcaf0');
 
 -- --------------------------------------------------------
 
@@ -328,7 +320,8 @@ ALTER TABLE `uploads`
 -- Indexes for table `upload_statuses`
 --
 ALTER TABLE `upload_statuses`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name_unique` (`name`);
 
 --
 -- Indexes for table `users`
@@ -387,7 +380,7 @@ ALTER TABLE `uploads`
 -- AUTO_INCREMENT for table `upload_statuses`
 --
 ALTER TABLE `upload_statuses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
