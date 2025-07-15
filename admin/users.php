@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/groundhogg.php';
 require_login();
 $pdo = get_pdo();
 
@@ -23,6 +24,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare('INSERT INTO users (username, password, first_name, last_name, email) VALUES (?, ?, ?, ?, ?)');
                 $stmt->execute([$username, $hash, $first ?: null, $last ?: null, $email]);
                 $success[] = 'User added';
+
+                $contact = [
+                    'email'       => $email,
+                    'first_name'  => $first,
+                    'last_name'   => $last,
+                    'user_role'   => 'Admin User',
+                    'company_name'=> 'Cosmick Media',
+                    'tags'        => groundhogg_get_default_tags()
+                ];
+                [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
+                if ($ghSuccess) {
+                    $success[] = $ghMessage;
+                } else {
+                    $errors[] = 'Groundhogg sync failed: ' . $ghMessage;
+                }
             } catch (PDOException $e) {
                 $errors[] = 'User already exists';
             }

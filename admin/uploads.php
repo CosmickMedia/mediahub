@@ -273,7 +273,7 @@ include __DIR__.'/header.php';
             $isOld = $hoursAgo > 168; // 7 days
             $isVideo = strpos($r['mime'], 'video') !== false;
             ?>
-            <div class="col-12 col-md-6 col-lg-4 mb-4">
+            <div class="col-12 col-md-6 col-lg-3 mb-4">
                 <div class="card upload-card <?php echo $isOld ? 'opacity-75' : ''; ?>">
                     <?php if ($r['status_name']): ?>
                         <span class="position-absolute top-0 start-0 m-2 badge" style="background-color: <?php echo htmlspecialchars($r['status_color']); ?>;">
@@ -296,11 +296,11 @@ include __DIR__.'/header.php';
                     <?php endif; ?>
 
                     <div class="card-body">
-                        <h6 class="card-title text-truncate" title="<?php echo htmlspecialchars($r['filename']); ?>">
+                        <h6 class="card-title text-truncate mb-1" title="<?php echo htmlspecialchars($r['filename']); ?>">
                             <?php echo htmlspecialchars(shorten_filename($r['filename'])); ?>
                         </h6>
 
-                        <p class="card-text">
+                        <p class="card-text mb-2">
                             <strong class="text-primary"><?php echo htmlspecialchars($r['store_name']); ?></strong><br>
                             <small class="text-muted">
                                 <?php echo format_ts($r['created_at']); ?><br>
@@ -321,7 +321,7 @@ include __DIR__.'/header.php';
                             </p>
                         <?php endif; ?>
 
-                        <form method="post" class="mt-2">
+                        <form method="post" class="mt-2 mb-3">
                             <input type="hidden" name="set_status" value="1">
                             <input type="hidden" name="upload_id" value="<?php echo $r['id']; ?>">
                             <select name="status_id" class="form-select form-select-sm" onchange="this.form.submit()">

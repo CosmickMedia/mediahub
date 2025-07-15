@@ -40,3 +40,11 @@ a:hover { color: #1a252f; }
 .login-page .btn-login { background-color: #ff675b; border-color: #ff675b; color: white; }
 .login-page .btn-login:hover { background-color: #e55750; border-color: #e55750; color: white; }
 
+/* Settings tab font color */
+.nav-tabs .nav-link {
+    color: #2c3e50;
+}
+.nav-tabs .nav-link.active {
+    color: #2c3e50;
+}
+
