@@ -267,9 +267,10 @@ include __DIR__.'/header.php';
                             <input type="text" name="groundhogg_contact_tags" id="groundhogg_contact_tags" class="form-control" value="<?php echo htmlspecialchars($groundhogg_contact_tags); ?>">
                             <div class="form-text">Comma-separated tags applied to new contacts</div>
                         </div>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex flex-wrap gap-2">
                             <button class="btn btn-secondary" type="submit" name="test_groundhogg">Test Connection</button>
-                            <a href="sync_groundhogg.php" class="btn btn-secondary">Sync Contacts</a>
+                            <a href="sync_groundhogg.php" class="btn btn-secondary">Sync Store Contacts</a>
+                            <a href="sync_admin_users.php" class="btn btn-secondary">Sync Admin Users</a>
                         </div>
                     </div>
                 </div>

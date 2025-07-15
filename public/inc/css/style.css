@@ -19,12 +19,13 @@ body { background-color: #f8f9fa; font-family: 'Montserrat', sans-serif; }
 #latestChats .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 70%; }
 #latestChats .mine .bubble { background: #d1e7dd; }
 #latestChats .theirs .bubble { background: #e2e3e5; }
-#messages { height: 70vh; overflow-y: auto; margin-left: 0.5rem; margin-right: 0.5rem; }
+#messages { height: 65vh; overflow-y: auto; margin-left: 0.5rem; margin-right: 0.5rem; }
 #messages .mine { text-align: right; }
 #messages .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 70%; }
 #messages .mine .bubble { background: #d1e7dd; }
 #messages .theirs .bubble { background: #e2e3e5; }
-#emojiPicker { display: none; position: absolute; bottom: 60px; right: 20px; }
+#emojiPicker { display: none; position: absolute; bottom: 60px; right: 20px; background:#fff; border:1px solid #ccc; padding:4px; border-radius:4px; }
+.emoji-option { font-size: 1.2rem; padding:2px; cursor:pointer; }
 #reportFrame { width: 100%; border: 0; }
 .preview-col { width: 100px; }
 .preview-img { width: 80px; height: 80px; object-fit: cover; }
