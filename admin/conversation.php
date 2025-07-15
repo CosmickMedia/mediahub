@@ -79,7 +79,7 @@ include __DIR__.'/header.php';
 <form method="post" id="convForm" class="input-group align-items-end mt-3">
     <textarea name="message" class="form-control" rows="2" required></textarea>
     <button type="button" id="emojiBtn" class="btn btn-light border"><i class="bi bi-emoji-smile"></i></button>
-    <button class="btn btn-primary" type="submit">Send</button>
+    <button class="btn btn-send" type="submit">Send</button>
     <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1"></script>

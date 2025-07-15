@@ -71,7 +71,7 @@ include __DIR__.'/header.php';
 <form method="post" action="send_message.php" id="msgForm" class="input-group align-items-end">
     <textarea name="message" class="form-control" rows="2" placeholder="Type message" required></textarea>
     <button type="button" id="emojiBtn" class="btn btn-light border"><i class="bi bi-emoji-smile"></i></button>
-    <button type="submit" class="btn btn-primary">Send</button>
+    <button type="submit" class="btn btn-send">Send</button>
     <input type="hidden" name="ajax" value="1">
     <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>

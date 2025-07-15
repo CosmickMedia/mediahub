@@ -2,7 +2,8 @@
 .navbar-brand { font-weight: 600; }
 .navbar { background-color: #2c3e50 !important; }
 body { background-color: #f8f9fa; font-family: 'Montserrat', sans-serif; }
-.card { border: none; }
+.card { border: 1px solid #dee2e6; }
+.btn { border: 1px solid #dee2e6; }
 .btn-primary { background-color: #2c3e50; border-color: #2c3e50; }
 .btn-primary:hover { background-color: #1a252f; border-color: #1a252f; }
 .btn-outline-primary { color: #2c3e50; border-color: #2c3e50; }
@@ -58,5 +59,19 @@ a:hover { color: #1a252f; }
 .text-love { color: #FDE8E6 !important; }
 #messages .bubble.broadcast { background:#FDE8E6; }
 .bg-dashboard { background-color: #18bc9c !important; color: #fff !important; }
-.btn-dashboard { background-color: #18bc9c; border-color: #18bc9c; color: #fff; }
-.btn-dashboard:hover { background-color: #17a689; border-color: #17a689; color: #fff; }
+.btn-dashboard { background-color: #6c757d; border-color: #6c757d; color: #fff; }
+.btn-dashboard:hover { background-color: #5a6268; border-color: #545b62; color: #fff; }
+
+table th, table td {
+    vertical-align: middle !important;
+}
+
+/* Dashboard widget colors */
+.bg-stat-stores { background-color: #E8F0FE !important; }
+.bg-stat-uploads { background-color: #E6FAF1 !important; }
+.bg-stat-articles { background-color: #FDE8E6 !important; }
+.bg-stat-messages { background-color: #FEF7E1 !important; }
+.bg-stat-users { background-color: #FFF1E6 !important; }
+
+.btn-send { background-color: #18bc9c; border-color: #18bc9c; color: #fff; }
+.btn-send:hover { background-color: #17a689; border-color: #17a689; color: #fff; }

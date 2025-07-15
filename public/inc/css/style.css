@@ -2,7 +2,8 @@
 .navbar-brand { font-weight: 600; }
 .navbar { background-color: #2c3e50 !important; }
 body { background-color: #f8f9fa; font-family: 'Montserrat', sans-serif; }
-.card { border: none; }
+.card { border: 1px solid #dee2e6; }
+.btn { border: 1px solid #dee2e6; }
 .btn-primary { background-color: #2c3e50; border-color: #2c3e50; }
 .btn-primary:hover { background-color: #1a252f; border-color: #1a252f; }
 .btn-outline-primary { color: #2c3e50; border-color: #2c3e50; }
@@ -37,3 +38,10 @@ body { background-color: #f8f9fa; font-family: 'Montserrat', sans-serif; }
 .article-status { font-size: 0.875rem; font-weight: 500; }
 .article-card { transition: all 0.3s ease; }
 .article-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+table th, table td {
+    vertical-align: middle !important;
+}
+
+.btn-send { background-color: #18bc9c; border-color: #18bc9c; color: #fff; }
+.btn-send:hover { background-color: #17a689; border-color: #17a689; color: #fff; }
