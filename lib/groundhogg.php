@@ -90,6 +90,97 @@ function groundhogg_get_default_tags(): array {
     return $tags;
 }
 
+/**
+ * Build the payload structure expected by Groundhogg.
+ */
+function groundhogg_build_contact_structure(array $contactData): array {
+    $data = [
+        'email'      => $contactData['email'],
+        'first_name' => $contactData['first_name'] ?? '',
+        'last_name'  => $contactData['last_name'] ?? '',
+        'meta'       => []
+    ];
+
+    // Phone numbers in multiple fields and formats
+    $phoneRaw = $contactData['mobile_phone'] ?? ($contactData['phone'] ?? '');
+    $formats = phone_number_variations($phoneRaw);
+    if (!empty($formats)) {
+        [$digits, $intl, $dash] = $formats;
+        $phones = [
+            'phone'        => $digits,
+            'mobile_phone' => $intl,
+            'primary_phone'=> $dash,
+            'phone_number' => $digits
+        ];
+        foreach ($phones as $field => $value) {
+            $data[$field] = $value;
+            $data['meta'][$field] = $value;
+        }
+    }
+
+    // Address/location fields
+    if (!empty($contactData['address'])) {
+        foreach (['street_address_1', 'address_line_1', 'address'] as $field) {
+            $data[$field] = $contactData['address'];
+            $data['meta'][$field] = $contactData['address'];
+        }
+    }
+    if (!empty($contactData['city'])) {
+        foreach (['city', 'locality'] as $field) {
+            $data[$field] = $contactData['city'];
+            $data['meta'][$field] = $contactData['city'];
+        }
+    }
+    if (!empty($contactData['state'])) {
+        foreach (['region', 'state'] as $field) {
+            $data[$field] = $contactData['state'];
+            $data['meta'][$field] = $contactData['state'];
+        }
+    }
+    if (!empty($contactData['zip'])) {
+        foreach (['postal_zip', 'zip', 'zip_code'] as $field) {
+            $data[$field] = $contactData['zip'];
+            $data['meta'][$field] = $contactData['zip'];
+        }
+    }
+    if (!empty($contactData['country'])) {
+        $data['country'] = $contactData['country'];
+        $data['meta']['country'] = $contactData['country'];
+    }
+
+    if (!empty($contactData['lead_source'])) {
+        $data['lead_source'] = $contactData['lead_source'];
+        $data['meta']['lead_source'] = $contactData['lead_source'];
+    }
+
+    if (!empty($contactData['opt_in_status'])) {
+        $data['optin_status'] = $contactData['opt_in_status'];
+    }
+
+    if (!empty($contactData['company_name'])) {
+        $data['company_name'] = $contactData['company_name'];
+        $data['meta']['company'] = $contactData['company_name'];
+    }
+
+    if (!empty($contactData['user_role'])) {
+        $data['user_role'] = $contactData['user_role'];
+        $data['meta']['user_role'] = $contactData['user_role'];
+    }
+
+    if (!empty($contactData['store_id'])) {
+        $data['store_id'] = (string)$contactData['store_id'];
+        $data['meta']['store_id'] = (string)$contactData['store_id'];
+    }
+
+    if (!empty($contactData['tags']) && is_array($contactData['tags'])) {
+        $data['tags'] = $contactData['tags'];
+    } else {
+        $data['tags'] = groundhogg_get_default_tags();
+    }
+
+    return $data;
+}
+
 function groundhogg_send_contact(array $contactData): array {
     $settings = groundhogg_get_settings();
 
@@ -110,66 +201,11 @@ function groundhogg_send_contact(array $contactData): array {
         return [false, 'Email address is required'];
     }
 
-    // Build the contact data in Groundhogg's expected format
-    $groundhoggData = [
-        'email' => $contactData['email'],
-        'first_name' => $contactData['first_name'] ?? '',
-        'last_name' => $contactData['last_name'] ?? '',
-        'meta' => []
-    ];
+    // Build payload using helper
+    $groundhoggData = groundhogg_build_contact_structure($contactData);
 
-    // Add optional fields to meta array
-    $phone = $contactData['mobile_phone'] ?? ($contactData['phone'] ?? '');
-    $phone = format_mobile_number($phone);
-    if ($phone !== '') {
-        $groundhoggData['meta']['mobile_phone'] = $phone;
-        $groundhoggData['meta']['primary_phone'] = $phone;
-    }
-
-    // Address fields
-    if (!empty($contactData['address'])) {
-        $groundhoggData['meta']['street_address_1'] = $contactData['address'];
-        // Legacy/alternate key for some installs
-        $groundhoggData['meta']['address_line_1'] = $contactData['address'];
-    }
-    if (!empty($contactData['city'])) {
-        $groundhoggData['meta']['city'] = $contactData['city'];
-    }
-    if (!empty($contactData['state'])) {
-        $groundhoggData['meta']['region'] = $contactData['state'];
-    }
-    if (!empty($contactData['zip'])) {
-        $groundhoggData['meta']['postal_zip'] = $contactData['zip'];
-    }
-    if (!empty($contactData['country'])) {
-        $groundhoggData['meta']['country'] = $contactData['country'];
-    }
-    if (!empty($contactData['lead_source'])) {
-        $groundhoggData['meta']['lead_source'] = $contactData['lead_source'];
-    }
-
-    if (!empty($contactData['opt_in_status'])) {
-        $groundhoggData['optin_status'] = $contactData['opt_in_status'];
-    }
-
-    if (!empty($contactData['company_name'])) {
-        $groundhoggData['meta']['company'] = $contactData['company_name'];
-    }
-
-    if (!empty($contactData['user_role'])) {
-        $groundhoggData['meta']['user_role'] = $contactData['user_role'];
-    }
-
-    if (!empty($contactData['store_id'])) {
-        $groundhoggData['meta']['store_id'] = (string)$contactData['store_id'];
-    }
-
-    // Handle tags - Groundhogg expects an array of tag names or IDs
-    if (!empty($contactData['tags']) && is_array($contactData['tags'])) {
-        $groundhoggData['tags'] = $contactData['tags'];
-    } else {
-        $groundhoggData['tags'] = groundhogg_get_default_tags();
-    }
+    groundhogg_debug_log('Raw Contact: ' . json_encode($contactData));
+    groundhogg_debug_log('Built Data: ' . json_encode($groundhoggData));
 
     $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts';
     $payload = json_encode($groundhoggData);
@@ -300,6 +336,69 @@ function groundhogg_delete_contact(string $email): array {
     $data = json_decode($response, true);
     $message = $data['message'] ?? $data['error'] ?? ('HTTP ' . $httpCode);
     return [false, 'Groundhogg API error: ' . $message];
+}
+
+/**
+ * Retrieve a contact from Groundhogg by email.
+ */
+function groundhogg_get_contact(string $email): array {
+    $settings = groundhogg_get_settings();
+
+    if (!$settings['site_url']) {
+        return [false, 'Groundhogg integration not configured: missing site URL'];
+    }
+
+    if (!$settings['username'] || !$settings['public_key'] || !$settings['token'] || !$settings['secret_key']) {
+        return [false, 'Groundhogg integration not configured: missing API credentials'];
+    }
+
+    if ($email === '') {
+        return [false, 'Email address is required'];
+    }
+
+    $query = http_build_query(['search' => $email]);
+    $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts?' . $query;
+
+    $signature = hash_hmac('sha256', '', $settings['secret_key']);
+
+    $headers = [
+        'X-GH-USER: ' . $settings['username'],
+        'X-GH-PUBLIC-KEY: ' . $settings['public_key'],
+        'X-GH-TOKEN: ' . $settings['token'],
+        'X-GH-SIGNATURE: ' . $signature
+    ];
+
+    groundhogg_debug_log('GET ' . $url . ' (fetch contact)');
+    groundhogg_debug_log('Fetch Headers: ' . json_encode($headers));
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2
+    ]);
+
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    groundhogg_debug_log('Fetch Response Code: ' . $httpCode);
+    groundhogg_debug_log('Fetch Response Body: ' . $response);
+
+    if ($error) {
+        return [false, $error];
+    }
+
+    $data = json_decode($response, true);
+    if ($httpCode >= 200 && $httpCode < 300 && isset($data['contacts'][0])) {
+        return [true, $data['contacts'][0]];
+    }
+
+    $message = $data['message'] ?? $data['error'] ?? ('HTTP ' . $httpCode);
+    return [false, $message];
 }
 
 function test_groundhogg_connection(): array {
