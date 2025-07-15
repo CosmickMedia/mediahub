@@ -16,21 +16,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $first = trim($_POST['first_name'] ?? '');
         $last = trim($_POST['last_name'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $mobile = format_mobile_number($_POST['mobile_phone'] ?? '');
+        $optin = $_POST['opt_in_status'] ?? 'confirmed';
         if ($username === '' || $password === '' || $email === '') {
             $errors[] = 'Username, password and email are required';
         } else {
             $hash = password_hash($password, PASSWORD_DEFAULT);
             try {
-                $stmt = $pdo->prepare('INSERT INTO users (username, password, first_name, last_name, email) VALUES (?, ?, ?, ?, ?)');
-                $stmt->execute([$username, $hash, $first ?: null, $last ?: null, $email]);
+                $stmt = $pdo->prepare('INSERT INTO users (username, password, first_name, last_name, email, mobile_phone, opt_in_status) VALUES (?, ?, ?, ?, ?, ?, ?)');
+                $stmt->execute([$username, $hash, $first ?: null, $last ?: null, $email, $mobile ?: null, $optin]);
                 $success[] = 'User added';
 
                 $contact = [
                     'email'       => $email,
                     'first_name'  => $first,
                     'last_name'   => $last,
+                    'mobile_phone'=> $mobile,
+                    'address'     => '1147 Jacobsburg Rd.',
+                    'city'        => 'Wind Gap',
+                    'state'       => 'Pennsylvania',
+                    'zip'         => '18091',
+                    'country'     => 'United States',
                     'user_role'   => 'Admin User',
                     'company_name'=> 'Cosmick Media',
+                    'lead_source' => 'cosmick-employee',
+                    'opt_in_status'=> $optin,
                     'tags'        => groundhogg_get_default_tags()
                 ];
                 [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
@@ -112,25 +122,43 @@ include __DIR__.'/header.php';
         </div>
         <div class="card-body">
             <form method="post" class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" name="username" id="username" class="form-control" required>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" name="password" id="password" class="form-control" required>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="first_name" class="form-label">First Name</label>
                     <input type="text" name="first_name" id="first_name" class="form-control">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="last_name" class="form-label">Last Name</label>
                     <input type="text" name="last_name" id="last_name" class="form-control">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" name="email" id="email" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="mobile_phone" class="form-label">Mobile Phone</label>
+                    <input type="text" name="mobile_phone" id="mobile_phone" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label for="opt_in_status" class="form-label">Opt-in Status</label>
+                    <select name="opt_in_status" id="opt_in_status" class="form-select">
+                        <option value="confirmed" selected>Confirmed</option>
+                        <option value="unconfirmed">Unconfirmed</option>
+                        <option value="unsubscribed">Unsubscribed</option>
+                        <option value="subscribed_weekly">Subscribed Weekly</option>
+                        <option value="subscribed_monthly">Subscribed Monthly</option>
+                        <option value="bounced">Bounced</option>
+                        <option value="spam">Spam</option>
+                        <option value="complained">Complained</option>
+                        <option value="blocked">Blocked</option>
+                    </select>
                 </div>
                 <div class="col-12">
                     <button class="btn btn-primary" name="add" type="submit">Add User</button>

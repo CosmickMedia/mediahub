@@ -220,6 +220,10 @@ CREATE TABLE `stores` (
   `last_name` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `zip_code` varchar(20) DEFAULT NULL,
+  `country` varchar(100) DEFAULT NULL,
   `marketing_report_url` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -227,11 +231,11 @@ CREATE TABLE `stores` (
 -- Dumping data for table `stores`
 --
 
-INSERT INTO `stores` (`id`, `name`, `pin`, `admin_email`, `drive_folder`, `hootsuite_token`, `first_name`, `last_name`, `phone`, `address`, `marketing_report_url`) VALUES
-(1, 'test', '1111', 'test@none.com', '', NULL, NULL, NULL, NULL, NULL, NULL),
-(2, 'testing', '1234', 'test@none.com', '16FMaL4Lv0V6_ZVxBQRpg-3GaUyfeu0G3', NULL, NULL, NULL, NULL, NULL, NULL),
-(3, 'Petland Cosmick', '2547', 'cosmicktechnologies@gmail.com', '1srY5v90SaXNgWsl56K_e9F0YaSN43Hc-', '', 'Carley', 'Kuehner', '', '1147 Jacobsburg Road, Wind Gap, PA 18091', NULL),
-(4, 'Petland Phoenix', '2345', 'kim@cosmickmedia.com', '1VvZT3W4_ADzo1nRXPg98n8wOROIov9lC', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `stores` (`id`, `name`, `pin`, `admin_email`, `drive_folder`, `hootsuite_token`, `first_name`, `last_name`, `phone`, `address`, `city`, `state`, `zip_code`, `country`, `marketing_report_url`) VALUES
+(1, 'test', '1111', 'test@none.com', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'testing', '1234', 'test@none.com', '16FMaL4Lv0V6_ZVxBQRpg-3GaUyfeu0G3', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 'Petland Cosmick', '2547', 'cosmicktechnologies@gmail.com', '1srY5v90SaXNgWsl56K_e9F0YaSN43Hc-', '', 'Carley', 'Kuehner', '', '1147 Jacobsburg Road', 'Wind Gap', 'PA', '18091', 'United States', NULL),
+(4, 'Petland Phoenix', '2345', 'kim@cosmickmedia.com', '1VvZT3W4_ADzo1nRXPg98n8wOROIov9lC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -304,6 +308,8 @@ CREATE TABLE `store_users` (
   `email` varchar(255) NOT NULL,
   `first_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
+  `mobile_phone` varchar(50) DEFAULT NULL,
+  `opt_in_status` enum('unconfirmed','confirmed','unsubscribed','subscribed_weekly','subscribed_monthly','bounced','spam','complained','blocked') DEFAULT 'confirmed',
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -311,14 +317,14 @@ CREATE TABLE `store_users` (
 -- Dumping data for table `store_users`
 --
 
-INSERT INTO `store_users` (`id`, `store_id`, `email`, `first_name`, `last_name`, `created_at`) VALUES
-(1, 3, 'ckuehner@cosmickmedia.com', 'Tatiana', 'Marchenko', '2025-07-13 20:38:47'),
-(3, 4, 'kaykaykuehner@gmail.com', 'Kayley', 'Kuehner', '2025-07-14 02:58:12'),
-(4, 3, 'crystal@cosmickmedia.com', 'Crystal', 'Jones', '2025-07-14 15:21:35'),
-(5, 3, 'kim@cosmickmedia.com', 'Kim', 'Frassinelli', '2025-07-14 15:25:08'),
-(6, 4, 'kim@cosmickmedia.com', 'Kim', 'Frassinelli', '2025-07-14 18:23:46'),
-(7, 3, 'jim@yalley.com', 'Jim', 'Talley', '2025-07-14 23:50:35'),
-(9, 3, 'sdfdf@none.com', 'Cosmick Media Inc.', 'sdfsfdsdf', '2025-07-14 23:55:09');
+INSERT INTO `store_users` (`id`, `store_id`, `email`, `first_name`, `last_name`, `mobile_phone`, `opt_in_status`, `created_at`) VALUES
+(1, 3, 'ckuehner@cosmickmedia.com', 'Tatiana', 'Marchenko', NULL, 'confirmed', '2025-07-13 20:38:47'),
+(3, 4, 'kaykaykuehner@gmail.com', 'Kayley', 'Kuehner', NULL, 'confirmed', '2025-07-14 02:58:12'),
+(4, 3, 'crystal@cosmickmedia.com', 'Crystal', 'Jones', NULL, 'confirmed', '2025-07-14 15:21:35'),
+(5, 3, 'kim@cosmickmedia.com', 'Kim', 'Frassinelli', NULL, 'confirmed', '2025-07-14 15:25:08'),
+(6, 4, 'kim@cosmickmedia.com', 'Kim', 'Frassinelli', NULL, 'confirmed', '2025-07-14 18:23:46'),
+(7, 3, 'jim@yalley.com', 'Jim', 'Talley', NULL, 'confirmed', '2025-07-14 23:50:35'),
+(9, 3, 'sdfdf@none.com', 'Cosmick Media Inc.', 'sdfsfdsdf', NULL, 'confirmed', '2025-07-14 23:55:09');
 
 -- --------------------------------------------------------
 
@@ -427,6 +433,8 @@ CREATE TABLE `users` (
   `first_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
+  `mobile_phone` varchar(50) DEFAULT NULL,
+  `opt_in_status` enum('unconfirmed','confirmed','unsubscribed','subscribed_weekly','subscribed_monthly','bounced','spam','complained','blocked') DEFAULT 'confirmed',
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -434,12 +442,12 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `first_name`, `last_name`, `email`, `created_at`) VALUES
-(1, 'admin', '$2y$10$aIKmnAZxd/D5WdCHFMmto.tMsL3os10L8yUC5W4XMSdeKee/8vGpi', 'Carley', 'Kuehner', 'carley@cosmickmedia.com', '2025-07-13 20:14:56'),
-(14, 'Cassandra', '$2y$10$eLQoBqTNE7dBqF0ViWYBlOXKHZvMPrLPjuF8cr0wyneOnTS6rW62y', 'Cassandra', 'Dayoub', 'cassandra@cosmickmedia.com', '2025-07-14 15:20:05'),
-(15, 'Kim', '$2y$10$AB5EDYNdWqv/Xjvrj1RPCO.Cig7KH1Os.HvQYH2yvgNW62Q5nl0Qy', 'Kim', 'Frassinelli', 'kim@cosmickmedia.com', '2025-07-14 15:21:17'),
-(16, 'JBirgl', '$2y$10$cw3QNqgGumA3tEfCc9EP0OT77dy210tqNg/EhNY/KP5kALV4iEqza', 'Jennifer', 'Birgl', 'jennifer@cosmickmedia.com', '2025-07-14 15:21:38'),
-(18, 'Crystal Jones', '$2y$10$JqU85tn1smnru0itTPDK/OyPQ16V9JqYzcysxk6OtImVjOm/h6yZC', 'Crystal', 'Jones', 'crystal@cosmickmedia.com', '2025-07-14 16:16:55');
+INSERT INTO `users` (`id`, `username`, `password`, `first_name`, `last_name`, `email`, `mobile_phone`, `opt_in_status`, `created_at`) VALUES
+(1, 'admin', '$2y$10$aIKmnAZxd/D5WdCHFMmto.tMsL3os10L8yUC5W4XMSdeKee/8vGpi', 'Carley', 'Kuehner', 'carley@cosmickmedia.com', NULL, 'confirmed', '2025-07-13 20:14:56'),
+(14, 'Cassandra', '$2y$10$eLQoBqTNE7dBqF0ViWYBlOXKHZvMPrLPjuF8cr0wyneOnTS6rW62y', 'Cassandra', 'Dayoub', 'cassandra@cosmickmedia.com', NULL, 'confirmed', '2025-07-14 15:20:05'),
+(15, 'Kim', '$2y$10$AB5EDYNdWqv/Xjvrj1RPCO.Cig7KH1Os.HvQYH2yvgNW62Q5nl0Qy', 'Kim', 'Frassinelli', 'kim@cosmickmedia.com', NULL, 'confirmed', '2025-07-14 15:21:17'),
+(16, 'JBirgl', '$2y$10$cw3QNqgGumA3tEfCc9EP0OT77dy210tqNg/EhNY/KP5kALV4iEqza', 'Jennifer', 'Birgl', 'jennifer@cosmickmedia.com', NULL, 'confirmed', '2025-07-14 15:21:38'),
+(18, 'Crystal Jones', '$2y$10$JqU85tn1smnru0itTPDK/OyPQ16V9JqYzcysxk6OtImVjOm/h6yZC', 'Crystal', 'Jones', 'crystal@cosmickmedia.com', NULL, 'confirmed', '2025-07-14 16:16:55');
 
 --
 -- Indexes for dumped tables

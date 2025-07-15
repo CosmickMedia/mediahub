@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/groundhogg.php';
+require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
 
@@ -30,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, first_name=?, last_name=?, phone=?, address=?, marketing_report_url=? WHERE id=?');
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
             $update->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -39,8 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['hootsuite_token'],
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
-                $_POST['phone'] ?? null,
+                format_mobile_number($_POST['phone'] ?? ''),
                 $_POST['address'] ?? null,
+                $_POST['city'] ?? null,
+                $_POST['state'] ?? null,
+                $_POST['zip_code'] ?? null,
+                $_POST['country'] ?? null,
                 $_POST['marketing_report_url'] ?? null,
                 $id
             ]);
@@ -52,9 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email'        => $_POST['email'],
                     'first_name'   => $_POST['first_name'] ?? '',
                     'last_name'    => $_POST['last_name'] ?? '',
-                    'phone'        => $_POST['phone'] ?? '',
+                    'mobile_phone' => format_mobile_number($_POST['phone'] ?? ''),
+                    'address'      => $_POST['address'] ?? '',
+                    'city'         => $_POST['city'] ?? '',
+                    'state'        => $_POST['state'] ?? '',
+                    'zip'          => $_POST['zip_code'] ?? '',
+                    'country'      => $_POST['country'] ?? '',
                     'company_name' => $_POST['name'] ?? '',
                     'user_role'    => 'Store Admin',
+                    'lead_source'  => 'mediahub',
+                    'opt_in_status'=> $optin,
                     'tags'         => groundhogg_get_default_tags(),
                     'store_id'     => (int)$id
                 ];
@@ -76,21 +88,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $first = trim($_POST['user_first_name'] ?? '');
         $last = trim($_POST['user_last_name'] ?? '');
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $mobile = format_mobile_number($_POST['user_mobile_phone'] ?? '');
+            $optin = $_POST['user_opt_in_status'] ?? 'confirmed';
             try {
-                $stmt = $pdo->prepare('INSERT INTO store_users (store_id, email, first_name, last_name) VALUES (?, ?, ?, ?)');
-                $stmt->execute([$id, $email, $first ?: null, $last ?: null]);
+                $stmt = $pdo->prepare('INSERT INTO store_users (store_id, email, first_name, last_name, mobile_phone, opt_in_status) VALUES (?, ?, ?, ?, ?, ?)');
+                $stmt->execute([$id, $email, $first ?: null, $last ?: null, $mobile ?: null, $optin]);
                 $insertId = $pdo->lastInsertId();
                 $success[] = 'User added';
-                $store_users[] = ['id' => $insertId, 'email' => $email, 'first_name' => $first, 'last_name' => $last];
+                $store_users[] = ['id' => $insertId, 'email' => $email, 'first_name' => $first, 'last_name' => $last, 'mobile_phone' => $mobile, 'opt_in_status' => $optin];
 
                 // Send to Groundhogg
                 $contact = [
                     'email'        => $email,
                     'first_name'   => $first,
                     'last_name'    => $last,
-                    'phone'        => $store['phone'] ?? '',
+                    'mobile_phone' => $mobile,
+                    'address'      => $store['address'] ?? '',
+                    'city'         => $store['city'] ?? '',
+                    'state'        => $store['state'] ?? '',
+                    'zip'          => $store['zip_code'] ?? '',
+                    'country'      => $store['country'] ?? '',
                     'company_name' => $store['name'] ?? '',
                     'user_role'    => 'Store Admin',
+                    'lead_source'  => 'mediahub',
+                    'opt_in_status'=> 'confirmed',
                     'tags'         => groundhogg_get_default_tags(),
                     'store_id'     => (int)$id
                 ];
@@ -169,6 +190,22 @@ include __DIR__.'/header.php';
                 <input type="text" name="address" id="address" class="form-control" value="<?php echo htmlspecialchars($store['address']); ?>">
             </div>
             <div class="col-md-6">
+                <label for="city" class="form-label">City</label>
+                <input type="text" name="city" id="city" class="form-control" value="<?php echo htmlspecialchars($store['city']); ?>">
+            </div>
+            <div class="col-md-6">
+                <label for="state" class="form-label">State</label>
+                <input type="text" name="state" id="state" class="form-control" value="<?php echo htmlspecialchars($store['state']); ?>">
+            </div>
+            <div class="col-md-6">
+                <label for="zip_code" class="form-label">Zip Code</label>
+                <input type="text" name="zip_code" id="zip_code" class="form-control" value="<?php echo htmlspecialchars($store['zip_code']); ?>">
+            </div>
+            <div class="col-md-6">
+                <label for="country" class="form-label">Country</label>
+                <input type="text" name="country" id="country" class="form-control" value="<?php echo htmlspecialchars($store['country']); ?>">
+            </div>
+            <div class="col-md-6">
                 <label for="marketing_report_url" class="form-label">Marketing Report URL</label>
                 <input type="url" name="marketing_report_url" id="marketing_report_url" class="form-control" value="<?php echo htmlspecialchars($store['marketing_report_url']); ?>">
             </div>
@@ -218,14 +255,30 @@ include __DIR__.'/header.php';
             <?php endif; ?>
         </ul>
         <form method="post" class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="text" name="user_first_name" class="form-control" placeholder="First Name">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="text" name="user_last_name" class="form-control" placeholder="Last Name">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="email" name="user_email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="user_mobile_phone" class="form-control" placeholder="Mobile Phone">
+            </div>
+            <div class="col-md-4">
+                <select name="user_opt_in_status" class="form-select">
+                    <option value="confirmed" selected>Confirmed</option>
+                    <option value="unconfirmed">Unconfirmed</option>
+                    <option value="unsubscribed">Unsubscribed</option>
+                    <option value="subscribed_weekly">Subscribed Weekly</option>
+                    <option value="subscribed_monthly">Subscribed Monthly</option>
+                    <option value="bounced">Bounced</option>
+                    <option value="spam">Spam</option>
+                    <option value="complained">Complained</option>
+                    <option value="blocked">Blocked</option>
+                </select>
             </div>
             <div class="col-12">
                 <button class="btn btn-secondary" name="add_user" type="submit">Add User</button>

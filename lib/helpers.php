@@ -36,3 +36,18 @@ function shorten_filename(string $filename, int $baseLength = 8): string {
 
     return substr($base, 0, $baseLength) . '...' . $ext;
 }
+
+function format_mobile_number(string $number): string {
+    $digits = preg_replace('/\D+/', '', $number);
+    if ($digits === '') {
+        return '';
+    }
+    if (strlen($digits) === 10) {
+        $digits = '1' . $digits;
+    }
+    if ($digits[0] !== '1') {
+        // assume already has country code
+        return '+' . $digits;
+    }
+    return '+' . $digits;
+}

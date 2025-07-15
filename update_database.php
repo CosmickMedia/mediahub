@@ -107,6 +107,20 @@ try {
     echo "• last_name column might already exist\n";
 }
 
+try {
+    $pdo->exec("ALTER TABLE store_users ADD COLUMN mobile_phone VARCHAR(50) AFTER last_name");
+    echo "✓ Added mobile_phone column to store_users table\n";
+} catch (PDOException $e) {
+    echo "• mobile_phone column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE store_users ADD COLUMN opt_in_status ENUM('unconfirmed','confirmed','unsubscribed','subscribed_weekly','subscribed_monthly','bounced','spam','complained','blocked') DEFAULT 'confirmed' AFTER mobile_phone");
+    echo "✓ Added opt_in_status column to store_users table\n";
+} catch (PDOException $e) {
+    echo "• opt_in_status column might already exist\n";
+}
+
 // Add sender column to store_messages table
 try {
     $pdo->exec("ALTER TABLE store_messages ADD COLUMN sender ENUM('admin','store') DEFAULT 'admin' AFTER store_id");
@@ -197,6 +211,34 @@ try {
 }
 
 try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN city VARCHAR(100) AFTER address");
+    echo "✓ Added city column to stores table\n";
+} catch (PDOException $e) {
+    echo "• city column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN state VARCHAR(100) AFTER city");
+    echo "✓ Added state column to stores table\n";
+} catch (PDOException $e) {
+    echo "• state column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN zip_code VARCHAR(20) AFTER state");
+    echo "✓ Added zip_code column to stores table\n";
+} catch (PDOException $e) {
+    echo "• zip_code column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN country VARCHAR(100) AFTER zip_code");
+    echo "✓ Added country column to stores table\n";
+} catch (PDOException $e) {
+    echo "• country column might already exist\n";
+}
+
+try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN marketing_report_url VARCHAR(255) AFTER address");
     echo "✓ Added marketing_report_url column to stores table\n";
 } catch (PDOException $e) {
@@ -227,6 +269,20 @@ try {
     echo "✓ Added email column to users table\n";
 } catch (PDOException $e) {
     echo "• email column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN mobile_phone VARCHAR(50) AFTER email");
+    echo "✓ Added mobile_phone column to users table\n";
+} catch (PDOException $e) {
+    echo "• mobile_phone column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN opt_in_status ENUM('unconfirmed','confirmed','unsubscribed','subscribed_weekly','subscribed_monthly','bounced','spam','complained','blocked') DEFAULT 'confirmed' AFTER mobile_phone");
+    echo "✓ Added opt_in_status column to users table\n";
+} catch (PDOException $e) {
+    echo "• opt_in_status column might already exist\n";
 }
 
 // Create upload_statuses table

@@ -102,9 +102,20 @@ function groundhogg_send_contact(array $contactData): array {
     ];
 
     // Add optional fields to data array
-    if (!empty($contactData['phone'])) {
-        $groundhoggData['data']['mobile_phone'] = $contactData['phone'];
-        $groundhoggData['data']['primary_phone'] = $contactData['phone'];
+    $phone = $contactData['mobile_phone'] ?? ($contactData['phone'] ?? '');
+    if ($phone !== '') {
+        $groundhoggData['data']['mobile_phone'] = $phone;
+        $groundhoggData['data']['primary_phone'] = $phone;
+    }
+
+    foreach (['address','city','state','zip','country','lead_source'] as $field) {
+        if (!empty($contactData[$field])) {
+            $groundhoggData['data'][$field] = $contactData[$field];
+        }
+    }
+
+    if (!empty($contactData['opt_in_status'])) {
+        $groundhoggData['optin_status'] = $contactData['opt_in_status'];
     }
 
     if (!empty($contactData['company_name'])) {
@@ -284,9 +295,16 @@ function groundhogg_sync_store_contacts(int $store_id): array {
             'email'        => $store['admin_email'],
             'first_name'   => $store['first_name'] ?? '',
             'last_name'    => $store['last_name'] ?? '',
-            'phone'        => $store['phone'] ?? '',
+            'mobile_phone' => $store['phone'] ?? '',
+            'address'      => $store['address'] ?? '',
+            'city'         => $store['city'] ?? '',
+            'state'        => $store['state'] ?? '',
+            'zip'          => $store['zip_code'] ?? '',
+            'country'      => $store['country'] ?? '',
             'company_name' => $store['name'],
             'user_role'    => 'Store Admin',
+            'lead_source'  => 'mediahub',
+            'opt_in_status'=> 'confirmed',
             'tags'         => groundhogg_get_default_tags(),
             'store_id'     => $store_id
         ];
@@ -309,9 +327,16 @@ function groundhogg_sync_store_contacts(int $store_id): array {
             'email'        => $user['email'],
             'first_name'   => $user['first_name'] ?? '',
             'last_name'    => $user['last_name'] ?? '',
-            'phone'        => $store['phone'] ?? '',
+            'mobile_phone' => $user['mobile_phone'] ?? ($store['phone'] ?? ''),
+            'address'      => $store['address'] ?? '',
+            'city'         => $store['city'] ?? '',
+            'state'        => $store['state'] ?? '',
+            'zip'          => $store['zip_code'] ?? '',
+            'country'      => $store['country'] ?? '',
             'company_name' => $store['name'],
             'user_role'    => 'Store Admin',
+            'lead_source'  => 'mediahub',
+            'opt_in_status'=> $user['opt_in_status'] ?? 'confirmed',
             'tags'         => groundhogg_get_default_tags(),
             'store_id'     => $store_id
         ];
@@ -330,15 +355,23 @@ function groundhogg_sync_store_contacts(int $store_id): array {
 // Sync all admin users with Groundhogg
 function groundhogg_sync_admin_users(): array {
     $pdo = get_pdo();
-    $users = $pdo->query('SELECT first_name, last_name, email FROM users ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+    $users = $pdo->query('SELECT first_name, last_name, email, mobile_phone, opt_in_status FROM users ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
     $results = [];
     foreach ($users as $user) {
         $contact = [
             'email'       => $user['email'],
             'first_name'  => $user['first_name'] ?? '',
             'last_name'   => $user['last_name'] ?? '',
+            'mobile_phone'=> $user['mobile_phone'] ?? '',
+            'address'     => '1147 Jacobsburg Rd.',
+            'city'        => 'Wind Gap',
+            'state'       => 'Pennsylvania',
+            'zip'         => '18091',
+            'country'     => 'United States',
             'company_name'=> 'Cosmick Media',
             'user_role'   => 'Admin User',
+            'lead_source' => 'cosmick-employee',
+            'opt_in_status'=> $user['opt_in_status'] ?? 'confirmed',
             'tags'        => groundhogg_get_default_tags()
         ];
         [$success, $message] = groundhogg_send_contact($contact);
