@@ -115,37 +115,37 @@ function groundhogg_send_contact(array $contactData): array {
         'email' => $contactData['email'],
         'first_name' => $contactData['first_name'] ?? '',
         'last_name' => $contactData['last_name'] ?? '',
-        'data' => []
+        'meta' => []
     ];
 
-    // Add optional fields to data array
+    // Add optional fields to meta array
     $phone = $contactData['mobile_phone'] ?? ($contactData['phone'] ?? '');
     $phone = format_mobile_number($phone);
     if ($phone !== '') {
-        $groundhoggData['data']['mobile_phone'] = $phone;
-        $groundhoggData['data']['primary_phone'] = $phone;
+        $groundhoggData['meta']['mobile_phone'] = $phone;
+        $groundhoggData['meta']['primary_phone'] = $phone;
     }
 
     // Address fields
     if (!empty($contactData['address'])) {
-        $groundhoggData['data']['street_address_1'] = $contactData['address'];
+        $groundhoggData['meta']['street_address_1'] = $contactData['address'];
         // Legacy/alternate key for some installs
-        $groundhoggData['data']['address_line_1'] = $contactData['address'];
+        $groundhoggData['meta']['address_line_1'] = $contactData['address'];
     }
     if (!empty($contactData['city'])) {
-        $groundhoggData['data']['city'] = $contactData['city'];
+        $groundhoggData['meta']['city'] = $contactData['city'];
     }
     if (!empty($contactData['state'])) {
-        $groundhoggData['data']['region'] = $contactData['state'];
+        $groundhoggData['meta']['region'] = $contactData['state'];
     }
     if (!empty($contactData['zip'])) {
-        $groundhoggData['data']['postal_zip'] = $contactData['zip'];
+        $groundhoggData['meta']['postal_zip'] = $contactData['zip'];
     }
     if (!empty($contactData['country'])) {
-        $groundhoggData['data']['country'] = $contactData['country'];
+        $groundhoggData['meta']['country'] = $contactData['country'];
     }
     if (!empty($contactData['lead_source'])) {
-        $groundhoggData['data']['lead_source'] = $contactData['lead_source'];
+        $groundhoggData['meta']['lead_source'] = $contactData['lead_source'];
     }
 
     if (!empty($contactData['opt_in_status'])) {
@@ -153,15 +153,15 @@ function groundhogg_send_contact(array $contactData): array {
     }
 
     if (!empty($contactData['company_name'])) {
-        $groundhoggData['data']['company'] = $contactData['company_name'];
+        $groundhoggData['meta']['company'] = $contactData['company_name'];
     }
 
     if (!empty($contactData['user_role'])) {
-        $groundhoggData['data']['user_role'] = $contactData['user_role'];
+        $groundhoggData['meta']['user_role'] = $contactData['user_role'];
     }
 
     if (!empty($contactData['store_id'])) {
-        $groundhoggData['data']['store_id'] = (string)$contactData['store_id'];
+        $groundhoggData['meta']['store_id'] = (string)$contactData['store_id'];
     }
 
     // Handle tags - Groundhogg expects an array of tag names or IDs
