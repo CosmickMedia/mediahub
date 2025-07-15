@@ -13,7 +13,7 @@ $pdo = get_pdo();
 $store_id = $_SESSION['store_id'];
 
 if (isset($_GET['load'])) {
-    $stmt = $pdo->prepare("SELECT id, sender, message, created_at, read_by_store, read_by_admin, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at");
+    $stmt = $pdo->prepare("SELECT m.id, m.sender, m.message, m.created_at, m.parent_id, m.read_by_store, m.read_by_admin, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, p.message AS parent_message, u.filename, u.drive_id FROM store_messages m LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads u ON m.upload_id=u.id WHERE m.store_id = ? ORDER BY m.created_at");
     $stmt->execute([$store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($messages as &$m) {
@@ -26,7 +26,7 @@ if (isset($_GET['load'])) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT id, sender, message, created_at, read_by_store, read_by_admin, like_by_store, like_by_admin, love_by_store, love_by_admin FROM store_messages WHERE store_id = ? ORDER BY created_at");
+$stmt = $pdo->prepare("SELECT m.id, m.sender, m.message, m.created_at, m.parent_id, m.read_by_store, m.read_by_admin, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, p.message AS parent_message, u.filename, u.drive_id FROM store_messages m LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads u ON m.upload_id=u.id WHERE m.store_id = ? ORDER BY m.created_at");
 $stmt->execute([$store_id]);
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $pdo->prepare("UPDATE store_messages SET read_by_store=1 WHERE store_id=? AND sender='admin' AND read_by_store=0")
@@ -41,8 +41,14 @@ include __DIR__.'/header.php';
 <div id="messages" class="mb-4 border rounded p-2">
     <?php foreach ($messages as $msg): ?>
         <div class="mb-2 <?php echo $msg['sender'] === 'admin' ? 'theirs' : 'mine'; ?>">
-            <div class="bubble">
+            <div class="bubble-container"><div class="bubble">
+                <?php if(!empty($msg['parent_message'])): ?>
+                    <div class="reply-preview"><?php echo htmlspecialchars(substr($msg['parent_message'],0,50)); ?></div>
+                <?php endif; ?>
                 <strong><?php echo $msg['sender'] === 'admin' ? htmlspecialchars($admin_name) : htmlspecialchars($your_name); ?>:</strong>
+                <?php if(!empty($msg['filename'])): ?>
+                    <a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view" target="_blank"><?php echo htmlspecialchars($msg['filename']); ?></a>
+                <?php endif; ?>
                 <span><?php echo nl2br($msg['message']); ?></span>
                 <small class="text-muted ms-2">
                     <?php echo format_ts($msg['created_at']); ?>
@@ -64,12 +70,16 @@ include __DIR__.'/header.php';
                         <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                     <?php endif; ?>
                 </span>
-            </div>
+                <span class="reply-link" data-id="<?php echo $msg['id']; ?>">Reply</span>
+            </div></div>
         </div>
     <?php endforeach; ?>
 </div>
-<form method="post" action="send_message.php" id="msgForm" class="input-group align-items-end">
-    <textarea name="message" class="form-control" rows="2" placeholder="Type message" required></textarea>
+<form method="post" action="send_message.php" id="msgForm" class="input-group align-items-end chat-form" enctype="multipart/form-data">
+    <div id="replyTo" class="reply-preview" style="display:none;"></div>
+    <textarea name="message" class="form-control" rows="2" placeholder="Type message"></textarea>
+    <button type="button" id="fileBtn" class="btn btn-light border"><i class="bi bi-paperclip"></i></button>
+    <input type="file" id="fileInput" name="file" class="d-none">
     <button type="button" id="emojiBtn" class="btn btn-light border"><i class="bi bi-emoji-smile"></i></button>
     <button type="submit" class="btn btn-send">Send</button>
     <input type="hidden" name="ajax" value="1">
@@ -89,15 +99,20 @@ function refreshMessages() {
             data.forEach(m => {
                 const wrap=document.createElement('div');
                 wrap.className='mb-2 '+(m.sender==='admin'?'theirs':'mine');
+                const holder=document.createElement('div');
+                holder.className='bubble-container';
                 const div=document.createElement('div');
                 div.className='bubble';
                 let readIcon='';
                 if(m.sender==='admin' && m.read_by_store==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
                 if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
-                div.innerHTML=`<strong>${m.sender==='admin'?ADMIN_NAME:YOUR_NAME}:</strong> `+
-                    m.message.replace(/\n/g,'<br>')+
-                    ` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`+
-                    ' <span class="ms-1 reactions">'+
+                let html='';
+                if(m.parent_message){ html+='<div class="reply-preview">'+m.parent_message.substring(0,50)+'</div>'; }
+                html+=`<strong>${m.sender==='admin'?ADMIN_NAME:YOUR_NAME}:</strong> `;
+                if(m.filename){ html+='<a href="https://drive.google.com/file/d/'+m.drive_id+'/view" target="_blank">'+m.filename+'</a> '; }
+                html+=m.message.replace(/\n/g,'<br>');
+                html+=` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`;
+                html+=' <span class="ms-1 reactions">'+
                     (m.like_by_admin||m.like_by_store?
                         `<i class="bi bi-hand-thumbs-up-fill text-like" data-id="${m.id}" data-type="like"></i>`:
                         `<i class="bi bi-hand-thumbs-up" data-id="${m.id}" data-type="like"></i>`)+' '+
@@ -105,19 +120,31 @@ function refreshMessages() {
                         `<i class="bi bi-heart-fill text-love" data-id="${m.id}" data-type="love"></i>`:
                         `<i class="bi bi-heart" data-id="${m.id}" data-type="love"></i>`)+
                     '</span>';
-                wrap.appendChild(div);
+                html+=`<span class="reply-link" data-id="${m.id}">Reply</span>`;
+                div.innerHTML=html;
+                holder.appendChild(div);
+                wrap.appendChild(holder);
                 container.appendChild(wrap);
             });
             container.scrollTop = container.scrollHeight;
             initReactions();
+            initReplyLinks();
         });
 }
 setInterval(refreshMessages, 5000);
 document.getElementById('msgForm').addEventListener('submit', function(e){
     e.preventDefault();
-    fetch('send_message.php', {method:'POST', body:new FormData(this)})
-        .then(r=>r.json())
-        .then(()=>{ this.reset(); refreshMessages(); });
+    const fd=new FormData(this);
+    if(document.getElementById('fileInput').files.length){
+        fd.append('ajax','1');
+        fetch('../chat_upload.php',{method:'POST',body:fd})
+            .then(r=>r.json())
+            .then(()=>{ this.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); });
+    }else{
+        fetch('send_message.php', {method:'POST', body:fd})
+            .then(r=>r.json())
+            .then(()=>{ this.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); });
+    }
 });
 document.querySelector('#msgForm textarea').addEventListener('keydown', function(e){
     if(e.key === 'Enter' && !e.shiftKey){
@@ -128,6 +155,12 @@ document.querySelector('#msgForm textarea').addEventListener('keydown', function
 const picker=document.getElementById('emojiPicker');
 document.getElementById('emojiBtn').addEventListener('click', ()=>{
     picker.style.display = picker.style.display==='none' ? 'block' : 'none';
+});
+document.getElementById('fileBtn').addEventListener('click',()=>document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change',()=>{
+    if(document.getElementById('fileInput').files.length){
+        document.getElementById('msgForm').dispatchEvent(new Event('submit'));
+    }
 });
 picker.addEventListener('emoji-click', e=>{
     const ta=document.querySelector('#msgForm textarea');
@@ -149,5 +182,15 @@ function initReactions(){
 }
 refreshMessages();
 initReactions();
+function initReplyLinks(){
+    document.querySelectorAll('.reply-link').forEach(l=>{
+        l.addEventListener('click',()=>{
+            document.getElementById('parent_id').value=l.dataset.id;
+            document.getElementById('replyTo').textContent='Replying to: '+l.parentElement.querySelector('span').textContent;
+            document.getElementById('replyTo').style.display='block';
+        });
+    });
+}
+initReplyLinks();
 </script>
 <?php include __DIR__.'/footer.php'; ?>
