@@ -78,15 +78,37 @@ $active = 'chat';
 include __DIR__.'/header.php';
 ?>
 <h4>Chat - <?php echo htmlspecialchars($store_name); ?></h4>
-<form method="get" class="mb-3" id="storeSelectForm">
+<div id="unreadAlert" class="alert alert-warning alert-dismissible fade show" role="alert" style="display:none;">
+    You have <span id="totalUnread">0</span> new message(s) from <span id="unreadStores">0</span> stores.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<button class="btn btn-secondary mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#storeSidebar" aria-controls="storeSidebar">Stores</button>
+<form method="get" class="mb-3 d-inline-block" id="storeSelectForm">
     <label class="form-label">Select Store</label>
-    <select name="store_id" class="form-select" onchange="document.getElementById('storeSelectForm').submit();">
-        <option value="0"<?php if($store_id===0) echo ' selected'; ?>>All Stores</option>
+    <select name="store_id" class="form-select" id="storeSelect" onchange="document.getElementById('storeSelectForm').submit();">
+        <option value="0" disabled<?php if($store_id===0) echo ' selected'; ?>>Please select store</option>
         <?php foreach ($stores as $s): ?>
             <option value="<?php echo $s['id']; ?>"<?php if($store_id===$s['id']) echo ' selected'; ?>><?php echo htmlspecialchars($s['name']); ?></option>
         <?php endforeach; ?>
     </select>
 </form>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="storeSidebar" aria-labelledby="storeSidebarLabel">
+  <div class="offcanvas-header">
+    <h5 id="storeSidebarLabel" class="offcanvas-title">Stores</h5>
+    <button type="button" class="btn btn-sm" id="lockSidebarBtn"><i class="bi bi-pin-angle"></i></button>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <ul class="list-group list-group-flush" id="storeList">
+      <?php foreach($stores as $s): ?>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <a href="#" class="store-link flex-grow-1" data-id="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></a>
+        <span class="badge bg-secondary ms-2" style="display:none;" id="store-count-<?php echo $s['id']; ?>">0</span>
+      </li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+</div>
 <div id="messages" class="mb-4">
     <?php foreach ($messages as $msg): ?>
         <div class="mb-2 <?php echo $msg['sender']==='admin'?'mine':'theirs'; ?>">
@@ -140,8 +162,8 @@ include __DIR__.'/header.php';
     <button class="btn btn-send" type="submit">Send</button>
     <input type="hidden" name="ajax" value="1">
     <input type="hidden" name="parent_id" id="parent_id" value="">
+    <div id="emojiPicker"></div>
 </form>
-<div id="emojiPicker"></div>
 <div id="mentionBox" class="mention-box"></div>
 <script src="../assets/js/emoji-picker.js"></script>
 <script>
@@ -178,6 +200,25 @@ const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
 const STORE_CONTACT = <?php echo json_encode($store_contact ?? ''); ?>;
 const STORE_ID = <?php echo json_encode($store_id); ?>;
 const MENTION_NAMES = <?php echo json_encode($mentionNames); ?>;
+function updateStoreCounts(data,total){
+    data.forEach(s=>{
+        const badge=document.getElementById('store-count-'+s.id);
+        if(badge){
+            badge.textContent=s.unread;
+            badge.style.display=s.unread>0?'inline-block':'none';
+        }
+    });
+    const alertEl=document.getElementById('unreadAlert');
+    if(alertEl){
+        if(total>0){
+            document.getElementById('totalUnread').textContent=total;
+            document.getElementById('unreadStores').textContent=data.filter(s=>s.unread>0).length;
+            alertEl.style.display='block';
+        }else{
+            alertEl.style.display='none';
+        }
+    }
+}
 function refreshMessages(){
     fetch('chat.php?store_id=<?php echo $store_id; ?>&load=1')
         .then(r=>r.json())
@@ -289,5 +330,18 @@ function initReplyLinks(){
     });
 }
 initReplyLinks();
+document.querySelectorAll('.store-link').forEach(l=>{
+    l.addEventListener('click',e=>{
+        e.preventDefault();
+        document.getElementById('storeSelect').value=l.dataset.id;
+        document.getElementById('storeSelectForm').submit();
+    });
+});
+const lockBtn=document.getElementById('lockSidebarBtn');
+if(lockBtn){
+    lockBtn.addEventListener('click',()=>{
+        document.body.classList.toggle('sidebar-locked');
+    });
+}
 </script>
 <?php include __DIR__.'/footer.php'; ?>
