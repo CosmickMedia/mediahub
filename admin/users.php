@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'city'        => 'Wind Gap',
                     'state'       => 'Pennsylvania',
                     'zip'         => '18091',
-                    'country'     => 'United States',
+                    'country'     => 'US',
                     'user_role'   => 'Admin User',
                     'company_name'=> 'Cosmick Media',
                     'lead_source' => 'cosmick-employee',
