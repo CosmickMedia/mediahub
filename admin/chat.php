@@ -137,8 +137,11 @@ include __DIR__.'/header.php';
     <input type="hidden" name="ajax" value="1">
     <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>
-<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1"></script>
-<emoji-picker id="emojiPicker"></emoji-picker>
+<div id="emojiPicker"></div>
+<script src="../assets/js/emoji-picker.js"></script>
+<script>
+initEmojiPicker(document.querySelector('#chatForm textarea'), document.getElementById('emojiBtn'), document.getElementById('emojiPicker'));
+</script>
 <?php endif; ?>
 <script>
 const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
@@ -199,12 +202,12 @@ if(document.getElementById('chatForm')){
         if(document.getElementById('fileInput').files.length){
             fd.append('store_id',STORE_ID);
             fetch('../chat_upload.php',{method:'POST',body:fd})
-                .then(r=>r.json())
-                .then(()=>{formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages();});
+                .then(async r=>{try{return await r.json();}catch(e){return {error:'Upload failed'};}})
+                .then(res=>{if(res.success){formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages();}else{alert(res.error||'Upload failed');}});
         } else {
             fetch('chat.php?store_id=<?php echo $store_id; ?>',{method:'POST',body:fd})
-                .then(r=>r.json())
-                .then(()=>{formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages();});
+                .then(async r=>{try{return await r.json();}catch(e){return {error:'Send failed'};}})
+                .then(res=>{if(res.success){formEl.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages();}else{alert(res.error||'Send failed');}});
         }
     });
     document.querySelector('#chatForm textarea').addEventListener('keydown',function(e){

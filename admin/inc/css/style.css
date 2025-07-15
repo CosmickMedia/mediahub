@@ -21,12 +21,13 @@ a:hover { color: #1a252f; }
 .navbar-logo { height: 35px; width: auto; }
 #adminUserInfo a { color: #fff; }
 #notifyCount { display: none; top:-10px; }
-#messages { height: 70vh; overflow-y: auto; }
+#messages { height: 65vh; overflow-y: auto; }
 #messages .mine { text-align: right; }
 #messages .bubble { display:inline-block; padding:6px 12px; border-radius:12px; margin-bottom:4px; max-width:70%; }
 #messages .mine .bubble { background:#E6FAF1; }
 #messages .theirs .bubble { background:#E8F0FE; }
-#emojiPicker { display:none; position:absolute; bottom:60px; right:20px; }
+#emojiPicker { display:none; position:absolute; bottom:60px; right:20px; background:#fff; border:1px solid #ccc; padding:4px; border-radius:4px; }
+.emoji-option{font-size:1.2rem; padding:2px; cursor:pointer;}
 .preview-col-sm { width: 60px; }
 .preview-img-sm { width: 50px; height: 50px; object-fit: cover; }
 .upload-card { height: 100%; transition: all 0.3s ease; border: 1px solid #c3c3c3; padding: 0.25rem; }

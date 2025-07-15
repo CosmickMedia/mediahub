@@ -82,8 +82,11 @@ include __DIR__.'/header.php';
     <button class="btn btn-send" type="submit">Send</button>
     <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>
-<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1"></script>
-<emoji-picker id="emojiPicker"></emoji-picker>
+<div id="emojiPicker"></div>
+<script src="../assets/js/emoji-picker.js"></script>
+<script>
+initEmojiPicker(document.querySelector('#convForm textarea'), document.getElementById('emojiBtn'), document.getElementById('emojiPicker'));
+</script>
 <script>
 const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
 const STORE_CONTACT = <?php echo json_encode($store_contact); ?>;

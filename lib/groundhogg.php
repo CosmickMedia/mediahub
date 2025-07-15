@@ -326,3 +326,27 @@ function groundhogg_sync_store_contacts(int $store_id): array {
 
     return [true, $results];
 }
+
+// Sync all admin users with Groundhogg
+function groundhogg_sync_admin_users(): array {
+    $pdo = get_pdo();
+    $users = $pdo->query('SELECT first_name, last_name, email FROM users ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+    $results = [];
+    foreach ($users as $user) {
+        $contact = [
+            'email'       => $user['email'],
+            'first_name'  => $user['first_name'] ?? '',
+            'last_name'   => $user['last_name'] ?? '',
+            'company_name'=> 'Cosmick Media',
+            'user_role'   => 'Admin User',
+            'tags'        => groundhogg_get_default_tags()
+        ];
+        [$success, $message] = groundhogg_send_contact($contact);
+        $results[] = [
+            'email' => $user['email'],
+            'success' => $success,
+            'message' => $message
+        ];
+    }
+    return $results;
+}
