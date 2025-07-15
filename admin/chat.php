@@ -123,7 +123,7 @@ include __DIR__.'/header.php';
 <form method="post" id="chatForm" class="input-group align-items-end">
     <textarea name="message" class="form-control" rows="2" placeholder="Type message" required></textarea>
     <button type="button" id="emojiBtn" class="btn btn-light border"><i class="bi bi-emoji-smile"></i></button>
-    <button class="btn btn-primary" type="submit">Send</button>
+    <button class="btn btn-send" type="submit">Send</button>
     <input type="hidden" name="ajax" value="1">
     <input type="hidden" name="parent_id" id="parent_id" value="">
 </form>

@@ -182,7 +182,7 @@ include __DIR__.'/header.php';
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 g-3 mb-4">
         <div class="col">
             <a href="stores.php" class="text-decoration-none">
-                <div class="card bg-dashboard clickable-card">
+                <div class="card bg-stat-stores clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-shop"></i> Total Stores
@@ -194,7 +194,7 @@ include __DIR__.'/header.php';
         </div>
         <div class="col">
             <a href="uploads.php" class="text-decoration-none">
-                <div class="card bg-dashboard clickable-card">
+                <div class="card bg-stat-uploads clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-cloud-upload"></i> Total Uploads
@@ -206,7 +206,7 @@ include __DIR__.'/header.php';
         </div>
         <div class="col">
             <a href="articles.php" class="text-decoration-none">
-                <div class="card bg-dashboard clickable-card">
+                <div class="card bg-stat-articles clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-file-text"></i> Articles
@@ -223,7 +223,7 @@ include __DIR__.'/header.php';
         </div>
         <div class="col">
             <a href="messages.php" class="text-decoration-none">
-                <div class="card bg-dashboard clickable-card">
+                <div class="card bg-stat-messages clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-chat-dots"></i> Active Messages
@@ -235,7 +235,7 @@ include __DIR__.'/header.php';
         </div>
         <div class="col">
             <a href="stores.php" class="text-decoration-none">
-                <div class="card bg-dashboard clickable-card">
+                <div class="card bg-stat-users clickable-card">
                     <div class="card-body">
                         <h5 class="card-title">
                             <i class="bi bi-people"></i> Store Users
@@ -262,8 +262,8 @@ include __DIR__.'/header.php';
                             <table class="table table-sm">
                                 <thead>
                                 <tr>
-                                    <th class="preview-col-sm">Preview</th>
-                                    <th>Time</th>
+                                    <th class="preview-col-sm"></th>
+                                    <th><i class="bi bi-calendar"></i></th>
                                     <th>Store</th>
                                     <th>File</th>
                                     <th>Status</th>
@@ -449,7 +449,7 @@ include __DIR__.'/header.php';
                         <div class="mb-2">
                             <textarea name="quick_message" class="form-control" rows="3" placeholder="Message" required></textarea>
                         </div>
-                        <button class="btn btn-primary w-100" type="submit">Send</button>
+                        <button class="btn btn-send w-100" type="submit">Send</button>
                     </form>
                 </div>
             </div>

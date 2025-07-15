@@ -512,7 +512,7 @@ include __DIR__.'/header.php';
                     </div>
                     <form method="post" action="send_message.php" id="quickChatForm" class="input-group mt-3">
                         <input type="text" name="message" class="form-control" placeholder="Reply..." required>
-                        <button class="btn btn-primary" type="submit">Send</button>
+                        <button class="btn btn-send" type="submit">Send</button>
                         <input type="hidden" name="ajax" value="1">
                         <input type="hidden" name="parent_id" id="parent_id" value="">
                     </form>
