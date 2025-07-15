@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/groundhogg.php';
 require_login();
 $pdo = get_pdo();
 
@@ -34,6 +35,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
         } else {
             $stmt = $pdo->prepare('UPDATE users SET username=?, first_name=?, last_name=?, email=? WHERE id=?');
             $stmt->execute([$username, $first ?: null, $last ?: null, $email, $id]);
+        }
+        $contact = [
+            'email'       => $email,
+            'first_name'  => $first,
+            'last_name'   => $last,
+            'user_role'   => 'Admin User',
+            'company_name'=> 'Cosmick Media',
+            'tags'        => groundhogg_get_default_tags()
+        ];
+        [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
+        if (!$ghSuccess) {
+            $errors[] = 'Groundhogg sync failed: ' . $ghMessage;
         }
         $success = true;
         $stmt = $pdo->prepare('SELECT * FROM users WHERE id = ?');

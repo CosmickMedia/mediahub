@@ -102,13 +102,21 @@ if (isset($_GET['delete'])) {
 // Get all stores
 $stores = $pdo->query('SELECT id, name FROM stores ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
 
-// Get existing messages
-$messages = $pdo->query('
-    SELECT m.*, s.name as store_name 
-    FROM store_messages m 
-    LEFT JOIN stores s ON m.store_id = s.id 
-    ORDER BY m.created_at DESC
-')->fetchAll(PDO::FETCH_ASSOC);
+// Pagination and fetch broadcast messages only
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$per_page = 20;
+$offset = ($page - 1) * $per_page;
+
+$baseQuery = "FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id
+    WHERE m.sender='admin' AND (m.is_reply = 0 OR m.is_reply IS NULL)
+      AND m.parent_id IS NULL AND m.upload_id IS NULL AND m.article_id IS NULL";
+
+$stmt = $pdo->prepare("SELECT m.*, s.name as store_name $baseQuery ORDER BY m.created_at DESC LIMIT $per_page OFFSET $offset");
+$stmt->execute();
+$messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$count = $pdo->query("SELECT COUNT(*) $baseQuery")->fetchColumn();
+$total_pages = ceil($count / $per_page);
 
 $active = 'messages';
 include __DIR__.'/header.php';
@@ -131,7 +139,7 @@ include __DIR__.'/header.php';
 <?php endforeach; ?>
 
     <div class="row">
-        <div class="col-lg-5">
+        <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">Post New Broadcast</h5>
@@ -160,7 +168,7 @@ include __DIR__.'/header.php';
             </div>
         </div>
 
-        <div class="col-lg-7">
+        <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Active Broadcasts</h5>
@@ -171,26 +179,44 @@ include __DIR__.'/header.php';
                     <?php else: ?>
                         <div class="list-group">
                             <?php foreach ($messages as $msg): ?>
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">
-                                            <?php if ($msg['store_id']): ?>
-                                                <span class="badge bg-info">
-                                            <?php echo htmlspecialchars($msg['store_name']); ?>
-                                        </span>
-                                            <?php else: ?>
-                                                <span class="badge bg-warning text-dark">All Stores</span>
-                                            <?php endif; ?>
-                                        </h6>
-                                        <small><?php echo format_ts($msg['created_at']); ?></small>
+                                <div class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1 me-2">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">
+                                                <?php if ($msg['store_id']): ?>
+                                                    <span class="badge bg-info"><?php echo htmlspecialchars($msg['store_name']); ?></span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning text-dark">All Stores</span>
+                                                <?php endif; ?>
+                                            </h6>
+                                            <small><?php echo format_ts($msg['created_at']); ?></small>
+                                        </div>
+                                        <p class="mb-1 small"><?php echo nl2br(htmlspecialchars($msg['message'])); ?></p>
                                     </div>
-                                    <p class="mb-1"><?php echo nl2br(htmlspecialchars($msg['message'])); ?></p>
-                                    <a href="?delete=<?php echo $msg['id']; ?>"
-                                       class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Delete this message?')">Delete</a>
+                                    <div class="text-nowrap">
+                                        <a href="edit_message.php?id=<?php echo $msg['id']; ?>" class="btn btn-sm btn-secondary me-1">Edit</a>
+                                        <a href="?delete=<?php echo $msg['id']; ?>&page=<?php echo $page; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this message?')">Delete</a>
+                                    </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php if ($total_pages > 1): ?>
+                            <nav aria-label="Page navigation" class="mt-3">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                                        <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page - 1])); ?>">Previous</a>
+                                    </li>
+                                    <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
+                                        <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>"><?php echo $i; ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                                        <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page + 1])); ?>">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>

@@ -146,7 +146,7 @@ include __DIR__.'/header.php';
                 <button class="nav-link" id="subjects-tab" data-bs-toggle="tab" data-bs-target="#subjects" type="button" role="tab">Email Subjects</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="statuses-tab" data-bs-toggle="tab" data-bs-target="#statuses" type="button" role="tab">Upload Statuses</button>
+                <button class="nav-link" id="statuses-tab" data-bs-toggle="tab" data-bs-target="#statuses" type="button" role="tab">Statuses</button>
             </li>
         </ul>
         <div class="tab-content pt-3">
@@ -307,7 +307,7 @@ include __DIR__.'/header.php';
             <div class="tab-pane fade" id="statuses" role="tabpanel" aria-labelledby="statuses-tab">
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0">Upload Statuses</h5>
+                        <h5 class="mb-0">Statuses</h5>
                     </div>
                     <div class="card-body">
                         <table class="table" id="statusTable">
