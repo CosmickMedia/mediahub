@@ -234,7 +234,8 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS upload_statuses (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
-        color VARCHAR(20) NOT NULL
+        color VARCHAR(20) NOT NULL,
+        UNIQUE KEY name_unique (name)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     echo "✓ Created upload_statuses table\n";
 } catch (PDOException $e) {
@@ -258,7 +259,7 @@ $defaultStatuses = [
 ];
 foreach ($defaultStatuses as $st) {
     try {
-        $stmt = $pdo->prepare("INSERT IGNORE INTO upload_statuses (name, color) VALUES (?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO upload_statuses (name, color) VALUES (?, ?) ON DUPLICATE KEY UPDATE color=VALUES(color)");
         $stmt->execute($st);
     } catch (PDOException $e) {
         // ignore
