@@ -55,8 +55,8 @@ include __DIR__.'/header.php';
                 <?php if(!empty($msg['filename'])): ?>
                     <a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view" target="_blank"><?php echo htmlspecialchars($msg['filename']); ?></a>
                 <?php endif; ?>
-                <span><?php echo nl2br($msg['message']); ?></span>
-                <small class="text-muted ms-2">
+                <span><?php echo nl2br($msg['message']); ?></span><br>
+                <small class="text-muted">
                     <?php echo format_ts($msg['created_at']); ?>
                     <?php if($msg['sender']==='admin' && $msg['read_by_store']): ?>
                         <i class="bi bi-check2-all text-primary"></i>
@@ -64,6 +64,7 @@ include __DIR__.'/header.php';
                         <i class="bi bi-check2-all text-primary"></i>
                     <?php endif; ?>
                 </small>
+                <?php if($msg['sender']==='admin'): ?>
                 <span class="ms-1 reactions">
                     <?php if($msg['like_by_admin']||$msg['like_by_store']): ?>
                         <i class="bi bi-hand-thumbs-up-fill text-like" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
@@ -76,6 +77,7 @@ include __DIR__.'/header.php';
                         <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                     <?php endif; ?>
                 </span>
+                <?php endif; ?>
                 <span class="reply-link" data-id="<?php echo $msg['id']; ?>">Reply</span>
             </div></div>
         </div>
@@ -147,15 +149,17 @@ function refreshMessages() {
                 html+=`<strong>${m.sender==='admin'?ADMIN_NAME:YOUR_NAME}:</strong> `;
                 if(m.filename){ html+='<a href="https://drive.google.com/file/d/'+m.drive_id+'/view" target="_blank">'+m.filename+'</a> '; }
                 html+=m.message.replace(/\n/g,'<br>');
-                html+=` <small class="text-muted ms-2">${m.created_at}${readIcon}</small>`;
-                html+=' <span class="ms-1 reactions">'+
-                    (m.like_by_admin||m.like_by_store?
-                        `<i class="bi bi-hand-thumbs-up-fill text-like" data-id="${m.id}" data-type="like"></i>`:
-                        `<i class="bi bi-hand-thumbs-up" data-id="${m.id}" data-type="like"></i>`)+' '+
-                    (m.love_by_admin||m.love_by_store?
-                        `<i class="bi bi-heart-fill text-love" data-id="${m.id}" data-type="love"></i>`:
-                        `<i class="bi bi-heart" data-id="${m.id}" data-type="love"></i>`)+
-                    '</span>';
+                html+=`<br><small class="text-muted">${m.created_at}${readIcon}</small>`;
+                if(m.sender==='admin'){
+                    html+=' <span class="ms-1 reactions">'+
+                        (m.like_by_admin||m.like_by_store?
+                            `<i class="bi bi-hand-thumbs-up-fill text-like" data-id="${m.id}" data-type="like"></i>`:
+                            `<i class="bi bi-hand-thumbs-up" data-id="${m.id}" data-type="like"></i>`)+' '+
+                        (m.love_by_admin||m.love_by_store?
+                            `<i class="bi bi-heart-fill text-love" data-id="${m.id}" data-type="love"></i>`:
+                            `<i class="bi bi-heart" data-id="${m.id}" data-type="love"></i>`)+
+                        '</span>';
+                }
                 html+=`<span class="reply-link" data-id="${m.id}">Reply</span>`;
                 div.innerHTML=html;
                 holder.appendChild(div);

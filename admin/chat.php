@@ -17,9 +17,7 @@ if (isset($_GET['load'])) {
         $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
             ->execute([$store_id]);
     } else {
-        $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, m.store_id, s.name AS store_name, u.first_name, u.last_name, m.parent_id, p.message AS parent_message, up.filename, up.drive_id FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads up ON m.upload_id=up.id ORDER BY m.created_at');
-        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
+        $messages = [];
     }
     foreach ($messages as &$m) {
         $m['created_at'] = format_ts($m['created_at']);
@@ -64,10 +62,8 @@ $store_contact = trim(($store['first_name'] ?? '') . ' ' . ($store['last_name'] 
     $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
         ->execute([$store_id]);
 } else {
-    $stmt = $pdo->query('SELECT m.id, m.sender, m.message, m.created_at, m.read_by_admin, m.read_by_store, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, s.name AS store_name, u.first_name, u.last_name, m.parent_id, p.message AS parent_message, up.filename, up.drive_id FROM store_messages m LEFT JOIN stores s ON m.store_id = s.id LEFT JOIN store_users u ON u.store_id = s.id LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads up ON m.upload_id=up.id ORDER BY m.created_at');
-    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $pdo->exec("UPDATE store_messages SET read_by_admin=1 WHERE sender='store'");
-    $store_name = 'All Stores';
+    $messages = [];
+    $store_name = 'Select Store';
 }
 
 $mentionNames = $pdo->query("SELECT CONCAT(first_name,' ',last_name) AS name FROM users")->fetchAll(PDO::FETCH_COLUMN);
@@ -77,39 +73,26 @@ $mentionNames = array_values(array_filter(array_unique($mentionNames)));
 $active = 'chat';
 include __DIR__.'/header.php';
 ?>
-<h4>Chat - <?php echo htmlspecialchars($store_name); ?></h4>
-<div id="unreadAlert" class="alert alert-warning alert-dismissible fade show" role="alert" style="display:none;">
-    You have <span id="totalUnread">0</span> new message(s) from <span id="unreadStores">0</span> stores.
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<button class="btn btn-secondary mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#storeSidebar" aria-controls="storeSidebar">Stores</button>
-<form method="get" class="mb-3 d-inline-block" id="storeSelectForm">
-    <label class="form-label">Select Store</label>
-    <select name="store_id" class="form-select" id="storeSelect" onchange="document.getElementById('storeSelectForm').submit();">
-        <option value="0" disabled<?php if($store_id===0) echo ' selected'; ?>>Please select store</option>
-        <?php foreach ($stores as $s): ?>
-            <option value="<?php echo $s['id']; ?>"<?php if($store_id===$s['id']) echo ' selected'; ?>><?php echo htmlspecialchars($s['name']); ?></option>
-        <?php endforeach; ?>
-    </select>
-</form>
-<div class="offcanvas offcanvas-end" tabindex="-1" id="storeSidebar" aria-labelledby="storeSidebarLabel">
-  <div class="offcanvas-header">
-    <h5 id="storeSidebarLabel" class="offcanvas-title">Stores</h5>
-    <button type="button" class="btn btn-sm" id="lockSidebarBtn"><i class="bi bi-pin-angle"></i></button>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-  </div>
-  <div class="offcanvas-body p-0">
-    <ul class="list-group list-group-flush" id="storeList">
-      <?php foreach($stores as $s): ?>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <a href="#" class="store-link flex-grow-1" data-id="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></a>
-        <span class="badge bg-secondary ms-2" style="display:none;" id="store-count-<?php echo $s['id']; ?>">0</span>
-      </li>
-      <?php endforeach; ?>
-    </ul>
-  </div>
-</div>
-<div id="messages" class="mb-4">
+<div class="row">
+  <div class="col-lg-9 mb-3">
+    <h4>Chat - <?php echo htmlspecialchars($store_name); ?></h4>
+    <div id="unreadAlert" class="alert alert-warning alert-dismissible fade show" role="alert" style="display:none;">
+        You have <span id="totalUnread">0</span> new message(s) from <span id="unreadStores">0</span> stores.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <form method="get" class="mb-3" id="storeSelectForm">
+        <label class="form-label">Select Store</label>
+        <select name="store_id" class="form-select" id="storeSelect" onchange="document.getElementById('storeSelectForm').submit();">
+            <option value="0" disabled<?php if($store_id===0) echo ' selected'; ?>>Please select store</option>
+            <?php foreach ($stores as $s): ?>
+                <option value="<?php echo $s['id']; ?>"<?php if($store_id===$s['id']) echo ' selected'; ?>><?php echo htmlspecialchars($s['name']); ?></option>
+            <?php endforeach; ?>
+        </select>
+    </form>
+    <div id="messages" class="mb-4 border rounded p-2">
+    <?php if (empty($messages)): ?>
+        <p class="text-muted">Select a store to view messages.</p>
+    <?php endif; ?>
     <?php foreach ($messages as $msg): ?>
         <div class="mb-2 <?php echo $msg['sender']==='admin'?'mine':'theirs'; ?>">
             <div class="bubble-container"><div class="bubble<?php if($store_id===0 && $msg['store_id']===null) echo ' broadcast'; ?>">
@@ -126,8 +109,8 @@ include __DIR__.'/header.php';
                 <?php if(!empty($msg['filename'])): ?>
                     <a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view" target="_blank"><?php echo htmlspecialchars($msg['filename']); ?></a>
                 <?php endif; ?>
-                <span><?php echo nl2br($msg['message']); ?></span>
-                <small class="text-muted ms-2">
+                <span><?php echo nl2br($msg['message']); ?></span><br>
+                <small class="text-muted">
                     <?php echo format_ts($msg['created_at']); ?>
                     <?php if($msg['sender']==='admin' && ($msg['read_by_store']??0)): ?>
                         <i class="bi bi-check2-all text-primary"></i>
@@ -135,6 +118,7 @@ include __DIR__.'/header.php';
                         <i class="bi bi-check2-all text-primary"></i>
                     <?php endif; ?>
                 </small>
+                <?php if($msg['sender']!=='admin'): ?>
                 <span class="ms-1 reactions">
                     <?php if($msg['like_by_admin']||$msg['like_by_store']): ?>
                         <i class="bi bi-hand-thumbs-up-fill text-like" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
@@ -147,6 +131,7 @@ include __DIR__.'/header.php';
                         <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
                     <?php endif; ?>
                 </span>
+                <?php endif; ?>
                 <span class="reply-link" data-id="<?php echo $msg['id']; ?>">Reply</span>
             </div></div>
         </div>
@@ -195,6 +180,23 @@ mentionBox.addEventListener('click',e=>{
 });
 </script>
 <?php endif; ?>
+  </div>
+  <div class="col-lg-3">
+    <div class="card h-100">
+      <div class="card-header"><h5 class="mb-0">Stores</h5></div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush" id="storeList">
+          <?php foreach($stores as $s): ?>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="#" class="store-link flex-grow-1" data-id="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></a>
+            <span class="badge bg-secondary ms-2" style="display:none;" id="store-count-<?php echo $s['id']; ?>">0</span>
+          </li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
 const STORE_CONTACT = <?php echo json_encode($store_contact ?? ''); ?>;
@@ -245,15 +247,17 @@ function refreshMessages(){
                     html+='<a href="https://drive.google.com/file/d/'+m.drive_id+'/view" target="_blank">'+m.filename+'</a> ';
                 }
                 html+=m.message.replace(/\n/g,'<br>');
-                html+=' <small class="text-muted ms-2">'+m.created_at+readIcon+'</small>';
-                html+=' <span class="ms-1 reactions">'+
-                    (m.like_by_admin||m.like_by_store?
-                        '<i class="bi bi-hand-thumbs-up-fill text-like" data-id="'+m.id+'" data-type="like"></i>' :
-                        '<i class="bi bi-hand-thumbs-up" data-id="'+m.id+'" data-type="like"></i>')+' '+
-                    (m.love_by_admin||m.love_by_store?
-                        '<i class="bi bi-heart-fill text-love" data-id="'+m.id+'" data-type="love"></i>' :
-                        '<i class="bi bi-heart" data-id="'+m.id+'" data-type="love"></i>')+
-                    '</span>';
+                html+='<br><small class="text-muted">'+m.created_at+readIcon+'</small>';
+                if(m.sender!=='admin'){
+                    html+=' <span class="ms-1 reactions">'+
+                        (m.like_by_admin||m.like_by_store?
+                            '<i class="bi bi-hand-thumbs-up-fill text-like" data-id="'+m.id+'" data-type="like"></i>' :
+                            '<i class="bi bi-hand-thumbs-up" data-id="'+m.id+'" data-type="like"></i>')+' '+
+                        (m.love_by_admin||m.love_by_store?
+                            '<i class="bi bi-heart-fill text-love" data-id="'+m.id+'" data-type="love"></i>' :
+                            '<i class="bi bi-heart" data-id="'+m.id+'" data-type="love"></i>')+
+                        '</span>';
+                }
                 html+='<span class="reply-link" data-id="'+m.id+'">Reply</span>';
                 div.innerHTML=html;
                 holder.appendChild(div);
@@ -337,11 +341,5 @@ document.querySelectorAll('.store-link').forEach(l=>{
         document.getElementById('storeSelectForm').submit();
     });
 });
-const lockBtn=document.getElementById('lockSidebarBtn');
-if(lockBtn){
-    lockBtn.addEventListener('click',()=>{
-        document.body.classList.toggle('sidebar-locked');
-    });
-}
 </script>
 <?php include __DIR__.'/footer.php'; ?>
