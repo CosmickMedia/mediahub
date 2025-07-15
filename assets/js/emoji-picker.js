@@ -12,7 +12,13 @@ window.initEmojiPicker = function(textarea, button, pickerEl){
         });
         pickerEl.appendChild(span);
     });
-    button.addEventListener('click',()=>{
+    button.addEventListener('click',e=>{
+        e.stopPropagation();
         pickerEl.style.display = pickerEl.style.display==='none' ? 'block' : 'none';
+    });
+    document.addEventListener('click',e=>{
+        if(!pickerEl.contains(e.target) && e.target!==button){
+            pickerEl.style.display='none';
+        }
     });
 };

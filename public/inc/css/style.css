@@ -16,12 +16,12 @@ body { background-color: #f8f9fa; font-family: 'Montserrat', sans-serif; }
 #cameraInput { display: none; }
 #latestChats { max-height: 300px; overflow-y: auto; }
 #latestChats .mine { text-align: right; }
-#latestChats .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 70%; }
+#latestChats .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 85%; }
 #latestChats .mine .bubble { background: #d1e7dd; }
 #latestChats .theirs .bubble { background: #e2e3e5; }
 #messages { height: 65vh; overflow-y: auto; margin-left: 0.5rem; margin-right: 0.5rem; }
 #messages .mine { text-align: right; }
-#messages .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 70%; }
+#messages .bubble { display: inline-block; padding: 6px 12px; border-radius: 12px; margin-bottom: 4px; max-width: 85%; }
 #messages .mine .bubble { background: #d1e7dd; }
 #messages .theirs .bubble { background: #e2e3e5; }
 .chat-form { position: relative; }

@@ -23,7 +23,7 @@ a:hover { color: #1a252f; }
 #notifyCount { display: none; top:-10px; }
 #messages { height: 65vh; overflow-y: auto; }
 #messages .mine { text-align: right; }
-#messages .bubble { display:inline-block; padding:6px 12px; border-radius:12px; margin-bottom:4px; max-width:70%; }
+#messages .bubble { display:inline-block; padding:6px 12px; border-radius:12px; margin-bottom:4px; max-width:85%; }
 #messages .mine .bubble { background:#E6FAF1; }
 #messages .theirs .bubble { background:#E8F0FE; }
 .chat-form { position: relative; }
@@ -88,3 +88,21 @@ table th, table td {
 .mention-box div:hover{background:#f0f0f0;}
 .sidebar-locked .offcanvas-end{transform:none!important;visibility:visible!important;}
 .sidebar-locked .offcanvas-backdrop{display:none;}
+
+/* Chat sidebar toggle */
+#sidebarTab{
+    position:fixed;
+    top:50%;
+    right:0;
+    transform:translateY(-50%);
+    background:#2c3e50;
+    color:#fff;
+    padding:4px 6px;
+    border-radius:4px 0 0 4px;
+    cursor:pointer;
+    display:none;
+    z-index:1040;
+}
+.sidebar-hidden #sidebarTab{display:block;}
+.sidebar-hidden #chatSidebar{display:none;}
+.sidebar-hidden #chatMain{flex:0 0 100%;max-width:100%;}
