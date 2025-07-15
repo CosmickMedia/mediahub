@@ -53,7 +53,12 @@ $defaultSettings = [
     'store_notification_subject' => 'Content Submission Confirmation - Cosmick Media',
     'store_message_subject' => 'New message from Cosmick Media',
     // Default tags for Groundhogg contacts
-    'groundhogg_contact_tags' => 'media-hub, store-onboarding'
+    'groundhogg_contact_tags' => 'media-hub, store-onboarding',
+    'company_address' => '',
+    'company_city' => '',
+    'company_state' => '',
+    'company_zip' => '',
+    'company_country' => ''
 ];
 
 foreach ($defaultSettings as $name => $value) {

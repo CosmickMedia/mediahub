@@ -38,16 +38,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
             $stmt = $pdo->prepare('UPDATE users SET username=?, first_name=?, last_name=?, email=?, mobile_phone=?, opt_in_status=? WHERE id=?');
             $stmt->execute([$username, $first ?: null, $last ?: null, $email, $mobile ?: null, $optin, $id]);
         }
+        $location = groundhogg_get_location();
         $contact = [
             'email'       => $email,
             'first_name'  => $first,
             'last_name'   => $last,
             'mobile_phone'=> $mobile,
-            'address'     => '1147 Jacobsburg Rd.',
-            'city'        => 'Wind Gap',
-            'state'       => 'PA',
-            'zip'         => '18091',
-            'country'     => 'US',
+            'address'     => $location['address'],
+            'city'        => $location['city'],
+            'state'       => $location['state'],
+            'zip'         => $location['zip'],
+            'country'     => $location['country'],
             'user_role'   => 'Admin User',
             'company_name'=> 'Cosmick Media',
             'lead_source' => 'cosmick-employee',

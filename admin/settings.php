@@ -51,7 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'groundhogg_token'        => trim($_POST['groundhogg_token'] ?? ''),
         'groundhogg_secret_key'   => trim($_POST['groundhogg_secret_key'] ?? ''),
         'groundhogg_debug'        => isset($_POST['groundhogg_debug']) ? '1' : '0',
-        'groundhogg_contact_tags' => trim($_POST['groundhogg_contact_tags'] ?? '')
+        'groundhogg_contact_tags' => trim($_POST['groundhogg_contact_tags'] ?? ''),
+        'company_address'         => trim($_POST['company_address'] ?? ''),
+        'company_city'            => trim($_POST['company_city'] ?? ''),
+        'company_state'           => trim($_POST['company_state'] ?? ''),
+        'company_zip'             => trim($_POST['company_zip'] ?? ''),
+        'company_country'         => trim($_POST['company_country'] ?? '')
     ];
 
     foreach ($settings as $name => $value) {
@@ -118,6 +123,11 @@ $admin_article_notification_subject = get_setting('admin_article_notification_su
 $store_article_notification_subject = get_setting('store_article_notification_subject') ?: 'Article Submission Confirmation - Cosmick Media';
 $article_approval_subject = get_setting('article_approval_subject') ?: 'Article Status Update - Cosmick Media';
 $max_article_length = get_setting('max_article_length') ?: '50000';
+$company_address = get_setting('company_address') ?: '';
+$company_city = get_setting('company_city') ?: '';
+$company_state = get_setting('company_state') ?: '';
+$company_zip = get_setting('company_zip') ?: '';
+$company_country = get_setting('company_country') ?: '';
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
 $groundhogg_public_key = get_setting('groundhogg_public_key');
@@ -225,6 +235,34 @@ include __DIR__.'/header.php';
                                     <input type="email" name="email_from_address" id="email_from_address" class="form-control" value="<?php echo htmlspecialchars($email_from_address); ?>">
                                     <div class="form-text">Email address used for sending</div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Location Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="company_address" class="form-label">Address</label>
+                                <input type="text" name="company_address" id="company_address" class="form-control" placeholder="123 Main St." value="<?php echo htmlspecialchars($company_address); ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="company_city" class="form-label">City</label>
+                                <input type="text" name="company_city" id="company_city" class="form-control" placeholder="Wind Gap" value="<?php echo htmlspecialchars($company_city); ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="company_state" class="form-label">State</label>
+                                <input type="text" name="company_state" id="company_state" class="form-control" placeholder="PA" value="<?php echo htmlspecialchars($company_state); ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="company_zip" class="form-label">Zip Code</label>
+                                <input type="text" name="company_zip" id="company_zip" class="form-control" placeholder="18091" value="<?php echo htmlspecialchars($company_zip); ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="company_country" class="form-label">Country</label>
+                                <input type="text" name="company_country" id="company_country" class="form-control" placeholder="US" value="<?php echo htmlspecialchars($company_country); ?>">
                             </div>
                         </div>
                     </div>

@@ -31,6 +31,22 @@ function groundhogg_get_settings(): array {
     ];
 }
 
+function groundhogg_get_location(): array {
+    $pdo = get_pdo();
+    $stmt = $pdo->prepare(
+        "SELECT name, value FROM settings WHERE name IN ('company_address','company_city','company_state','company_zip','company_country')"
+    );
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+    return [
+        'address' => $rows['company_address'] ?? '',
+        'city'    => $rows['company_city'] ?? '',
+        'state'   => $rows['company_state'] ?? '',
+        'zip'     => $rows['company_zip'] ?? '',
+        'country' => $rows['company_country'] ?? ''
+    ];
+}
+
 function groundhogg_debug_enabled(): bool {
     $settings = groundhogg_get_settings();
     return $settings['debug'] === '1';
@@ -434,6 +450,7 @@ function groundhogg_sync_store_contacts(int $store_id): array {
 function groundhogg_sync_admin_users(): array {
     $pdo = get_pdo();
     $users = $pdo->query('SELECT first_name, last_name, email, mobile_phone, opt_in_status FROM users ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+    $location = groundhogg_get_location();
     $results = [];
     foreach ($users as $user) {
         $contact = [
@@ -441,11 +458,11 @@ function groundhogg_sync_admin_users(): array {
             'first_name'  => $user['first_name'] ?? '',
             'last_name'   => $user['last_name'] ?? '',
             'mobile_phone'=> format_mobile_number($user['mobile_phone'] ?? ''),
-            'address'     => '1147 Jacobsburg Rd.',
-            'city'        => 'Wind Gap',
-            'state'       => 'PA',
-            'zip'         => '18091',
-            'country'     => 'US',
+            'address'     => $location['address'],
+            'city'        => $location['city'],
+            'state'       => $location['state'],
+            'zip'         => $location['zip'],
+            'country'     => $location['country'],
             'company_name'=> 'Cosmick Media',
             'user_role'   => 'Admin User',
             'lead_source' => 'cosmick-employee',
