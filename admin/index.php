@@ -132,10 +132,12 @@ try {
 
 // Recent uploads
 $stmt = $pdo->query('
-    SELECT u.*, s.name as store_name, u.mime, u.drive_id
-    FROM uploads u 
-    JOIN stores s ON u.store_id = s.id 
-    ORDER BY u.created_at DESC 
+    SELECT u.*, s.name as store_name, u.mime, u.drive_id,
+           us.name AS status_name, us.color AS status_color
+    FROM uploads u
+    JOIN stores s ON u.store_id = s.id
+    LEFT JOIN upload_statuses us ON u.status_id = us.id
+    ORDER BY u.created_at DESC
     LIMIT 5
 ');
 $recent_uploads = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -264,6 +266,7 @@ include __DIR__.'/header.php';
                                     <th>Time</th>
                                     <th>Store</th>
                                     <th>File</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
@@ -280,10 +283,25 @@ include __DIR__.'/header.php';
                                         </td>
                                         <td><?php echo format_ts($upload['created_at']); ?></td>
                                         <td><?php echo htmlspecialchars($upload['store_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($upload['filename']); ?></td>
+                                        <td><?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?></td>
+                                        <td>
+                                            <?php if ($upload['status_name']): ?>
+                                                <span class="badge" style="background-color: <?php echo htmlspecialchars($upload['status_color']); ?>;">
+                                                    <?php echo htmlspecialchars($upload['status_name']); ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td>
                                             <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
-                                               target="_blank" class="btn btn-sm btn-primary">View</a>
+                                               target="_blank" class="btn btn-sm btn-primary" title="View">
+                                                <i class="bi bi-search"></i>
+                                            </a>
+                                            <form method="post" action="uploads.php" class="d-inline" onsubmit="return confirm('Delete this file?');">
+                                                <input type="hidden" name="delete_id" value="<?php echo $upload['id']; ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -335,7 +353,9 @@ include __DIR__.'/header.php';
                                         </td>
                                         <td><?php echo format_ts($article['created_at']); ?></td>
                                         <td>
-                                            <a href="articles.php" class="btn btn-sm btn-primary">Review</a>
+                                            <a href="articles.php" class="btn btn-sm btn-primary" title="Review">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
