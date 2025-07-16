@@ -34,17 +34,6 @@ foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
     $network_map[strtolower($n['name'])] = ['icon'=>$n['icon'], 'color'=>$n['color']];
 }
 
-function profile_icon(string $type): string {
-    return match($type) {
-        'FACEBOOK_PAGE' => 'bi-facebook text-primary',
-        'INSTAGRAM_BUSINESS' => 'bi-instagram text-danger',
-        'TWITTER_PROFILE' => 'bi-twitter text-info',
-        'LINKEDIN_COMPANY' => 'bi-linkedin text-primary',
-        'YOUTUBE_CHANNEL' => 'bi-youtube text-danger',
-        default => 'bi-share'
-    };
-}
-
 $events = [];
 foreach ($posts as $p) {
     $time = $p['scheduled_send_time'] ?? $p['scheduled_time'] ?? null;
@@ -61,7 +50,6 @@ foreach ($posts as $p) {
             $img = $urls[0];
         }
     }
-    $type = $profile_map[$p['social_profile_id']] ?? '';
     $tags = [];
     if (!empty($p['tags'])) {
         $tags = json_decode($p['tags'], true);
@@ -75,21 +63,8 @@ foreach ($posts as $p) {
             if (strpos($clean, $key) !== false) { $network = $val; break 2; }
         }
     }
-    if (!$network && $type) {
-        $type_map = [
-            'FACEBOOK_PAGE' => 'facebook',
-            'INSTAGRAM_BUSINESS' => 'instagram',
-            'TWITTER_PROFILE' => 'x',
-            'LINKEDIN_COMPANY' => 'linkedin',
-            'YOUTUBE_CHANNEL' => 'youtube'
-        ];
-        $key = $type_map[$type] ?? null;
-        if ($key && isset($network_map[$key])) {
-            $network = $network_map[$key];
-        }
-    }
-    $icon = $network['icon'] ?? profile_icon($type);
-    $color = $network['color'] ?? '#2c3e50';
+    $icon = $network['icon'] ?? '';
+    $color = $network['color'] ?? '#6c757d';
     $events[] = [
         'title' => $p['text'] ?? '',
         'start' => $time,
@@ -134,10 +109,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 img.src = arg.event.extendedProps.image;
                 cont.appendChild(img);
             }
-            var icon = document.createElement('i');
-            icon.className = 'bi ' + (arg.event.extendedProps.icon || 'bi-share') + ' me-1';
-            icon.style.color = arg.event.backgroundColor;
-            cont.appendChild(icon);
+            if(arg.event.extendedProps.icon){
+                var icon = document.createElement('i');
+                icon.className = 'bi ' + arg.event.extendedProps.icon + ' me-1';
+                icon.style.color = arg.event.backgroundColor;
+                cont.appendChild(icon);
+            }
             var span = document.createElement('span');
             span.textContent = arg.event.title;
             cont.appendChild(span);
@@ -147,7 +124,12 @@ document.addEventListener('DOMContentLoaded', function() {
             var e = info.event;
             var body = document.getElementById('eventModalBody');
             var title = document.getElementById('eventModalTitle');
-            title.innerHTML = '<i class="' + (e.extendedProps.icon || 'bi-share') + '" style="color:' + e.backgroundColor + '"></i> ' + e.title;
+            var titleHtml = '';
+            if(e.extendedProps.icon){
+                titleHtml += '<i class="' + e.extendedProps.icon + '" style="color:' + e.backgroundColor + '"></i> ';
+            }
+            titleHtml += e.title;
+            title.innerHTML = titleHtml;
             var html = '';
             if(e.extendedProps.image){
                 html += '<img src="'+e.extendedProps.image+'" class="img-fluid mb-2">';
