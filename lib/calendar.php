@@ -119,24 +119,46 @@ function calendar_extract_media(array $post): array {
 /**
  * Download remote media URLs to a local directory.
  *
- * @param array $urls Remote URLs to download
- * @param string $dir Destination directory
+ * @param array       $urls     Remote URLs to download
+ * @param string      $dir      Destination base directory
+ * @param string|null $datetime Optional date (Y-m-d H:i:s) used for folder organization
  * @return array Array of local relative paths
  */
-function calendar_cache_media(array $urls, string $dir): array {
+function calendar_cache_media(array $urls, string $dir, ?string $datetime = null): array {
     if (!is_dir($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
         error_log('Failed to create calendar media dir: ' . $dir);
         return [];
     }
+
+    $subPath = '';
+    if ($datetime) {
+        $ts = strtotime($datetime);
+        if ($ts !== false) {
+            $subPath = date('Y/m', $ts);
+            $subDir = rtrim($dir, '/\\') . '/' . $subPath;
+            if (!is_dir($subDir) && !mkdir($subDir, 0777, true) && !is_dir($subDir)) {
+                error_log('Failed to create calendar media dir: ' . $subDir);
+            }
+        }
+    }
+
     $local = [];
     foreach ($urls as $url) {
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             continue;
         }
+
         $path = parse_url($url, PHP_URL_PATH) ?: '';
-        $ext  = pathinfo($path, PATHINFO_EXTENSION);
-        $name = sha1($url) . ($ext ? '.' . $ext : '');
-        $dest = rtrim($dir, '/\\') . '/' . $name;
+        $basename = basename($path);
+        $basename = $basename !== '' ? preg_replace('/[^A-Za-z0-9._-]/', '_', $basename) : '';
+        if ($basename === '') {
+            $ext  = pathinfo($path, PATHINFO_EXTENSION);
+            $basename = sha1($url) . ($ext ? '.' . $ext : '');
+        }
+
+        $targetDir = rtrim($dir, '/\\') . ($subPath ? '/' . $subPath : '');
+        $dest = $targetDir . '/' . $basename;
+
         if (!file_exists($dest)) {
             $data = @file_get_contents($url);
             if ($data === false) {
@@ -145,8 +167,10 @@ function calendar_cache_media(array $urls, string $dir): array {
             }
             file_put_contents($dest, $data);
         }
-        $local[] = '/calendar_media/' . $name;
+
+        $local[] = '/calendar_media' . ($subPath ? '/' . $subPath : '') . '/' . $basename;
     }
+
     return $local;
 }
 
@@ -237,8 +261,8 @@ function calendar_update(bool $force = false): array {
         $cfg = get_config();
         $dir = $cfg['calendar_media_dir'] ?? null;
         if ($dir) {
-            $urls = calendar_cache_media($urls, $dir);
-            $thumbs = calendar_cache_media($thumbs, $dir);
+            $urls = calendar_cache_media($urls, $dir, $scheduled);
+            $thumbs = calendar_cache_media($thumbs, $dir, $scheduled);
         }
         $media_urls = json_encode($urls);
         $media_thumb_urls = json_encode($thumbs);
