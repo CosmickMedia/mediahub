@@ -542,6 +542,31 @@ INSERT INTO `upload_statuses` (`id`, `name`, `color`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `social_networks`
+--
+
+CREATE TABLE `social_networks` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `icon` varchar(100) NOT NULL,
+  `color` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `social_networks`
+--
+
+INSERT INTO `social_networks` (`id`, `name`, `icon`, `color`) VALUES
+(1,'Facebook','bi-facebook','#1877F2'),
+(2,'Instagram','bi-instagram','#C13584'),
+(3,'X','bi-twitter','#000000'),
+(4,'YouTube','bi-youtube','#FF0000'),
+(5,'Pinterest','bi-pinterest','#E60023'),
+(6,'TikTok','bi-tiktok','#69C9D0');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `upload_status_history`
 --
 
@@ -664,6 +689,13 @@ ALTER TABLE `upload_statuses`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `social_networks`
+--
+ALTER TABLE `social_networks`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name_unique` (`name`);
+
+--
 -- Indexes for table `upload_status_history`
 --
 ALTER TABLE `upload_status_history`
@@ -742,6 +774,12 @@ ALTER TABLE `upload_statuses`
 --
 ALTER TABLE `upload_status_history`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `social_networks`
+--
+ALTER TABLE `social_networks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`

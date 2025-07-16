@@ -1,4 +1,8 @@
 # Changelog
+## [1.2.7] - 2025-07-16
+- Add admin configurable social networks with icons and colors for calendar entries.
+- Calendar events now show network icon and use network color based on tags.
+
 
 ## [1.2.6] - 2025-07-15
 - Store `primary_phone` in the same format as `mobile_phone` when syncing with Groundhogg.
