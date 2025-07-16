@@ -264,8 +264,8 @@ function calendar_update(bool $force = false): array {
             $urls = calendar_cache_media($urls, $dir, $scheduled);
             $thumbs = calendar_cache_media($thumbs, $dir, $scheduled);
         }
-        $media_urls = json_encode($urls);
-        $media_thumb_urls = json_encode($thumbs);
+        $media_urls = implode(',', $urls);
+        $media_thumb_urls = implode(',', $thumbs);
         $media = json_encode($media_arr);
         $webhook_urls = isset($post['webhookUrls']) ? json_encode($post['webhookUrls']) : null;
         $tags_json = json_encode($tags);
