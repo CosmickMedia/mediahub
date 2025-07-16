@@ -43,16 +43,25 @@ function calendar_update(bool $force = false): array {
     $pdo = get_pdo();
     $inserted = 0;
     $storeStmt = $pdo->prepare('SELECT id FROM stores WHERE LOWER(hootsuite_campaign_tag)=?');
-    $checkStmt = $pdo->prepare('SELECT id FROM calendar WHERE ext_id=?');
-    $insStmt = $pdo->prepare('INSERT INTO calendar (ext_id, store_id, text, scheduled_time, raw_json) VALUES (?, ?, ?, ?, ?)');
+    $checkStmt = $pdo->prepare('SELECT id FROM calendar WHERE post_id=?');
+    $insStmt = $pdo->prepare(
+        'INSERT INTO calendar (
+            post_id, store_id, state, text, scheduled_send_time, social_profile_id,
+            media_urls, media, webhook_urls, tags, targeting, privacy, location,
+            email_notification, post_url, post_id_external, reviewers,
+            created_by_member_id, last_updated_by_member_id, extended_info,
+            sequence_number, imt_length, imt_index, raw_json
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    );
 
     foreach ($rows as $row) {
         if (!isset($row[0])) continue;
         $post = json_decode($row[0], true);
         if (!$post || empty($post['id'])) continue;
-        $extId = $post['id'];
-        $checkStmt->execute([$extId]);
+        $postId = (string)$post['id'];
+        $checkStmt->execute([$postId]);
         if ($checkStmt->fetch()) continue;
+
         $tags = $post['tags'] ?? [];
         if (!is_array($tags)) $tags = [];
         $store_id = null;
@@ -62,10 +71,37 @@ function calendar_update(bool $force = false): array {
             if ($sid) { $store_id = $sid; break; }
         }
         if (!$store_id) continue;
+
+        $state = $post['state'] ?? null;
         $text = $post['text'] ?? '';
         $scheduled = $post['scheduledSendTime'] ?? null;
         if ($scheduled) $scheduled = date('Y-m-d H:i:s', strtotime($scheduled));
-        $insStmt->execute([$extId, $store_id, $text, $scheduled, json_encode($post)]);
+        $social_profile_id = $post['socialProfile']['id'] ?? null;
+        $media_urls = json_encode($post['mediaUrls'] ?? []);
+        $media = json_encode($post['media'] ?? []);
+        $webhook_urls = isset($post['webhookUrls']) ? json_encode($post['webhookUrls']) : null;
+        $tags_json = json_encode($tags);
+        $targeting = isset($post['targeting']) ? json_encode($post['targeting']) : null;
+        $privacy = isset($post['privacy']) ? json_encode($post['privacy']) : null;
+        $location = isset($post['location']) ? json_encode($post['location']) : null;
+        $email_notification = isset($post['emailNotification']) ? json_encode($post['emailNotification']) : null;
+        $post_url = $post['postUrl'] ?? null;
+        $post_id_external = $post['postId'] ?? null;
+        $reviewers = isset($post['reviewers']) ? json_encode($post['reviewers']) : null;
+        $created_by_member_id = $post['createdByMember']['id'] ?? null;
+        $last_updated_by_member_id = $post['lastUpdatedByMember']['id'] ?? null;
+        $extended_info = isset($post['extendedInfo']) ? json_encode($post['extendedInfo']) : null;
+        $sequence_number = $post['sequenceNumber'] ?? null;
+        $imt_length = $post['__IMTLENGTH__'] ?? null;
+        $imt_index = $post['__IMTINDEX__'] ?? null;
+
+        $insStmt->execute([
+            $postId, $store_id, $state, $text, $scheduled, $social_profile_id,
+            $media_urls, $media, $webhook_urls, $tags_json, $targeting, $privacy,
+            $location, $email_notification, $post_url, $post_id_external, $reviewers,
+            $created_by_member_id, $last_updated_by_member_id, $extended_info,
+            $sequence_number, $imt_length, $imt_index, json_encode($post)
+        ]);
         $inserted++;
     }
 
@@ -75,7 +111,7 @@ function calendar_update(bool $force = false): array {
 
 function calendar_get_posts(int $store_id): array {
     $pdo = get_pdo();
-    $stmt = $pdo->prepare('SELECT text, scheduled_time FROM calendar WHERE store_id=? ORDER BY scheduled_time DESC');
+    $stmt = $pdo->prepare('SELECT text, scheduled_send_time FROM calendar WHERE store_id=? ORDER BY scheduled_send_time DESC');
     $stmt->execute([$store_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
