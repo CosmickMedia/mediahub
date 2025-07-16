@@ -231,13 +231,10 @@ include __DIR__.'/header.php';
                 <label for="folder" class="form-label">Drive Folder ID</label>
                 <input type="text" name="folder" id="folder" class="form-control" value="<?php echo htmlspecialchars($store['drive_folder']); ?>">
             </div>
+            <input type="hidden" name="hootsuite_token" id="hootsuite_token" value="<?php echo htmlspecialchars($store['hootsuite_token']); ?>">
             <div class="col-md-6">
-                <label for="hootsuite_token" class="form-label">Hootsuite Access Token</label>
-                <input type="text" name="hootsuite_token" id="hootsuite_token" class="form-control" value="<?php echo htmlspecialchars($store['hootsuite_token']); ?>">
-            </div>
-            <div class="col-md-6">
-                <label for="hootsuite_campaign_tag" class="form-label">Hootsuite Campaign Tag</label>
-                <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag" class="form-control" value="<?php echo htmlspecialchars($store['hootsuite_campaign_tag']); ?>">
+                <label for="hootsuite_campaign_tag" class="form-label">Hootsuite Tag</label>
+                <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag" class="form-control" placeholder="do not put spaces and put lowercase, this must match the hootsuite tag" value="<?php echo htmlspecialchars($store['hootsuite_campaign_tag']); ?>">
             </div>
         </div>
     </div>

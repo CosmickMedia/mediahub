@@ -467,7 +467,7 @@ include __DIR__.'/header.php';
                     <div class="card-body">
                         <table class="table" id="networkTable">
                             <thead>
-                            <tr><th>Name</th><th>Icon Class</th><th>Color</th><th></th></tr>
+                            <tr><th>Name</th><th>Icon Class</th><th></th></tr>
                             </thead>
                             <tbody>
                             <?php foreach ($networks as $n): ?>
@@ -476,8 +476,10 @@ include __DIR__.'/header.php';
                                         <input type="hidden" name="network_id[]" value="<?php echo $n['id']; ?>">
                                         <input type="text" name="network_name[]" class="form-control" value="<?php echo htmlspecialchars($n['name']); ?>">
                                     </td>
-                                    <td><input type="text" name="network_icon[]" class="form-control" value="<?php echo htmlspecialchars($n['icon']); ?>"></td>
-                                    <td><input type="color" name="network_color[]" class="form-control form-control-color" value="<?php echo htmlspecialchars($n['color']); ?>"></td>
+                                    <td>
+                                        <input type="text" name="network_icon[]" class="form-control" value="<?php echo htmlspecialchars($n['icon']); ?>">
+                                        <input type="hidden" name="network_color[]" value="<?php echo htmlspecialchars($n['color']); ?>">
+                                    </td>
                                     <td><button type="button" class="btn btn-sm btn-danger remove-network">Delete</button></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -538,8 +540,10 @@ include __DIR__.'/header.php';
                         <input type="hidden" name="network_id[]" value="">
                         <input type="text" name="network_name[]" class="form-control">
                     </td>
-                    <td><input type="text" name="network_icon[]" class="form-control" value=""></td>
-                    <td><input type="color" name="network_color[]" class="form-control form-control-color" value="#000000"></td>
+                    <td>
+                        <input type="text" name="network_icon[]" class="form-control" value="">
+                        <input type="hidden" name="network_color[]" value="#000000">
+                    </td>
                     <td><button type="button" class="btn btn-sm btn-danger remove-network">Delete</button></td>
                 `;
                 tbody.appendChild(row);
