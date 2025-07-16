@@ -16,13 +16,7 @@ function calendar_update(bool $force = false): array {
         return [false, 'Update not required yet'];
     }
 
-    if ($sheetId) {
-        try {
-            $rows = sheets_fetch_rows($sheetId, $sheetRange);
-        } catch (Exception $e) {
-            return [false, $e->getMessage()];
-        }
-    } else {
+    if ($sheetUrl) {
         if (preg_match('#docs.google.com\/spreadsheets\/d\/([^\/]+)#', $sheetUrl, $m)) {
             $gid = null;
             if (preg_match('#[?&]gid=(\d+)#', $sheetUrl, $g)) {
@@ -38,6 +32,12 @@ function calendar_update(bool $force = false): array {
             return [false, 'Failed to fetch sheet'];
         }
         $rows = array_map('str_getcsv', preg_split("/\r?\n/", trim($csv)));
+    } elseif ($sheetId) {
+        try {
+            $rows = sheets_fetch_rows($sheetId, $sheetRange);
+        } catch (Exception $e) {
+            return [false, $e->getMessage()];
+        }
     }
 
     $pdo = get_pdo();
