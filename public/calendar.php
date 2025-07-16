@@ -54,6 +54,9 @@ foreach ($posts as $p) {
             $img = $urls[0];
         }
     }
+    if ($img && str_starts_with($img, '/calendar_media/')) {
+        $img = '/public' . $img;
+    }
     $tags = [];
     if (!empty($p['tags'])) {
         $tags = json_decode($p['tags'], true);
