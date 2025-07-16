@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/calendar.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/hootsuite.php';
 
 session_start();
 
@@ -13,12 +14,31 @@ if (!isset($_SESSION['store_id'])) {
 $store_id = $_SESSION['store_id'];
 $pdo = get_pdo();
 
-$stmt = $pdo->prepare('SELECT name FROM stores WHERE id = ?');
+$stmt = $pdo->prepare('SELECT name, hootsuite_token FROM stores WHERE id = ?');
 $stmt->execute([$store_id]);
 $store = $stmt->fetch();
 $store_name = $store['name'];
+$token = $store['hootsuite_token'] ?? null;
+
+$profile_map = [];
+foreach (hootsuite_get_social_profiles($token) as $prof) {
+    if (!empty($prof['id'])) {
+        $profile_map[$prof['id']] = $prof['type'] ?? '';
+    }
+}
 
 $posts = calendar_get_posts($store_id);
+
+function profile_icon(string $type): string {
+    return match($type) {
+        'FACEBOOK_PAGE' => 'bi-facebook text-primary',
+        'INSTAGRAM_BUSINESS' => 'bi-instagram text-danger',
+        'TWITTER_PROFILE' => 'bi-twitter text-info',
+        'LINKEDIN_COMPANY' => 'bi-linkedin text-primary',
+        'YOUTUBE_CHANNEL' => 'bi-youtube text-danger',
+        default => 'bi-share'
+    };
+}
 
 $events = [];
 foreach ($posts as $p) {
@@ -30,12 +50,15 @@ foreach ($posts as $p) {
             $img = $urls[0];
         }
     }
+    $type = $profile_map[$p['social_profile_id']] ?? '';
     $events[] = [
         'title' => $p['text'] ?? '',
         'start' => $time,
         'extendedProps' => [
             'image' => $img,
-            'icon' => 'bi-share'
+            'icon'  => profile_icon($type),
+            'text'  => $p['text'] ?? '',
+            'time'  => $time
         ]
     ];
 }
@@ -45,9 +68,11 @@ $events_json = json_encode($events);
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
 <style>
-#calendar{max-width:900px;margin:0 auto;}
+#calendar{width:100%;margin:0 auto;}
 .fc-custom-event{display:flex;align-items:center;}
-.fc-custom-event img{width:20px;height:20px;object-fit:cover;margin-right:2px;}
+.fc-custom-event img{width:20px;height:20px;object-fit:cover;margin-right:4px;border-radius:4px;}
+.fc-daygrid-event{background-color:#2c3e50;border-color:#2c3e50;color:#fff;}
+.fc-toolbar-title{color:#2c3e50;}
 </style>
 HTML;
 
@@ -75,6 +100,22 @@ document.addEventListener('DOMContentLoaded', function() {
             span.textContent = arg.event.title;
             cont.appendChild(span);
             return { domNodes: [cont] };
+        },
+        eventClick: function(info){
+            var e = info.event;
+            var body = document.getElementById('eventModalBody');
+            var title = document.getElementById('eventModalTitle');
+            title.innerHTML = '<i class="' + (e.extendedProps.icon || 'bi-share') + '"></i> ' + e.title;
+            var html = '';
+            if(e.extendedProps.image){
+                html += '<img src="'+e.extendedProps.image+'" class="img-fluid mb-2">';
+            }
+            html += '<p>' + (e.extendedProps.text || '') + '</p>';
+            if(e.extendedProps.time){
+                html += '<p><small>' + new Date(e.extendedProps.time).toLocaleString() + '</small></p>';
+            }
+            body.innerHTML = html;
+            new bootstrap.Modal(document.getElementById('eventModal')).show();
         }
     });
     calendar.render();
@@ -93,6 +134,17 @@ include __DIR__.'/header.php';
     <div class="alert alert-info">No scheduled posts found.</div>
 <?php else: ?>
     <div id="calendar"></div>
+    <div class="modal fade" id="eventModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventModalTitle"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="eventModalBody"></div>
+            </div>
+        </div>
+    </div>
 <?php endif; ?>
 
 <?php include __DIR__.'/footer.php'; ?>
