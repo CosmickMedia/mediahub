@@ -58,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'company_zip'             => trim($_POST['company_zip'] ?? ''),
         'company_country'         => trim($_POST['company_country'] ?? ''),
         'calendar_sheet_url'      => trim($_POST['calendar_sheet_url'] ?? ''),
+        'calendar_sheet_id'       => trim($_POST['calendar_sheet_id'] ?? ''),
+        'calendar_sheet_range'    => trim($_POST['calendar_sheet_range'] ?? 'Sheet1!A:A'),
         'calendar_update_interval'=> trim($_POST['calendar_update_interval'] ?? '24')
     ];
 
@@ -135,6 +137,8 @@ $company_state = get_setting('company_state') ?: '';
 $company_zip = get_setting('company_zip') ?: '';
 $company_country = get_setting('company_country') ?: '';
 $calendar_sheet_url = get_setting('calendar_sheet_url') ?: '';
+$calendar_sheet_id = get_setting('calendar_sheet_id') ?: '';
+$calendar_sheet_range = get_setting('calendar_sheet_range') ?: 'Sheet1!A:A';
 $calendar_update_interval = get_setting('calendar_update_interval') ?: '24';
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
@@ -411,6 +415,16 @@ include __DIR__.'/header.php';
                             <label for="calendar_sheet_url" class="form-label">Google Sheet CSV URL</label>
                             <input type="text" name="calendar_sheet_url" id="calendar_sheet_url" class="form-control" value="<?php echo htmlspecialchars($calendar_sheet_url); ?>">
                             <div class="form-text">Public CSV link to the calendar sheet</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="calendar_sheet_id" class="form-label">Google Sheet ID</label>
+                            <input type="text" name="calendar_sheet_id" id="calendar_sheet_id" class="form-control" value="<?php echo htmlspecialchars($calendar_sheet_id); ?>">
+                            <div class="form-text">If provided, data will be fetched using the service account</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="calendar_sheet_range" class="form-label">Sheet Range</label>
+                            <input type="text" name="calendar_sheet_range" id="calendar_sheet_range" class="form-control" value="<?php echo htmlspecialchars($calendar_sheet_range); ?>">
+                            <div class="form-text">Range in A1 notation, e.g. Sheet1!A:A</div>
                         </div>
                         <div class="mb-3">
                             <label for="calendar_update_interval" class="form-label">Update Interval (hours)</label>

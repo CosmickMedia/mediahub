@@ -322,6 +322,8 @@ $defaultSettings = [
     'company_zip' => '',
     'company_country' => '',
     'calendar_sheet_url' => '',
+    'calendar_sheet_id' => '',
+    'calendar_sheet_range' => 'Sheet1!A:A',
     'calendar_update_interval' => '24',
     'calendar_last_update' => ''
 ];
