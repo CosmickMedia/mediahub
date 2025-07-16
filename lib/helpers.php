@@ -98,3 +98,32 @@ function maybe_json_decode($val) {
     }
     return $val;
 }
+
+/**
+ * Convert a value to an array of strings.
+ *
+ * Accepts arrays, JSON-encoded strings or comma separated lists. Whitespace
+ * is trimmed from each element and empty values are removed.
+ *
+ * @param mixed $val Potential array representation
+ * @return array Array of strings
+ */
+function to_string_array($val): array {
+    if (is_array($val)) {
+        return array_values(array_filter(array_map('trim', $val), 'strlen'));
+    }
+
+    if (is_string($val)) {
+        $trim = trim($val);
+        if ($trim === '') return [];
+
+        $decoded = json_decode($trim, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return to_string_array($decoded);
+        }
+
+        return array_values(array_filter(array_map('trim', explode(',', $trim)), 'strlen'));
+    }
+
+    return [];
+}
