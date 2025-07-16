@@ -62,8 +62,27 @@ table th, table td {
 /* Calendar styles */
 #calendar .fc-daygrid-event{
     border-radius:4px;
-    padding:2px 4px;
+    padding:4px 6px;
     cursor:pointer;
+}
+#calendar a.fc-daygrid-event{
+    color:#fff;
+    text-decoration:none;
+}
+#calendar a.fc-daygrid-event:hover{
+    text-decoration:none;
+    opacity:0.9;
+}
+#calendar .fc-custom-event{
+    display:flex;
+    align-items:center;
+}
+#calendar .fc-custom-event img{
+    width:24px;
+    height:24px;
+    object-fit:cover;
+    margin-right:4px;
+    border-radius:4px;
 }
 
 /* Social network color classes */
@@ -82,3 +101,4 @@ table th, table td {
 #calendar .social-threads{background-color:#ff0040;border-color:#ff0040;}
 #calendar .social-tumblr{background-color:#36465d;border-color:#36465d;}
 #calendar .social-twitch{background-color:#6441a5;border-color:#6441a5;}
+#calendar .social-default{background-color:#adb5bd;border-color:#adb5bd;color:#000;}

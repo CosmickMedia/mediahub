@@ -71,18 +71,18 @@ foreach ($posts as $p) {
         }
     }
     $icon = $network['icon'] ?? '';
-    $color = $network['color'] ?? '#2c3e50';
+    $color = $network['color'] ?? '#adb5bd';
     $network_name = $network['name'] ?? '';
     $class = '';
     if ($network_name) {
         $class = 'social-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($network_name));
     }
     $events[] = [
-        'title' => $p['text'] ?? '',
+        'title' => $network_name ?: 'Post',
         'start' => $time,
         'backgroundColor' => $color,
         'borderColor' => $color,
-        'classNames' => $class ? [$class] : [],
+        'classNames' => $class ? [$class] : ['social-default'],
         'extendedProps' => [
             'image' => $img,
             'icon'  => $icon,
@@ -101,7 +101,7 @@ $extra_head = <<<HTML
 <style>
 #calendar{width:100%;margin:0 auto;}
 .fc-custom-event{display:flex;align-items:center;}
-.fc-custom-event img{width:20px;height:20px;object-fit:cover;margin-right:4px;border-radius:4px;}
+.fc-custom-event img{width:24px;height:24px;object-fit:cover;margin-right:4px;border-radius:4px;}
 .fc-daygrid-event{color:#fff;}
 .fc-toolbar-title{color:#2c3e50;}
 .fc .fc-button-primary{background-color:#2c3e50;border-color:#2c3e50;}
