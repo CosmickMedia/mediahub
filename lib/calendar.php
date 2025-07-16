@@ -1,11 +1,14 @@
 <?php
 require_once __DIR__.'/db.php';
 require_once __DIR__.'/settings.php';
+require_once __DIR__.'/sheets.php';
 
 function calendar_update(bool $force = false): array {
+    $sheetId = get_setting('calendar_sheet_id');
+    $sheetRange = get_setting('calendar_sheet_range') ?: 'Sheet1!A:A';
     $sheetUrl = get_setting('calendar_sheet_url');
-    if (!$sheetUrl) {
-        return [false, 'No calendar sheet URL configured'];
+    if (!$sheetId && !$sheetUrl) {
+        return [false, 'No calendar sheet configured'];
     }
     $interval = (int)(get_setting('calendar_update_interval') ?: 24);
     $last = get_setting('calendar_last_update');
@@ -13,12 +16,20 @@ function calendar_update(bool $force = false): array {
         return [false, 'Update not required yet'];
     }
 
-    $csv = @file_get_contents($sheetUrl);
-    if ($csv === false) {
-        return [false, 'Failed to fetch sheet'];
+    if ($sheetId) {
+        try {
+            $rows = sheets_fetch_rows($sheetId, $sheetRange);
+        } catch (Exception $e) {
+            return [false, $e->getMessage()];
+        }
+    } else {
+        $csv = @file_get_contents($sheetUrl);
+        if ($csv === false) {
+            return [false, 'Failed to fetch sheet'];
+        }
+        $rows = array_map('str_getcsv', preg_split("/\r?\n/", trim($csv)));
     }
 
-    $rows = array_map('str_getcsv', preg_split("/\r?\n/", trim($csv)));
     $pdo = get_pdo();
     $inserted = 0;
     $storeStmt = $pdo->prepare('SELECT id FROM stores WHERE LOWER(hootsuite_campaign_tag)=?');
