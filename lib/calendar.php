@@ -2,6 +2,7 @@
 require_once __DIR__.'/db.php';
 require_once __DIR__.'/settings.php';
 require_once __DIR__.'/sheets.php';
+require_once __DIR__.'/helpers.php';
 
 function calendar_ensure_schema(PDO $pdo): void {
     try {
@@ -44,6 +45,75 @@ function calendar_ensure_schema(PDO $pdo): void {
     foreach ($columns as $col) {
         try { $pdo->exec("ALTER TABLE calendar ADD COLUMN $col"); } catch (PDOException $e) {}
     }
+}
+
+/**
+ * Parse media related fields from a Hootsuite post and extract usable URLs.
+ *
+ * @param array $post Hootsuite post data
+ * @return array Array with [urls, thumbs, media]
+ */
+function calendar_extract_media(array $post): array {
+    $urls = [];
+    $thumbs = [];
+
+    $mediaUrls = maybe_json_decode($post['mediaUrls'] ?? []);
+    $mediaThumbUrls = maybe_json_decode($post['mediaThumbUrls'] ?? []);
+    $media = maybe_json_decode($post['media'] ?? []);
+
+    if (!is_array($mediaUrls)) $mediaUrls = [];
+    if (!is_array($mediaThumbUrls)) $mediaThumbUrls = [];
+    if (!is_array($media)) $media = [];
+
+    foreach ($mediaUrls as $m) {
+        if (is_array($m)) {
+            if (!empty($m['url']) && filter_var($m['url'], FILTER_VALIDATE_URL)) {
+                $urls[] = filter_var(trim($m['url']), FILTER_SANITIZE_URL);
+            }
+            if (!empty($m['thumbnailUrl']) && filter_var($m['thumbnailUrl'], FILTER_VALIDATE_URL)) {
+                $thumbs[] = filter_var(trim($m['thumbnailUrl']), FILTER_SANITIZE_URL);
+            }
+        } elseif (is_string($m) && filter_var($m, FILTER_VALIDATE_URL)) {
+            $urls[] = filter_var(trim($m), FILTER_SANITIZE_URL);
+        }
+    }
+
+    foreach ($mediaThumbUrls as $t) {
+        if (is_string($t) && filter_var($t, FILTER_VALIDATE_URL)) {
+            $thumbs[] = filter_var(trim($t), FILTER_SANITIZE_URL);
+        }
+    }
+
+    foreach ($media as $m) {
+        if (!is_array($m)) continue;
+
+        if (!empty($m['url']) && filter_var($m['url'], FILTER_VALIDATE_URL)) {
+            $urls[] = filter_var(trim($m['url']), FILTER_SANITIZE_URL);
+        } elseif (!empty($m['id'])) {
+            $decoded = base64_decode($m['id'], true);
+            if ($decoded !== false && filter_var($decoded, FILTER_VALIDATE_URL)) {
+                $urls[] = filter_var($decoded, FILTER_SANITIZE_URL);
+            } elseif (filter_var($m['id'], FILTER_VALIDATE_URL)) {
+                $urls[] = filter_var($m['id'], FILTER_SANITIZE_URL);
+            }
+        }
+
+        if (!empty($m['thumbnailUrl']) && filter_var($m['thumbnailUrl'], FILTER_VALIDATE_URL)) {
+            $thumbs[] = filter_var(trim($m['thumbnailUrl']), FILTER_SANITIZE_URL);
+        } elseif (!empty($m['thumbnailId'])) {
+            $decoded = base64_decode($m['thumbnailId'], true);
+            if ($decoded !== false && filter_var($decoded, FILTER_VALIDATE_URL)) {
+                $thumbs[] = filter_var($decoded, FILTER_SANITIZE_URL);
+            } elseif (filter_var($m['thumbnailId'], FILTER_VALIDATE_URL)) {
+                $thumbs[] = filter_var($m['thumbnailId'], FILTER_SANITIZE_URL);
+            }
+        }
+    }
+
+    $urls = array_values(array_unique(array_filter($urls)));
+    $thumbs = array_values(array_unique(array_filter($thumbs)));
+
+    return [$urls, $thumbs, $media];
 }
 
 function calendar_update(bool $force = false): array {
@@ -128,25 +198,11 @@ function calendar_update(bool $force = false): array {
         $scheduled = $post['scheduledSendTime'] ?? null;
         if ($scheduled) $scheduled = date('Y-m-d H:i:s', strtotime($scheduled));
         $social_profile_id = $post['socialProfile']['id'] ?? null;
-        $media_objs = $post['mediaUrls'] ?? ($post['media'] ?? []);
-        if (!is_array($media_objs)) $media_objs = [];
-        $urls = [];
-        $thumbs = [];
-        foreach ($media_objs as $m) {
-            if (is_array($m)) {
-                if (!empty($m['url'])) {
-                    $urls[] = filter_var(trim($m['url']), FILTER_SANITIZE_URL);
-                }
-                if (!empty($m['thumbnailUrl'])) {
-                    $thumbs[] = filter_var(trim($m['thumbnailUrl']), FILTER_SANITIZE_URL);
-                }
-            } elseif (is_string($m)) {
-                $urls[] = filter_var(trim($m), FILTER_SANITIZE_URL);
-            }
-        }
+
+        [$urls, $thumbs, $media_arr] = calendar_extract_media($post);
         $media_urls = json_encode($urls);
         $media_thumb_urls = json_encode($thumbs);
-        $media = json_encode($post['media'] ?? []);
+        $media = json_encode($media_arr);
         $webhook_urls = isset($post['webhookUrls']) ? json_encode($post['webhookUrls']) : null;
         $tags_json = json_encode($tags);
         $targeting = isset($post['targeting']) ? json_encode($post['targeting']) : null;

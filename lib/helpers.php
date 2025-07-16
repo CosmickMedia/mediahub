@@ -78,3 +78,23 @@ function phone_number_variations(string $number): array {
 
     return [$digits, $intl, $dash];
 }
+
+/**
+ * Decode a value if it's a JSON string. If decoding fails, the original
+ * value is returned.
+ *
+ * @param mixed $val Potential JSON string
+ * @return mixed Decoded value or original
+ */
+function maybe_json_decode($val) {
+    if (is_string($val)) {
+        $trim = trim($val);
+        if ($trim !== '') {
+            $decoded = json_decode($trim, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $decoded;
+            }
+        }
+    }
+    return $val;
+}
