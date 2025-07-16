@@ -3,6 +3,7 @@ require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/groundhogg.php';
 require_once __DIR__.'/../lib/settings.php';
+$test_action = '';
 require_login();
 $pdo = get_pdo();
 
@@ -99,10 +100,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['test_groundhogg'])) {
         [$ok, $msg] = test_groundhogg_connection();
         $test_result = [$ok, $msg];
+        $test_action = 'groundhogg';
     } elseif (isset($_POST['force_calendar_update'])) {
         require_once __DIR__.'/../lib/calendar.php';
         [$ok, $msg] = calendar_update(true);
         $test_result = [$ok, $msg];
+        $test_action = 'calendar';
     }
     $success = true;
 }
@@ -149,14 +152,26 @@ include __DIR__.'/header.php';
     </div>
 <?php endif; ?>
 <?php if ($test_result !== null): ?>
-    <?php if ($test_result[0]): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">Dripley connection successful!
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php else: ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">Dripley connection failed: <?php echo htmlspecialchars($test_result[1]); ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+    <?php if ($test_action === 'groundhogg'): ?>
+        <?php if ($test_result[0]): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">Dripley connection successful!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">Dripley connection failed: <?php echo htmlspecialchars($test_result[1]); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+    <?php elseif ($test_action === 'calendar'): ?>
+        <?php if ($test_result[0]): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">Calendar update successful: <?php echo htmlspecialchars($test_result[1]); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">Calendar update failed: <?php echo htmlspecialchars($test_result[1]); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 <?php endif; ?>
 
