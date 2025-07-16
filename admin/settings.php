@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/groundhogg.php';
+require_once __DIR__.'/../lib/settings.php';
 require_login();
 $pdo = get_pdo();
 
@@ -11,19 +12,6 @@ $active_tab = $_POST['active_tab'] ?? 'general';
 
 // Fetch upload statuses
 $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
-
-function get_setting($name) {
-    global $pdo;
-    $stmt = $pdo->prepare('SELECT value FROM settings WHERE name=?');
-    $stmt->execute([$name]);
-    return $stmt->fetchColumn();
-}
-
-function set_setting($name, $value) {
-    global $pdo;
-    $stmt = $pdo->prepare('INSERT INTO settings (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=VALUES(value)');
-    $stmt->execute([$name, $value]);
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle Service Account JSON upload
