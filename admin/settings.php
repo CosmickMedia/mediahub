@@ -489,6 +489,12 @@ include __DIR__.'/header.php';
                 document.getElementById('active_tab').value = e.target.id.replace('-tab','');
             });
         });
+        document.querySelector('form').addEventListener('submit', () => {
+            const activeBtn = document.querySelector('#settingsTabs .nav-link.active');
+            if (activeBtn) {
+                document.getElementById('active_tab').value = activeBtn.id.replace('-tab','');
+            }
+        });
     </script>
 
 <?php include __DIR__.'/footer.php'; ?>
