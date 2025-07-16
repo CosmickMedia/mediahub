@@ -42,13 +42,18 @@ $events = [];
 foreach ($posts as $p) {
     $time = $p['scheduled_send_time'] ?? $p['scheduled_time'] ?? null;
     $img = '';
+    $video = '';
     if (!empty($p['media_urls'])) {
         $urls = to_string_array($p['media_urls']);
-        if (!empty($urls)) {
-            $img = $urls[0];
+        foreach ($urls as $u) {
+            if (!$video && preg_match('/\.mp4(\?|$)/i', $u)) {
+                $video = $u;
+            } elseif (!$img) {
+                $img = $u;
+            }
         }
     }
-    if (!$img && !empty($p['media_thumb_urls'])) {
+    if (!$img && !$video && !empty($p['media_thumb_urls'])) {
         $urls = to_string_array($p['media_thumb_urls']);
         if (!empty($urls)) {
             $img = $urls[0];
@@ -56,6 +61,9 @@ foreach ($posts as $p) {
     }
     if ($img && str_starts_with($img, '/calendar_media/')) {
         $img = '/public' . $img;
+    }
+    if ($video && str_starts_with($video, '/calendar_media/')) {
+        $video = '/public' . $video;
     }
     $tags = [];
     if (!empty($p['tags'])) {
@@ -73,6 +81,9 @@ foreach ($posts as $p) {
     $icon = $network['icon'] ?? '';
     $color = $network['color'] ?? '#adb5bd';
     $network_name = $network['name'] ?? '';
+    if ($network_name !== '') {
+        $network_name = ucfirst($network_name);
+    }
     $class = '';
     if ($network_name) {
         $class = 'social-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($network_name));
@@ -84,7 +95,8 @@ foreach ($posts as $p) {
         'borderColor' => $color,
         'classNames' => $class ? [$class] : ['social-default'],
         'extendedProps' => [
-            'image' => $img,
+            'image' => $video ? '' : $img,
+            'video' => $video,
             'icon'  => $icon,
             'text'  => $p['text'] ?? '',
             'time'  => $time,
@@ -100,8 +112,11 @@ $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
 <style>
 #calendar{width:100%;margin:0 auto;}
-.fc-custom-event{display:flex;align-items:center;}
+.fc-custom-event{display:flex;align-items:flex-start;}
 .fc-custom-event img{width:24px;height:24px;object-fit:cover;margin-right:4px;border-radius:4px;}
+.fc-custom-event .event-title{font-size:.875rem;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+.fc-custom-event .event-network{font-size:.75rem;}
+.fc-custom-event .play-icon{font-size:1.2rem;margin-left:4px;}
 .fc-daygrid-event{color:#fff;}
 .fc-toolbar-title{color:#2c3e50;}
 .fc .fc-button-primary{background-color:#2c3e50;border-color:#2c3e50;}
@@ -122,20 +137,40 @@ document.addEventListener('DOMContentLoaded', function() {
         eventContent: function(arg) {
             var cont = document.createElement('div');
             cont.className = 'fc-custom-event';
+
             if (arg.event.extendedProps.image) {
                 var img = document.createElement('img');
                 img.src = arg.event.extendedProps.image;
                 cont.appendChild(img);
             }
-            if(arg.event.extendedProps.icon){
+
+            var info = document.createElement('div');
+            info.className = 'flex-grow-1';
+
+            var title = document.createElement('div');
+            title.className = 'event-title';
+            title.textContent = arg.event.extendedProps.text || '';
+            info.appendChild(title);
+
+            var net = document.createElement('div');
+            net.className = 'event-network';
+            if (arg.event.extendedProps.icon) {
                 var icon = document.createElement('i');
                 icon.className = 'bi ' + arg.event.extendedProps.icon + ' me-1';
                 icon.style.color = arg.event.backgroundColor;
-                cont.appendChild(icon);
+                net.appendChild(icon);
             }
-            var span = document.createElement('span');
-            span.textContent = arg.event.title;
-            cont.appendChild(span);
+            net.append('Post On: ' + arg.event.title);
+            info.appendChild(net);
+
+            cont.appendChild(info);
+
+            if (arg.event.extendedProps.video) {
+                var play = document.createElement('i');
+                play.className = 'bi bi-play-circle play-icon';
+                cont.appendChild(play);
+            }
+
             return { domNodes: [cont] };
         },
         eventClick: function(info){
@@ -149,7 +184,9 @@ document.addEventListener('DOMContentLoaded', function() {
             titleHtml += e.title;
             title.innerHTML = titleHtml;
             var html = '';
-            if(e.extendedProps.image){
+            if(e.extendedProps.video){
+                html += '<video controls class="w-100 mb-2"><source src="'+e.extendedProps.video+'" type="video/mp4"></video>';
+            } else if(e.extendedProps.image){
                 html += '<img src="'+e.extendedProps.image+'" class="img-fluid mb-2">';
             }
             html += '<p>' + (e.extendedProps.text || '') + '</p>';
@@ -160,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 html += '<p><strong>Tags:</strong> ' + e.extendedProps.tags.join(', ') + '</p>';
             }
             if(e.extendedProps.network){
-                html += '<p><strong>Social Network:</strong> ' + e.extendedProps.network + '</p>';
+                html += '<p class="small text-muted">Post On: ' + e.extendedProps.network + '</p>';
             }
             body.innerHTML = html;
             new bootstrap.Modal(document.getElementById('eventModal')).show();
