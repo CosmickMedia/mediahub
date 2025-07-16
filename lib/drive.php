@@ -15,10 +15,14 @@ function drive_get_access_token() {
     $creds = json_decode(file_get_contents($service_account_file), true);
 
     // Create JWT header
-    $header = json_encode([
+    $headerArr = [
         'alg' => 'RS256',
         'typ' => 'JWT'
-    ]);
+    ];
+    if (!empty($creds['private_key_id'])) {
+        $headerArr['kid'] = $creds['private_key_id'];
+    }
+    $header = json_encode($headerArr);
 
     $now = time();
     $claims = json_encode([
@@ -35,7 +39,15 @@ function drive_get_access_token() {
 
     // Create signature
     $signature = '';
-    openssl_sign($base64UrlHeader . '.' . $base64UrlClaims, $signature, $creds['private_key'], OPENSSL_ALGO_SHA256);
+    $pkey = openssl_pkey_get_private($creds['private_key']);
+    if (!$pkey) {
+        throw new Exception('Invalid private key');
+    }
+    $ok = openssl_sign($base64UrlHeader . '.' . $base64UrlClaims, $signature, $pkey, OPENSSL_ALGO_SHA256);
+    openssl_free_key($pkey);
+    if (!$ok) {
+        throw new Exception('Failed to sign JWT');
+    }
     $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 
     // Create JWT
