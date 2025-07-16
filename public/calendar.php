@@ -31,7 +31,11 @@ $posts = calendar_get_posts($store_id);
 
 $network_map = [];
 foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
-    $network_map[strtolower($n['name'])] = ['icon'=>$n['icon'], 'color'=>$n['color']];
+    $network_map[strtolower($n['name'])] = [
+        'icon'  => $n['icon'],
+        'color' => $n['color'],
+        'name'  => $n['name']
+    ];
 }
 
 $events = [];
@@ -64,7 +68,8 @@ foreach ($posts as $p) {
         }
     }
     $icon = $network['icon'] ?? '';
-    $color = $network['color'] ?? '#6c757d';
+    $color = $network['color'] ?? '#2c3e50';
+    $network_name = $network['name'] ?? '';
     $events[] = [
         'title' => $p['text'] ?? '',
         'start' => $time,
@@ -74,7 +79,9 @@ foreach ($posts as $p) {
             'image' => $img,
             'icon'  => $icon,
             'text'  => $p['text'] ?? '',
-            'time'  => $time
+            'time'  => $time,
+            'network' => $network_name,
+            'tags' => $tags
         ]
     ];
 }
@@ -89,6 +96,9 @@ $extra_head = <<<HTML
 .fc-custom-event img{width:20px;height:20px;object-fit:cover;margin-right:4px;border-radius:4px;}
 .fc-daygrid-event{color:#fff;}
 .fc-toolbar-title{color:#2c3e50;}
+.fc .fc-button-primary{background-color:#2c3e50;border-color:#2c3e50;}
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active{background-color:#1a252f;border-color:#1a252f;}
 </style>
 HTML;
 
@@ -136,7 +146,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             html += '<p>' + (e.extendedProps.text || '') + '</p>';
             if(e.extendedProps.time){
-                html += '<p><small>' + new Date(e.extendedProps.time).toLocaleString() + '</small></p>';
+                html += '<p><strong>Scheduled Date:</strong> ' + new Date(e.extendedProps.time).toLocaleString() + '</p>';
+            }
+            if(e.extendedProps.tags && e.extendedProps.tags.length){
+                html += '<p><strong>Tags:</strong> ' + e.extendedProps.tags.join(', ') + '</p>';
+            }
+            if(e.extendedProps.network){
+                html += '<p><strong>Social Network:</strong> ' + e.extendedProps.network + '</p>';
             }
             body.innerHTML = html;
             new bootstrap.Modal(document.getElementById('eventModal')).show();
