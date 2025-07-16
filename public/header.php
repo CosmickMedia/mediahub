@@ -16,6 +16,7 @@ if (!isset($_SESSION)) { session_start(); }
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="inc/css/style.css">
+    <?php if(isset($extra_head)) echo $extra_head; ?>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">

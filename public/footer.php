@@ -21,5 +21,6 @@ function checkNotifications(){
 setInterval(checkNotifications,5000);
 checkNotifications();
 </script>
+<?php if(isset($extra_js)) echo $extra_js; ?>
 </body>
 </html>
