@@ -116,6 +116,40 @@ function calendar_extract_media(array $post): array {
     return [$urls, $thumbs, $media];
 }
 
+/**
+ * Download remote media URLs to a local directory.
+ *
+ * @param array $urls Remote URLs to download
+ * @param string $dir Destination directory
+ * @return array Array of local relative paths
+ */
+function calendar_cache_media(array $urls, string $dir): array {
+    if (!is_dir($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
+        error_log('Failed to create calendar media dir: ' . $dir);
+        return [];
+    }
+    $local = [];
+    foreach ($urls as $url) {
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            continue;
+        }
+        $path = parse_url($url, PHP_URL_PATH) ?: '';
+        $ext  = pathinfo($path, PATHINFO_EXTENSION);
+        $name = sha1($url) . ($ext ? '.' . $ext : '');
+        $dest = rtrim($dir, '/\\') . '/' . $name;
+        if (!file_exists($dest)) {
+            $data = @file_get_contents($url);
+            if ($data === false) {
+                error_log('Failed to download calendar media: ' . $url);
+                continue;
+            }
+            file_put_contents($dest, $data);
+        }
+        $local[] = '/calendar_media/' . $name;
+    }
+    return $local;
+}
+
 function calendar_update(bool $force = false): array {
     $sheetId = get_setting('calendar_sheet_id');
     $sheetRange = get_setting('calendar_sheet_range') ?: 'Sheet1!A:A';
@@ -200,6 +234,12 @@ function calendar_update(bool $force = false): array {
         $social_profile_id = $post['socialProfile']['id'] ?? null;
 
         [$urls, $thumbs, $media_arr] = calendar_extract_media($post);
+        $cfg = get_config();
+        $dir = $cfg['calendar_media_dir'] ?? null;
+        if ($dir) {
+            $urls = calendar_cache_media($urls, $dir);
+            $thumbs = calendar_cache_media($thumbs, $dir);
+        }
         $media_urls = json_encode($urls);
         $media_thumb_urls = json_encode($thumbs);
         $media = json_encode($media_arr);
