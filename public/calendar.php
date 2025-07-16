@@ -70,11 +70,16 @@ foreach ($posts as $p) {
     $icon = $network['icon'] ?? '';
     $color = $network['color'] ?? '#2c3e50';
     $network_name = $network['name'] ?? '';
+    $class = '';
+    if ($network_name) {
+        $class = 'social-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($network_name));
+    }
     $events[] = [
         'title' => $p['text'] ?? '',
         'start' => $time,
         'backgroundColor' => $color,
         'borderColor' => $color,
+        'classNames' => $class ? [$class] : [],
         'extendedProps' => [
             'image' => $img,
             'icon'  => $icon,
