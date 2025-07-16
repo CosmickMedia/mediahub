@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 16, 2025 at 05:33 AM
+-- Generation Time: Jul 16, 2025 at 01:55 PM
 -- Server version: 11.4.7-MariaDB-ubu2404
 -- PHP Version: 8.2.28
 
@@ -50,12 +50,13 @@ CREATE TABLE `calendar` (
   `id` int(11) NOT NULL,
   `post_id` varchar(50) NOT NULL,
   `store_id` int(11) NOT NULL,
-  `state` varchar(50) DEFAULT NULL,
   `text` text DEFAULT NULL,
   `scheduled_send_time` datetime DEFAULT NULL,
+  `raw_json` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `state` varchar(50) DEFAULT NULL,
   `social_profile_id` varchar(50) DEFAULT NULL,
   `media_urls` text DEFAULT NULL,
-  `media_thumb_urls` text DEFAULT NULL,
   `media` text DEFAULT NULL,
   `webhook_urls` text DEFAULT NULL,
   `tags` text DEFAULT NULL,
@@ -72,16 +73,17 @@ CREATE TABLE `calendar` (
   `sequence_number` int(11) DEFAULT NULL,
   `imt_length` int(11) DEFAULT NULL,
   `imt_index` int(11) DEFAULT NULL,
-  `raw_json` text DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp()
+  `media_thumb_urls` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `calendar`
 --
 
-INSERT INTO `calendar` (`id`, `post_id`, `store_id`, `state`, `text`, `scheduled_send_time`, `social_profile_id`, `media_urls`, `media_thumb_urls`, `media`, `webhook_urls`, `tags`, `targeting`, `privacy`, `location`, `email_notification`, `post_url`, `post_id_external`, `reviewers`, `created_by_member_id`, `last_updated_by_member_id`, `extended_info`, `sequence_number`, `imt_length`, `imt_index`, `raw_json`, `created_at`) VALUES
-(3, '13019445088', 3, 'SCHEDULED', 'hello', '2025-07-19 03:40:00', '139926611', '[]', '[]', '[]', NULL, '[\"cosmickmedia\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '27546050', '27546050', NULL, NULL, 16, 16, '{\"id\":\"13019445088\",\"state\":\"SCHEDULED\",\"text\":\"hello\",\"scheduledSendTime\":\"2025-07-19T03:40:00.000Z\",\"socialProfile\":{\"id\":\"139926611\"},\"mediaUrls\":[],\"media\":[],\"webhookUrls\":null,\"tags\":[\"cosmickmedia\"],\"targeting\":null,\"privacy\":null,\"location\":null,\"emailNotification\":null,\"postUrl\":null,\"postId\":null,\"reviewers\":null,\"createdByMember\":{\"id\":\"27546050\"},\"lastUpdatedByMember\":{\"id\":\"27546050\"},\"extendedInfo\":null,\"sequenceNumber\":null,\"__IMTLENGTH__\":16,\"__IMTINDEX__\":16}', '2025-07-16 05:29:03');
+INSERT INTO `calendar` (`id`, `post_id`, `store_id`, `text`, `scheduled_send_time`, `raw_json`, `created_at`, `state`, `social_profile_id`, `media_urls`, `media`, `webhook_urls`, `tags`, `targeting`, `privacy`, `location`, `email_notification`, `post_url`, `post_id_external`, `reviewers`, `created_by_member_id`, `last_updated_by_member_id`, `extended_info`, `sequence_number`, `imt_length`, `imt_index`, `media_thumb_urls`) VALUES
+(9, '13019442432', 3, 'Test', '2025-07-18 02:45:00', '{\"id\":\"13019442432\",\"state\":\"SCHEDULED\",\"text\":\"Test\",\"scheduledSendTime\":\"2025-07-18T02:45:00.000Z\",\"socialProfile\":{\"id\":\"139926611\"},\"mediaUrls\":[],\"media\":[],\"webhookUrls\":null,\"tags\":[\"cosmickmedia\"],\"targeting\":null,\"privacy\":null,\"location\":null,\"emailNotification\":null,\"postUrl\":null,\"postId\":null,\"reviewers\":null,\"createdByMember\":{\"id\":\"27546050\"},\"lastUpdatedByMember\":{\"id\":\"27546050\"},\"extendedInfo\":null,\"sequenceNumber\":null,\"__IMTLENGTH__\":17,\"__IMTINDEX__\":15}', '2025-07-16 13:53:21', 'SCHEDULED', '139926611', '[]', '[]', NULL, '[\"cosmickmedia\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '27546050', '27546050', NULL, NULL, 17, 15, '[]'),
+(10, '13019456369', 3, 'TESTING', '2025-07-18 07:00:00', '{\"id\":\"13019456369\",\"state\":\"SCHEDULED\",\"text\":\"TESTING\",\"scheduledSendTime\":\"2025-07-18T07:00:00.000Z\",\"socialProfile\":{\"id\":\"139913204\"},\"mediaUrls\":[{\"url\":\"https:\\/\\/hootsuite-video.s3.amazonaws.com\\/production\\/27546050-J0cwtaC7.jpg?AWSAccessKeyId=AKIARUFKCQPW7VXGL6EZ&Expires=1752674706&Signature=zB8j03gmmawdkULLiico8KHo0i8%3D\",\"thumbnailUrl\":\"https:\\/\\/hootsuite-video.s3.amazonaws.com\\/production\\/thumb-0-27546050-J0cwtaC7.jpeg?AWSAccessKeyId=AKIARUFKCQPW7VXGL6EZ&Expires=1752674706&Signature=Jz%2F57Y06yEDIPMqxl4vWNG7Pmao%3D\"}],\"media\":[{\"id\":\"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwLUowY3d0YUM3LmpwZz9BV1NBY2Nlc3NLZXlJZD1BS0lBUlVGS0NRUFc3VlhHTDZFWiZFeHBpcmVzPTE3NTI2NDc0MzMmU2lnbmF0dXJlPTY3ZnJyWVJQYjIzWTc4TmZxdEg3cnolMkJueW5BJTNE\",\"thumbnailId\":\"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTAtMjc1NDYwNTAtSjBjd3RhQzcuanBlZz9BV1NBY2Nlc3NLZXlJZD1BS0lBUlVGS0NRUFc3VlhHTDZFWiZFeHBpcmVzPTE3NTI2NDc0MzMmU2lnbmF0dXJlPVc2MXljRnFRRU0lMkJ5MnhjaEh2R0Z2ZTJJSTlrJTNE\"}],\"webhookUrls\":null,\"tags\":[\"cosmickmedia\"],\"targeting\":null,\"privacy\":null,\"location\":null,\"emailNotification\":null,\"postUrl\":null,\"postId\":null,\"reviewers\":null,\"createdByMember\":{\"id\":\"27546050\"},\"lastUpdatedByMember\":{\"id\":\"27546050\"},\"extendedInfo\":null,\"sequenceNumber\":null,\"__IMTLENGTH__\":17,\"__IMTINDEX__\":16}', '2025-07-16 13:53:21', 'SCHEDULED', '139913204', '[]', '[{\"id\":\"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwLUowY3d0YUM3LmpwZz9BV1NBY2Nlc3NLZXlJZD1BS0lBUlVGS0NRUFc3VlhHTDZFWiZFeHBpcmVzPTE3NTI2NDc0MzMmU2lnbmF0dXJlPTY3ZnJyWVJQYjIzWTc4TmZxdEg3cnolMkJueW5BJTNE\",\"thumbnailId\":\"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTAtMjc1NDYwNTAtSjBjd3RhQzcuanBlZz9BV1NBY2Nlc3NLZXlJZD1BS0lBUlVGS0NRUFc3VlhHTDZFWiZFeHBpcmVzPTE3NTI2NDc0MzMmU2lnbmF0dXJlPVc2MXljRnFRRU0lMkJ5MnhjaEh2R0Z2ZTJJSTlrJTNE\"}]', NULL, '[\"cosmickmedia\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '27546050', '27546050', NULL, NULL, 17, 16, '[]'),
+(11, '13019445088', 3, 'hello', '2025-07-19 03:40:00', '{\"id\":\"13019445088\",\"state\":\"SCHEDULED\",\"text\":\"hello\",\"scheduledSendTime\":\"2025-07-19T03:40:00.000Z\",\"socialProfile\":{\"id\":\"139926611\"},\"mediaUrls\":[],\"media\":[],\"webhookUrls\":null,\"tags\":[\"cosmickmedia\"],\"targeting\":null,\"privacy\":null,\"location\":null,\"emailNotification\":null,\"postUrl\":null,\"postId\":null,\"reviewers\":null,\"createdByMember\":{\"id\":\"27546050\"},\"lastUpdatedByMember\":{\"id\":\"27546050\"},\"extendedInfo\":null,\"sequenceNumber\":null,\"__IMTLENGTH__\":17,\"__IMTINDEX__\":17}', '2025-07-16 13:53:21', 'SCHEDULED', '139926611', '[]', '[]', NULL, '[\"cosmickmedia\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '27546050', '27546050', NULL, NULL, 17, 17, '[]');
 
 -- --------------------------------------------------------
 
@@ -321,9 +323,9 @@ INSERT INTO `settings` (`id`, `name`, `value`) VALUES
 (1467, 'company_country', 'US'),
 (1491, 'calendar_sheet_url', 'https://docs.google.com/spreadsheets/d/1AHtm-_WUIW7dlxtWdr6GhSN9luZsofAcIqZi-uOKnk8/edit?gid=0#gid=0'),
 (1492, 'calendar_update_interval', '24'),
-(1493, 'calendar_last_update', '2025-07-16 05:29:03'),
+(1493, 'calendar_last_update', '2025-07-16 13:53:21'),
 (1532, 'calendar_sheet_id', ''),
-(1533, 'calendar_sheet_range', 'Sheet1!A:A');
+(1533, 'calendar_sheet_range', 'Sheet1!A1:Z');
 
 -- --------------------------------------------------------
 
@@ -532,7 +534,10 @@ INSERT INTO `upload_statuses` (`id`, `name`, `color`) VALUES
 (3, 'Scheduled', '#3e0df2'),
 (67, 'Reviewed', '#198754'),
 (68, 'Pending Submission', '#ffc107'),
-(69, 'Scheduled', '#0dcaf0');
+(69, 'Scheduled', '#0dcaf0'),
+(70, 'Reviewed', '#198754'),
+(71, 'Pending Submission', '#ffc107'),
+(72, 'Scheduled', '#0dcaf0');
 
 -- --------------------------------------------------------
 
@@ -604,7 +609,7 @@ ALTER TABLE `articles`
 --
 ALTER TABLE `calendar`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `post_id` (`post_id`),
+  ADD UNIQUE KEY `ext_id` (`post_id`),
   ADD KEY `idx_store_time` (`store_id`,`scheduled_send_time`);
 
 --
@@ -688,7 +693,7 @@ ALTER TABLE `articles`
 -- AUTO_INCREMENT for table `calendar`
 --
 ALTER TABLE `calendar`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `logs`
@@ -700,7 +705,7 @@ ALTER TABLE `logs`
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2456;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3036;
 
 --
 -- AUTO_INCREMENT for table `stores`
@@ -730,7 +735,7 @@ ALTER TABLE `uploads`
 -- AUTO_INCREMENT for table `upload_statuses`
 --
 ALTER TABLE `upload_statuses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT for table `upload_status_history`
@@ -742,7 +747,7 @@ ALTER TABLE `upload_status_history`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Constraints for dumped tables
