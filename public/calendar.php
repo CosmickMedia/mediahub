@@ -122,6 +122,12 @@ $extra_head = <<<HTML
 .fc .fc-button-primary{background-color:#2c3e50;border-color:#2c3e50;}
 .fc .fc-button-primary:not(:disabled).fc-button-active,
 .fc .fc-button-primary:not(:disabled):active{background-color:#1a252f;border-color:#1a252f;}
+/* Calendar day and header styling */
+.fc-col-header-cell{background-color:#f5f5f5;}
+.fc-daygrid-day.fc-day-today,
+.fc-daygrid-day.fc-day-past{background-color:#f0f0f0;}
+.fc-daygrid-day-number{color:#000;}
+.fc-daygrid-day.fc-day-today .fc-daygrid-day-number{font-size:1.25rem;}
 </style>
 HTML;
 
@@ -157,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (arg.event.extendedProps.icon) {
                 var icon = document.createElement('i');
                 icon.className = 'bi ' + arg.event.extendedProps.icon + ' me-1';
-                icon.style.color = arg.event.backgroundColor;
+                icon.style.color = '#fff';
                 net.appendChild(icon);
             }
             net.append('Post On: ' + arg.event.title);
