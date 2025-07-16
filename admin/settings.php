@@ -415,9 +415,9 @@ include __DIR__.'/header.php';
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="calendar_sheet_url" class="form-label">Google Sheet CSV URL</label>
+                            <label for="calendar_sheet_url" class="form-label">Google Sheet URL</label>
                             <input type="text" name="calendar_sheet_url" id="calendar_sheet_url" class="form-control" value="<?php echo htmlspecialchars($calendar_sheet_url); ?>">
-                            <div class="form-text">Public CSV link to the calendar sheet</div>
+                            <div class="form-text">Paste the public sheet link; export URL is handled automatically</div>
                         </div>
                         <div class="mb-3">
                             <label for="calendar_sheet_id" class="form-label">Google Sheet ID</label>
