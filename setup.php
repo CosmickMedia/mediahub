@@ -132,14 +132,33 @@ $queries = [
     // Calendar table
     "CREATE TABLE IF NOT EXISTS calendar (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        ext_id VARCHAR(50) NOT NULL UNIQUE,
+        post_id VARCHAR(50) NOT NULL UNIQUE,
         store_id INT NOT NULL,
+        state VARCHAR(50),
         text TEXT,
-        scheduled_time DATETIME,
+        scheduled_send_time DATETIME,
+        social_profile_id VARCHAR(50),
+        media_urls TEXT,
+        media TEXT,
+        webhook_urls TEXT,
+        tags TEXT,
+        targeting TEXT,
+        privacy TEXT,
+        location TEXT,
+        email_notification TEXT,
+        post_url TEXT,
+        post_id_external VARCHAR(50),
+        reviewers TEXT,
+        created_by_member_id VARCHAR(50),
+        last_updated_by_member_id VARCHAR(50),
+        extended_info TEXT,
+        sequence_number INT,
+        imt_length INT,
+        imt_index INT,
         raw_json TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE,
-        INDEX idx_store_time (store_id, scheduled_time)
+        INDEX idx_store_time (store_id, scheduled_send_time)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 ];
 

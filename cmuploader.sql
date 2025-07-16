@@ -48,10 +48,29 @@ CREATE TABLE `articles` (
 
 CREATE TABLE `calendar` (
   `id` int(11) NOT NULL,
-  `ext_id` varchar(50) NOT NULL,
+  `post_id` varchar(50) NOT NULL,
   `store_id` int(11) NOT NULL,
+  `state` varchar(50) DEFAULT NULL,
   `text` text DEFAULT NULL,
-  `scheduled_time` datetime DEFAULT NULL,
+  `scheduled_send_time` datetime DEFAULT NULL,
+  `social_profile_id` varchar(50) DEFAULT NULL,
+  `media_urls` text DEFAULT NULL,
+  `media` text DEFAULT NULL,
+  `webhook_urls` text DEFAULT NULL,
+  `tags` text DEFAULT NULL,
+  `targeting` text DEFAULT NULL,
+  `privacy` text DEFAULT NULL,
+  `location` text DEFAULT NULL,
+  `email_notification` text DEFAULT NULL,
+  `post_url` text DEFAULT NULL,
+  `post_id_external` varchar(50) DEFAULT NULL,
+  `reviewers` text DEFAULT NULL,
+  `created_by_member_id` varchar(50) DEFAULT NULL,
+  `last_updated_by_member_id` varchar(50) DEFAULT NULL,
+  `extended_info` text DEFAULT NULL,
+  `sequence_number` int(11) DEFAULT NULL,
+  `imt_length` int(11) DEFAULT NULL,
+  `imt_index` int(11) DEFAULT NULL,
   `raw_json` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -60,8 +79,8 @@ CREATE TABLE `calendar` (
 -- Dumping data for table `calendar`
 --
 
-INSERT INTO `calendar` (`id`, `ext_id`, `store_id`, `text`, `scheduled_time`, `raw_json`, `created_at`) VALUES
-(3, '13019445088', 3, 'hello', '2025-07-19 03:40:00', '{\"id\":\"13019445088\",\"state\":\"SCHEDULED\",\"text\":\"hello\",\"scheduledSendTime\":\"2025-07-19T03:40:00.000Z\",\"socialProfile\":{\"id\":\"139926611\"},\"mediaUrls\":[],\"media\":[],\"webhookUrls\":null,\"tags\":[\"cosmickmedia\"],\"targeting\":null,\"privacy\":null,\"location\":null,\"emailNotification\":null,\"postUrl\":null,\"postId\":null,\"reviewers\":null,\"createdByMember\":{\"id\":\"27546050\"},\"lastUpdatedByMember\":{\"id\":\"27546050\"},\"extendedInfo\":null,\"sequenceNumber\":null,\"__IMTLENGTH__\":16,\"__IMTINDEX__\":16}', '2025-07-16 05:29:03');
+INSERT INTO `calendar` (`id`, `post_id`, `store_id`, `state`, `text`, `scheduled_send_time`, `social_profile_id`, `media_urls`, `media`, `webhook_urls`, `tags`, `targeting`, `privacy`, `location`, `email_notification`, `post_url`, `post_id_external`, `reviewers`, `created_by_member_id`, `last_updated_by_member_id`, `extended_info`, `sequence_number`, `imt_length`, `imt_index`, `raw_json`, `created_at`) VALUES
+(3, '13019445088', 3, 'SCHEDULED', 'hello', '2025-07-19 03:40:00', '139926611', '[]', '[]', NULL, '[\"cosmickmedia\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '27546050', '27546050', NULL, NULL, 16, 16, '{\"id\":\"13019445088\",\"state\":\"SCHEDULED\",\"text\":\"hello\",\"scheduledSendTime\":\"2025-07-19T03:40:00.000Z\",\"socialProfile\":{\"id\":\"139926611\"},\"mediaUrls\":[],\"media\":[],\"webhookUrls\":null,\"tags\":[\"cosmickmedia\"],\"targeting\":null,\"privacy\":null,\"location\":null,\"emailNotification\":null,\"postUrl\":null,\"postId\":null,\"reviewers\":null,\"createdByMember\":{\"id\":\"27546050\"},\"lastUpdatedByMember\":{\"id\":\"27546050\"},\"extendedInfo\":null,\"sequenceNumber\":null,\"__IMTLENGTH__\":16,\"__IMTINDEX__\":16}', '2025-07-16 05:29:03');
 
 -- --------------------------------------------------------
 
@@ -584,8 +603,8 @@ ALTER TABLE `articles`
 --
 ALTER TABLE `calendar`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ext_id` (`ext_id`),
-  ADD KEY `idx_store_time` (`store_id`,`scheduled_time`);
+  ADD UNIQUE KEY `post_id` (`post_id`),
+  ADD KEY `idx_store_time` (`store_id`,`scheduled_send_time`);
 
 --
 -- Indexes for table `logs`
