@@ -17,13 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_token, hootsuite_campaign_tag, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
                 $_POST['pin'],
                 $_POST['email'],
                 $_POST['folder'],
                 $_POST['hootsuite_token'],
+                $_POST['hootsuite_campaign_tag'] ?? null,
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
                 format_mobile_number($_POST['phone'] ?? ''),
@@ -259,6 +260,10 @@ include __DIR__.'/header.php';
                     <label for="hootsuite_token" class="form-label">Hootsuite Access Token</label>
                     <input type="text" name="hootsuite_token" id="hootsuite_token" class="form-control">
                     <div class="form-text">Optional: token used to fetch scheduled posts</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="hootsuite_campaign_tag" class="form-label">Hootsuite Campaign Tag</label>
+                    <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label for="marketing_report_url" class="form-label">Marketing Report URL</label>
