@@ -314,6 +314,20 @@ try {
     echo "✗ Error creating upload_statuses table: " . $e->getMessage() . "\n";
 }
 
+// Create social_networks table
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS social_networks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        icon VARCHAR(100) NOT NULL,
+        color VARCHAR(20) NOT NULL,
+        UNIQUE KEY name_unique (name)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "✓ Created social_networks table\n";
+} catch (PDOException $e) {
+    echo "✗ Error creating social_networks table: " . $e->getMessage() . "\n";
+}
+
 // Add status_id column to uploads
 try {
     $pdo->exec("ALTER TABLE uploads ADD COLUMN status_id INT DEFAULT NULL AFTER drive_id");
@@ -343,6 +357,32 @@ foreach ($defaultStatuses as $st) {
         }
     } catch (PDOException $e) {
         echo "✗ Error adding status $name: " . $e->getMessage() . "\n";
+    }
+}
+
+// Insert default social networks if not already present
+$defaultNetworks = [
+    ['Facebook', 'bi-facebook', '#1877F2'],
+    ['Instagram', 'bi-instagram', '#C13584'],
+    ['X', 'bi-twitter', '#000000'],
+    ['YouTube', 'bi-youtube', '#FF0000'],
+    ['Pinterest', 'bi-pinterest', '#E60023'],
+    ['TikTok', 'bi-tiktok', '#69C9D0']
+];
+foreach ($defaultNetworks as $net) {
+    list($name, $icon, $color) = $net;
+    try {
+        $check = $pdo->prepare('SELECT COUNT(*) FROM social_networks WHERE name = ?');
+        $check->execute([$name]);
+        if (!$check->fetchColumn()) {
+            $stmt = $pdo->prepare('INSERT INTO social_networks (name, icon, color) VALUES (?, ?, ?)');
+            $stmt->execute([$name, $icon, $color]);
+            echo "✓ Added social network $name\n";
+        } else {
+            echo "• Social network already exists: $name\n";
+        }
+    } catch (PDOException $e) {
+        echo "✗ Error adding network $name: " . $e->getMessage() . "\n";
     }
 }
 

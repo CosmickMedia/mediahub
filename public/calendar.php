@@ -29,6 +29,11 @@ foreach (hootsuite_get_social_profiles($token) as $prof) {
 
 $posts = calendar_get_posts($store_id);
 
+$network_map = [];
+foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
+    $network_map[strtolower($n['name'])] = ['icon'=>$n['icon'], 'color'=>$n['color']];
+}
+
 function profile_icon(string $type): string {
     return match($type) {
         'FACEBOOK_PAGE' => 'bi-facebook text-primary',
@@ -57,12 +62,26 @@ foreach ($posts as $p) {
         }
     }
     $type = $profile_map[$p['social_profile_id']] ?? '';
+    $tags = [];
+    if (!empty($p['tags'])) {
+        $tags = json_decode($p['tags'], true);
+        if (!is_array($tags)) $tags = [];
+    }
+    $network = null;
+    foreach ($tags as $t) {
+        $t = strtolower(trim($t));
+        if (isset($network_map[$t])) { $network = $network_map[$t]; break; }
+    }
+    $icon = $network['icon'] ?? profile_icon($type);
+    $color = $network['color'] ?? '#2c3e50';
     $events[] = [
         'title' => $p['text'] ?? '',
         'start' => $time,
+        'backgroundColor' => $color,
+        'borderColor' => $color,
         'extendedProps' => [
             'image' => $img,
-            'icon'  => profile_icon($type),
+            'icon'  => $icon,
             'text'  => $p['text'] ?? '',
             'time'  => $time
         ]
@@ -77,7 +96,7 @@ $extra_head = <<<HTML
 #calendar{width:100%;margin:0 auto;}
 .fc-custom-event{display:flex;align-items:center;}
 .fc-custom-event img{width:20px;height:20px;object-fit:cover;margin-right:4px;border-radius:4px;}
-.fc-daygrid-event{background-color:#2c3e50;border-color:#2c3e50;color:#fff;}
+.fc-daygrid-event{color:#fff;}
 .fc-toolbar-title{color:#2c3e50;}
 </style>
 HTML;
@@ -101,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             var icon = document.createElement('i');
             icon.className = 'bi ' + (arg.event.extendedProps.icon || 'bi-share') + ' me-1';
+            icon.style.color = arg.event.backgroundColor;
             cont.appendChild(icon);
             var span = document.createElement('span');
             span.textContent = arg.event.title;
@@ -111,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var e = info.event;
             var body = document.getElementById('eventModalBody');
             var title = document.getElementById('eventModalTitle');
-            title.innerHTML = '<i class="' + (e.extendedProps.icon || 'bi-share') + '"></i> ' + e.title;
+            title.innerHTML = '<i class="' + (e.extendedProps.icon || 'bi-share') + '" style="color:' + e.backgroundColor + '"></i> ' + e.title;
             var html = '';
             if(e.extendedProps.image){
                 html += '<img src="'+e.extendedProps.image+'" class="img-fluid mb-2">';

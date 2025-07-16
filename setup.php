@@ -104,6 +104,15 @@ $queries = [
         UNIQUE KEY name_unique (name)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
+    // Social networks table
+    "CREATE TABLE IF NOT EXISTS social_networks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        icon VARCHAR(100) NOT NULL,
+        color VARCHAR(20) NOT NULL,
+        UNIQUE KEY name_unique (name)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
     // Upload status history table
     "CREATE TABLE IF NOT EXISTS upload_status_history (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -310,6 +319,24 @@ foreach ($defaultStatuses as $st) {
     try {
         $stmt = $pdo->prepare("INSERT INTO upload_statuses (name, color) VALUES (?, ?) ON DUPLICATE KEY UPDATE color=VALUES(color)");
         $stmt->execute($st);
+    } catch (PDOException $e) {
+        // Ignore if exists
+    }
+}
+
+// Insert default social networks
+$defaultNetworks = [
+    ['Facebook', 'bi-facebook', '#1877F2'],
+    ['Instagram', 'bi-instagram', '#C13584'],
+    ['X', 'bi-twitter', '#000000'],
+    ['YouTube', 'bi-youtube', '#FF0000'],
+    ['Pinterest', 'bi-pinterest', '#E60023'],
+    ['TikTok', 'bi-tiktok', '#69C9D0']
+];
+foreach ($defaultNetworks as $net) {
+    try {
+        $stmt = $pdo->prepare("INSERT INTO social_networks (name, icon, color) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE icon=VALUES(icon), color=VALUES(color)");
+        $stmt->execute($net);
     } catch (PDOException $e) {
         // Ignore if exists
     }

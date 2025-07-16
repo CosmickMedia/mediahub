@@ -13,6 +13,8 @@ $active_tab = $_POST['active_tab'] ?? 'general';
 
 // Fetch upload statuses
 $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+// Fetch social networks
+$networks = $pdo->query('SELECT id, name, icon, color FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle Service Account JSON upload
@@ -79,6 +81,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Save social networks
+    if (isset($_POST['network_name'])) {
+        $ids = $_POST['network_id'] ?? [];
+        $names = $_POST['network_name'];
+        $icons = $_POST['network_icon'];
+        $colors = $_POST['network_color'];
+        foreach ($names as $i => $name) {
+            $name = trim($name);
+            $icon = trim($icons[$i] ?? '');
+            $color = $colors[$i] ?? '#000000';
+            $id = $ids[$i] ?? '';
+            if ($name === '' && $id) {
+                $stmt = $pdo->prepare('DELETE FROM social_networks WHERE id = ?');
+                $stmt->execute([$id]);
+                continue;
+            }
+            if ($name === '') { continue; }
+            if ($id) {
+                $stmt = $pdo->prepare('UPDATE social_networks SET name=?, icon=?, color=? WHERE id=?');
+                $stmt->execute([$name, $icon, $color, $id]);
+            } else {
+                $stmt = $pdo->prepare('INSERT INTO social_networks (name, icon, color) VALUES (?, ?, ?)');
+                $stmt->execute([$name, $icon, $color]);
+            }
+        }
+        $networks = $pdo->query('SELECT id, name, icon, color FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
     }
 
     if (isset($_POST['delete_chats'])) {
@@ -429,6 +459,33 @@ include __DIR__.'/header.php';
                         <button class="btn btn-secondary" type="submit" name="force_calendar_update">Force Update</button>
                     </div>
                 </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Social Networks</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table" id="networkTable">
+                            <thead>
+                            <tr><th>Name</th><th>Icon Class</th><th>Color</th><th></th></tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($networks as $n): ?>
+                                <tr>
+                                    <td>
+                                        <input type="hidden" name="network_id[]" value="<?php echo $n['id']; ?>">
+                                        <input type="text" name="network_name[]" class="form-control" value="<?php echo htmlspecialchars($n['name']); ?>">
+                                    </td>
+                                    <td><input type="text" name="network_icon[]" class="form-control" value="<?php echo htmlspecialchars($n['icon']); ?>"></td>
+                                    <td><input type="color" name="network_color[]" class="form-control form-control-color" value="<?php echo htmlspecialchars($n['color']); ?>"></td>
+                                    <td><button type="button" class="btn btn-sm btn-danger remove-network">Delete</button></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-sm btn-secondary" id="addNetwork">Add Network</button>
+                    </div>
+                </div>
             </div>
 
             <div class="tab-pane fade<?php if($active_tab==='reset') echo ' show active'; ?>" id="reset" role="tabpanel" aria-labelledby="reset-tab">
@@ -459,7 +516,7 @@ include __DIR__.'/header.php';
     </form>
 
     <script>
-        document.getElementById('addStatus').addEventListener('click', function () {
+       document.getElementById('addStatus').addEventListener('click', function () {
             const tbody = document.querySelector('#statusTable tbody');
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -471,6 +528,27 @@ include __DIR__.'/header.php';
                 <td><button type="button" class="btn btn-sm btn-danger remove-status">Delete</button></td>
             `;
             tbody.appendChild(row);
+       });
+        if(document.getElementById('addNetwork')){
+            document.getElementById('addNetwork').addEventListener('click', function () {
+                const tbody = document.querySelector('#networkTable tbody');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <input type="hidden" name="network_id[]" value="">
+                        <input type="text" name="network_name[]" class="form-control">
+                    </td>
+                    <td><input type="text" name="network_icon[]" class="form-control" value=""></td>
+                    <td><input type="color" name="network_color[]" class="form-control form-control-color" value="#000000"></td>
+                    <td><button type="button" class="btn btn-sm btn-danger remove-network">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        document.addEventListener('click', function(e){
+            if(e.target.classList.contains('remove-network')){
+                e.target.closest('tr').remove();
+            }
         });
        document.addEventListener('click', function(e){
             if(e.target.classList.contains('remove-status')){
