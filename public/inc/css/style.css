@@ -75,7 +75,7 @@ table th, table td {
 }
 #calendar .fc-custom-event{
     display:flex;
-    align-items:center;
+    align-items:flex-start;
 }
 #calendar .fc-custom-event img{
     width:24px;
@@ -83,6 +83,21 @@ table th, table td {
     object-fit:cover;
     margin-right:4px;
     border-radius:4px;
+}
+#calendar .fc-custom-event .event-title{
+    font-size:.875rem;
+    line-height:1.2;
+    overflow:hidden;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+}
+#calendar .fc-custom-event .event-network{
+    font-size:.75rem;
+}
+#calendar .fc-custom-event .play-icon{
+    font-size:1.2rem;
+    margin-left:4px;
 }
 
 /* Social network color classes */
