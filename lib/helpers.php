@@ -127,3 +127,15 @@ function to_string_array($val): array {
 
     return [];
 }
+
+/**
+ * Normalize tags for comparison by trimming whitespace, removing
+ * any leading hash symbol and converting to lowercase.
+ */
+function normalize_tag(?string $tag): string {
+    if ($tag === null) return '';
+    $tag = trim($tag);
+    if ($tag === '') return '';
+    $tag = ltrim($tag, "#");
+    return strtolower($tag);
+}

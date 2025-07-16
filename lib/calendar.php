@@ -217,7 +217,13 @@ function calendar_update(bool $force = false): array {
         $pdo->exec('DELETE FROM calendar');
     }
     $inserted = 0;
-    $storeStmt = $pdo->prepare('SELECT id FROM stores WHERE LOWER(hootsuite_campaign_tag)=?');
+    $storeMap = [];
+    foreach ($pdo->query('SELECT id, hootsuite_campaign_tag FROM stores') as $row) {
+        $norm = normalize_tag($row['hootsuite_campaign_tag'] ?? '');
+        if ($norm !== '') {
+            $storeMap[$norm] = (int)$row['id'];
+        }
+    }
     $checkStmt = $pdo->prepare('SELECT id FROM calendar WHERE post_id=?');
     $insStmt = $pdo->prepare(
         'INSERT INTO calendar (
@@ -245,9 +251,11 @@ function calendar_update(bool $force = false): array {
         }
         $store_id = null;
         foreach ($tags as $tag) {
-            $storeStmt->execute([strtolower($tag)]);
-            $sid = $storeStmt->fetchColumn();
-            if ($sid) { $store_id = $sid; break; }
+            $norm = normalize_tag($tag);
+            if ($norm !== '' && isset($storeMap[$norm])) {
+                $store_id = $storeMap[$norm];
+                break;
+            }
         }
         if (!$store_id) continue;
 
