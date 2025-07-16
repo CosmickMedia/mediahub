@@ -23,6 +23,7 @@ function calendar_ensure_schema(PDO $pdo): void {
         'state VARCHAR(50)',
         'social_profile_id VARCHAR(50)',
         'media_urls TEXT',
+        'media_thumb_urls TEXT',
         'media TEXT',
         'webhook_urls TEXT',
         'tags TEXT',
@@ -90,11 +91,11 @@ function calendar_update(bool $force = false): array {
     $insStmt = $pdo->prepare(
         'INSERT INTO calendar (
             post_id, store_id, state, text, scheduled_send_time, social_profile_id,
-            media_urls, media, webhook_urls, tags, targeting, privacy, location,
+            media_urls, media_thumb_urls, media, webhook_urls, tags, targeting, privacy, location,
             email_notification, post_url, post_id_external, reviewers,
             created_by_member_id, last_updated_by_member_id, extended_info,
             sequence_number, imt_length, imt_index, raw_json
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     );
 
     foreach ($rows as $row) {
@@ -120,7 +121,20 @@ function calendar_update(bool $force = false): array {
         $scheduled = $post['scheduledSendTime'] ?? null;
         if ($scheduled) $scheduled = date('Y-m-d H:i:s', strtotime($scheduled));
         $social_profile_id = $post['socialProfile']['id'] ?? null;
-        $media_urls = json_encode($post['mediaUrls'] ?? []);
+        $media_objs = $post['media'] ?? ($post['mediaUrls'] ?? []);
+        if (!is_array($media_objs)) $media_objs = [];
+        $urls = [];
+        $thumbs = [];
+        foreach ($media_objs as $m) {
+            if (is_array($m)) {
+                if (!empty($m['url'])) $urls[] = $m['url'];
+                if (!empty($m['thumbnailUrl'])) $thumbs[] = $m['thumbnailUrl'];
+            } elseif (is_string($m)) {
+                $urls[] = $m;
+            }
+        }
+        $media_urls = json_encode($urls);
+        $media_thumb_urls = json_encode($thumbs);
         $media = json_encode($post['media'] ?? []);
         $webhook_urls = isset($post['webhookUrls']) ? json_encode($post['webhookUrls']) : null;
         $tags_json = json_encode($tags);
@@ -140,7 +154,7 @@ function calendar_update(bool $force = false): array {
 
         $insStmt->execute([
             $postId, $store_id, $state, $text, $scheduled, $social_profile_id,
-            $media_urls, $media, $webhook_urls, $tags_json, $targeting, $privacy,
+            $media_urls, $media_thumb_urls, $media, $webhook_urls, $tags_json, $targeting, $privacy,
             $location, $email_notification, $post_url, $post_id_external, $reviewers,
             $created_by_member_id, $last_updated_by_member_id, $extended_info,
             $sequence_number, $imt_length, $imt_index, json_encode($post)
@@ -161,7 +175,7 @@ function calendar_get_posts(int $store_id): array {
     } catch (PDOException $e) {
         $column = 'scheduled_time';
     }
-    $stmt = $pdo->prepare("SELECT text, $column, social_profile_id, media_urls FROM calendar WHERE store_id=? ORDER BY $column DESC");
+    $stmt = $pdo->prepare("SELECT text, $column, social_profile_id, media_urls, media_thumb_urls FROM calendar WHERE store_id=? ORDER BY $column DESC");
     $stmt->execute([$store_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
