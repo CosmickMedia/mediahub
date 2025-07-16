@@ -56,7 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'company_city'            => trim($_POST['company_city'] ?? ''),
         'company_state'           => trim($_POST['company_state'] ?? ''),
         'company_zip'             => trim($_POST['company_zip'] ?? ''),
-        'company_country'         => trim($_POST['company_country'] ?? '')
+        'company_country'         => trim($_POST['company_country'] ?? ''),
+        'calendar_sheet_url'      => trim($_POST['calendar_sheet_url'] ?? ''),
+        'calendar_update_interval'=> trim($_POST['calendar_update_interval'] ?? '24')
     ];
 
     foreach ($settings as $name => $value) {
@@ -107,6 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['test_groundhogg'])) {
         [$ok, $msg] = test_groundhogg_connection();
         $test_result = [$ok, $msg];
+    } elseif (isset($_POST['force_calendar_update'])) {
+        require_once __DIR__.'/../lib/calendar.php';
+        [$ok, $msg] = calendar_update(true);
+        $test_result = [$ok, $msg];
     }
     $success = true;
 }
@@ -128,6 +134,8 @@ $company_city = get_setting('company_city') ?: '';
 $company_state = get_setting('company_state') ?: '';
 $company_zip = get_setting('company_zip') ?: '';
 $company_country = get_setting('company_country') ?: '';
+$calendar_sheet_url = get_setting('calendar_sheet_url') ?: '';
+$calendar_update_interval = get_setting('calendar_update_interval') ?: '24';
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
 $groundhogg_public_key = get_setting('groundhogg_public_key');
@@ -173,6 +181,9 @@ include __DIR__.'/header.php';
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link<?php if($active_tab==='statuses') echo ' active'; ?>" id="statuses-tab" data-bs-toggle="tab" data-bs-target="#statuses" type="button" role="tab">Statuses</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link<?php if($active_tab==='calendar') echo ' active'; ?>" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab">Calendar</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link<?php if($active_tab==='reset') echo ' active'; ?>" id="reset-tab" data-bs-toggle="tab" data-bs-target="#reset" type="button" role="tab">Reset</button>
@@ -386,6 +397,26 @@ include __DIR__.'/header.php';
                             </tbody>
                         </table>
                         <button type="button" class="btn btn-sm btn-secondary" id="addStatus">Add Status</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade<?php if($active_tab==='calendar') echo ' show active'; ?>" id="calendar" role="tabpanel" aria-labelledby="calendar-tab">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Calendar Import</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="calendar_sheet_url" class="form-label">Google Sheet CSV URL</label>
+                            <input type="text" name="calendar_sheet_url" id="calendar_sheet_url" class="form-control" value="<?php echo htmlspecialchars($calendar_sheet_url); ?>">
+                            <div class="form-text">Public CSV link to the calendar sheet</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="calendar_update_interval" class="form-label">Update Interval (hours)</label>
+                            <input type="number" name="calendar_update_interval" id="calendar_update_interval" class="form-control" value="<?php echo htmlspecialchars($calendar_update_interval); ?>">
+                        </div>
+                        <button class="btn btn-secondary" type="submit" name="force_calendar_update">Force Update</button>
                     </div>
                 </div>
             </div>

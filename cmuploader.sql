@@ -216,6 +216,7 @@ CREATE TABLE `stores` (
   `admin_email` varchar(255) DEFAULT NULL,
   `drive_folder` varchar(255) DEFAULT NULL,
   `hootsuite_token` varchar(255) DEFAULT NULL,
+  `hootsuite_campaign_tag` varchar(100) DEFAULT NULL,
   `first_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
@@ -231,11 +232,11 @@ CREATE TABLE `stores` (
 -- Dumping data for table `stores`
 --
 
-INSERT INTO `stores` (`id`, `name`, `pin`, `admin_email`, `drive_folder`, `hootsuite_token`, `first_name`, `last_name`, `phone`, `address`, `city`, `state`, `zip_code`, `country`, `marketing_report_url`) VALUES
-(1, 'test', '1111', 'test@none.com', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2, 'testing', '1234', 'test@none.com', '16FMaL4Lv0V6_ZVxBQRpg-3GaUyfeu0G3', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(3, 'Petland Cosmick', '2547', 'cosmicktechnologies@gmail.com', '1srY5v90SaXNgWsl56K_e9F0YaSN43Hc-', '', 'Carley', 'Kuehner', '', '1147 Jacobsburg Road', 'Wind Gap', 'PA', '18091', 'United States', NULL),
-(4, 'Petland Phoenix', '2345', 'kim@cosmickmedia.com', '1VvZT3W4_ADzo1nRXPg98n8wOROIov9lC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `stores` (`id`, `name`, `pin`, `admin_email`, `drive_folder`, `hootsuite_token`, `hootsuite_campaign_tag`, `first_name`, `last_name`, `phone`, `address`, `city`, `state`, `zip_code`, `country`, `marketing_report_url`) VALUES
+(1, 'test', '1111', 'test@none.com', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'testing', '1234', 'test@none.com', '16FMaL4Lv0V6_ZVxBQRpg-3GaUyfeu0G3', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 'Petland Cosmick', '2547', 'cosmicktechnologies@gmail.com', '1srY5v90SaXNgWsl56K_e9F0YaSN43Hc-', '', NULL, 'Carley', 'Kuehner', '', '1147 Jacobsburg Road', 'Wind Gap', 'PA', '18091', 'United States', NULL),
+(4, 'Petland Phoenix', '2345', 'kim@cosmickmedia.com', '1VvZT3W4_ADzo1nRXPg98n8wOROIov9lC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -419,6 +420,26 @@ CREATE TABLE `upload_status_history` (
 INSERT INTO `upload_status_history` (`id`, `upload_id`, `user_id`, `old_status_id`, `new_status_id`, `changed_at`) VALUES
 (1, 24, 1, 9, 21, '2025-07-14 15:10:08'),
 (2, 24, 1, 21, 20, '2025-07-14 16:51:33');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `calendar`
+--
+
+CREATE TABLE `calendar` (
+  `id` int(11) NOT NULL,
+  `ext_id` varchar(50) NOT NULL,
+  `store_id` int(11) NOT NULL,
+  `text` text DEFAULT NULL,
+  `scheduled_time` datetime DEFAULT NULL,
+  `raw_json` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `calendar`
+--
 
 -- --------------------------------------------------------
 
@@ -630,6 +651,12 @@ ALTER TABLE `uploads`
 ALTER TABLE `upload_status_history`
   ADD CONSTRAINT `upload_status_history_ibfk_1` FOREIGN KEY (`upload_id`) REFERENCES `uploads` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `upload_status_history_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `calendar`
+--
+ALTER TABLE `calendar`
+  ADD CONSTRAINT `calendar_ibfk_1` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

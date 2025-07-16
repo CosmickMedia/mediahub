@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
-require_once __DIR__.'/../lib/hootsuite.php';
+require_once __DIR__.'/../lib/calendar.php';
 require_once __DIR__.'/../lib/helpers.php';
 
 session_start();
@@ -13,13 +13,12 @@ if (!isset($_SESSION['store_id'])) {
 $store_id = $_SESSION['store_id'];
 $pdo = get_pdo();
 
-$stmt = $pdo->prepare('SELECT hootsuite_token, name FROM stores WHERE id = ?');
+$stmt = $pdo->prepare('SELECT name FROM stores WHERE id = ?');
 $stmt->execute([$store_id]);
 $store = $stmt->fetch();
 $store_name = $store['name'];
-$token = $store['hootsuite_token'];
 
-$posts = hootsuite_get_scheduled_posts($token);
+$posts = calendar_get_posts($store_id);
 
 include __DIR__.'/header.php';
 ?>
@@ -43,7 +42,7 @@ include __DIR__.'/header.php';
             <?php foreach ($posts as $p): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($p['text'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($p['scheduledSendTime'] ?? ''); ?></td>
+                    <td><?php echo htmlspecialchars($p['scheduled_time'] ?? ''); ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

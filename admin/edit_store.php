@@ -31,13 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
             $update->execute([
                 $_POST['name'],
                 $_POST['pin'],
                 $_POST['email'],
                 $_POST['folder'],
                 $_POST['hootsuite_token'],
+                $_POST['hootsuite_campaign_tag'] ?? null,
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
                 format_mobile_number($_POST['phone'] ?? ''),
@@ -233,6 +234,10 @@ include __DIR__.'/header.php';
             <div class="col-md-6">
                 <label for="hootsuite_token" class="form-label">Hootsuite Access Token</label>
                 <input type="text" name="hootsuite_token" id="hootsuite_token" class="form-control" value="<?php echo htmlspecialchars($store['hootsuite_token']); ?>">
+            </div>
+            <div class="col-md-6">
+                <label for="hootsuite_campaign_tag" class="form-label">Hootsuite Campaign Tag</label>
+                <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag" class="form-control" value="<?php echo htmlspecialchars($store['hootsuite_campaign_tag']); ?>">
             </div>
         </div>
     </div>

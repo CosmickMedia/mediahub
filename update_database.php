@@ -58,7 +58,10 @@ $defaultSettings = [
     'company_city' => '',
     'company_state' => '',
     'company_zip' => '',
-    'company_country' => ''
+    'company_country' => '',
+    'calendar_sheet_url' => '',
+    'calendar_update_interval' => '24',
+    'calendar_last_update' => ''
 ];
 
 foreach ($defaultSettings as $name => $value) {
@@ -184,6 +187,13 @@ try {
     echo "✓ Added hootsuite_token column to stores table\n";
 } catch (PDOException $e) {
     echo "• hootsuite_token column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_campaign_tag VARCHAR(100) AFTER hootsuite_token");
+    echo "✓ Added hootsuite_campaign_tag column to stores table\n";
+} catch (PDOException $e) {
+    echo "• hootsuite_campaign_tag column might already exist\n";
 }
 
 // New contact columns for stores
@@ -352,6 +362,24 @@ try {
     echo "✓ Created upload_status_history table\n";
 } catch (PDOException $e) {
     echo "✗ Error creating upload_status_history table: " . $e->getMessage() . "\n";
+}
+
+// Create calendar table
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS calendar (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ext_id VARCHAR(50) NOT NULL UNIQUE,
+        store_id INT NOT NULL,
+        text TEXT,
+        scheduled_time DATETIME,
+        raw_json TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE,
+        INDEX idx_store_time (store_id, scheduled_time)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "✓ Created calendar table\n";
+} catch (PDOException $e) {
+    echo "✗ Error creating calendar table: " . $e->getMessage() . "\n";
 }
 
 echo "\n✓ Database update complete!\n";
