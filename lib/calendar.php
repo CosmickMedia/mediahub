@@ -3,6 +3,48 @@ require_once __DIR__.'/db.php';
 require_once __DIR__.'/settings.php';
 require_once __DIR__.'/sheets.php';
 
+function calendar_ensure_schema(PDO $pdo): void {
+    try {
+        $pdo->query('SELECT post_id FROM calendar LIMIT 1');
+        return; // table is up to date
+    } catch (PDOException $e) {
+        // old schema, attempt upgrade
+    }
+
+    try {
+        $pdo->exec("ALTER TABLE calendar CHANGE ext_id post_id VARCHAR(50) NOT NULL");
+    } catch (PDOException $e) {}
+
+    try {
+        $pdo->exec("ALTER TABLE calendar CHANGE scheduled_time scheduled_send_time DATETIME");
+    } catch (PDOException $e) {}
+
+    $columns = [
+        'state VARCHAR(50)',
+        'social_profile_id VARCHAR(50)',
+        'media_urls TEXT',
+        'media TEXT',
+        'webhook_urls TEXT',
+        'tags TEXT',
+        'targeting TEXT',
+        'privacy TEXT',
+        'location TEXT',
+        'email_notification TEXT',
+        'post_url TEXT',
+        'post_id_external VARCHAR(50)',
+        'reviewers TEXT',
+        'created_by_member_id VARCHAR(50)',
+        'last_updated_by_member_id VARCHAR(50)',
+        'extended_info TEXT',
+        'sequence_number INT',
+        'imt_length INT',
+        'imt_index INT'
+    ];
+    foreach ($columns as $col) {
+        try { $pdo->exec("ALTER TABLE calendar ADD COLUMN $col"); } catch (PDOException $e) {}
+    }
+}
+
 function calendar_update(bool $force = false): array {
     $sheetId = get_setting('calendar_sheet_id');
     $sheetRange = get_setting('calendar_sheet_range') ?: 'Sheet1!A:A';
@@ -41,6 +83,7 @@ function calendar_update(bool $force = false): array {
     }
 
     $pdo = get_pdo();
+    calendar_ensure_schema($pdo);
     $inserted = 0;
     $storeStmt = $pdo->prepare('SELECT id FROM stores WHERE LOWER(hootsuite_campaign_tag)=?');
     $checkStmt = $pdo->prepare('SELECT id FROM calendar WHERE post_id=?');
@@ -111,7 +154,14 @@ function calendar_update(bool $force = false): array {
 
 function calendar_get_posts(int $store_id): array {
     $pdo = get_pdo();
-    $stmt = $pdo->prepare('SELECT text, scheduled_send_time FROM calendar WHERE store_id=? ORDER BY scheduled_send_time DESC');
+    calendar_ensure_schema($pdo);
+    $column = 'scheduled_send_time';
+    try {
+        $pdo->query('SELECT scheduled_send_time FROM calendar LIMIT 1');
+    } catch (PDOException $e) {
+        $column = 'scheduled_time';
+    }
+    $stmt = $pdo->prepare("SELECT text, $column FROM calendar WHERE store_id=? ORDER BY $column DESC");
     $stmt->execute([$store_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

@@ -402,5 +402,51 @@ try {
     echo "✗ Error creating calendar table: " . $e->getMessage() . "\n";
 }
 
+// Upgrade calendar table from older schema
+try {
+    $pdo->exec("ALTER TABLE calendar CHANGE ext_id post_id VARCHAR(50) NOT NULL");
+    echo "✓ Renamed ext_id to post_id in calendar table\n";
+} catch (PDOException $e) {
+    echo "• ext_id column might not exist or already renamed\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE calendar CHANGE scheduled_time scheduled_send_time DATETIME");
+    echo "✓ Renamed scheduled_time to scheduled_send_time in calendar table\n";
+} catch (PDOException $e) {
+    echo "• scheduled_time column might not exist or already renamed\n";
+}
+
+$calendarColumns = [
+    'state VARCHAR(50)',
+    'social_profile_id VARCHAR(50)',
+    'media_urls TEXT',
+    'media TEXT',
+    'webhook_urls TEXT',
+    'tags TEXT',
+    'targeting TEXT',
+    'privacy TEXT',
+    'location TEXT',
+    'email_notification TEXT',
+    'post_url TEXT',
+    'post_id_external VARCHAR(50)',
+    'reviewers TEXT',
+    'created_by_member_id VARCHAR(50)',
+    'last_updated_by_member_id VARCHAR(50)',
+    'extended_info TEXT',
+    'sequence_number INT',
+    'imt_length INT',
+    'imt_index INT'
+];
+foreach ($calendarColumns as $col) {
+    list($name) = explode(' ', $col, 2);
+    try {
+        $pdo->exec("ALTER TABLE calendar ADD COLUMN $col");
+        echo "✓ Added $name column to calendar table\n";
+    } catch (PDOException $e) {
+        echo "• $name column might already exist in calendar table\n";
+    }
+}
+
 echo "\n✓ Database update complete!\n";
 ?>
