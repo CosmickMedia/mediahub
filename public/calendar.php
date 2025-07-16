@@ -69,8 +69,24 @@ foreach ($posts as $p) {
     }
     $network = null;
     foreach ($tags as $t) {
-        $t = strtolower(trim($t));
-        if (isset($network_map[$t])) { $network = $network_map[$t]; break; }
+        $clean = strtolower(trim($t, " \t#"));
+        if (isset($network_map[$clean])) { $network = $network_map[$clean]; break; }
+        foreach ($network_map as $key => $val) {
+            if (strpos($clean, $key) !== false) { $network = $val; break 2; }
+        }
+    }
+    if (!$network && $type) {
+        $type_map = [
+            'FACEBOOK_PAGE' => 'facebook',
+            'INSTAGRAM_BUSINESS' => 'instagram',
+            'TWITTER_PROFILE' => 'x',
+            'LINKEDIN_COMPANY' => 'linkedin',
+            'YOUTUBE_CHANNEL' => 'youtube'
+        ];
+        $key = $type_map[$type] ?? null;
+        if ($key && isset($network_map[$key])) {
+            $network = $network_map[$key];
+        }
     }
     $icon = $network['icon'] ?? profile_icon($type);
     $color = $network['color'] ?? '#2c3e50';
