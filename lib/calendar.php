@@ -85,6 +85,9 @@ function calendar_update(bool $force = false): array {
 
     $pdo = get_pdo();
     calendar_ensure_schema($pdo);
+    if ($force) {
+        $pdo->exec('DELETE FROM calendar');
+    }
     $inserted = 0;
     $storeStmt = $pdo->prepare('SELECT id FROM stores WHERE LOWER(hootsuite_campaign_tag)=?');
     $checkStmt = $pdo->prepare('SELECT id FROM calendar WHERE post_id=?');
@@ -107,7 +110,11 @@ function calendar_update(bool $force = false): array {
         if ($checkStmt->fetch()) continue;
 
         $tags = $post['tags'] ?? [];
-        if (!is_array($tags)) $tags = [];
+        if (!is_array($tags)) {
+            $tags = [];
+        } else {
+            $tags = array_map(fn($t) => trim($t), $tags);
+        }
         $store_id = null;
         foreach ($tags as $tag) {
             $storeStmt->execute([strtolower($tag)]);
@@ -117,20 +124,24 @@ function calendar_update(bool $force = false): array {
         if (!$store_id) continue;
 
         $state = $post['state'] ?? null;
-        $text = $post['text'] ?? '';
+        $text = trim($post['text'] ?? '');
         $scheduled = $post['scheduledSendTime'] ?? null;
         if ($scheduled) $scheduled = date('Y-m-d H:i:s', strtotime($scheduled));
         $social_profile_id = $post['socialProfile']['id'] ?? null;
-        $media_objs = $post['media'] ?? ($post['mediaUrls'] ?? []);
+        $media_objs = $post['mediaUrls'] ?? ($post['media'] ?? []);
         if (!is_array($media_objs)) $media_objs = [];
         $urls = [];
         $thumbs = [];
         foreach ($media_objs as $m) {
             if (is_array($m)) {
-                if (!empty($m['url'])) $urls[] = $m['url'];
-                if (!empty($m['thumbnailUrl'])) $thumbs[] = $m['thumbnailUrl'];
+                if (!empty($m['url'])) {
+                    $urls[] = filter_var(trim($m['url']), FILTER_SANITIZE_URL);
+                }
+                if (!empty($m['thumbnailUrl'])) {
+                    $thumbs[] = filter_var(trim($m['thumbnailUrl']), FILTER_SANITIZE_URL);
+                }
             } elseif (is_string($m)) {
-                $urls[] = $m;
+                $urls[] = filter_var(trim($m), FILTER_SANITIZE_URL);
             }
         }
         $media_urls = json_encode($urls);
@@ -142,8 +153,8 @@ function calendar_update(bool $force = false): array {
         $privacy = isset($post['privacy']) ? json_encode($post['privacy']) : null;
         $location = isset($post['location']) ? json_encode($post['location']) : null;
         $email_notification = isset($post['emailNotification']) ? json_encode($post['emailNotification']) : null;
-        $post_url = $post['postUrl'] ?? null;
-        $post_id_external = $post['postId'] ?? null;
+        $post_url = isset($post['postUrl']) ? filter_var(trim($post['postUrl']), FILTER_SANITIZE_URL) : null;
+        $post_id_external = isset($post['postId']) ? trim($post['postId']) : null;
         $reviewers = isset($post['reviewers']) ? json_encode($post['reviewers']) : null;
         $created_by_member_id = $post['createdByMember']['id'] ?? null;
         $last_updated_by_member_id = $post['lastUpdatedByMember']['id'] ?? null;
