@@ -43,13 +43,13 @@ foreach ($posts as $p) {
     $time = $p['scheduled_send_time'] ?? $p['scheduled_time'] ?? null;
     $img = '';
     if (!empty($p['media_urls'])) {
-        $urls = json_decode($p['media_urls'], true);
+        $urls = maybe_json_decode($p['media_urls']);
         if (is_array($urls) && !empty($urls)) {
             $img = $urls[0];
         }
     }
     if (!$img && !empty($p['media_thumb_urls'])) {
-        $urls = json_decode($p['media_thumb_urls'], true);
+        $urls = maybe_json_decode($p['media_thumb_urls']);
         if (is_array($urls) && !empty($urls)) {
             $img = $urls[0];
         }
