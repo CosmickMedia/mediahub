@@ -55,6 +55,7 @@ CREATE TABLE `calendar` (
   `scheduled_send_time` datetime DEFAULT NULL,
   `social_profile_id` varchar(50) DEFAULT NULL,
   `media_urls` text DEFAULT NULL,
+  `media_thumb_urls` text DEFAULT NULL,
   `media` text DEFAULT NULL,
   `webhook_urls` text DEFAULT NULL,
   `tags` text DEFAULT NULL,
@@ -79,8 +80,8 @@ CREATE TABLE `calendar` (
 -- Dumping data for table `calendar`
 --
 
-INSERT INTO `calendar` (`id`, `post_id`, `store_id`, `state`, `text`, `scheduled_send_time`, `social_profile_id`, `media_urls`, `media`, `webhook_urls`, `tags`, `targeting`, `privacy`, `location`, `email_notification`, `post_url`, `post_id_external`, `reviewers`, `created_by_member_id`, `last_updated_by_member_id`, `extended_info`, `sequence_number`, `imt_length`, `imt_index`, `raw_json`, `created_at`) VALUES
-(3, '13019445088', 3, 'SCHEDULED', 'hello', '2025-07-19 03:40:00', '139926611', '[]', '[]', NULL, '[\"cosmickmedia\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '27546050', '27546050', NULL, NULL, 16, 16, '{\"id\":\"13019445088\",\"state\":\"SCHEDULED\",\"text\":\"hello\",\"scheduledSendTime\":\"2025-07-19T03:40:00.000Z\",\"socialProfile\":{\"id\":\"139926611\"},\"mediaUrls\":[],\"media\":[],\"webhookUrls\":null,\"tags\":[\"cosmickmedia\"],\"targeting\":null,\"privacy\":null,\"location\":null,\"emailNotification\":null,\"postUrl\":null,\"postId\":null,\"reviewers\":null,\"createdByMember\":{\"id\":\"27546050\"},\"lastUpdatedByMember\":{\"id\":\"27546050\"},\"extendedInfo\":null,\"sequenceNumber\":null,\"__IMTLENGTH__\":16,\"__IMTINDEX__\":16}', '2025-07-16 05:29:03');
+INSERT INTO `calendar` (`id`, `post_id`, `store_id`, `state`, `text`, `scheduled_send_time`, `social_profile_id`, `media_urls`, `media_thumb_urls`, `media`, `webhook_urls`, `tags`, `targeting`, `privacy`, `location`, `email_notification`, `post_url`, `post_id_external`, `reviewers`, `created_by_member_id`, `last_updated_by_member_id`, `extended_info`, `sequence_number`, `imt_length`, `imt_index`, `raw_json`, `created_at`) VALUES
+(3, '13019445088', 3, 'SCHEDULED', 'hello', '2025-07-19 03:40:00', '139926611', '[]', '[]', '[]', NULL, '[\"cosmickmedia\"]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '27546050', '27546050', NULL, NULL, 16, 16, '{\"id\":\"13019445088\",\"state\":\"SCHEDULED\",\"text\":\"hello\",\"scheduledSendTime\":\"2025-07-19T03:40:00.000Z\",\"socialProfile\":{\"id\":\"139926611\"},\"mediaUrls\":[],\"media\":[],\"webhookUrls\":null,\"tags\":[\"cosmickmedia\"],\"targeting\":null,\"privacy\":null,\"location\":null,\"emailNotification\":null,\"postUrl\":null,\"postId\":null,\"reviewers\":null,\"createdByMember\":{\"id\":\"27546050\"},\"lastUpdatedByMember\":{\"id\":\"27546050\"},\"extendedInfo\":null,\"sequenceNumber\":null,\"__IMTLENGTH__\":16,\"__IMTINDEX__\":16}', '2025-07-16 05:29:03');
 
 -- --------------------------------------------------------
 
