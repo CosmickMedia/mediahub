@@ -110,25 +110,7 @@ $events_json = json_encode($events);
 
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
-<style>
-#calendar{width:100%;margin:0 auto;}
-.fc-custom-event{display:flex;align-items:flex-start;}
-.fc-custom-event img{width:24px;height:24px;object-fit:cover;margin-right:4px;border-radius:4px;}
-.fc-custom-event .event-title{font-size:.875rem;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
-.fc-custom-event .event-network{font-size:.75rem;}
-.fc-custom-event .play-icon{font-size:1.2rem;margin-left:4px;}
-.fc-daygrid-event{color:#fff;}
-.fc-toolbar-title{color:#2c3e50;}
-.fc .fc-button-primary{background-color:#2c3e50;border-color:#2c3e50;}
-.fc .fc-button-primary:not(:disabled).fc-button-active,
-.fc .fc-button-primary:not(:disabled):active{background-color:#1a252f;border-color:#1a252f;}
-/* Calendar day and header styling */
-.fc-col-header-cell{background-color:#f5f5f5;}
-.fc-daygrid-day.fc-day-today,
-.fc-daygrid-day.fc-day-past{background-color:#f0f0f0;}
-.fc-daygrid-day-number{color:#000;}
-.fc-daygrid-day.fc-day-today .fc-daygrid-day-number{font-size:1.25rem;}
-</style>
+
 HTML;
 
 $extra_js = <<<JS
@@ -160,13 +142,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var net = document.createElement('div');
             net.className = 'event-network';
+            net.append('Posted On: ');
             if (arg.event.extendedProps.icon) {
                 var icon = document.createElement('i');
                 icon.className = 'bi ' + arg.event.extendedProps.icon + ' me-1';
                 icon.style.color = '#fff';
                 net.appendChild(icon);
             }
-            net.append('Post On: ' + arg.event.title);
+            net.append(arg.event.title);
             info.appendChild(net);
 
             cont.appendChild(info);
@@ -203,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 html += '<p><strong>Tags:</strong> ' + e.extendedProps.tags.join(', ') + '</p>';
             }
             if(e.extendedProps.network){
-                html += '<p class="small text-muted">Post On: ' + e.extendedProps.network + '</p>';
+                html += '<p class="small text-muted">Posted On: ' + e.extendedProps.network + '</p>';
             }
             body.innerHTML = html;
             new bootstrap.Modal(document.getElementById('eventModal')).show();
