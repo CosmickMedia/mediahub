@@ -161,7 +161,7 @@ function calendar_get_posts(int $store_id): array {
     } catch (PDOException $e) {
         $column = 'scheduled_time';
     }
-    $stmt = $pdo->prepare("SELECT text, $column FROM calendar WHERE store_id=? ORDER BY $column DESC");
+    $stmt = $pdo->prepare("SELECT text, $column, social_profile_id, media_urls FROM calendar WHERE store_id=? ORDER BY $column DESC");
     $stmt->execute([$store_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
