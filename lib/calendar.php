@@ -23,6 +23,16 @@ function calendar_update(bool $force = false): array {
             return [false, $e->getMessage()];
         }
     } else {
+        if (preg_match('#docs.google.com\/spreadsheets\/d\/([^\/]+)#', $sheetUrl, $m)) {
+            $gid = null;
+            if (preg_match('#[?&]gid=(\d+)#', $sheetUrl, $g)) {
+                $gid = $g[1];
+            }
+            $sheetUrl = 'https://docs.google.com/spreadsheets/d/' . $m[1] . '/export?format=csv';
+            if ($gid !== null) {
+                $sheetUrl .= '&gid=' . $gid;
+            }
+        }
         $csv = @file_get_contents($sheetUrl);
         if ($csv === false) {
             return [false, 'Failed to fetch sheet'];
