@@ -135,6 +135,12 @@ if (!$store) {
     exit;
 }
 
+// Generate an upload token for this session if not present
+if (empty($_SESSION['upload_token'])) {
+    $_SESSION['upload_token'] = bin2hex(random_bytes(16));
+}
+$upload_token = $_SESSION['upload_token'];
+
 // Get store messages - handle missing columns gracefully
 $messages = [];
 $replies = [];
@@ -240,7 +246,14 @@ $admin_name = trim(($adminRow['first_name'] ?? '') . ' ' . ($adminRow['last_name
 $your_name = trim(($_SESSION['store_first_name'] ?? '') . ' ' . ($_SESSION['store_last_name'] ?? ''));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
-    try {
+    $tokenValid = isset($_SESSION['upload_token']) && isset($_POST['upload_token']) &&
+        hash_equals($_SESSION['upload_token'], $_POST['upload_token']);
+
+    if (!$tokenValid) {
+        $errors[] = 'Invalid or duplicate submission detected.';
+    } else {
+        unset($_SESSION['upload_token']);
+        try {
         // Get or create store folder
         $storeFolderId = get_or_create_store_folder($store_id);
 
@@ -406,7 +419,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
     } catch (Exception $e) {
         $errors[] = "Upload error: " . $e->getMessage();
     }
+    // refresh stats after successful upload or failure
+    $stats_stmt = $pdo->prepare(
+        "SELECT COUNT(*) as total_uploads,
+                COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as week_uploads,
+                COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY) THEN 1 END) as today_uploads,
+                SUM(size) as total_size,
+                COUNT(CASE WHEN mime LIKE 'image/%' THEN 1 END) as total_images,
+                COUNT(CASE WHEN mime LIKE 'video/%' THEN 1 END) as total_videos
+         FROM uploads WHERE store_id = ?"
+    );
+    $stats_stmt->execute([$store_id]);
+    $upload_stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 }
+}
+
+
 
 function getUploadErrorMessage($code) {
     switch ($code) {
@@ -1305,6 +1333,8 @@ include __DIR__.'/header.php';
                             <div class="upload-progress-bar"></div>
                         </div>
                     </div>
+
+                    <input type="hidden" name="upload_token" value="<?php echo htmlspecialchars($upload_token); ?>">
 
                     <div class="mb-3 mt-3">
                         <label for="custom_message" class="form-label fw-semibold">
