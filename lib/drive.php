@@ -113,7 +113,8 @@ function drive_create_folder($name, $parentId = null) {
         $metadata['parents'] = [$parentId];
     }
 
-    $ch = curl_init('https://www.googleapis.com/drive/v3/files');
+    $url = 'https://www.googleapis.com/drive/v3/files?supportsAllDrives=true';
+    $ch = curl_init($url);
     drive_debug_log('Creating folder "' . $name . '" under ' . ($parentId ?: 'root'));
     curl_setopt_array($ch, [
         CURLOPT_HTTPHEADER => [
@@ -172,7 +173,8 @@ function drive_upload($filepath, $mime, $name, $folderId) {
     $body .= file_get_contents($filepath) . "\r\n";
     $body .= "--$boundary--";
 
-    $ch = curl_init('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+    $url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true';
+    $ch = curl_init($url);
     drive_debug_log('Uploading file ' . basename($filepath) . ' to folder ' . $folderId);
     curl_setopt_array($ch, [
         CURLOPT_HTTPHEADER => [
@@ -205,7 +207,8 @@ function drive_upload($filepath, $mime, $name, $folderId) {
 function drive_delete($fileId) {
     $token = drive_get_access_token();
 
-    $ch = curl_init('https://www.googleapis.com/drive/v3/files/' . $fileId);
+    $url = 'https://www.googleapis.com/drive/v3/files/' . $fileId . '?supportsAllDrives=true';
+    $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_CUSTOMREQUEST => "DELETE",
         CURLOPT_HTTPHEADER => [
