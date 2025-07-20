@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Save all settings
     $settings = [
         'drive_base_folder' => $_POST['drive_folder'] ?? '',
+        'drive_debug'       => isset($_POST['drive_debug']) ? '1' : '0',
         'notification_email' => $_POST['notify_email'] ?? '',
         'email_from_name' => $_POST['email_from_name'] ?? 'Cosmick Media',
         'email_from_address' => $_POST['email_from_address'] ?? 'noreply@cosmickmedia.com',
@@ -141,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Get current settings
 $drive_folder = get_setting('drive_base_folder');
+$drive_debug = get_setting('drive_debug');
 $notify_email = get_setting('notification_email');
 $email_from_name = get_setting('email_from_name') ?: 'Cosmick Media';
 $email_from_address = get_setting('email_from_address') ?: 'noreply@cosmickmedia.com';
@@ -242,6 +244,11 @@ include __DIR__.'/header.php';
                                     <label for="drive_folder" class="form-label">Base Drive Folder ID</label>
                                     <input type="text" name="drive_folder" id="drive_folder" class="form-control" value="<?php echo htmlspecialchars($drive_folder); ?>">
                                     <div class="form-text">The Google Drive folder ID where store folders will be created</div>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" name="drive_debug" id="drive_debug" class="form-check-input" value="1" <?php if ($drive_debug === '1') echo 'checked'; ?>>
+                                    <label for="drive_debug" class="form-check-label">Enable Drive Debug Logging</label>
+                                    <div class="form-text">Logs Drive API requests to <code>logs/drive.log</code></div>
                                 </div>
                             </div>
                         </div>

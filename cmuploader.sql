@@ -300,6 +300,7 @@ CREATE TABLE `settings` (
 INSERT INTO `settings` (`id`, `name`, `value`) VALUES
 (1, 'drive_base_folder', '1QFpGOZTtzCHYtobXvxuAw5Z-SnbSJGVu'),
 (2, 'notification_email', 'carley@cosmickmedia.com, kim@cosmickmedia.com, cassandra@cosmickmedia.com, jennifer@cosmickmedia.com, crystal@cosmickmedia.com'),
+(14, 'drive_debug', '0'),
 (15, 'email_from_name', 'Cosmick Media'),
 (16, 'email_from_address', 'noreply@cosmickmedia.com'),
 (17, 'admin_notification_subject', 'New uploads from {store_name}'),
