@@ -3,6 +3,23 @@
 
 require_once __DIR__.'/config.php';
 require_once __DIR__.'/db.php';
+require_once __DIR__.'/settings.php';
+
+function drive_debug_enabled(): bool {
+    return get_setting('drive_debug') === '1';
+}
+
+function drive_debug_log(string $message): void {
+    if (!drive_debug_enabled()) {
+        return;
+    }
+    $dir = __DIR__ . '/../logs';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    $entry = '[' . date('Y-m-d H:i:s') . "] " . $message . "\n";
+    file_put_contents($dir . '/drive.log', $entry, FILE_APPEND | LOCK_EX);
+}
 
 function drive_get_access_token() {
     $config = get_config();
@@ -55,6 +72,7 @@ function drive_get_access_token() {
 
     // Request access token
     $ch = curl_init($creds['token_uri']);
+    drive_debug_log('Requesting access token from ' . $creds['token_uri']);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
@@ -68,6 +86,7 @@ function drive_get_access_token() {
     $result = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    drive_debug_log('Access token response (' . $httpCode . '): ' . $result);
 
     if ($httpCode !== 200) {
         throw new Exception('Failed to get access token: ' . $result);
@@ -78,6 +97,7 @@ function drive_get_access_token() {
         throw new Exception('No access token in response: ' . $result);
     }
 
+    drive_debug_log('Access token retrieved');
     return $data['access_token'];
 }
 
@@ -94,6 +114,7 @@ function drive_create_folder($name, $parentId = null) {
     }
 
     $ch = curl_init('https://www.googleapis.com/drive/v3/files');
+    drive_debug_log('Creating folder "' . $name . '" under ' . ($parentId ?: 'root'));
     curl_setopt_array($ch, [
         CURLOPT_HTTPHEADER => [
             "Authorization: Bearer $token",
@@ -107,13 +128,16 @@ function drive_create_folder($name, $parentId = null) {
     $result = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    drive_debug_log('Create folder response (' . $httpCode . '): ' . $result);
 
     if ($httpCode !== 200) {
         throw new Exception('Failed to create folder: ' . $result);
     }
 
     $data = json_decode($result, true);
-    return $data['id'] ?? null;
+    $id = $data['id'] ?? null;
+    drive_debug_log('Folder ID: ' . ($id ?? 'none'));
+    return $id;
 }
 
 function drive_upload($filepath, $mime, $name, $folderId) {
@@ -149,6 +173,7 @@ function drive_upload($filepath, $mime, $name, $folderId) {
     $body .= "--$boundary--";
 
     $ch = curl_init('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+    drive_debug_log('Uploading file ' . basename($filepath) . ' to folder ' . $folderId);
     curl_setopt_array($ch, [
         CURLOPT_HTTPHEADER => [
             "Authorization: Bearer $token",
@@ -162,6 +187,7 @@ function drive_upload($filepath, $mime, $name, $folderId) {
     $result = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    drive_debug_log('Upload response (' . $httpCode . '): ' . $result);
 
     if ($httpCode !== 200) {
         throw new Exception('Failed to upload file: ' . $result);
@@ -172,6 +198,7 @@ function drive_upload($filepath, $mime, $name, $folderId) {
         throw new Exception('No file ID in response');
     }
 
+    drive_debug_log('File uploaded with ID: ' . $data['id']);
     return $data['id'];
 }
 
@@ -187,9 +214,12 @@ function drive_delete($fileId) {
         CURLOPT_RETURNTRANSFER => true
     ]);
 
+    drive_debug_log('Deleting file ID ' . $fileId);
+
     $result = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    drive_debug_log('Delete response (' . $httpCode . '): ' . $result);
 
     if ($httpCode !== 204 && $httpCode !== 200) {
         throw new Exception('Failed to delete file: ' . $result);

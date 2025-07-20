@@ -62,7 +62,8 @@ $defaultSettings = [
     'calendar_sheet_url' => '',
     'calendar_sheet_range' => 'Sheet1!A:A',
     'calendar_update_interval' => '24',
-    'calendar_last_update' => ''
+    'calendar_last_update' => '',
+    'drive_debug' => '0'
 ];
 
 foreach ($defaultSettings as $name => $value) {

@@ -39,6 +39,8 @@ After saving, use the **Test Connection** button to verify communication with yo
 
 If you need to troubleshoot API issues, enable **Debug Logging** in the settings panel. When enabled, detailed request and response information is written to `logs/groundhogg.log` in the project root.
 
+To debug Google Drive uploads, check **Drive Debug Logging** under **Admin → Settings → General**. This writes Drive API activity to `logs/drive.log`.
+
 ### Calendar Import
 
 To populate the calendar from Google Sheets, open **Admin → Settings** and paste the sheet's public URL in the **Google Sheet URL** field. The application automatically converts the standard editing link into the required CSV export format.
