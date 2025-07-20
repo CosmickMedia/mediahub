@@ -548,14 +548,24 @@ table th, table td {
     color: #6c757d;
 }
 
-/* Modern Modal Styles - Full Screen Layout */
-.modern-modal .modal-dialog {
+/* Force Calendar Modal Styles - Maximum z-index */
+.modal-backdrop {
+    z-index: 9990 !important;
+}
+
+#eventModalCalendar {
+    z-index: 9999 !important;
+}
+
+#eventModalCalendar .modal-dialog {
     max-width: 90vw;
     width: 90vw;
     margin: 2rem auto;
+    z-index: 9999 !important;
+    position: relative;
 }
 
-.modern-modal .modal-content {
+#eventModalCalendar .modal-content {
     border: none;
     border-radius: 20px;
     overflow: hidden;
@@ -565,14 +575,16 @@ table th, table td {
     display: flex;
     flex-direction: column;
     position: relative;
+    z-index: 9999 !important;
 }
 
-.modern-modal .modal-header {
+#eventModalCalendar .modal-header {
     background: var(--primary-gradient);
     color: white;
     border: none;
     padding: 1.5rem;
     flex-shrink: 0;
+    position: relative;
 }
 
 .modal-title-content {
@@ -596,37 +608,48 @@ table th, table td {
     color: white;
 }
 
-.modern-modal .modal-title {
+#eventModalCalendar .modal-title {
     font-weight: 600;
     margin: 0;
 }
 
-/* Close button positioned absolutely */
-.modern-modal .btn-close {
+#eventModalCalendar .btn-close {
     position: absolute !important;
     top: 1rem !important;
     right: 1rem !important;
-    z-index: 9999 !important;
+    z-index: 99999 !important;
     padding: 0.5rem !important;
     margin: 0 !important;
     background: white !important;
     border-radius: 50% !important;
-    opacity: 0.8 !important;
+    opacity: 1 !important;
     width: 2rem !important;
     height: 2rem !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
-.modern-modal .btn-close:hover {
+#eventModalCalendar .btn-close:hover {
     opacity: 1 !important;
     transform: rotate(90deg);
     transition: all 0.3s ease;
 }
 
-.modern-modal .modal-body {
+#eventModalCalendar .btn-close:focus {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+    outline: none !important;
+}
+
+/* Ensure white close button shows on dark background */
+.btn-close-white {
+    filter: none !important;
+}
+
+#eventModalCalendar .modal-body {
     padding: 0;
     overflow: hidden;
     flex: 1;
@@ -757,12 +780,12 @@ table th, table td {
         padding: 1rem;
     }
 
-    .modern-modal .modal-content {
+    #eventModalCalendar .modal-content {
         height: calc(100vh - 2rem);
         max-height: none;
     }
 
-    .modern-modal .modal-dialog {
+    #eventModalCalendar .modal-dialog {
         margin: 1rem;
         width: calc(100% - 2rem);
     }
@@ -814,17 +837,26 @@ table th, table td {
 }
 
 /* Animation for modal entrance */
-.show-modal {
+.modal.show .modal-dialog {
     animation: modalIn 0.3s ease-out;
 }
 
 @keyframes modalIn {
     from {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.9) translate(0, -50px);
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translate(0, 0);
     }
+}
+
+/* Force modal to be interactive */
+.modal-open #eventModalCalendar {
+    pointer-events: auto !important;
+}
+
+#eventModalCalendar * {
+    pointer-events: auto !important;
 }
