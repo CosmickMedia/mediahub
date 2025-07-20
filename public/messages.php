@@ -42,197 +42,1259 @@ $stmtMent->execute([$store_id]);
 $mentionNames = array_merge($mentionNames, $stmtMent->fetchAll(PDO::FETCH_COLUMN));
 $mentionNames = array_values(array_filter(array_unique($mentionNames)));
 
+// Get statistics
+$stats_stmt = $pdo->prepare("
+    SELECT 
+        COUNT(*) as total_messages,
+        COUNT(CASE WHEN sender = 'admin' THEN 1 END) as admin_messages,
+        COUNT(CASE WHEN sender = 'store' THEN 1 END) as your_messages,
+        COUNT(CASE WHEN like_by_store = 1 OR like_by_admin = 1 THEN 1 END) as liked_messages,
+        COUNT(CASE WHEN love_by_store = 1 OR love_by_admin = 1 THEN 1 END) as loved_messages,
+        COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as recent_messages
+    FROM store_messages 
+    WHERE store_id = ?
+");
+$stats_stmt->execute([$store_id]);
+$stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get store name
+$store_stmt = $pdo->prepare('SELECT name FROM stores WHERE id = ?');
+$store_stmt->execute([$store_id]);
+$store_name = $store_stmt->fetchColumn();
+
 include __DIR__.'/header.php';
 ?>
-<div id="messages" class="mb-4 border rounded p-2">
-    <?php foreach ($messages as $msg): ?>
-        <div class="mb-2 <?php echo $msg['sender'] === 'admin' ? 'theirs' : 'mine'; ?>">
-            <div class="bubble-container"><div class="bubble">
-                <?php if(!empty($msg['parent_message'])): ?>
-                    <div class="reply-preview"><?php echo htmlspecialchars(substr($msg['parent_message'],0,50)); ?></div>
-                <?php endif; ?>
-                <strong><?php echo $msg['sender'] === 'admin' ? htmlspecialchars($admin_name) : htmlspecialchars($your_name); ?>:</strong>
-                <?php if(!empty($msg['filename'])): ?>
-                    <a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view" target="_blank"><?php echo htmlspecialchars($msg['filename']); ?></a>
-                <?php endif; ?>
-                <span><?php echo nl2br($msg['message']); ?></span><br>
-                <small class="text-muted">
-                    <?php echo format_ts($msg['created_at']); ?>
-                    <?php if($msg['sender']==='admin' && $msg['read_by_store']): ?>
-                        <i class="bi bi-check2-all text-primary"></i>
-                    <?php elseif($msg['sender']==='store' && $msg['read_by_admin']): ?>
-                        <i class="bi bi-check2-all text-primary"></i>
-                    <?php endif; ?>
-                </small>
-                <?php if($msg['sender']==='admin'): ?>
-                <span class="ms-1 reactions">
-                    <?php if($msg['like_by_admin']||$msg['like_by_store']): ?>
-                        <i class="bi bi-hand-thumbs-up-fill text-like" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
-                    <?php else: ?>
-                        <i class="bi bi-hand-thumbs-up" data-id="<?php echo $msg['id']; ?>" data-type="like"></i>
-                    <?php endif; ?>
-                    <?php if($msg['love_by_admin']||$msg['love_by_store']): ?>
-                        <i class="bi bi-heart-fill text-love" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
-                    <?php else: ?>
-                        <i class="bi bi-heart" data-id="<?php echo $msg['id']; ?>" data-type="love"></i>
-                    <?php endif; ?>
-                </span>
-                <?php endif; ?>
-                <span class="reply-link" data-id="<?php echo $msg['id']; ?>">Reply</span>
-            </div></div>
-        </div>
-    <?php endforeach; ?>
-</div>
-<form method="post" action="send_message.php" id="msgForm" class="input-group align-items-end chat-form" enctype="multipart/form-data">
-    <div id="replyTo" class="reply-preview" style="display:none;"></div>
-    <textarea name="message" class="form-control" rows="2" placeholder="Type message"></textarea>
-    <button type="button" id="fileBtn" class="btn btn-light border"><i class="bi bi-paperclip"></i></button>
-    <input type="file" id="fileInput" name="file" class="d-none">
-    <button type="button" id="emojiBtn" class="btn btn-light border"><i class="bi bi-emoji-smile"></i></button>
-    <button type="submit" class="btn btn-send">Send</button>
-    <input type="hidden" name="ajax" value="1">
-    <input type="hidden" name="parent_id" id="parent_id" value="">
-    <div id="emojiPicker"></div>
-</form>
-<div id="mentionBox" class="mention-box"></div>
-<script src="../assets/js/emoji-picker.js"></script>
-<script>
-const textarea = document.querySelector('#msgForm textarea');
-initEmojiPicker(textarea, document.getElementById('emojiBtn'), document.getElementById('emojiPicker'));
-const mentionBox=document.getElementById('mentionBox');
-textarea.addEventListener('keyup',e=>{
-    const pre=textarea.value.substring(0,textarea.selectionStart);
-    const m=pre.match(/@(\w*)$/);
-    if(m){
-        const term=m[1].toLowerCase();
-        const matches=MENTION_NAMES.filter(n=>n.toLowerCase().startsWith(term));
-        if(matches.length){
-            mentionBox.innerHTML=matches.map(n=>`<div>${n}</div>`).join('');
-            const rect=textarea.getBoundingClientRect();
-            mentionBox.style.left=rect.left+'px';
-            mentionBox.style.top=(rect.bottom)+'px';
-            mentionBox.style.display='block';
-        }else{mentionBox.style.display='none';}
-    }else{mentionBox.style.display='none';}
-});
-mentionBox.addEventListener('click',e=>{
-    if(e.target.tagName==='DIV'){
-        const pre=textarea.value.substring(0,textarea.selectionStart).replace(/@\w*$/, '@'+e.target.textContent);
-        textarea.value=pre+textarea.value.substring(textarea.selectionStart);
-        textarea.focus();
-        mentionBox.style.display='none';
-    }
-});
-</script>
-<script>
-const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
-const YOUR_NAME = <?php echo json_encode($your_name); ?>;
-const MENTION_NAMES = <?php echo json_encode($mentionNames); ?>;
-function refreshMessages() {
-    fetch('messages.php?load=1')
-        .then(r => r.json())
-        .then(data => {
-            const container = document.getElementById('messages');
-            container.innerHTML = '';
-            data.forEach(m => {
-                const wrap=document.createElement('div');
-                wrap.className='mb-2 '+(m.sender==='admin'?'theirs':'mine');
-                const holder=document.createElement('div');
-                holder.className='bubble-container';
-                const div=document.createElement('div');
-                div.className='bubble';
-                let readIcon='';
-                if(m.sender==='admin' && m.read_by_store==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
-                if(m.sender==='store' && m.read_by_admin==1) readIcon=' <i class="bi bi-check2-all text-primary"></i>';
-                let html='';
-                if(m.parent_message){ html+='<div class="reply-preview">'+m.parent_message.substring(0,50)+'</div>'; }
-                html+=`<strong>${m.sender==='admin'?ADMIN_NAME:YOUR_NAME}:</strong> `;
-                if(m.filename){ html+='<a href="https://drive.google.com/file/d/'+m.drive_id+'/view" target="_blank">'+m.filename+'</a> '; }
-                html+=m.message.replace(/\n/g,'<br>');
-                html+=`<br><small class="text-muted">${m.created_at}${readIcon}</small>`;
-                if(m.sender==='admin'){
-                    html+=' <span class="ms-1 reactions">'+
-                        (m.like_by_admin||m.like_by_store?
-                            `<i class="bi bi-hand-thumbs-up-fill text-like" data-id="${m.id}" data-type="like"></i>`:
-                            `<i class="bi bi-hand-thumbs-up" data-id="${m.id}" data-type="like"></i>`)+' '+
-                        (m.love_by_admin||m.love_by_store?
-                            `<i class="bi bi-heart-fill text-love" data-id="${m.id}" data-type="love"></i>`:
-                            `<i class="bi bi-heart" data-id="${m.id}" data-type="love"></i>`)+
-                        '</span>';
-                }
-                html+=`<span class="reply-link" data-id="${m.id}">Reply</span>`;
-                div.innerHTML=html;
-                holder.appendChild(div);
-                wrap.appendChild(holder);
-                container.appendChild(wrap);
-            });
-            container.scrollTop = container.scrollHeight;
-            initReactions();
-            initReplyLinks();
-            if(typeof checkNotifications==='function'){checkNotifications();}
-        });
-}
-setInterval(refreshMessages, 5000);
-document.getElementById('msgForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    const fd=new FormData(this);
-    if(document.getElementById('fileInput').files.length){
-        fd.append('ajax','1');
-        fetch('../chat_upload.php',{method:'POST',body:fd})
-            .then(async r=>{try{return await r.json();}catch(e){return {error:'Upload failed'};}})
-            .then(res=>{ if(res.success){ this.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();} } else { alert(res.error||'Upload failed'); } });
-        }else{
-            fetch('send_message.php', {method:'POST', body:fd})
-                .then(async r=>{try{return await r.json();}catch(e){return {error:'Send failed'};}})
-                .then(res=>{ if(res.success){ this.reset(); document.getElementById('replyTo').style.display='none'; refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();} } else { alert(res.error||'Send failed'); } });
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-});
-document.querySelector('#msgForm textarea').addEventListener('keydown', function(e){
-    if(e.key === 'Enter' && !e.shiftKey){
-        e.preventDefault();
-        document.getElementById('msgForm').dispatchEvent(new Event('submit'));
-    }
-});
-const picker=document.getElementById('emojiPicker');
-document.getElementById('emojiBtn').addEventListener('click', ()=>{
-    picker.style.display = picker.style.display==='none' ? 'block' : 'none';
-});
-document.getElementById('fileBtn').addEventListener('click',()=>document.getElementById('fileInput').click());
-document.getElementById('fileInput').addEventListener('change',()=>{
-    if(document.getElementById('fileInput').files.length){
-        document.getElementById('msgForm').dispatchEvent(new Event('submit'));
-    }
-});
-picker.addEventListener('emoji-click', e=>{
-    const ta=document.querySelector('#msgForm textarea');
-    ta.value += e.detail.unicode;
-    picker.style.display='none';
-    ta.focus();
-});
-function initReactions(){
-    document.querySelectorAll('.reactions i').forEach(icon=>{
-        icon.addEventListener('click',()=>{
-            const form=new FormData();
-            form.append('id',icon.dataset.id);
-            form.append('type',icon.dataset.type);
-            fetch('../react.php',{method:'POST',body:form})
-                .then(r=>r.json())
-                .then(()=>{refreshMessages(); if(typeof checkNotifications==='function'){checkNotifications();}});
+
+        .messages-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .messages-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .messages-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .messages-subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin: 0.25rem 0 0 0;
+        }
+
+        /* Statistics Dashboard */
+        .chat-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .stat-card.total-messages .stat-icon { color: #667eea; }
+        .stat-card.admin-messages .stat-icon { color: #4facfe; }
+        .stat-card.your-messages .stat-icon { color: #f093fb; }
+        .stat-card.liked .stat-icon { color: #0d6efd; }
+        .stat-card.loved .stat-icon { color: #dc3545; }
+        .stat-card.recent .stat-icon { color: #4ade80; }
+
+        .stat-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .stat-bg {
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .stat-card.total-messages .stat-bg { background: var(--primary-gradient); }
+        .stat-card.admin-messages .stat-bg { background: var(--success-gradient); }
+        .stat-card.your-messages .stat-bg { background: var(--secondary-gradient); }
+        .stat-card.liked .stat-bg { background: linear-gradient(135deg, #0d6efd, #0a58ca); }
+        .stat-card.loved .stat-bg { background: linear-gradient(135deg, #dc3545, #b02a37); }
+        .stat-card.recent .stat-bg { background: linear-gradient(135deg, #4ade80, #22c55e); }
+
+        /* Chat Container */
+        .chat-wrapper {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 280px);
+            min-height: 500px;
+        }
+
+        .chat-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .chat-info h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .chat-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Messages Area */
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            scroll-behavior: smooth;
+        }
+
+        #messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #messages::-webkit-scrollbar-track {
+            background: #e9ecef;
+            border-radius: 10px;
+        }
+
+        #messages::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 10px;
+        }
+
+        #messages::-webkit-scrollbar-thumb:hover {
+            background: #6c757d;
+        }
+
+        .message-group {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+
+        .message-group.mine {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .message-group.mine .message-avatar {
+            background: var(--secondary-gradient);
+        }
+
+        .message-content {
+            max-width: 70%;
+        }
+
+        .message-bubble {
+            background: white;
+            padding: 1rem 1.25rem;
+            border-radius: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message-group.mine .message-bubble {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .message-group.theirs .message-bubble {
+            border-bottom-left-radius: 6px;
+        }
+
+        .message-group.mine .message-bubble {
+            border-bottom-right-radius: 6px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .message-group.mine .message-sender {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .reply-preview {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            border-left: 3px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .message-group.mine .reply-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .message-text {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .message-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        .message-group.mine .message-file {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .message-file:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .message-group.mine .message-file:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .message-footer {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .message-time {
+            color: #6c757d;
+        }
+
+        .message-group.mine .message-time {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .message-status {
+            color: #4facfe;
+        }
+
+        .message-group.mine .message-status {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .message-reactions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        .reaction-button {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .message-group.mine .reaction-button {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .reaction-button:hover {
+            transform: scale(1.2);
+        }
+
+        .reaction-button.active {
+            color: inherit;
+        }
+
+        .reaction-button.like.active {
+            color: #0d6efd;
+        }
+
+        .reaction-button.love.active {
+            color: #dc3545;
+        }
+
+        .reply-link {
+            color: #6c757d;
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .message-bubble:hover .reply-link {
+            opacity: 1;
+        }
+
+        .message-group.mine .reply-link {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Chat Input */
+        .chat-input-wrapper {
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 1.5rem;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+            position: relative;
+        }
+
+        .input-group-modern {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-textarea {
+            width: 100%;
+            min-height: 50px;
+            max-height: 150px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            resize: none;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            line-height: 1.5;
+        }
+
+        .chat-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: #f8f9fa;
+            color: #6c757d;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .action-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .send-btn {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px) rotate(-5deg);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Emoji Picker */
+        #emojiPicker {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: none;
+            width: 300px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0.25rem;
+        }
+
+        .emoji-option {
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .emoji-option:hover {
+            background: #f8f9fa;
+            transform: scale(1.2);
+        }
+
+        /* Mention Box */
+        #mentionBox {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+            min-width: 200px;
+        }
+
+        #mentionBox div {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        #mentionBox div:hover {
+            background: #f8f9fa;
+        }
+
+        /* Reply Preview */
+        #replyTo {
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            display: none;
+            font-size: 0.875rem;
+            border-left: 3px solid #667eea;
+            position: relative;
+        }
+
+        #replyTo .close-reply {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 20px;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        /* Modern Button */
+        .btn-modern-primary {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-modern-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-messages {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .empty-messages i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading i {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .messages-container {
+                padding: 1rem;
+            }
+
+            .messages-header {
+                text-align: center;
+            }
+
+            .messages-title {
+                font-size: 1.5rem;
+            }
+
+            .chat-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .chat-wrapper {
+                height: calc(100vh - 250px);
+                min-height: 400px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            #emojiPicker {
+                width: 250px;
+                right: -50px;
+            }
+        }
+
+        /* Date Separator */
+        .date-separator {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .date-separator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #dee2e6;
+        }
+
+        .date-separator span {
+            background: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: #6c757d;
+            position: relative;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #adb5bd;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+
+    <div class="messages-container animate__animated animate__fadeIn">
+        <!-- Header Section -->
+        <div class="messages-header">
+            <div>
+                <h2 class="messages-title">Chat & Messages</h2>
+                <p class="messages-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
+            </div>
+            <a href="index.php" class="btn btn-modern-primary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="chat-stats">
+            <div class="stat-card total-messages animate__animated animate__fadeInUp">
+                <div class="stat-icon">
+                    <i class="bi bi-chat-dots-fill"></i>
+                </div>
+                <div class="stat-number" data-count="<?php echo $stats['total_messages']; ?>">0</div>
+                <div class="stat-label">Total Messages</div>
+                <div class="stat-bg"></div>
+            </div>
+
+            <div class="stat-card admin-messages animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                <div class="stat-icon">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+                <div class="stat-number" data-count="<?php echo $stats['admin_messages']; ?>">0</div>
+                <div class="stat-label">From Admin</div>
+                <div class="stat-bg"></div>
+            </div>
+
+            <div class="stat-card your-messages animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                <div class="stat-icon">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="stat-number" data-count="<?php echo $stats['your_messages']; ?>">0</div>
+                <div class="stat-label">Your Messages</div>
+                <div class="stat-bg"></div>
+            </div>
+
+            <div class="stat-card liked animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+                <div class="stat-icon">
+                    <i class="bi bi-hand-thumbs-up-fill"></i>
+                </div>
+                <div class="stat-number" data-count="<?php echo $stats['liked_messages']; ?>">0</div>
+                <div class="stat-label">Liked</div>
+                <div class="stat-bg"></div>
+            </div>
+
+            <div class="stat-card loved animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+                <div class="stat-icon">
+                    <i class="bi bi-heart-fill"></i>
+                </div>
+                <div class="stat-number" data-count="<?php echo $stats['loved_messages']; ?>">0</div>
+                <div class="stat-label">Loved</div>
+                <div class="stat-bg"></div>
+            </div>
+
+            <div class="stat-card recent animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
+                <div class="stat-icon">
+                    <i class="bi bi-clock-fill"></i>
+                </div>
+                <div class="stat-number" data-count="<?php echo $stats['recent_messages']; ?>">0</div>
+                <div class="stat-label">This Week</div>
+                <div class="stat-bg"></div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-wrapper animate__animated animate__fadeIn" style="animation-delay: 0.6s">
+            <div class="chat-header">
+                <div class="chat-avatar">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="chat-info">
+                    <h3>Admin Team</h3>
+                    <p>Always here to help</p>
+                </div>
+            </div>
+
+            <div id="messages">
+                <?php if (empty($messages)): ?>
+                    <div class="empty-messages">
+                        <i class="bi bi-chat-square-dots"></i>
+                        <h4>No messages yet</h4>
+                        <p>Start a conversation below</p>
+                    </div>
+                <?php else: ?>
+                    <?php
+                    $currentDate = null;
+                    foreach ($messages as $msg):
+                        $msgDate = date('Y-m-d', strtotime($msg['created_at']));
+                        if ($msgDate !== $currentDate):
+                            $currentDate = $msgDate;
+                            $displayDate = date('Y-m-d', strtotime($msg['created_at'])) === date('Y-m-d') ? 'Today' :
+                                (date('Y-m-d', strtotime($msg['created_at'])) === date('Y-m-d', strtotime('-1 day')) ? 'Yesterday' :
+                                    date('F j, Y', strtotime($msg['created_at'])));
+                            ?>
+                            <div class="date-separator">
+                                <span><?php echo $displayDate; ?></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="message-group <?php echo $msg['sender'] === 'admin' ? 'theirs' : 'mine'; ?>">
+                            <div class="message-avatar">
+                                <?php echo $msg['sender'] === 'admin' ? 'A' : strtoupper(substr($your_name, 0, 1)); ?>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-bubble">
+                            <span class="message-sender">
+                                <?php echo $msg['sender'] === 'admin' ? htmlspecialchars($admin_name) : htmlspecialchars($your_name); ?>
+                            </span>
+
+                                    <?php if(!empty($msg['parent_message'])): ?>
+                                        <div class="reply-preview">
+                                            <?php echo htmlspecialchars(substr($msg['parent_message'], 0, 50)); ?>...
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if(!empty($msg['filename'])): ?>
+                                        <a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view"
+                                           target="_blank"
+                                           class="message-file">
+                                            <i class="bi bi-paperclip"></i>
+                                            <?php echo htmlspecialchars($msg['filename']); ?>
+                                        </a>
+                                    <?php endif; ?>
+
+                                    <p class="message-text"><?php echo nl2br($msg['message']); ?></p>
+
+                                    <div class="message-footer">
+                                <span class="message-time">
+                                    <?php echo date('g:i A', strtotime($msg['created_at'])); ?>
+                                </span>
+
+                                        <?php if($msg['sender']==='admin' && $msg['read_by_store'] ||
+                                            $msg['sender']==='store' && $msg['read_by_admin']): ?>
+                                            <span class="message-status">
+                                        <i class="bi bi-check2-all"></i>
+                                    </span>
+                                        <?php endif; ?>
+
+                                        <?php if($msg['sender']==='admin'): ?>
+                                            <div class="message-reactions">
+                                                <button class="reaction-button like <?php echo ($msg['like_by_admin']||$msg['like_by_store']) ? 'active' : ''; ?>"
+                                                        data-id="<?php echo $msg['id']; ?>"
+                                                        data-type="like">
+                                                    <i class="bi bi-hand-thumbs-up<?php echo ($msg['like_by_admin']||$msg['like_by_store']) ? '-fill' : ''; ?>"></i>
+                                                </button>
+                                                <button class="reaction-button love <?php echo ($msg['love_by_admin']||$msg['love_by_store']) ? 'active' : ''; ?>"
+                                                        data-id="<?php echo $msg['id']; ?>"
+                                                        data-type="love">
+                                                    <i class="bi bi-heart<?php echo ($msg['love_by_admin']||$msg['love_by_store']) ? '-fill' : ''; ?>"></i>
+                                                </button>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <span class="reply-link" data-id="<?php echo $msg['id']; ?>">Reply</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <span>Admin is typing</span>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-wrapper">
+                <div id="replyTo">
+                    <span class="close-reply" onclick="cancelReply()">×</span>
+                    <span id="replyText"></span>
+                </div>
+
+                <form method="post" action="send_message.php" id="msgForm" class="chat-form" enctype="multipart/form-data">
+                    <div class="input-group-modern">
+                    <textarea name="message"
+                              class="chat-textarea"
+                              placeholder="Type your message..."
+                              rows="1"></textarea>
+                    </div>
+
+                    <div class="input-actions">
+                        <button type="button" id="fileBtn" class="action-btn" title="Attach file">
+                            <i class="bi bi-paperclip"></i>
+                        </button>
+                        <input type="file" id="fileInput" name="file" class="d-none">
+
+                        <button type="button" id="emojiBtn" class="action-btn" title="Add emoji">
+                            <i class="bi bi-emoji-smile"></i>
+                        </button>
+
+                        <button type="submit" class="action-btn send-btn" title="Send message">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+
+                    <input type="hidden" name="ajax" value="1">
+                    <input type="hidden" name="parent_id" id="parent_id" value="">
+
+                    <div id="emojiPicker">
+                        <div class="emoji-grid"></div>
+                    </div>
+                </form>
+
+                <div id="mentionBox" class="mention-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.min.js"></script>
+    <script src="../assets/js/emoji-picker.js"></script>
+    <script>
+        // Initialize emoji picker
+        const textarea = document.querySelector('#msgForm textarea');
+        initEmojiPicker(textarea, document.getElementById('emojiBtn'), document.getElementById('emojiPicker'));
+
+        // Animate counters
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const animation = new countUp.CountUp(counter, target, {
+                    duration: 2,
+                    useEasing: true,
+                    useGrouping: true
+                });
+                if (!animation.error) {
+                    animation.start();
+                }
+            });
         });
-    });
-}
-refreshMessages();
-if(typeof checkNotifications==='function'){checkNotifications();}
-initReactions();
-function initReplyLinks(){
-    document.querySelectorAll('.reply-link').forEach(l=>{
-        l.addEventListener('click',()=>{
-            document.getElementById('parent_id').value=l.dataset.id;
-            document.getElementById('replyTo').textContent='Replying to: '+l.parentElement.querySelector('span').textContent;
-            document.getElementById('replyTo').style.display='block';
+
+        // Auto-resize textarea
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 150) + 'px';
         });
-    });
-}
-initReplyLinks();
-</script>
+
+        // Mention functionality
+        const mentionBox = document.getElementById('mentionBox');
+        const MENTION_NAMES = <?php echo json_encode($mentionNames); ?>;
+
+        textarea.addEventListener('keyup', e => {
+            const pre = textarea.value.substring(0, textarea.selectionStart);
+            const m = pre.match(/@(\w*)$/);
+            if (m) {
+                const term = m[1].toLowerCase();
+                const matches = MENTION_NAMES.filter(n => n.toLowerCase().startsWith(term));
+                if (matches.length) {
+                    mentionBox.innerHTML = matches.map(n => `<div>${n}</div>`).join('');
+                    const rect = textarea.getBoundingClientRect();
+                    mentionBox.style.left = '0';
+                    mentionBox.style.bottom = (rect.height + 10) + 'px';
+                    mentionBox.style.display = 'block';
+                } else {
+                    mentionBox.style.display = 'none';
+                }
+            } else {
+                mentionBox.style.display = 'none';
+            }
+        });
+
+        mentionBox.addEventListener('click', e => {
+            if (e.target.tagName === 'DIV') {
+                const pre = textarea.value.substring(0, textarea.selectionStart).replace(/@\w*$/, '@' + e.target.textContent + ' ');
+                textarea.value = pre + textarea.value.substring(textarea.selectionStart);
+                textarea.focus();
+                mentionBox.style.display = 'none';
+            }
+        });
+
+        // Constants
+        const ADMIN_NAME = <?php echo json_encode($admin_name); ?>;
+        const YOUR_NAME = <?php echo json_encode($your_name); ?>;
+
+        // Refresh messages
+        function refreshMessages() {
+            fetch('messages.php?load=1')
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('messages');
+                    if (data.length === 0) {
+                        container.innerHTML = `
+                    <div class="empty-messages">
+                        <i class="bi bi-chat-square-dots"></i>
+                        <h4>No messages yet</h4>
+                        <p>Start a conversation below</p>
+                    </div>
+                `;
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    let currentDate = null;
+
+                    data.forEach(m => {
+                        const msgDate = new Date(m.created_at).toDateString();
+                        const today = new Date().toDateString();
+                        const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+                        if (msgDate !== currentDate) {
+                            currentDate = msgDate;
+                            let displayDate = msgDate === today ? 'Today' :
+                                (msgDate === yesterday ? 'Yesterday' :
+                                    new Date(m.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+
+                            container.innerHTML += `
+                        <div class="date-separator">
+                            <span>${displayDate}</span>
+                        </div>
+                    `;
+                        }
+
+                        const group = document.createElement('div');
+                        group.className = 'message-group ' + (m.sender === 'admin' ? 'theirs' : 'mine');
+
+                        let html = `
+                    <div class="message-avatar">
+                        ${m.sender === 'admin' ? 'A' : YOUR_NAME.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <span class="message-sender">
+                                ${m.sender === 'admin' ? ADMIN_NAME : YOUR_NAME}
+                            </span>
+                `;
+
+                        if (m.parent_message) {
+                            html += `<div class="reply-preview">${m.parent_message.substring(0, 50)}...</div>`;
+                        }
+
+                        if (m.filename) {
+                            html += `
+                        <a href="https://drive.google.com/file/d/${m.drive_id}/view"
+                           target="_blank"
+                           class="message-file">
+                            <i class="bi bi-paperclip"></i>
+                            ${m.filename}
+                        </a>
+                    `;
+                        }
+
+                        html += `<p class="message-text">${m.message.replace(/\n/g, '<br>')}</p>`;
+
+                        const time = new Date(m.created_at).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+
+                        html += `
+                    <div class="message-footer">
+                        <span class="message-time">${time}</span>
+                `;
+
+                        if ((m.sender === 'admin' && m.read_by_store == 1) ||
+                            (m.sender === 'store' && m.read_by_admin == 1)) {
+                            html += '<span class="message-status"><i class="bi bi-check2-all"></i></span>';
+                        }
+
+                        if (m.sender === 'admin') {
+                            html += `
+                        <div class="message-reactions">
+                            <button class="reaction-button like ${(m.like_by_admin || m.like_by_store) ? 'active' : ''}"
+                                    data-id="${m.id}"
+                                    data-type="like">
+                                <i class="bi bi-hand-thumbs-up${(m.like_by_admin || m.like_by_store) ? '-fill' : ''}"></i>
+                            </button>
+                            <button class="reaction-button love ${(m.love_by_admin || m.love_by_store) ? 'active' : ''}"
+                                    data-id="${m.id}"
+                                    data-type="love">
+                                <i class="bi bi-heart${(m.love_by_admin || m.love_by_store) ? '-fill' : ''}"></i>
+                            </button>
+                        </div>
+                    `;
+                        }
+
+                        html += `
+                            <span class="reply-link" data-id="${m.id}">Reply</span>
+                        </div>
+                    </div>
+                </div>
+                `;
+
+                        group.innerHTML = html;
+                        container.appendChild(group);
+                    });
+
+                    // Add typing indicator
+                    container.innerHTML += `
+                <div class="typing-indicator" id="typingIndicator">
+                    <span>Admin is typing</span>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+
+                    container.scrollTop = container.scrollHeight;
+                    initReactions();
+                    initReplyLinks();
+
+                    if (typeof checkNotifications === 'function') {
+                        checkNotifications();
+                    }
+                });
+        }
+
+        // Initial load and refresh interval
+        refreshMessages();
+        setInterval(refreshMessages, 5000);
+
+        // Form submission
+        document.getElementById('msgForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fd = new FormData(this);
+
+            if (document.getElementById('fileInput').files.length) {
+                fd.append('ajax', '1');
+                fetch('../chat_upload.php', { method: 'POST', body: fd })
+                    .then(async r => {
+                        try { return await r.json(); }
+                        catch(e) { return { error: 'Upload failed' }; }
+                    })
+                    .then(res => {
+                        if (res.success) {
+                            this.reset();
+                            cancelReply();
+                            textarea.style.height = 'auto';
+                            refreshMessages();
+                            if (typeof checkNotifications === 'function') {
+                                checkNotifications();
+                            }
+                        } else {
+                            alert(res.error || 'Upload failed');
+                        }
+                    });
+            } else {
+                fetch('send_message.php', { method: 'POST', body: fd })
+                    .then(async r => {
+                        try { return await r.json(); }
+                        catch(e) { return { error: 'Send failed' }; }
+                    })
+                    .then(res => {
+                        if (res.success) {
+                            this.reset();
+                            cancelReply();
+                            textarea.style.height = 'auto';
+                            refreshMessages();
+                            if (typeof checkNotifications === 'function') {
+                                checkNotifications();
+                            }
+                        } else {
+                            alert(res.error || 'Send failed');
+                        }
+                    });
+            }
+        });
+
+        // Enter to send (shift+enter for new line)
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('msgForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // File button
+        document.getElementById('fileBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', () => {
+            if (document.getElementById('fileInput').files.length) {
+                document.getElementById('msgForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Reactions
+        function initReactions() {
+            document.querySelectorAll('.reaction-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const form = new FormData();
+                    form.append('id', btn.dataset.id);
+                    form.append('type', btn.dataset.type);
+
+                    fetch('../react.php', { method: 'POST', body: form })
+                        .then(r => r.json())
+                        .then(() => {
+                            refreshMessages();
+                            if (typeof checkNotifications === 'function') {
+                                checkNotifications();
+                            }
+                        });
+                });
+            });
+        }
+
+        // Reply functionality
+        function initReplyLinks() {
+            document.querySelectorAll('.reply-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    const bubble = link.closest('.message-bubble');
+                    const text = bubble.querySelector('.message-text').textContent;
+
+                    document.getElementById('parent_id').value = link.dataset.id;
+                    document.getElementById('replyText').textContent = 'Replying to: ' + text.substring(0, 50) + '...';
+                    document.getElementById('replyTo').style.display = 'block';
+                    textarea.focus();
+                });
+            });
+        }
+
+        function cancelReply() {
+            document.getElementById('parent_id').value = '';
+            document.getElementById('replyTo').style.display = 'none';
+        }
+
+        // Initialize
+        initReactions();
+        initReplyLinks();
+
+        // Check notifications
+        if (typeof checkNotifications === 'function') {
+            checkNotifications();
+        }
+    </script>
+
 <?php include __DIR__.'/footer.php'; ?>
