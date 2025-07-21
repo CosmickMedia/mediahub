@@ -1374,7 +1374,9 @@ include __DIR__.'/header.php';
                                     <?php echo $msg['sender'] === 'admin' ? htmlspecialchars($admin_name) : 'You'; ?>
                                 </div>
                                 <div class="message-text"><?php echo nl2br($msg['message']); ?></div>
-                                <div class="message-time"><?php echo format_ts($msg['created_at']); ?></div>
+                                <div class="message-footer">
+                                    <span class="message-time"><?php echo format_ts($msg['created_at']); ?></span>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
