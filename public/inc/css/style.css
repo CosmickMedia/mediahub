@@ -557,6 +557,11 @@ transition: all 0.3s ease;
     border-color:#adb5bd !important;
 }
 
+/* Bootstrap Icons override for Threads */
+.bi-threads::before {
+    content: "\F8D9";
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;
