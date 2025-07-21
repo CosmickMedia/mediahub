@@ -1,6 +1,7 @@
 </div>
 <!-- Bootstrap JS from CDN -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<?php if (is_logged_in()): ?>
 <script>
 function checkNotifications(){
     fetch('store_counts.php')
@@ -24,6 +25,7 @@ function checkNotifications(){
 setInterval(checkNotifications,5000);
 checkNotifications();
 </script>
+<?php endif; ?>
 <?php $version = trim(file_get_contents(__DIR__.'/../VERSION')); ?>
 <div class="position-fixed bottom-0 end-0 p-2 text-muted small">
     v<?php echo $version; ?>
