@@ -169,6 +169,9 @@ $groundhogg_secret_key = get_setting('groundhogg_secret_key');
 $groundhogg_debug = get_setting('groundhogg_debug');
 $groundhogg_contact_tags = get_setting('groundhogg_contact_tags');
 
+// Get product version
+$product_version = trim(file_get_contents(__DIR__.'/../VERSION'));
+
 $active = 'settings';
 include __DIR__.'/header.php';
 ?>
@@ -182,6 +185,29 @@ include __DIR__.'/header.php';
             border-radius: 20px;
             margin-bottom: 2rem;
             box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="80" cy="20" r="30" fill="rgba(255,255,255,0.1)"/><circle cx="20" cy="80" r="20" fill="rgba(255,255,255,0.05)"/></svg>');
+            pointer-events: none;
+        }
+
+        .page-header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .page-title {
@@ -196,6 +222,24 @@ include __DIR__.'/header.php';
             margin: 0.5rem 0 0 0;
         }
 
+        .version-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .version-badge i {
+            font-size: 1rem;
+        }
+
         /* Modern Tabs */
         .nav-tabs-modern {
             border: none;
@@ -207,6 +251,11 @@ include __DIR__.'/header.php';
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
+            list-style: none;
+        }
+
+        .nav-tabs-modern .nav-item {
+            list-style: none;
         }
 
         .nav-tabs-modern .nav-link {
@@ -606,6 +655,44 @@ include __DIR__.'/header.php';
             border: 1px solid #e9ecef;
         }
 
+        /* System Information Card */
+        .system-info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .system-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .system-info-item {
+            text-align: center;
+        }
+
+        .system-info-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .system-info-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-bottom: 0.25rem;
+        }
+
+        .system-info-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .settings-grid-2 {
@@ -620,6 +707,11 @@ include __DIR__.'/header.php';
 
             .page-title {
                 font-size: 1.5rem;
+            }
+
+            .page-header-content {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
             .nav-tabs-modern {
@@ -643,14 +735,65 @@ include __DIR__.'/header.php';
                 width: 100%;
                 margin: 0 1rem;
             }
+
+            .system-info-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
         }
     </style>
 
     <div class="animate__animated animate__fadeIn">
-        <!-- Page Header -->
+        <!-- Page Header with Version -->
         <div class="page-header animate__animated animate__fadeInDown">
-            <h1 class="page-title">System Settings</h1>
-            <p class="page-subtitle">Configure system-wide settings and integrations</p>
+            <div class="page-header-content">
+                <div>
+                    <h1 class="page-title">System Settings</h1>
+                    <p class="page-subtitle">Configure system-wide settings and integrations</p>
+                </div>
+                <div class="version-badge">
+                    <i class="bi bi-tag"></i>
+                    Version <?php echo htmlspecialchars($product_version); ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Information Card -->
+        <div class="system-info-card animate__animated animate__fadeIn" style="animation-delay: 0.1s">
+            <h5 class="mb-0">
+                <i class="bi bi-speedometer2 me-2"></i>
+                MediaHub Admin System
+            </h5>
+            <div class="system-info-grid">
+                <div class="system-info-item">
+                    <div class="system-info-icon">
+                        <i class="bi bi-server"></i>
+                    </div>
+                    <div class="system-info-label">PHP Version</div>
+                    <div class="system-info-value"><?php echo PHP_VERSION; ?></div>
+                </div>
+                <div class="system-info-item">
+                    <div class="system-info-icon">
+                        <i class="bi bi-database"></i>
+                    </div>
+                    <div class="system-info-label">Database</div>
+                    <div class="system-info-value">Connected</div>
+                </div>
+                <div class="system-info-item">
+                    <div class="system-info-icon">
+                        <i class="bi bi-memory"></i>
+                    </div>
+                    <div class="system-info-label">Memory Usage</div>
+                    <div class="system-info-value"><?php echo round(memory_get_usage() / 1024 / 1024, 1); ?> MB</div>
+                </div>
+                <div class="system-info-item">
+                    <div class="system-info-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="system-info-label">System Status</div>
+                    <div class="system-info-value">Online</div>
+                </div>
+            </div>
         </div>
 
         <!-- Alerts -->
@@ -696,7 +839,7 @@ include __DIR__.'/header.php';
 
         <form method="post" enctype="multipart/form-data">
             <!-- Modern Navigation Tabs -->
-            <ul class="nav-tabs-modern animate__animated animate__fadeIn" style="animation-delay: 0.1s" id="settingsTabs" role="tablist">
+            <ul class="nav-tabs-modern animate__animated animate__fadeIn" style="animation-delay: 0.2s" id="settingsTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link<?php if($active_tab==='general') echo ' active'; ?>" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
                         <i class="bi bi-gear"></i> General
@@ -734,7 +877,7 @@ include __DIR__.'/header.php';
                 <div class="tab-pane fade<?php if($active_tab==='general') echo ' show active'; ?>" id="general" role="tabpanel">
                     <div class="settings-grid settings-grid-2">
                         <!-- Google Drive Settings -->
-                        <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+                        <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
                             <div class="card-header-modern">
                                 <h5 class="card-title-modern">
                                     <i class="bi bi-google"></i>
@@ -772,7 +915,7 @@ include __DIR__.'/header.php';
                         </div>
 
                         <!-- Email Settings -->
-                        <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                        <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.4s">
                             <div class="card-header-modern">
                                 <h5 class="card-title-modern">
                                     <i class="bi bi-envelope"></i>
@@ -806,7 +949,7 @@ include __DIR__.'/header.php';
                     </div>
 
                     <!-- Article Settings -->
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.5s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-file-text"></i>
@@ -827,7 +970,7 @@ include __DIR__.'/header.php';
                     </div>
 
                     <!-- Location Information -->
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.5s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.6s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-geo-alt"></i>
@@ -873,7 +1016,7 @@ include __DIR__.'/header.php';
 
                 <!-- Dripley CRM Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='dripley') echo ' show active'; ?>" id="dripley" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-people"></i>
@@ -951,7 +1094,7 @@ include __DIR__.'/header.php';
 
                 <!-- Email Subjects Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='subjects') echo ' show active'; ?>" id="subjects" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-cloud-upload"></i>
@@ -983,7 +1126,7 @@ include __DIR__.'/header.php';
                         </div>
                     </div>
 
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.4s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-file-text"></i>
@@ -1018,7 +1161,7 @@ include __DIR__.'/header.php';
 
                 <!-- Statuses Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='statuses') echo ' show active'; ?>" id="statuses" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-tags"></i>
@@ -1073,7 +1216,7 @@ include __DIR__.'/header.php';
 
                 <!-- Calendar Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='calendar') echo ' show active'; ?>" id="calendar" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-calendar"></i>
@@ -1115,7 +1258,7 @@ include __DIR__.'/header.php';
                         </div>
                     </div>
 
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.4s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-share"></i>
@@ -1171,7 +1314,7 @@ include __DIR__.'/header.php';
 
                 <!-- Reset Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='reset') echo ' show active'; ?>" id="reset" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-exclamation-triangle"></i>
