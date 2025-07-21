@@ -601,6 +601,12 @@ include __DIR__.'/header.php';
             margin-bottom: 2rem;
         }
 
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
         /* Upload Section */
         .upload-section {
             background: white;
@@ -1296,6 +1302,7 @@ include __DIR__.'/header.php';
 
         <!-- Main Content Grid -->
         <div class="content-grid">
+            <div class="left-column">
             <!-- Upload Section -->
             <div class="upload-section animate__animated animate__fadeIn" style="animation-delay: 0.6s">
                 <h3 class="section-title">
@@ -1349,6 +1356,41 @@ include __DIR__.'/header.php';
                         <i class="bi bi-cloud-upload"></i> Upload Files
                     </button>
                 </form>
+            </div>
+
+            <?php if (!empty($recent_chats)): ?>
+                <div class="chat-section animate__animated animate__fadeIn" style="animation-delay: 0.9s">
+                    <div class="chat-header">
+                        <h3 class="section-title m-0 text-white">
+                            <i class="bi bi-chat-dots-fill"></i>
+                            Recent Messages
+                        </h3>
+                    </div>
+
+                    <div class="chat-messages" id="latestChats">
+                        <?php foreach ($recent_chats as $msg): ?>
+                            <div class="message-bubble <?php echo $msg['sender'] === 'admin' ? 'theirs' : 'mine'; ?>">
+                                <div class="message-sender">
+                                    <?php echo $msg['sender'] === 'admin' ? htmlspecialchars($admin_name) : 'You'; ?>
+                                </div>
+                                <div class="message-text"><?php echo nl2br($msg['message']); ?></div>
+                                <div class="message-time"><?php echo format_ts($msg['created_at']); ?></div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="chat-input-wrapper">
+                        <form method="post" action="send_message.php" id="quickChatForm" class="chat-form">
+                            <input type="text" name="message" class="chat-input" placeholder="Type a message..." required>
+                            <button class="btn-send" type="submit">
+                                <i class="bi bi-send-fill"></i> Send
+                            </button>
+                            <input type="hidden" name="ajax" value="1">
+                            <input type="hidden" name="parent_id" id="parent_id" value="">
+                        </form>
+                    </div>
+                </div>
+            <?php endif; ?>
             </div>
 
             <!-- Right Sidebar -->
@@ -1467,40 +1509,6 @@ include __DIR__.'/header.php';
             </div>
         </div>
 
-        <!-- Chat Feed -->
-        <?php if (!empty($recent_chats)): ?>
-            <div class="chat-section animate__animated animate__fadeIn" style="animation-delay: 0.9s">
-                <div class="chat-header">
-                    <h3 class="section-title m-0 text-white">
-                        <i class="bi bi-chat-dots-fill"></i>
-                        Recent Messages
-                    </h3>
-                </div>
-
-                <div class="chat-messages" id="latestChats">
-                    <?php foreach ($recent_chats as $msg): ?>
-                        <div class="message-bubble <?php echo $msg['sender'] === 'admin' ? 'theirs' : 'mine'; ?>">
-                            <div class="message-sender">
-                                <?php echo $msg['sender'] === 'admin' ? htmlspecialchars($admin_name) : 'You'; ?>
-                            </div>
-                            <div class="message-text"><?php echo nl2br($msg['message']); ?></div>
-                            <div class="message-time"><?php echo format_ts($msg['created_at']); ?></div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-
-                <div class="chat-input-wrapper">
-                    <form method="post" action="send_message.php" id="quickChatForm" class="chat-form">
-                        <input type="text" name="message" class="chat-input" placeholder="Type a message..." required>
-                        <button class="btn-send" type="submit">
-                            <i class="bi bi-send-fill"></i> Send
-                        </button>
-                        <input type="hidden" name="ajax" value="1">
-                        <input type="hidden" name="parent_id" id="parent_id" value="">
-                    </form>
-                </div>
-            </div>
-        <?php endif; ?>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.min.js"></script>
