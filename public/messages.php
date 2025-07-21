@@ -16,9 +16,6 @@ if (isset($_GET['load'])) {
     $stmt = $pdo->prepare("SELECT m.id, m.sender, m.message, m.created_at, m.parent_id, m.read_by_store, m.read_by_admin, m.like_by_store, m.like_by_admin, m.love_by_store, m.love_by_admin, p.message AS parent_message, u.filename, u.drive_id FROM store_messages m LEFT JOIN store_messages p ON m.parent_id=p.id LEFT JOIN uploads u ON m.upload_id=u.id WHERE m.store_id = ? ORDER BY m.created_at");
     $stmt->execute([$store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($messages as &$m) {
-        $m['created_at'] = format_ts($m['created_at']);
-    }
     $pdo->prepare("UPDATE store_messages SET read_by_store=1 WHERE store_id=? AND sender='admin' AND read_by_store=0")
         ->execute([$store_id]);
     header('Content-Type: application/json');

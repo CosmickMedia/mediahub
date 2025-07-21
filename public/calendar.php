@@ -249,7 +249,7 @@ include __DIR__.'/header.php';
             <div class="modal-content" style="z-index: 9999 !important;">
                 <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1.5rem; position: relative;">
                     <div class="modal-title w-100" id="eventModalTitle"></div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background: white !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background: white !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
                 </div>
                 <div class="modal-body" id="eventModalBody" style="padding: 0; overflow: hidden;"></div>
             </div>
@@ -262,7 +262,7 @@ include __DIR__.'/header.php';
             <div class="modal-content" style="z-index: 9999 !important;">
                 <div class="modal-header day-view-header" style="position: relative;">
                     <h5 class="modal-title" id="dayViewTitle"></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background: white !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background: white !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
                 </div>
                 <div class="modal-body" id="dayViewBody">
                     <!-- Events will be loaded here -->
