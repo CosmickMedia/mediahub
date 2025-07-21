@@ -778,7 +778,7 @@ if (isset($_SESSION['store_id'])) {
 
     // Check notifications periodically
     function checkNotifications() {
-        fetch('notifications.php')
+        fetch('notifications.php?ts=' + Date.now())
             .then(r => r.json())
             .then(d => {
                 const notifyCount = document.getElementById('notifyCount');

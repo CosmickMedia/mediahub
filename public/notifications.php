@@ -7,4 +7,7 @@ $count=$pdo->prepare("SELECT COUNT(*) FROM store_messages WHERE store_id=? AND s
 $count->execute([$_SESSION['store_id']]);
 $cnt=$count->fetchColumn();
 header('Content-Type: application/json');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
 echo json_encode(['count'=>(int)$cnt]);
