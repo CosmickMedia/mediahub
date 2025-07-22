@@ -53,7 +53,6 @@ include __DIR__.'/login_header.php';
                     </div>
                     <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
                 </form>
-                <p class="mt-3 text-center"><a class="btn btn-danger" href="google_login.php">Login with Google</a></p>
             </div>
         </div>
     </div>

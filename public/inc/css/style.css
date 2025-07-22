@@ -97,7 +97,7 @@ body {
 
 /* Login Page Styles */
 .login-page {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: #262829;
     display: flex;
     align-items: center;
     min-height: 100vh;
@@ -106,20 +106,18 @@ body {
 .login-page .login-logo {
     max-width: 200px;
     margin-bottom: 30px;
-    filter: brightness(0) invert(1); /* Make logo white on gradient background */
 }
 
 .login-page .btn-login {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
+    background-color: #ff675b;
+    border-color: #ff675b;
     color: white;
-    font-weight: 500;
-    transition: all 0.3s ease;
 }
 
 .login-page .btn-login:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    background-color: #e55750;
+    border-color: #e55750;
+    color: white;
 }
 
 .login-page .admin-link {
