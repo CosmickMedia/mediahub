@@ -59,7 +59,7 @@ if ($current_store_id) {
 }
 
 if (isset($_GET['load']) && $current_store_id) {
-    $stmt = $pdo->prepare("SELECT m.*, s.name as store_name, u.filename, u.drive_id
+    $stmt = $pdo->prepare("SELECT m.*, s.name as store_name, u.filename, u.drive_id, u.mime
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
         LEFT JOIN uploads u ON m.upload_id = u.id
@@ -67,6 +67,8 @@ if (isset($_GET['load']) && $current_store_id) {
         ORDER BY m.created_at ASC");
     $stmt->execute([$current_store_id]);
     $msgs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")
+        ->execute([$current_store_id]);
     foreach ($msgs as &$m) {
         $m['created_at'] = format_ts($m['created_at']);
     }
@@ -94,7 +96,7 @@ $stores = $pdo->query($stores_query)->fetchAll(PDO::FETCH_ASSOC);
 $messages = [];
 if ($current_store_id) {
     $stmt = $pdo->prepare("
-        SELECT m.*, s.name as store_name, u.filename, u.drive_id
+        SELECT m.*, s.name as store_name, u.filename, u.drive_id, u.mime
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
         LEFT JOIN uploads u ON m.upload_id = u.id
@@ -479,6 +481,33 @@ include __DIR__.'/header.php';
             line-height: 1.5;
         }
 
+        .message-img, .message-video {
+            max-width: 250px;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .message-reactions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .reaction-button {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .reaction-button:hover { transform: scale(1.2); }
+        .reaction-button.active { color: inherit; }
+        .reaction-button.like.active { color: #0d6efd; }
+        .reaction-button.love.active { color: #dc3545; }
+
         .message-time {
             font-size: 0.75rem;
             opacity: 0.8;
@@ -801,7 +830,11 @@ include __DIR__.'/header.php';
                     <?php else: ?>
                         <?php foreach ($stores as $store): ?>
                             <a href="?store_id=<?php echo $store['id']; ?>"
-                               class="store-item <?php echo $current_store_id == $store['id'] ? 'active' : ''; ?>">
+                               class="store-item <?php echo $current_store_id == $store['id'] ? 'active' : ''; ?>"
+                               data-id="<?php echo $store['id']; ?>"
+                               data-name="<?php echo htmlspecialchars($store['name'], ENT_QUOTES); ?>"
+                               data-email="<?php echo htmlspecialchars($store['admin_email'] ?? '', ENT_QUOTES); ?>"
+                               data-phone="<?php echo htmlspecialchars($store['phone'] ?? '', ENT_QUOTES); ?>">
                                 <div class="store-avatar" style="position: relative;">
                                     <?php echo strtoupper(substr($store['name'], 0, 2)); ?>
                                     <?php if ($store['unread_count'] > 0): ?>
@@ -895,11 +928,27 @@ include __DIR__.'/header.php';
                                             </div>
                                         <?php endif; ?>
                                         <?php if (!empty($msg['filename'])): ?>
-                                            <div class="mb-1"><a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view" target="_blank"><?php echo htmlspecialchars($msg['filename']); ?></a></div>
+                                            <?php if (strpos($msg['mime'], 'image/') === 0): ?>
+                                                <div class="mb-1"><img src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></div>
+                                            <?php elseif (strpos($msg['mime'], 'video/') === 0): ?>
+                                                <div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" controls class="message-video"></video></div>
+                                            <?php else: ?>
+                                                <div class="mb-1"><a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view" target="_blank"><?php echo htmlspecialchars($msg['filename']); ?></a></div>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                         <div class="message-content">
                                             <?php echo nl2br(htmlspecialchars($msg['message'])); ?>
                                         </div>
+                                        <?php if ($msg['sender'] === 'store'): ?>
+                                            <div class="message-reactions">
+                                                <button class="reaction-button like <?php echo ($msg['like_by_admin']||$msg['like_by_store']) ? 'active' : ''; ?>" data-id="<?php echo $msg['id']; ?>" data-type="like">
+                                                    <i class="bi bi-hand-thumbs-up<?php echo ($msg['like_by_admin']||$msg['like_by_store']) ? '-fill' : ''; ?>"></i>
+                                                </button>
+                                                <button class="reaction-button love <?php echo ($msg['love_by_admin']||$msg['love_by_store']) ? 'active' : ''; ?>" data-id="<?php echo $msg['id']; ?>" data-type="love">
+                                                    <i class="bi bi-heart<?php echo ($msg['love_by_admin']||$msg['love_by_store']) ? '-fill' : ''; ?>"></i>
+                                                </button>
+                                            </div>
+                                        <?php endif; ?>
                                         <div class="message-time">
                                             <?php echo format_ts($msg['created_at']); ?>
                                             <?php if ($msg['sender'] === 'admin' && ($msg['read_by_store'] ?? 0)): ?>
@@ -949,6 +998,36 @@ include __DIR__.'/header.php';
         const messagesContainer = document.getElementById('messagesContainer');
 
         const chatForm = document.getElementById('chatForm');
+        document.querySelectorAll('.store-item').forEach(item => {
+            item.addEventListener('click', e => {
+                e.preventDefault();
+                selectStore(item);
+            });
+        });
+
+        function selectStore(item) {
+            const id = item.dataset.id;
+            if (!id) return;
+            chatForm.querySelector('[name="store_id"]').value = id;
+            document.querySelectorAll('.store-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            const avatar = document.querySelector('.chat-store-avatar');
+            const nameEl = document.querySelector('.chat-store-details h5');
+            const detailEl = document.querySelector('.chat-store-details small');
+            if (avatar) avatar.textContent = item.dataset.name.substring(0,2).toUpperCase();
+            if (nameEl) nameEl.textContent = item.dataset.name;
+            if (detailEl) {
+                detailEl.innerHTML = '';
+                if (item.dataset.email) {
+                    detailEl.innerHTML += `<i class="bi bi-envelope me-1"></i>${item.dataset.email}`;
+                }
+                if (item.dataset.phone) {
+                    detailEl.innerHTML += ` <i class="bi bi-telephone ms-2 me-1"></i>${item.dataset.phone}`;
+                }
+            }
+            refreshMessages();
+            if (typeof checkNotifications === 'function') { checkNotifications(); }
+        }
 
         if (messageInput) {
             messageInput.addEventListener('input', function() {
@@ -996,18 +1075,52 @@ include __DIR__.'/header.php';
                             html += `<div class="message-sender">${m.store_name}</div>`;
                         }
                         if (m.filename) {
-                            html += `<div class="mb-1"><a href="https://drive.google.com/file/d/${m.drive_id}/view" target="_blank">${m.filename}</a></div>`;
+                            if (m.mime && m.mime.startsWith('image/')) {
+                                html += `<div class="mb-1"><img src="https://drive.google.com/uc?export=view&id=${m.drive_id}" class="message-img" alt="${m.filename}"></div>`;
+                            } else if (m.mime && m.mime.startsWith('video/')) {
+                                html += `<div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=${m.drive_id}" class="message-video" controls></video></div>`;
+                            } else {
+                                html += `<div class="mb-1"><a href="https://drive.google.com/file/d/${m.drive_id}/view" target="_blank">${m.filename}</a></div>`;
+                            }
                         }
                         html += `<div class="message-content">${m.message.replace(/\n/g,'<br>')}</div>`;
                         let readIcon = '';
                         if (m.sender === 'admin' && m.read_by_store) readIcon = ' <i class="bi bi-check2-all text-primary"></i>';
                         if (m.sender === 'store' && m.read_by_admin) readIcon = ' <i class="bi bi-check2-all text-primary"></i>';
+                        if (m.sender === 'store') {
+                            html += `<div class="message-reactions">`+
+                                    `<button class="reaction-button like ${(m.like_by_admin || m.like_by_store)?'active':''}" data-id="${m.id}" data-type="like">`+
+                                    `<i class="bi bi-hand-thumbs-up${(m.like_by_admin || m.like_by_store)?'-fill':''}"></i>`+
+                                    `</button>`+
+                                    `<button class="reaction-button love ${(m.love_by_admin || m.love_by_store)?'active':''}" data-id="${m.id}" data-type="love">`+
+                                    `<i class="bi bi-heart${(m.love_by_admin || m.love_by_store)?'-fill':''}"></i>`+
+                                    `</button>`+
+                                    `</div>`;
+                        }
                         html += `<div class="message-time">${m.created_at}${readIcon}</div></div>`;
                         wrap.innerHTML = html;
                         messagesContainer.appendChild(wrap);
                     });
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    initReactions();
+                    if (typeof checkNotifications === 'function') { checkNotifications(); }
                 });
+        }
+
+        function initReactions() {
+            document.querySelectorAll('.reaction-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const fd = new FormData();
+                    fd.append('id', btn.dataset.id);
+                    fd.append('type', btn.dataset.type);
+                    fetch('../react.php', { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(() => {
+                            refreshMessages();
+                            if (typeof checkNotifications === 'function') { checkNotifications(); }
+                        });
+                });
+            });
         }
 
         if (chatForm) {
@@ -1058,26 +1171,8 @@ include __DIR__.'/header.php';
             });
         });
 
-        // Auto-refresh for new messages (every 30 seconds)
-        setInterval(function() {
-            if (window.location.search.includes('store_id=')) {
-                // Only refresh if we're viewing a specific store
-                const currentUrl = new URL(window.location);
-                const storeId = currentUrl.searchParams.get('store_id');
-                if (storeId) {
-                    // Simple check for new messages without disrupting user experience
-                    fetch(`chat_check.php?store_id=${storeId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.new_messages) {
-                                // Reload page to show new messages
-                                window.location.reload();
-                            }
-                        })
-                        .catch(error => console.log('Check failed:', error));
-                }
-            }
-        }, 30000);
+        // Periodically refresh messages
+        setInterval(refreshMessages, 5000);
     </script>
 
 <?php include __DIR__.'/footer.php'; ?>
