@@ -301,6 +301,11 @@ include __DIR__.'/header.php';
                                    class="action-button view-button">
                                     <i class="bi bi-eye"></i> View
                                 </a>
+                                <a href="https://drive.google.com/uc?export=download&id=<?php echo $upload['drive_id']; ?>"
+                                   target="_blank"
+                                   class="action-button download-button">
+                                    <i class="bi bi-download"></i> Download
+                                </a>
                                 <form method="post" class="flex-1" onsubmit="return confirmDelete('<?php echo htmlspecialchars($upload['filename']); ?>')">
                                     <input type="hidden" name="delete_id" value="<?php echo $upload['id']; ?>">
                                     <button type="submit" class="action-button delete-button w-100">

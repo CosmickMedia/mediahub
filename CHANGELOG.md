@@ -16,3 +16,6 @@
 
 ## [1.3.6] - 2025-07-22
 - b8377d0 - fix action button layout and icons
+
+## [1.3.7] - 2025-07-22
+- add download action to history page and fix broadcast buttons
