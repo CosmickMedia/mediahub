@@ -391,14 +391,14 @@ include __DIR__.'/header.php';
                                 </div>
                                 <div class="user-actions">
                                     <a href="edit_store_user.php?store_id=<?php echo $id; ?>&id=<?php echo $u['id']; ?>"
-                                       class="btn btn-action btn-action-secondary">
-                                        <i class="bi bi-pencil-square"></i> Edit
+                                       class="btn btn-action btn-action-secondary" title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <form method="post" class="d-inline m-0"
                                           onsubmit="return confirm('Remove this user?')">
                                         <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
-                                        <button class="btn btn-action btn-action-danger" name="delete_user">
-                                            <i class="bi bi-trash"></i> Remove
+                                        <button class="btn btn-action btn-action-danger" name="delete_user" title="Remove">
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -412,11 +412,11 @@ include __DIR__.'/header.php';
                     <form method="post" class="row g-3">
                         <div class="col-md-3">
                             <input type="text" name="user_first_name" class="form-control form-control-modern"
-                                   placeholder="First Name">
+                                   placeholder="First Name" required>
                         </div>
                         <div class="col-md-3">
                             <input type="text" name="user_last_name" class="form-control form-control-modern"
-                                   placeholder="Last Name">
+                                   placeholder="Last Name" required>
                         </div>
                         <div class="col-md-3">
                             <input type="email" name="user_email" class="form-control form-control-modern"
@@ -424,10 +424,10 @@ include __DIR__.'/header.php';
                         </div>
                         <div class="col-md-3">
                             <input type="text" name="user_mobile_phone" class="form-control form-control-modern"
-                                   placeholder="Mobile Phone">
+                                   placeholder="Mobile Phone" required>
                         </div>
                         <div class="col-md-4">
-                            <select name="user_opt_in_status" class="form-select form-select-modern">
+                            <select name="user_opt_in_status" class="form-select form-select-modern" required>
                                 <option value="confirmed" selected>Confirmed</option>
                                 <option value="unconfirmed">Unconfirmed</option>
                                 <option value="unsubscribed">Unsubscribed</option>

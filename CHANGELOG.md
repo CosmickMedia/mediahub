@@ -27,3 +27,12 @@
 ## [1.3.9] - 2025-07-24
 - increase store selection option spacing for better mobile usability
 
+## [1.3.10] - 2025-07-24
+- dbc7c86 - Merge pull request #128 from CosmickMedia/codex/update-version-in-version-file
+- 5f07367 - feat: support article image uploads
+- c44e93f - Merge pull request #129 from CosmickMedia/codex/add-image-upload-feature-for-articles
+- ea022b7 - Fix logout and session handling
+- da1d400 - Merge pull request #130 from CosmickMedia/codex/fix-logout-functionality-and-session-handling
+- e883778 - Fix public logout by using common session cleanup
+- 622c7af - Merge pull request #131 from CosmickMedia/codex/fix-logout-functionality-in-header
+
