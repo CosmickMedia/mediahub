@@ -100,11 +100,37 @@ foreach ($posts as $p) {
             $img = $urls[0];
         }
     }
-    if ($img && str_starts_with($img, '/calendar_media/')) {
-        $img = '/public' . $img;
+
+    // Normalize to local paths if files exist
+    if ($img) {
+        if (str_starts_with($img, '/calendar_media/')) {
+            $img = '/public' . $img;
+        } elseif (preg_match('/^https?:/', $img)) {
+            $sub = '';
+            if ($time && ($ts = strtotime($time)) !== false) {
+                $sub = date('Y/m', $ts) . '/';
+            }
+            $base = basename(parse_url($img, PHP_URL_PATH) ?? '');
+            $local = __DIR__ . '/calendar_media/' . $sub . $base;
+            if (is_file($local)) {
+                $img = '/public/calendar_media/' . $sub . $base;
+            }
+        }
     }
-    if ($video && str_starts_with($video, '/calendar_media/')) {
-        $video = '/public' . $video;
+    if ($video) {
+        if (str_starts_with($video, '/calendar_media/')) {
+            $video = '/public' . $video;
+        } elseif (preg_match('/^https?:/', $video)) {
+            $sub = '';
+            if ($time && ($ts = strtotime($time)) !== false) {
+                $sub = date('Y/m', $ts) . '/';
+            }
+            $base = basename(parse_url($video, PHP_URL_PATH) ?? '');
+            $local = __DIR__ . '/calendar_media/' . $sub . $base;
+            if (is_file($local)) {
+                $video = '/public/calendar_media/' . $sub . $base;
+            }
+        }
     }
     $tags = [];
     if (!empty($p['tags'])) {
