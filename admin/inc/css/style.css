@@ -173,6 +173,16 @@ table th, table td {
             cursor: pointer;
         }
 
+        .stat-card.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        .stat-card.active .stat-number,
+        .stat-card.active .stat-label,
+        .stat-card.active .stat-icon {
+            color: white !important;
+        }
+
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--hover-shadow);
