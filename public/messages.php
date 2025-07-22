@@ -418,6 +418,12 @@ include __DIR__.'/header.php';
             color: #dc3545;
         }
 
+        .message-reactions.readonly .reaction-button {
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
         .reply-link {
             color: #6c757d;
             font-size: 0.75rem;
@@ -773,7 +779,7 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_messages']; ?>">0</div>
+                <div class="stat-number" data-count="<?php echo $stats['total_messages']; ?>" data-stat="total">0</div>
                 <div class="stat-label">Total Messages</div>
                 <div class="stat-bg"></div>
             </div>
@@ -782,7 +788,7 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-person-badge-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['admin_messages']; ?>">0</div>
+                <div class="stat-number" data-count="<?php echo $stats['admin_messages']; ?>" data-stat="admin">0</div>
                 <div class="stat-label">From Admin</div>
                 <div class="stat-bg"></div>
             </div>
@@ -791,7 +797,7 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-person-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['your_messages']; ?>">0</div>
+                <div class="stat-number" data-count="<?php echo $stats['your_messages']; ?>" data-stat="store">0</div>
                 <div class="stat-label">Your Messages</div>
                 <div class="stat-bg"></div>
             </div>
@@ -800,7 +806,7 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-hand-thumbs-up-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['liked_messages']; ?>">0</div>
+                <div class="stat-number" data-count="<?php echo $stats['liked_messages']; ?>" data-stat="liked">0</div>
                 <div class="stat-label">Liked</div>
                 <div class="stat-bg"></div>
             </div>
@@ -809,7 +815,7 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-heart-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['loved_messages']; ?>">0</div>
+                <div class="stat-number" data-count="<?php echo $stats['loved_messages']; ?>" data-stat="loved">0</div>
                 <div class="stat-label">Loved</div>
                 <div class="stat-bg"></div>
             </div>
@@ -818,7 +824,7 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['recent_messages']; ?>">0</div>
+                <div class="stat-number" data-count="<?php echo $stats['recent_messages']; ?>" data-stat="recent">0</div>
                 <div class="stat-label">This Week</div>
                 <div class="stat-bg"></div>
             </div>
@@ -975,6 +981,7 @@ include __DIR__.'/header.php';
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.min.js"></script>
     <script src="../assets/js/emoji-picker.js"></script>
+    <script src="../assets/js/chat-common.js"></script>
     <script>
         // Initialize emoji picker
         const textarea = document.querySelector('#msgForm textarea');
@@ -1139,6 +1146,17 @@ include __DIR__.'/header.php';
                             </button>
                         </div>
                     `;
+                        } else if (m.like_by_admin || m.love_by_admin) {
+                            html += `
+                        <div class="message-reactions readonly">
+                            <span class="reaction-button like ${(m.like_by_admin) ? 'active' : ''}">
+                                <i class="bi bi-hand-thumbs-up${m.like_by_admin ? '-fill' : ''}"></i>
+                            </span>
+                            <span class="reaction-button love ${(m.love_by_admin) ? 'active' : ''}">
+                                <i class="bi bi-heart${m.love_by_admin ? '-fill' : ''}"></i>
+                            </span>
+                        </div>
+                    `;
                         }
 
                         html += `
@@ -1165,6 +1183,14 @@ include __DIR__.'/header.php';
             `;
 
                     container.scrollTop = container.scrollHeight;
+                    updateStatsFromMessages(data, {
+                        total: '[data-stat="total"]',
+                        admin: '[data-stat="admin"]',
+                        store: '[data-stat="store"]',
+                        liked: '[data-stat="liked"]',
+                        loved: '[data-stat="loved"]',
+                        recent: '[data-stat="recent"]'
+                    });
                     initReactions();
                     initReplyLinks();
 
@@ -1182,6 +1208,7 @@ include __DIR__.'/header.php';
         document.getElementById('msgForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const fd = new FormData(this);
+            fd.append('store_id', <?php echo json_encode($store_id); ?>);
 
             if (document.getElementById('fileInput').files.length) {
                 fd.append('ajax', '1');
@@ -1246,21 +1273,11 @@ include __DIR__.'/header.php';
 
         // Reactions
         function initReactions() {
-            document.querySelectorAll('.reaction-button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const form = new FormData();
-                    form.append('id', btn.dataset.id);
-                    form.append('type', btn.dataset.type);
-
-                    fetch('../react.php', { method: 'POST', body: form })
-                        .then(r => r.json())
-                        .then(() => {
-                            refreshMessages();
-                            if (typeof checkNotifications === 'function') {
-                                checkNotifications();
-                            }
-                        });
-                });
+            bindReactionButtons(document, () => {
+                refreshMessages();
+                if (typeof checkNotifications === 'function') {
+                    checkNotifications();
+                }
             });
         }
 
