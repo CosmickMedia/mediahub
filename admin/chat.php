@@ -13,13 +13,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
     $message = trim($_POST['message'] ?? '');
     $store_id = $_POST['store_id'] ?? null;
 
-    if (empty($message)) {
+    if (empty($message) && empty($_FILES['file']['name'])) {
         $errors[] = 'Message cannot be empty';
     } elseif (empty($store_id)) {
         $errors[] = 'Please select a store';
     } else {
-        $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, created_at, is_reply) VALUES (?, 'admin', ?, NOW(), 1)");
-        $stmt->execute([$store_id, $message]);
+        $upload_id = null;
+        if (!empty($_FILES['file']['name']) && is_uploaded_file($_FILES['file']['tmp_name'])) {
+            require_once __DIR__.'/../lib/drive.php';
+            $tmp = $_FILES['file']['tmp_name'];
+            $orig = $_FILES['file']['name'];
+            $size = $_FILES['file']['size'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $tmp);
+            finfo_close($finfo);
+            $folderId = get_or_create_store_folder($store_id);
+            $driveId = drive_upload($tmp, $mime, $orig, $folderId);
+            $ins = $pdo->prepare('INSERT INTO uploads (store_id, filename, created_at, ip, mime, size, drive_id) VALUES (?, ?, NOW(), ?, ?, ?, ?)');
+            $ins->execute([$store_id, $orig, $_SERVER['REMOTE_ADDR'] ?? '', $mime, $size, $driveId]);
+            $upload_id = $pdo->lastInsertId();
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, created_at, is_reply, read_by_admin, read_by_store, upload_id) VALUES (?, 'admin', ?, NOW(), 1, 1, 0, ?)");
+        $stmt->execute([$store_id, $message, $upload_id]);
         $success[] = 'Message sent successfully';
     }
 }
@@ -28,12 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_read'])) {
     $store_id = $_POST['store_id'] ?? null;
     if ($store_id) {
-        try {
-            $stmt = $pdo->prepare("UPDATE store_messages SET is_read = 1 WHERE store_id = ? AND sender != 'admin'");
-            $stmt->execute([$store_id]);
-        } catch (PDOException $e) {
-            // Column doesn't exist, skip this functionality
-        }
+        $stmt = $pdo->prepare("UPDATE store_messages SET read_by_admin = 1 WHERE store_id = ? AND sender = 'store' AND read_by_admin = 0");
+        $stmt->execute([$store_id]);
     }
 }
 
@@ -48,8 +60,8 @@ if ($current_store_id) {
 
 // Get all stores with message counts and latest message info
 $stores_query = "
-    SELECT s.*, 
-           COUNT(CASE WHEN m.sender != 'admin' THEN 1 END) as unread_count,
+    SELECT s.*,
+           SUM(CASE WHEN m.sender='store' AND m.read_by_admin=0 THEN 1 ELSE 0 END) as unread_count,
            COUNT(m.id) as total_messages,
            MAX(m.created_at) as last_message_time,
            (SELECT message FROM store_messages WHERE store_id = s.id ORDER BY created_at DESC LIMIT 1) as last_message,
@@ -65,20 +77,28 @@ $stores = $pdo->query($stores_query)->fetchAll(PDO::FETCH_ASSOC);
 $messages = [];
 if ($current_store_id) {
     $stmt = $pdo->prepare("
-        SELECT m.*, s.name as store_name 
-        FROM store_messages m 
-        JOIN stores s ON m.store_id = s.id 
-        WHERE m.store_id = ? 
+        SELECT m.*, s.name as store_name, u.filename, u.drive_id
+        FROM store_messages m
+        JOIN stores s ON m.store_id = s.id
+        LEFT JOIN uploads u ON m.upload_id = u.id
+        WHERE m.store_id = ?
         ORDER BY m.created_at ASC
     ");
     $stmt->execute([$current_store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $upd = $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0");
+    $upd->execute([$current_store_id]);
+    $cnt = $pdo->prepare("SELECT COUNT(*) FROM store_messages WHERE store_id=? AND sender='store' AND read_by_admin=0");
+    $cnt->execute([$current_store_id]);
+    $current_unread = (int)$cnt->fetchColumn();
+} else {
+    $current_unread = 0;
 }
 
 // Calculate statistics
 $stats = [];
 $stats['total_conversations'] = $pdo->query("SELECT COUNT(DISTINCT store_id) FROM store_messages")->fetchColumn();
-$stats['unread_messages'] = $pdo->query("SELECT COUNT(*) FROM store_messages WHERE sender != 'admin'")->fetchColumn();
+$stats['unread_messages'] = $pdo->query("SELECT COUNT(*) FROM store_messages WHERE sender='store' AND read_by_admin=0")->fetchColumn();
 $stats['today_messages'] = $pdo->query("SELECT COUNT(*) FROM store_messages WHERE DATE(created_at) = CURDATE()")->fetchColumn();
 $stats['active_chats'] = $pdo->query("SELECT COUNT(DISTINCT store_id) FROM store_messages WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)")->fetchColumn();
 
@@ -515,6 +535,23 @@ include __DIR__.'/header.php';
             transform: none;
         }
 
+        .btn-action {
+            background: #f1f1f1;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-action:hover {
+            background: #e2e2e2;
+        }
+
         /* Empty States */
         .empty-state {
             display: flex;
@@ -816,7 +853,7 @@ include __DIR__.'/header.php';
                         <div class="chat-actions">
                             <form method="post" class="d-inline">
                                 <input type="hidden" name="store_id" value="<?php echo $current_store_id; ?>">
-                                <button type="submit" name="mark_read" class="btn btn-chat-action btn-mark-read" style="display: none;">
+                                <button type="submit" name="mark_read" class="btn btn-chat-action btn-mark-read"<?php echo $current_unread ? '' : ' style="display:none;"'; ?>>
                                     <i class="bi bi-check-all me-1"></i>Mark Read
                                 </button>
                             </form>
@@ -840,11 +877,19 @@ include __DIR__.'/header.php';
                                                 <?php echo htmlspecialchars($msg['store_name']); ?>
                                             </div>
                                         <?php endif; ?>
+                                        <?php if (!empty($msg['filename'])): ?>
+                                            <div class="mb-1"><a href="https://drive.google.com/file/d/<?php echo $msg['drive_id']; ?>/view" target="_blank"><?php echo htmlspecialchars($msg['filename']); ?></a></div>
+                                        <?php endif; ?>
                                         <div class="message-content">
                                             <?php echo nl2br(htmlspecialchars($msg['message'])); ?>
                                         </div>
                                         <div class="message-time">
                                             <?php echo format_ts($msg['created_at']); ?>
+                                            <?php if ($msg['sender'] === 'admin' && ($msg['read_by_store'] ?? 0)): ?>
+                                                <i class="bi bi-check2-all text-primary"></i>
+                                            <?php elseif ($msg['sender'] === 'store' && ($msg['read_by_admin'] ?? 0)): ?>
+                                                <i class="bi bi-check2-all text-primary"></i>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -854,18 +899,21 @@ include __DIR__.'/header.php';
 
                     <!-- Message Input -->
                     <div class="message-input-container">
-                        <form method="post" class="message-input-form">
+                        <form method="post" class="message-input-form" enctype="multipart/form-data" id="chatForm">
                             <input type="hidden" name="store_id" value="<?php echo $current_store_id; ?>">
                             <textarea name="message"
                                       class="message-input"
                                       placeholder="Type your message..."
-                                      required
                                       rows="1"
                                       id="messageInput"></textarea>
+                            <input type="file" name="file" id="fileInput" class="d-none">
+                            <button type="button" class="btn-action" id="fileBtn" title="Upload file"><i class="bi bi-paperclip"></i></button>
+                            <button type="button" class="btn-action" id="emojiBtn" title="Add emoji"><i class="bi bi-emoji-smile"></i></button>
                             <button type="submit" name="send_message" class="btn-send" id="sendButton">
                                 <i class="bi bi-send-fill"></i>
                             </button>
                         </form>
+                        <div id="emojiPicker"></div>
                     </div>
                 <?php endif; ?>
             </div>
@@ -876,6 +924,10 @@ include __DIR__.'/header.php';
         // Auto-resize textarea
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
+        const fileBtn = document.getElementById('fileBtn');
+        const fileInput = document.getElementById('fileInput');
+        const emojiBtn = document.getElementById('emojiBtn');
+        const emojiPicker = document.getElementById('emojiPicker');
         const messagesContainer = document.getElementById('messagesContainer');
 
         if (messageInput) {
@@ -884,7 +936,7 @@ include __DIR__.'/header.php';
                 this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 
                 // Enable/disable send button
-                sendButton.disabled = this.value.trim() === '';
+                sendButton.disabled = this.value.trim() === '' && !fileInput.value;
             });
 
             // Send message on Ctrl+Enter
@@ -896,6 +948,19 @@ include __DIR__.'/header.php';
                     }
                 }
             });
+        }
+
+        if (fileBtn && fileInput) {
+            fileBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    document.getElementById('chatForm').submit();
+                }
+            });
+        }
+
+        if (emojiBtn && emojiPicker && typeof initEmojiPicker === 'function') {
+            initEmojiPicker(messageInput, emojiBtn, emojiPicker);
         }
 
         // Auto-scroll to bottom of messages
@@ -945,5 +1010,6 @@ include __DIR__.'/header.php';
             }
         }, 30000);
     </script>
+    <script src="../assets/js/emoji-picker.js"></script>
 
 <?php include __DIR__.'/footer.php'; ?>
