@@ -58,6 +58,23 @@ if ($current_store_id) {
     $current_store = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+if (isset($_GET['load']) && $current_store_id) {
+    $stmt = $pdo->prepare("SELECT m.*, s.name as store_name, u.filename, u.drive_id
+        FROM store_messages m
+        JOIN stores s ON m.store_id = s.id
+        LEFT JOIN uploads u ON m.upload_id = u.id
+        WHERE m.store_id = ?
+        ORDER BY m.created_at ASC");
+    $stmt->execute([$current_store_id]);
+    $msgs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($msgs as &$m) {
+        $m['created_at'] = format_ts($m['created_at']);
+    }
+    header('Content-Type: application/json');
+    echo json_encode($msgs);
+    exit;
+}
+
 // Get all stores with message counts and latest message info
 $stores_query = "
     SELECT s.*,
@@ -920,6 +937,7 @@ include __DIR__.'/header.php';
         </div>
     </div>
 
+    <script src="../assets/js/emoji-picker.js"></script>
     <script>
         // Auto-resize textarea
         const messageInput = document.getElementById('messageInput');
@@ -930,6 +948,8 @@ include __DIR__.'/header.php';
         const emojiPicker = document.getElementById('emojiPicker');
         const messagesContainer = document.getElementById('messagesContainer');
 
+        const chatForm = document.getElementById('chatForm');
+
         if (messageInput) {
             messageInput.addEventListener('input', function() {
                 this.style.height = 'auto';
@@ -939,13 +959,11 @@ include __DIR__.'/header.php';
                 sendButton.disabled = this.value.trim() === '' && !fileInput.value;
             });
 
-            // Send message on Ctrl+Enter
+            // Send message on Enter (shift+enter for newline)
             messageInput.addEventListener('keydown', function(e) {
-                if (e.ctrlKey && e.key === 'Enter') {
+                if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    if (this.value.trim() !== '') {
-                        this.closest('form').submit();
-                    }
+                    chatForm.dispatchEvent(new Event('submit'));
                 }
             });
         }
@@ -954,13 +972,64 @@ include __DIR__.'/header.php';
             fileBtn.addEventListener('click', () => fileInput.click());
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length) {
-                    document.getElementById('chatForm').submit();
+                    chatForm.dispatchEvent(new Event('submit'));
                 }
             });
         }
 
         if (emojiBtn && emojiPicker && typeof initEmojiPicker === 'function') {
             initEmojiPicker(messageInput, emojiBtn, emojiPicker);
+        }
+
+        function refreshMessages() {
+            const storeId = chatForm.querySelector('[name="store_id"]').value;
+            if (!storeId) return;
+            fetch(`chat.php?store_id=${storeId}&load=1`)
+                .then(r => r.json())
+                .then(data => {
+                    messagesContainer.innerHTML = '';
+                    data.forEach(m => {
+                        const wrap = document.createElement('div');
+                        wrap.className = 'message ' + (m.sender === 'admin' ? 'admin' : 'store');
+                        let html = '<div class="message-bubble">';
+                        if (m.sender !== 'admin') {
+                            html += `<div class="message-sender">${m.store_name}</div>`;
+                        }
+                        if (m.filename) {
+                            html += `<div class="mb-1"><a href="https://drive.google.com/file/d/${m.drive_id}/view" target="_blank">${m.filename}</a></div>`;
+                        }
+                        html += `<div class="message-content">${m.message.replace(/\n/g,'<br>')}</div>`;
+                        let readIcon = '';
+                        if (m.sender === 'admin' && m.read_by_store) readIcon = ' <i class="bi bi-check2-all text-primary"></i>';
+                        if (m.sender === 'store' && m.read_by_admin) readIcon = ' <i class="bi bi-check2-all text-primary"></i>';
+                        html += `<div class="message-time">${m.created_at}${readIcon}</div></div>`;
+                        wrap.innerHTML = html;
+                        messagesContainer.appendChild(wrap);
+                    });
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                });
+        }
+
+        if (chatForm) {
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const fd = new FormData(chatForm);
+                const hasFile = fileInput.files.length > 0;
+                const url = hasFile ? '../chat_upload.php' : 'send_message.php';
+                fetch(url, { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.success) {
+                            chatForm.reset();
+                            messageInput.style.height = 'auto';
+                            refreshMessages();
+                        } else if (res.error) {
+                            alert(res.error);
+                        } else {
+                            alert('Send failed');
+                        }
+                    });
+            });
         }
 
         // Auto-scroll to bottom of messages
@@ -1010,6 +1079,5 @@ include __DIR__.'/header.php';
             }
         }, 30000);
     </script>
-    <script src="../assets/js/emoji-picker.js"></script>
 
 <?php include __DIR__.'/footer.php'; ?>
