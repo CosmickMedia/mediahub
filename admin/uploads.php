@@ -358,7 +358,7 @@ include __DIR__.'/header.php';
                                 <td class="actions-cell">
                                     <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
                                        target="_blank" class="btn btn-action btn-action-primary" title="View in Drive">
-                                        <i class="bi bi-eye"></i> View
+                                        <i class="bi bi-eye"></i>
                                     </a>
                                     <a href="https://drive.google.com/uc?export=download&id=<?php echo $upload['drive_id']; ?>"
                                        class="btn btn-action btn-action-success" title="Download">
