@@ -131,6 +131,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         [$ok, $msg] = test_groundhogg_connection();
         $test_result = [$ok, $msg];
         $test_action = 'groundhogg';
+    } elseif (isset($_POST['calendar_update'])) {
+        require_once __DIR__.'/../lib/calendar.php';
+        [$ok, $msg] = calendar_update(false);
+        $test_result = [$ok, $msg];
+        $test_action = 'calendar';
     } elseif (isset($_POST['force_calendar_update'])) {
         require_once __DIR__.'/../lib/calendar.php';
         [$ok, $msg] = calendar_update(true);
@@ -685,9 +690,17 @@ include __DIR__.'/header.php';
                                 <h6>
                                     <i class="bi bi-arrow-repeat"></i> Calendar Actions
                                 </h6>
-                                <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="force_calendar_update">
-                                    <i class="bi bi-download"></i> Force Update
-                                </button>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="calendar_update">
+                                        <i class="bi bi-download"></i> Update
+                                    </button>
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="force_calendar_update">
+                                        <i class="bi bi-trash"></i> Erase &amp; Update
+                                    </button>
+                                </div>
+                                <div class="form-text-modern mt-2">
+                                    <strong>Update</strong> adds new sheet entries without removing existing ones. <strong>Erase &amp; Update</strong> clears all entries then syncs.
+                                </div>
                             </div>
                         </div>
                     </div>
