@@ -19,3 +19,7 @@
 
 ## [1.3.7] - 2025-07-22
 - add download action to history page and fix broadcast buttons
+
+## [1.3.8] - 2025-07-23
+- show store reactions in admin chat window
+- display upload button in dashboard widget

@@ -946,10 +946,12 @@ include __DIR__.'/header.php';
                 fileList.innerHTML = '';
 
                 if (allFiles.length === 0) {
+                    uploadBtn.classList.add('d-none');
                     uploadBtn.style.display = 'none';
                     return;
                 }
 
+                uploadBtn.classList.remove('d-none');
                 uploadBtn.style.display = 'block';
 
                 allFiles.forEach((file, index) => {
