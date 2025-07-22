@@ -255,7 +255,7 @@ include __DIR__.'/header.php';
                                     <td>
                                         <span class="badge bg-success"><?php echo $s['upload_count']; ?></span>
                                     </td>
-                                    <td>
+                                    <td class="actions-cell">
                                         <a href="uploads.php?store_id=<?php echo $s['id']; ?>"
                                            class="btn btn-action btn-action-primary"
                                            title="View Uploads">

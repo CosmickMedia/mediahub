@@ -68,6 +68,14 @@ table th, table td {
     vertical-align: middle !important;
 }
 
+/* Action buttons in tables */
+.actions-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
 /* Dashboard widget colors */
 .bg-stat-stores { background-color: #E8F0FE !important; }
 .bg-stat-uploads { background-color: #E6FAF1 !important; }
