@@ -71,6 +71,14 @@ try {
     echo "• Article_id column might already exist\n";
 }
 
+// Add images column to articles table
+try {
+    $pdo->exec("ALTER TABLE articles ADD COLUMN images TEXT AFTER excerpt");
+    echo "✓ Added images column to articles table\n";
+} catch (PDOException $e) {
+    echo "• Images column might already exist\n";
+}
+
 echo "\n✓ Database update complete!\n";
 echo "Article submission functionality is now available.\n";
 ?>

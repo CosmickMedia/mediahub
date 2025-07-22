@@ -2,6 +2,10 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/drive.php';
+
+$config = get_config();
+$localUploadDir = $config['local_upload_dir'] ?? (__DIR__ . '/uploads');
 
 session_start();
 
@@ -49,33 +53,111 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
 
     if (empty($errors)) {
         try {
-            // Check if category column exists
-            $checkColumn = $pdo->query("SHOW COLUMNS FROM articles LIKE 'category'");
-            $hasCategory = $checkColumn->fetch() !== false;
+            // Detect available columns
+            $cols = $pdo->query("SHOW COLUMNS FROM articles")->fetchAll(PDO::FETCH_COLUMN);
+            $hasCategory = in_array('category', $cols, true);
+            $hasTags = in_array('tags', $cols, true);
+            $hasImages = in_array('images', $cols, true);
+
+            // Handle image uploads
+            $uploadedImages = [];
+            if (!empty($_FILES['article_images']['name'][0])) {
+                $storeFolderId = get_or_create_store_folder($store_id);
+                $totalFiles = count($_FILES['article_images']['name']);
+                for ($i = 0; $i < $totalFiles; $i++) {
+                    if (!is_uploaded_file($_FILES['article_images']['tmp_name'][$i])) continue;
+
+                    $tmpFile = $_FILES['article_images']['tmp_name'][$i];
+                    $originalName = $_FILES['article_images']['name'][$i];
+                    $fileSize = $_FILES['article_images']['size'][$i];
+                    $fileError = $_FILES['article_images']['error'][$i];
+
+                    if ($fileError !== UPLOAD_ERR_OK) {
+                        $errors[] = "Error uploading $originalName: " . getUploadErrorMessage($fileError);
+                        continue;
+                    }
+                    if ($fileSize > 20 * 1024 * 1024) {
+                        $errors[] = "$originalName is too large (max 20MB)";
+                        continue;
+                    }
+
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                    $mimeType = finfo_file($finfo, $tmpFile);
+                    finfo_close($finfo);
+
+                    if (strpos($mimeType, 'image/') !== 0) {
+                        $errors[] = "$originalName is not an image";
+                        continue;
+                    }
+
+                    try {
+                        $subDir = 'articles/' . $store_id . '/' . date('Y/m');
+                        $targetDir = rtrim($localUploadDir, '/\\') . '/' . $subDir;
+                        $thumbDir = $targetDir . '/thumbs';
+                        if (!is_dir($thumbDir) && !mkdir($thumbDir, 0777, true) && !is_dir($thumbDir)) {
+                            throw new Exception('Failed to create upload directory');
+                        }
+                        $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($originalName));
+                        $localPath = $targetDir . '/' . $safeName;
+                        if (!move_uploaded_file($tmpFile, $localPath)) {
+                            throw new Exception('Failed to store file locally');
+                        }
+                        $thumbPath = $thumbDir . '/' . $safeName;
+                        $thumbUrl = null;
+                        if (create_local_thumbnail($localPath, $thumbPath, $mimeType)) {
+                            $thumbUrl = 'uploads/' . $subDir . '/thumbs/' . $safeName;
+                        }
+                        $driveId = drive_upload($localPath, $mimeType, $originalName, $storeFolderId);
+                        $uploadedImages[] = [
+                            'filename' => $originalName,
+                            'drive_id' => $driveId,
+                            'local_path' => 'uploads/' . $subDir . '/' . $safeName,
+                            'thumb_path' => $thumbUrl
+                        ];
+                    } catch (Exception $e) {
+                        $errors[] = "Failed to upload $originalName: " . $e->getMessage();
+                    }
+                }
+            }
+
+            if ($errors) {
+                throw new Exception('Image upload failed');
+            }
+
+            $fields = ['store_id', 'title', 'content', 'excerpt'];
+            $placeholders = '?, ?, ?, ?';
+            $values = [$store_id, $title, $content, $excerpt];
 
             if ($hasCategory) {
-                $stmt = $pdo->prepare('INSERT INTO articles (store_id, title, content, excerpt, category, tags, status, created_at, ip) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)');
-                $stmt->execute([
-                    $store_id,
-                    $title,
-                    $content,
-                    $excerpt,
-                    $category,
-                    $tags,
-                    'submitted',
-                    $_SERVER['REMOTE_ADDR']
-                ]);
-            } else {
-                $stmt = $pdo->prepare('INSERT INTO articles (store_id, title, content, excerpt, status, created_at, ip) VALUES (?, ?, ?, ?, ?, NOW(), ?)');
-                $stmt->execute([
-                    $store_id,
-                    $title,
-                    $content,
-                    $excerpt,
-                    'submitted',
-                    $_SERVER['REMOTE_ADDR']
-                ]);
+                $fields[] = 'category';
+                $placeholders .= ', ?';
+                $values[] = $category;
             }
+            if ($hasTags) {
+                $fields[] = 'tags';
+                $placeholders .= ', ?';
+                $values[] = $tags;
+            }
+            if ($hasImages) {
+                $fields[] = 'images';
+                $placeholders .= ', ?';
+                $values[] = json_encode($uploadedImages);
+            }
+
+            $fields[] = 'status';
+            $placeholders .= ', ?';
+            $values[] = 'submitted';
+
+            $fields[] = 'created_at';
+            $placeholders .= ', NOW()';
+
+            $fields[] = 'ip';
+            $placeholders .= ', ?';
+            $values[] = $_SERVER['REMOTE_ADDR'];
+
+            $sql = 'INSERT INTO articles (' . implode(',', $fields) . ') VALUES (' . $placeholders . ')';
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($values);
 
             $success[] = 'Article submitted successfully!';
 
@@ -203,9 +285,9 @@ $order_clause = match($orderBy) {
 };
 
 $stmt = $pdo->prepare("
-    SELECT * FROM articles 
-    WHERE $where_clause 
-    ORDER BY $order_clause 
+    SELECT * FROM articles
+    WHERE $where_clause
+    ORDER BY $order_clause
     LIMIT $per_page OFFSET $offset
 ");
 $stmt->execute($params);
@@ -215,6 +297,52 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $tab = $_GET['tab'] ?? 'submit';
 
 // Get saved draft from localStorage (handled by JavaScript)
+
+function getUploadErrorMessage($code) {
+    switch ($code) {
+        case UPLOAD_ERR_INI_SIZE:
+            return 'File exceeds upload_max_filesize in php.ini';
+        case UPLOAD_ERR_FORM_SIZE:
+            return 'File exceeds MAX_FILE_SIZE in form';
+        case UPLOAD_ERR_PARTIAL:
+            return 'File was only partially uploaded';
+        case UPLOAD_ERR_NO_FILE:
+            return 'No file was uploaded';
+        case UPLOAD_ERR_NO_TMP_DIR:
+            return 'Missing temporary folder';
+        case UPLOAD_ERR_CANT_WRITE:
+            return 'Failed to write file to disk';
+        case UPLOAD_ERR_EXTENSION:
+            return 'File upload stopped by extension';
+        default:
+            return 'Unknown upload error';
+    }
+}
+
+function create_local_thumbnail(string $src, string $dest, string $mime): bool {
+    $max = 400;
+    if (strpos($mime, 'image/') === 0) {
+        $img = @imagecreatefromstring(file_get_contents($src));
+        if (!$img) return false;
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $scale = min($max / $w, $max / $h, 1);
+        $tw = (int)($w * $scale);
+        $th = (int)($h * $scale);
+        $thumb = imagecreatetruecolor($tw, $th);
+        imagecopyresampled($thumb, $img, 0, 0, 0, 0, $tw, $th, $w, $h);
+        imagejpeg($thumb, $dest, 80);
+        imagedestroy($img);
+        imagedestroy($thumb);
+        return true;
+    }
+    if (strpos($mime, 'video/') === 0) {
+        $cmd = 'ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
+        exec($cmd);
+        return file_exists($dest);
+    }
+    return false;
+}
 
 include __DIR__.'/header.php';
 ?>
@@ -328,7 +456,7 @@ include __DIR__.'/header.php';
                     <p class="form-description">Share your story, news, or press release with us</p>
                 </div>
 
-                <form method="post" id="articleForm">
+                <form method="post" enctype="multipart/form-data" id="articleForm">
                     <input type="hidden" name="submit_article" value="1">
 
                     <div class="form-grid">
@@ -411,6 +539,27 @@ include __DIR__.'/header.php';
                                    name="tags"
                                    placeholder="Add tags separated by commas (e.g., marketing, social media, tips)">
                             <div class="tag-suggestions" id="tagSuggestions"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-image"></i> Article Images
+                            </label>
+                            <div class="upload-area small" id="articleImageArea">
+                                <i class="bi bi-cloud-upload upload-icon"></i>
+                                <p class="upload-text">Drag & drop or browse</p>
+                                <div class="file-buttons">
+                                    <button type="button" class="btn-modern btn-modern-primary" onclick="document.getElementById('articleImages').click();">
+                                        <i class="bi bi-folder2-open"></i> Browse Files
+                                    </button>
+                                    <button type="button" class="btn-modern btn-modern-secondary" onclick="document.getElementById('articleCamera').click();">
+                                        <i class="bi bi-camera"></i> Use Camera
+                                    </button>
+                                </div>
+                                <input class="d-none" type="file" name="article_images[]" id="articleImages" multiple accept="image/*">
+                                <input type="file" id="articleCamera" accept="image/*" capture="camera" class="d-none">
+                                <div id="articleFileList"></div>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -948,6 +1097,32 @@ include __DIR__.'/header.php';
                         tagInput.value = tag;
                     }
                     tagInput.focus();
+                }
+            });
+        }
+
+        // Simple preview of selected article images
+        const imgInput = document.getElementById('articleImages');
+        const cameraInput = document.getElementById('articleCamera');
+        const fileList = document.getElementById('articleFileList');
+
+        function updateArticleList(files) {
+            fileList.innerHTML = '';
+            Array.from(files).forEach(f => {
+                const div = document.createElement('div');
+                div.textContent = f.name;
+                fileList.appendChild(div);
+            });
+        }
+
+        if (imgInput) {
+            imgInput.addEventListener('change', () => updateArticleList(imgInput.files));
+        }
+        if (cameraInput) {
+            cameraInput.addEventListener('change', () => {
+                if (cameraInput.files.length > 0) {
+                    updateArticleList(cameraInput.files);
+                    imgInput.files = cameraInput.files;
                 }
             });
         }
