@@ -530,6 +530,7 @@ include __DIR__.'/header.php';
             padding: 1.5rem;
             border-top: 1px solid #e9ecef;
             background: white;
+            position: relative;
         }
 
         .message-input-form {
@@ -596,6 +597,52 @@ include __DIR__.'/header.php';
 
         .btn-action:hover {
             background: #e2e2e2;
+        }
+
+        .file-preview {
+            margin-top: 0.5rem;
+        }
+
+        .file-preview img {
+            max-width: 100px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Emoji Picker */
+        #emojiPicker {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: none;
+            width: 300px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        #emojiPicker .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0.25rem;
+        }
+
+        #emojiPicker .emoji-option {
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        #emojiPicker .emoji-option:hover {
+            background: #f8f9fa;
+            transform: scale(1.2);
         }
 
         /* Empty States */
@@ -929,7 +976,7 @@ include __DIR__.'/header.php';
                                         <?php endif; ?>
                                         <?php if (!empty($msg['filename'])): ?>
                                             <?php if (strpos($msg['mime'], 'image/') === 0): ?>
-                                                <div class="mb-1"><img src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></div>
+                                                <div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" target="_blank"><img src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></a></div>
                                             <?php elseif (strpos($msg['mime'], 'video/') === 0): ?>
                                                 <div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" controls class="message-video"></video></div>
                                             <?php else: ?>
@@ -973,6 +1020,7 @@ include __DIR__.'/header.php';
                                       rows="1"
                                       id="messageInput"></textarea>
                             <input type="file" name="file" id="fileInput" class="d-none">
+                            <div id="filePreview" class="file-preview d-none"></div>
                             <button type="button" class="btn-action" id="fileBtn" title="Upload file"><i class="bi bi-paperclip"></i></button>
                             <button type="button" class="btn-action" id="emojiBtn" title="Add emoji"><i class="bi bi-emoji-smile"></i></button>
                             <button type="submit" name="send_message" class="btn-send" id="sendButton">
@@ -993,9 +1041,12 @@ include __DIR__.'/header.php';
         const sendButton = document.getElementById('sendButton');
         const fileBtn = document.getElementById('fileBtn');
         const fileInput = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
         const emojiBtn = document.getElementById('emojiBtn');
         const emojiPicker = document.getElementById('emojiPicker');
         const messagesContainer = document.getElementById('messagesContainer');
+
+        sendButton.disabled = messageInput.value.trim() === '' && !fileInput.files.length;
 
         const chatForm = document.getElementById('chatForm');
         document.querySelectorAll('.store-item').forEach(item => {
@@ -1035,7 +1086,7 @@ include __DIR__.'/header.php';
                 this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 
                 // Enable/disable send button
-                sendButton.disabled = this.value.trim() === '' && !fileInput.value;
+                sendButton.disabled = this.value.trim() === '' && !fileInput.files.length;
             });
 
             // Send message on Enter (shift+enter for newline)
@@ -1051,9 +1102,37 @@ include __DIR__.'/header.php';
             fileBtn.addEventListener('click', () => fileInput.click());
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length) {
-                    chatForm.dispatchEvent(new Event('submit'));
+                    previewAttachment(fileInput.files[0]);
+                } else {
+                    clearAttachment();
                 }
+                sendButton.disabled = messageInput.value.trim() === '' && !fileInput.files.length;
             });
+        }
+
+        function previewAttachment(file) {
+            if (!filePreview) return;
+            filePreview.innerHTML = '';
+            let url = '';
+            if (file.type.startsWith('image/')) {
+                url = URL.createObjectURL(file);
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = file.name;
+                filePreview.appendChild(img);
+                filePreview.onclick = () => window.open(url, '_blank');
+            } else {
+                filePreview.textContent = file.name;
+                filePreview.onclick = null;
+            }
+            filePreview.classList.remove('d-none');
+        }
+
+        function clearAttachment() {
+            if (!filePreview) return;
+            filePreview.innerHTML = '';
+            filePreview.classList.add('d-none');
+            filePreview.onclick = null;
         }
 
         if (emojiBtn && emojiPicker && typeof initEmojiPicker === 'function') {
@@ -1066,6 +1145,9 @@ include __DIR__.'/header.php';
             fetch(`chat.php?store_id=${storeId}&load=1`)
                 .then(r => r.json())
                 .then(data => {
+                    const prevScroll = messagesContainer.scrollTop;
+                    const prevHeight = messagesContainer.scrollHeight;
+                    const atBottom = prevHeight - prevScroll - messagesContainer.clientHeight < 50;
                     messagesContainer.innerHTML = '';
                     data.forEach(m => {
                         const wrap = document.createElement('div');
@@ -1076,7 +1158,7 @@ include __DIR__.'/header.php';
                         }
                         if (m.filename) {
                             if (m.mime && m.mime.startsWith('image/')) {
-                                html += `<div class="mb-1"><img src="https://drive.google.com/uc?export=view&id=${m.drive_id}" class="message-img" alt="${m.filename}"></div>`;
+                                html += `<div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=${m.drive_id}" target="_blank"><img src="https://drive.google.com/uc?export=view&id=${m.drive_id}" class="message-img" alt="${m.filename}"></a></div>`;
                             } else if (m.mime && m.mime.startsWith('video/')) {
                                 html += `<div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=${m.drive_id}" class="message-video" controls></video></div>`;
                             } else {
@@ -1101,7 +1183,12 @@ include __DIR__.'/header.php';
                         wrap.innerHTML = html;
                         messagesContainer.appendChild(wrap);
                     });
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    const newHeight = messagesContainer.scrollHeight;
+                    if (atBottom) {
+                        messagesContainer.scrollTop = newHeight;
+                    } else {
+                        messagesContainer.scrollTop = prevScroll + (newHeight - prevHeight);
+                    }
                     initReactions();
                     if (typeof checkNotifications === 'function') { checkNotifications(); }
                 });
@@ -1135,6 +1222,8 @@ include __DIR__.'/header.php';
                         if (res.success) {
                             chatForm.reset();
                             messageInput.style.height = 'auto';
+                            clearAttachment();
+                            sendButton.disabled = true;
                             refreshMessages();
                         } else if (res.error) {
                             alert(res.error);
