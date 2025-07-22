@@ -11,6 +11,10 @@ if (session_status() === PHP_SESSION_NONE) {
 // Start session if not already started
 function ensure_session() {
     if (session_status() === PHP_SESSION_NONE) {
+        $isAdmin = isset($_SERVER['SCRIPT_NAME']) && strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
+        $sessionName = $isAdmin ? 'cm_admin_session' : 'cm_public_session';
+        session_name($sessionName);
+
         // Set session cookie parameters before starting session
         $currentCookieParams = session_get_cookie_params();
         session_set_cookie_params([
