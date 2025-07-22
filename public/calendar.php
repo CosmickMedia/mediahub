@@ -161,7 +161,8 @@ foreach ($posts as $p) {
     }
     $events[] = [
         'title' => $network_name ?: 'Post',
-        'start' => $time,
+        // Convert datetime to ISO format for FullCalendar
+        'start' => $time ? str_replace(' ', 'T', $time) : null,
         'backgroundColor' => $color,
         'borderColor' => $color,
         'classNames' => $class ? [$class] : ['social-default'],
@@ -170,7 +171,8 @@ foreach ($posts as $p) {
             'video' => $video,
             'icon'  => $icon,
             'text'  => $p['text'] ?? '',
-            'time'  => $time,
+            // Provide ISO datetime for display
+            'time'  => $time ? str_replace(' ', 'T', $time) : null,
             'network' => $network_name,
             'tags' => $tags
         ]
