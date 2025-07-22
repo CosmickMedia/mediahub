@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
-session_start();
+require_once __DIR__.'/../lib/auth.php';
+ensure_session();
 if(!isset($_SESSION['store_id'])){http_response_code(403);exit;}
 $pdo=get_pdo();
 $count=$pdo->prepare("SELECT COUNT(*) FROM store_messages WHERE store_id=? AND sender='admin' AND read_by_store=0");

@@ -3,8 +3,9 @@ require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/calendar.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_once __DIR__.'/../lib/hootsuite.php';
+require_once __DIR__.'/../lib/auth.php';
 
-session_start();
+ensure_session();
 
 if (!isset($_SESSION['store_id'])) {
     header('Location: index.php');
