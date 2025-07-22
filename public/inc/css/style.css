@@ -1483,6 +1483,17 @@ table th, table td {
     transform: translateY(-2px);
 }
 
+.download-button {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.download-button:hover {
+    background: #065f46;
+    color: white;
+    transform: translateY(-2px);
+}
+
 /* Filters Section */
 .filters-section {
     background: white;

@@ -320,11 +320,13 @@ include __DIR__.'/header.php';
                                     <a href="edit_broadcast.php?id=<?php echo $msg['id']; ?>"
                                        class="btn btn-action btn-action-secondary" title="Edit">
                                         <i class="bi bi-pencil-square"></i>
+                                        <span class="visually-hidden">Edit</span>
                                     </a>
                                     <a href="?delete=<?php echo $msg['id']; ?>&page=<?php echo $page; ?>"
                                        class="btn btn-action btn-action-danger"
                                        onclick="return confirm('Delete this message?')" title="Delete">
                                         <i class="bi bi-trash"></i>
+                                        <span class="visually-hidden">Delete</span>
                                     </a>
                                 </div>
                             </div>
