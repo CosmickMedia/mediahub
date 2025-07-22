@@ -508,6 +508,12 @@ include __DIR__.'/header.php';
         .reaction-button.like.active { color: #0d6efd; }
         .reaction-button.love.active { color: #dc3545; }
 
+        .message-reactions.readonly .reaction-button {
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
         .message-time {
             font-size: 0.75rem;
             opacity: 0.8;
@@ -995,6 +1001,11 @@ include __DIR__.'/header.php';
                                                     <i class="bi bi-heart<?php echo ($msg['love_by_admin']||$msg['love_by_store']) ? '-fill' : ''; ?>"></i>
                                                 </button>
                                             </div>
+                                        <?php elseif ($msg['like_by_store'] || $msg['love_by_store']): ?>
+                                            <div class="message-reactions readonly">
+                                                <span class="reaction-button like <?php echo $msg['like_by_store'] ? 'active' : ''; ?>"><i class="bi bi-hand-thumbs-up<?php echo $msg['like_by_store'] ? '-fill' : ''; ?>"></i></span>
+                                                <span class="reaction-button love <?php echo $msg['love_by_store'] ? 'active' : ''; ?>"><i class="bi bi-heart<?php echo $msg['love_by_store'] ? '-fill' : ''; ?>"></i></span>
+                                            </div>
                                         <?php endif; ?>
                                         <div class="message-time">
                                             <?php echo format_ts($msg['created_at']); ?>
@@ -1034,6 +1045,7 @@ include __DIR__.'/header.php';
         </div>
     </div>
 
+    <script src="../assets/js/chat-common.js"></script>
     <script src="../assets/js/emoji-picker.js"></script>
     <script>
         // Auto-resize textarea
@@ -1178,6 +1190,11 @@ include __DIR__.'/header.php';
                                     `<i class="bi bi-heart${(m.love_by_admin || m.love_by_store)?'-fill':''}"></i>`+
                                     `</button>`+
                                     `</div>`;
+                        } else if (m.like_by_store || m.love_by_store) {
+                            html += `<div class="message-reactions readonly">`+
+                                    `<span class="reaction-button like ${m.like_by_store?'active':''}"><i class="bi bi-hand-thumbs-up${m.like_by_store?'-fill':''}"></i></span>`+
+                                    `<span class="reaction-button love ${m.love_by_store?'active':''}"><i class="bi bi-heart${m.love_by_store?'-fill':''}"></i></span>`+
+                                    `</div>`;
                         }
                         html += `<div class="message-time">${m.created_at}${readIcon}</div></div>`;
                         wrap.innerHTML = html;
@@ -1195,18 +1212,9 @@ include __DIR__.'/header.php';
         }
 
         function initReactions() {
-            document.querySelectorAll('.reaction-button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const fd = new FormData();
-                    fd.append('id', btn.dataset.id);
-                    fd.append('type', btn.dataset.type);
-                    fetch('../react.php', { method: 'POST', body: fd })
-                        .then(r => r.json())
-                        .then(() => {
-                            refreshMessages();
-                            if (typeof checkNotifications === 'function') { checkNotifications(); }
-                        });
-                });
+            bindReactionButtons(document, () => {
+                refreshMessages();
+                if (typeof checkNotifications === 'function') { checkNotifications(); }
             });
         }
 
