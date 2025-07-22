@@ -13,17 +13,24 @@ $errors = [];
 // Handle message submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     $message = sanitize_message($_POST['message'] ?? '');
-    $store_id = $_POST['store_id'] ?? null;
+    $store_ids = $_POST['store_id'] ?? [];
+    if (!is_array($store_ids)) {
+        $store_ids = [$store_ids];
+    }
 
     if (empty($message)) {
         $errors[] = 'Message cannot be empty';
     } else {
-        if ($store_id === 'all' || empty($store_id)) {
-            $store_id = null; // NULL means global message
-        }
+        $send_all = in_array('all', $store_ids) || empty($store_ids);
 
         $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, created_at) VALUES (?, 'admin', ?, NOW())");
-        $stmt->execute([$store_id, $message]);
+        if ($send_all) {
+            $stmt->execute([null, $message]);
+        } else {
+            foreach ($store_ids as $sid) {
+                $stmt->execute([$sid, $message]);
+            }
+        }
 
         // Get email settings
         $emailSettings = [];
@@ -45,28 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
         $baseUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI']));
         $loginUrl = $baseUrl . '/public/index.php';
 
-        if ($store_id) {
-            // Send to specific store
-            $stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
-            $stmt->execute([$store_id]);
-            $store = $stmt->fetch();
-
-            if ($store && !empty($store['admin_email'])) {
-                $subject = str_replace('{store_name}', $store['name'], $messageSubject);
-
-                $emailBody = "Dear {$store['name']},\n\n";
-                $emailBody .= "You have a new message from Cosmick Media:\n\n";
-                $emailBody .= "=====================================\n";
-                $emailBody .= $message . "\n";
-                $emailBody .= "=====================================\n\n";
-                $emailBody .= "To view this message and upload content, please visit:\n";
-                $emailBody .= $loginUrl . "\n\n";
-                $emailBody .= "Your PIN: {$store['pin']}\n\n";
-                $emailBody .= "Best regards,\n$fromName";
-
-                mail($store['admin_email'], $subject, $emailBody, $headers);
-            }
-        } else {
+        if ($send_all) {
             // Send to all stores
             $stores_with_email = $pdo->query('SELECT * FROM stores WHERE admin_email IS NOT NULL AND admin_email != ""')->fetchAll(PDO::FETCH_ASSOC);
 
@@ -84,6 +70,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
                 $emailBody .= "Best regards,\n$fromName";
 
                 mail($store['admin_email'], $subject, $emailBody, $headers);
+            }
+        } else {
+            // Send to selected stores
+            $storeStmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
+            foreach ($store_ids as $sid) {
+                $storeStmt->execute([$sid]);
+                $store = $storeStmt->fetch();
+
+                if ($store && !empty($store['admin_email'])) {
+                    $subject = str_replace('{store_name}', $store['name'], $messageSubject);
+
+                    $emailBody = "Dear {$store['name']},\n\n";
+                    $emailBody .= "You have a new message from Cosmick Media:\n\n";
+                    $emailBody .= "=====================================\n";
+                    $emailBody .= $message . "\n";
+                    $emailBody .= "=====================================\n\n";
+                    $emailBody .= "To view this message and upload content, please visit:\n";
+                    $emailBody .= $loginUrl . "\n\n";
+                    $emailBody .= "Your PIN: {$store['pin']}\n\n";
+                    $emailBody .= "Best regards,\n$fromName";
+
+                    mail($store['admin_email'], $subject, $emailBody, $headers);
+                }
             }
         }
 
@@ -238,7 +247,7 @@ include __DIR__.'/header.php';
                             <label for="store_id" class="form-label-modern">
                                 <i class="bi bi-shop"></i> Target Store
                             </label>
-                            <select name="store_id" id="store_id" class="form-select form-select-modern">
+                            <select name="store_id[]" id="store_id" class="form-select form-select-modern" multiple size="8">
                                 <option value="all">🌍 All Stores (Global Broadcast)</option>
                                 <optgroup label="Individual Stores">
                                     <?php foreach ($stores as $store): ?>
@@ -248,7 +257,7 @@ include __DIR__.'/header.php';
                                     <?php endforeach; ?>
                                 </optgroup>
                             </select>
-                            <div class="form-text">Choose whether to send to all stores or a specific store</div>
+                            <div class="form-text">Hold Ctrl (Cmd on Mac) to select multiple stores</div>
                         </div>
 
                         <div class="mb-4">
