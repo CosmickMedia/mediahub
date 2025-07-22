@@ -759,7 +759,7 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- System Information Card -->
-        <div class="system-info-card animate__animated animate__fadeIn" style="animation-delay: 0.1s">
+        <div class="system-info-card animate__animated animate__fadeIn delay-10">
             <h5 class="mb-0">
                 <i class="bi bi-speedometer2 me-2"></i>
                 MediaHub Admin System
@@ -839,7 +839,7 @@ include __DIR__.'/header.php';
 
         <form method="post" enctype="multipart/form-data">
             <!-- Modern Navigation Tabs -->
-            <ul class="nav-tabs-modern animate__animated animate__fadeIn" style="animation-delay: 0.2s" id="settingsTabs" role="tablist">
+            <ul class="nav-tabs-modern animate__animated animate__fadeIn delay-20" id="settingsTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link<?php if($active_tab==='general') echo ' active'; ?>" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
                         <i class="bi bi-gear"></i> General
@@ -877,7 +877,7 @@ include __DIR__.'/header.php';
                 <div class="tab-pane fade<?php if($active_tab==='general') echo ' show active'; ?>" id="general" role="tabpanel">
                     <div class="settings-grid settings-grid-2">
                         <!-- Google Drive Settings -->
-                        <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                        <div class="settings-card animate__animated animate__fadeIn delay-30">
                             <div class="card-header-modern">
                                 <h5 class="card-title-modern">
                                     <i class="bi bi-google"></i>
@@ -915,7 +915,7 @@ include __DIR__.'/header.php';
                         </div>
 
                         <!-- Email Settings -->
-                        <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+                        <div class="settings-card animate__animated animate__fadeIn delay-40">
                             <div class="card-header-modern">
                                 <h5 class="card-title-modern">
                                     <i class="bi bi-envelope"></i>
@@ -949,7 +949,7 @@ include __DIR__.'/header.php';
                     </div>
 
                     <!-- Article Settings -->
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.5s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-50">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-file-text"></i>
@@ -970,7 +970,7 @@ include __DIR__.'/header.php';
                     </div>
 
                     <!-- Location Information -->
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.6s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-60">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-geo-alt"></i>
@@ -1016,7 +1016,7 @@ include __DIR__.'/header.php';
 
                 <!-- Dripley CRM Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='dripley') echo ' show active'; ?>" id="dripley" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-30">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-people"></i>
@@ -1094,7 +1094,7 @@ include __DIR__.'/header.php';
 
                 <!-- Email Subjects Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='subjects') echo ' show active'; ?>" id="subjects" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-30">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-cloud-upload"></i>
@@ -1126,7 +1126,7 @@ include __DIR__.'/header.php';
                         </div>
                     </div>
 
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-40">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-file-text"></i>
@@ -1161,7 +1161,7 @@ include __DIR__.'/header.php';
 
                 <!-- Statuses Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='statuses') echo ' show active'; ?>" id="statuses" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-30">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-tags"></i>
@@ -1216,7 +1216,7 @@ include __DIR__.'/header.php';
 
                 <!-- Calendar Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='calendar') echo ' show active'; ?>" id="calendar" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-30">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-calendar"></i>
@@ -1258,7 +1258,7 @@ include __DIR__.'/header.php';
                         </div>
                     </div>
 
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-40">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-share"></i>
@@ -1314,7 +1314,7 @@ include __DIR__.'/header.php';
 
                 <!-- Reset Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='reset') echo ' show active'; ?>" id="reset" role="tabpanel">
-                    <div class="settings-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+                    <div class="settings-card animate__animated animate__fadeIn delay-30">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-exclamation-triangle"></i>

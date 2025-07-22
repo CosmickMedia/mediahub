@@ -488,7 +488,7 @@ include __DIR__.'/header.php';
         <div class="row">
             <div class="col-lg-4">
                 <!-- User Profile Card -->
-                <div class="profile-card animate__animated animate__fadeIn" style="animation-delay: 0.1s">
+                <div class="profile-card animate__animated animate__fadeIn delay-10">
                     <div class="profile-header">
                         <div class="profile-avatar">
                             <?php
@@ -557,7 +557,7 @@ include __DIR__.'/header.php';
 
             <div class="col-lg-8">
                 <!-- Edit Form -->
-                <div class="form-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+                <div class="form-card animate__animated animate__fadeIn delay-20">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
                             <i class="bi bi-pencil-square"></i>

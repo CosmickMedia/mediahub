@@ -435,7 +435,7 @@ include __DIR__.'/header.php';
 
         <?php if ($url): ?>
             <!-- Report Container -->
-            <div class="report-container animate__animated animate__fadeIn" style="animation-delay: 0.3s" id="reportContainer">
+            <div class="report-container animate__animated animate__fadeIn delay-30" id="reportContainer">
                 <div class="report-header">
                     <div class="report-icon">
                         <i class="bi bi-graph-up-arrow"></i>
@@ -466,7 +466,7 @@ include __DIR__.'/header.php';
                     </div>
 
                     <!-- Error State (hidden by default) -->
-                    <div class="error-state" id="errorState" style="display: none;">
+                    <div class="error-state d-none" id="errorState">
                         <i class="bi bi-exclamation-triangle"></i>
                         <h3>Failed to Load Report</h3>
                         <p>There was an issue loading your marketing report. Please try again.</p>
@@ -489,7 +489,7 @@ include __DIR__.'/header.php';
 
         <?php else: ?>
             <!-- No Report State -->
-            <div class="report-container animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+            <div class="report-container animate__animated animate__fadeIn delay-30">
                 <div class="no-report-state">
                     <i class="bi bi-graph-up"></i>
                     <h3>Marketing Report Not Set Up</h3>

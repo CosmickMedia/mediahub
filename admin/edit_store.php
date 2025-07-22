@@ -568,7 +568,7 @@ include __DIR__.'/header.php';
 
         <!-- Store Details Form -->
         <form method="post">
-            <div class="form-card animate__animated animate__fadeIn" style="animation-delay: 0.1s">
+            <div class="form-card animate__animated animate__fadeIn delay-10">
                 <div class="card-header-modern">
                     <h5 class="card-title-modern">
                         <i class="bi bi-info-circle"></i>
@@ -652,7 +652,7 @@ include __DIR__.'/header.php';
                 </div>
             </div>
 
-            <div class="form-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+            <div class="form-card animate__animated animate__fadeIn delay-20">
                 <div class="card-header-modern">
                     <h5 class="card-title-modern">
                         <i class="bi bi-gear"></i>
@@ -695,7 +695,7 @@ include __DIR__.'/header.php';
         </form>
 
         <!-- Store Users -->
-        <div class="form-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+        <div class="form-card animate__animated animate__fadeIn delay-30">
             <div class="card-header-modern">
                 <h5 class="card-title-modern">
                     <i class="bi bi-people"></i>

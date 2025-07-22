@@ -834,7 +834,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card warning animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <div class="stat-card warning animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-envelope-fill"></i>
                 </div>
@@ -843,7 +843,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card success animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <div class="stat-card success animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-check-fill"></i>
                 </div>
@@ -852,7 +852,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card info animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+            <div class="stat-card info animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-activity"></i>
                 </div>
@@ -863,7 +863,7 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Chat Interface -->
-        <div class="chat-container animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+        <div class="chat-container animate__animated animate__fadeIn delay-40">
             <!-- Stores List -->
             <div class="stores-panel">
                 <div class="panel-header">
@@ -876,7 +876,7 @@ include __DIR__.'/header.php';
                     <?php if (empty($stores)): ?>
                         <div class="no-stores">
                             <div>
-                                <i class="bi bi-shop" style="font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;"></i>
+                                <i class="bi bi-shop empty-icon"></i>
                                 <p>No stores available</p>
                             </div>
                         </div>
@@ -888,7 +888,7 @@ include __DIR__.'/header.php';
                                data-name="<?php echo htmlspecialchars($store['name'], ENT_QUOTES); ?>"
                                data-email="<?php echo htmlspecialchars($store['admin_email'] ?? '', ENT_QUOTES); ?>"
                                data-phone="<?php echo htmlspecialchars($store['phone'] ?? '', ENT_QUOTES); ?>">
-                                <div class="store-avatar" style="position: relative;">
+                                <div class="store-avatar position-relative">
                                     <?php echo strtoupper(substr($store['name'], 0, 2)); ?>
                                     <?php if ($store['unread_count'] > 0): ?>
                                         <div class="online-indicator"></div>
@@ -956,7 +956,7 @@ include __DIR__.'/header.php';
                         <div class="chat-actions">
                             <form method="post" class="d-inline">
                                 <input type="hidden" name="store_id" value="<?php echo $current_store_id; ?>">
-                                <button type="submit" name="mark_read" class="btn btn-chat-action btn-mark-read"<?php echo $current_unread ? '' : ' style="display:none;"'; ?>>
+                                <button type="submit" name="mark_read" class="btn btn-chat-action btn-mark-read"<?php echo $current_unread ? '' : ' d-none'; ?>>
                                     <i class="bi bi-check-all me-1"></i>Mark Read
                                 </button>
                             </form>

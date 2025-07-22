@@ -496,7 +496,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card success animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <div class="stat-card success animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-person-plus-fill"></i>
                 </div>
@@ -505,7 +505,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card warning animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <div class="stat-card warning animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-person-check-fill"></i>
                 </div>
@@ -516,7 +516,7 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Users Table -->
-        <div class="users-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+        <div class="users-card animate__animated animate__fadeIn delay-30">
             <div class="card-header-modern">
                 <h5 class="card-title-modern">
                     <i class="bi bi-list-ul"></i>
@@ -597,7 +597,7 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Add New User -->
-        <div class="add-user-card animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+        <div class="add-user-card animate__animated animate__fadeIn delay-40">
             <div class="card-header-modern">
                 <h5 class="card-title-modern">
                     <i class="bi bi-person-plus"></i>

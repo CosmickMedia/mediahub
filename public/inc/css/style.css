@@ -2516,8 +2516,30 @@ table th, table td {
         flex-direction: column;
     }
 
-    .btn-modern {
-        width: 100%;
-        justify-content: center;
-    }
+.btn-modern {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Utility styles */
+.textarea-rounded {
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+}
+.rounded-8 {
+    border-radius: 8px;
+}
+
+/* Animation delay utility classes */
+.delay-5 { animation-delay: 0.05s !important; }
+.delay-10 { animation-delay: 0.1s !important; }
+.delay-20 { animation-delay: 0.2s !important; }
+.delay-30 { animation-delay: 0.3s !important; }
+.delay-40 { animation-delay: 0.4s !important; }
+.delay-50 { animation-delay: 0.5s !important; }
+.delay-60 { animation-delay: 0.6s !important; }
+.delay-70 { animation-delay: 0.7s !important; }
+.delay-80 { animation-delay: 0.8s !important; }
+.delay-90 { animation-delay: 0.9s !important; }
+.delay-100 { animation-delay: 1s !important; }
 }

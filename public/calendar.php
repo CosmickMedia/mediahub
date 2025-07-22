@@ -198,7 +198,7 @@ include __DIR__.'/header.php';
                     <div class="stat-bg"></div>
                 </div>
 
-                <div class="stat-card upcoming-posts animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                <div class="stat-card upcoming-posts animate__animated animate__fadeInUp delay-10">
                     <div class="stat-icon">
                         <i class="bi bi-clock-history"></i>
                     </div>
@@ -237,7 +237,7 @@ include __DIR__.'/header.php';
             </div>
 
             <!-- Calendar -->
-            <div class="calendar-wrapper animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+            <div class="calendar-wrapper animate__animated animate__fadeIn delay-30">
                 <div id="calendar"></div>
             </div>
         <?php endif; ?>
