@@ -318,13 +318,13 @@ include __DIR__.'/header.php';
 
                                 <div class="message-actions">
                                     <a href="edit_broadcast.php?id=<?php echo $msg['id']; ?>"
-                                       class="btn btn-action btn-action-secondary">
-                                        <i class="bi bi-pencil-square"></i> Edit
+                                       class="btn btn-action btn-action-secondary" title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <a href="?delete=<?php echo $msg['id']; ?>&page=<?php echo $page; ?>"
                                        class="btn btn-action btn-action-danger"
-                                       onclick="return confirm('Delete this message?')">
-                                        <i class="bi bi-trash"></i> Delete
+                                       onclick="return confirm('Delete this message?')" title="Delete">
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </div>
                             </div>

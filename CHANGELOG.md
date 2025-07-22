@@ -13,3 +13,6 @@
 ## [1.0.1] - 2025-07-14
 - f2a426e - Create full-changelog.md
 
+
+## [1.3.6] - 2025-07-22
+- b8377d0 - fix action button layout and icons

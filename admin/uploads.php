@@ -355,7 +355,7 @@ include __DIR__.'/header.php';
                                         </form>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td class="actions-cell">
                                     <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
                                        target="_blank" class="btn btn-action btn-action-primary" title="View in Drive">
                                         <i class="bi bi-eye"></i> View
