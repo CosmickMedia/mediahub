@@ -1246,7 +1246,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card success animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <div class="stat-card success animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-week-fill"></i>
                 </div>
@@ -1260,7 +1260,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card warning animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <div class="stat-card warning animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-image-fill"></i>
                 </div>
@@ -1269,7 +1269,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card info animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+            <div class="stat-card info animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-camera-video-fill"></i>
                 </div>
@@ -1278,7 +1278,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card danger animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+            <div class="stat-card danger animate__animated animate__fadeInUp delay-40">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-event-fill"></i>
                 </div>
@@ -1287,7 +1287,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card secondary animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
+            <div class="stat-card secondary animate__animated animate__fadeInUp delay-50">
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
@@ -1306,7 +1306,7 @@ include __DIR__.'/header.php';
         <div class="content-grid">
             <div class="left-column">
             <!-- Upload Section -->
-            <div class="upload-section animate__animated animate__fadeIn" style="animation-delay: 0.6s">
+            <div class="upload-section animate__animated animate__fadeIn delay-60">
                 <h3 class="section-title">
                     <i class="bi bi-cloud-arrow-up-fill"></i>
                     Upload Content
@@ -1351,17 +1351,17 @@ include __DIR__.'/header.php';
                         </label>
                         <textarea class="form-control" name="custom_message" id="custom_message" rows="3"
                                   placeholder="Add any special instructions or information about these files..."
-                                  style="border-radius: 12px; border: 2px solid #e0e0e0;"></textarea>
+                                  class="textarea-rounded"></textarea>
                     </div>
 
-                    <button class="btn-modern btn-modern-primary w-100" type="submit" id="uploadBtn" style="display: none;">
+                    <button class="btn-modern btn-modern-primary w-100 d-none" type="submit" id="uploadBtn">
                         <i class="bi bi-cloud-upload"></i> Upload Files
                     </button>
                 </form>
             </div>
 
             <?php if (!empty($recent_chats)): ?>
-                <div class="chat-section animate__animated animate__fadeIn" style="animation-delay: 0.9s">
+                <div class="chat-section animate__animated animate__fadeIn delay-90">
                     <div class="chat-header">
                         <h3 class="section-title m-0 text-white">
                             <i class="bi bi-chat-dots-fill"></i>
@@ -1400,7 +1400,7 @@ include __DIR__.'/header.php';
             <!-- Right Sidebar -->
             <div>
                 <!-- Quick Actions -->
-                <div class="quick-actions animate__animated animate__fadeIn" style="animation-delay: 0.7s">
+                <div class="quick-actions animate__animated animate__fadeIn delay-70">
                     <h3 class="section-title">
                         <i class="bi bi-lightning-charge-fill"></i>
                         Quick Actions
@@ -1481,7 +1481,7 @@ include __DIR__.'/header.php';
 
                 <!-- Recent Activity -->
                 <?php if (!empty($recent_uploads)): ?>
-                    <div class="activity-section mt-3 animate__animated animate__fadeIn" style="animation-delay: 0.8s">
+                    <div class="activity-section mt-3 animate__animated animate__fadeIn delay-80">
                         <h3 class="section-title">
                             <i class="bi bi-activity"></i>
                             Recent Activity
@@ -1671,7 +1671,7 @@ include __DIR__.'/header.php';
                 </div>
                 <div class="file-description">
                     <input type="text" name="descriptions[${index}]" class="form-control form-control-sm"
-                           placeholder="Optional description" style="border-radius: 8px;">
+                           placeholder="Optional description" class="rounded-8">
                 </div>
                 <i class="bi bi-x-circle-fill file-remove" onclick="removeFile(${index})"></i>
             `;

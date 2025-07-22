@@ -704,7 +704,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card total-size animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <div class="stat-card total-size animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-hdd-fill"></i>
                 </div>
@@ -713,7 +713,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card images animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <div class="stat-card images animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-image-fill"></i>
                 </div>
@@ -722,7 +722,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card videos animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+            <div class="stat-card videos animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-camera-video-fill"></i>
                 </div>
@@ -731,7 +731,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card recent animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+            <div class="stat-card recent animate__animated animate__fadeInUp delay-40">
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
@@ -742,7 +742,7 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Filters Section -->
-        <div class="filters-section animate__animated animate__fadeIn" style="animation-delay: 0.5s">
+        <div class="filters-section animate__animated animate__fadeIn delay-50">
             <div class="filters-row">
                 <div class="filter-group">
                     <span class="filter-label">Type:</span>

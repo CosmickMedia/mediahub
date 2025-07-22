@@ -1148,7 +1148,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card pending animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <div class="stat-card pending animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
@@ -1157,7 +1157,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card approved animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <div class="stat-card approved animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-check-circle-fill"></i>
                 </div>
@@ -1166,7 +1166,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card rejected animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+            <div class="stat-card rejected animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-x-circle-fill"></i>
                 </div>
@@ -1175,7 +1175,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card drafts animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+            <div class="stat-card drafts animate__animated animate__fadeInUp delay-40">
                 <div class="stat-icon">
                     <i class="bi bi-file-earmark-text"></i>
                 </div>
@@ -1184,7 +1184,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card rate animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
+            <div class="stat-card rate animate__animated animate__fadeInUp delay-50">
                 <div class="stat-icon">
                     <i class="bi bi-graph-up-arrow"></i>
                 </div>
@@ -1195,7 +1195,7 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Tabs -->
-        <div class="modern-tabs animate__animated animate__fadeIn" style="animation-delay: 0.6s">
+        <div class="modern-tabs animate__animated animate__fadeIn delay-60">
             <a class="tab-link <?php echo $tab === 'submit' ? 'active' : ''; ?>" href="?tab=submit">
                 <i class="bi bi-pencil-square"></i>
                 Submit Article
@@ -1211,7 +1211,7 @@ include __DIR__.'/header.php';
 
         <?php if ($tab === 'submit'): ?>
             <!-- Submit Article Tab -->
-            <div class="article-form-section animate__animated animate__fadeIn" style="animation-delay: 0.7s">
+            <div class="article-form-section animate__animated animate__fadeIn delay-70">
                 <div class="form-header">
                     <h3 class="form-title">Submit New Article</h3>
                     <p class="form-description">Share your story, news, or press release with us</p>
@@ -1345,7 +1345,7 @@ include __DIR__.'/header.php';
                 </div>
             <?php else: ?>
                 <!-- Filters Section -->
-                <div class="filters-section animate__animated animate__fadeIn" style="animation-delay: 0.7s">
+                <div class="filters-section animate__animated animate__fadeIn delay-70">
                     <div class="filters-row">
                         <div class="filter-group">
                             <span class="filter-label">Status:</span>

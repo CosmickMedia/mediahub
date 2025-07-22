@@ -614,7 +614,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="uploads.php" class="stat-card uploads animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+            <a href="uploads.php" class="stat-card uploads animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-cloud-upload"></i>
                 </div>
@@ -623,7 +623,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="articles.php" class="stat-card articles animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+            <a href="articles.php" class="stat-card articles animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-file-text"></i>
                 </div>
@@ -637,7 +637,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="broadcasts.php" class="stat-card messages animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+            <a href="broadcasts.php" class="stat-card messages animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots"></i>
                 </div>
@@ -646,7 +646,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="stores.php" class="stat-card users animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
+            <a href="stores.php" class="stat-card users animate__animated animate__fadeInUp delay-40">
                 <div class="stat-icon">
                     <i class="bi bi-people"></i>
                 </div>
@@ -660,7 +660,7 @@ include __DIR__.'/header.php';
         <div class="content-grid">
             <div>
                 <!-- Recent Uploads -->
-                <div class="content-card mb-4 animate__animated animate__fadeIn" style="animation-delay: 0.5s">
+                <div class="content-card mb-4 animate__animated animate__fadeIn delay-50">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
                             <i class="bi bi-clock-history"></i>
@@ -729,7 +729,7 @@ include __DIR__.'/header.php';
 
                 <!-- Recent Articles -->
                 <?php if (!empty($recent_articles)): ?>
-                    <div class="content-card mb-4 animate__animated animate__fadeIn" style="animation-delay: 0.6s">
+                    <div class="content-card mb-4 animate__animated animate__fadeIn delay-60">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
                                 <i class="bi bi-file-text"></i>
@@ -787,7 +787,7 @@ include __DIR__.'/header.php';
                 <?php endif; ?>
 
                 <!-- Recent Broadcasts -->
-                <div class="content-card animate__animated animate__fadeIn" style="animation-delay: 0.7s">
+                <div class="content-card animate__animated animate__fadeIn delay-70">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
                             <i class="bi bi-megaphone"></i>
@@ -815,7 +815,7 @@ include __DIR__.'/header.php';
 
             <div>
                 <!-- Quick Actions -->
-                <div class="content-card mb-4 animate__animated animate__fadeIn" style="animation-delay: 0.8s">
+                <div class="content-card mb-4 animate__animated animate__fadeIn delay-80">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
                             <i class="bi bi-lightning-charge"></i>
@@ -874,7 +874,7 @@ include __DIR__.'/header.php';
                 </div>
 
                 <!-- Quick Broadcast -->
-                <div class="content-card mb-4 animate__animated animate__fadeIn" style="animation-delay: 0.9s">
+                <div class="content-card mb-4 animate__animated animate__fadeIn delay-90">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
                             <i class="bi bi-send"></i>
@@ -914,7 +914,7 @@ include __DIR__.'/header.php';
                 </div>
 
                 <!-- This Week Activity -->
-                <div class="content-card animate__animated animate__fadeIn" style="animation-delay: 1s">
+                <div class="content-card animate__animated animate__fadeIn delay-100">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
                             <i class="bi bi-graph-up"></i>
