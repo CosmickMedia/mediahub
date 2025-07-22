@@ -59,7 +59,7 @@ if ($current_store_id) {
 }
 
 if (isset($_GET['load']) && $current_store_id) {
-    $stmt = $pdo->prepare("SELECT m.*, s.name as store_name, u.filename, u.drive_id, u.mime
+    $stmt = $pdo->prepare("SELECT m.*, s.name as store_name, u.filename, u.drive_id, u.mime, u.id AS upload_id
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
         LEFT JOIN uploads u ON m.upload_id = u.id
@@ -96,7 +96,7 @@ $stores = $pdo->query($stores_query)->fetchAll(PDO::FETCH_ASSOC);
 $messages = [];
 if ($current_store_id) {
     $stmt = $pdo->prepare("
-        SELECT m.*, s.name as store_name, u.filename, u.drive_id, u.mime
+        SELECT m.*, s.name as store_name, u.filename, u.drive_id, u.mime, u.id AS upload_id
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
         LEFT JOIN uploads u ON m.upload_id = u.id
@@ -976,7 +976,7 @@ include __DIR__.'/header.php';
                                         <?php endif; ?>
                                         <?php if (!empty($msg['filename'])): ?>
                                             <?php if (strpos($msg['mime'], 'image/') === 0): ?>
-                                                <div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" target="_blank"><img src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></a></div>
+                                                <div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" target="_blank"><img src="thumbnail.php?id=<?php echo $msg['upload_id']; ?>&size=medium" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></a></div>
                                             <?php elseif (strpos($msg['mime'], 'video/') === 0): ?>
                                                 <div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" controls class="message-video"></video></div>
                                             <?php else: ?>
@@ -1158,7 +1158,7 @@ include __DIR__.'/header.php';
                         }
                         if (m.filename) {
                             if (m.mime && m.mime.startsWith('image/')) {
-                                html += `<div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=${m.drive_id}" target="_blank"><img src="https://drive.google.com/uc?export=view&id=${m.drive_id}" class="message-img" alt="${m.filename}"></a></div>`;
+                                html += `<div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=${m.drive_id}" target="_blank"><img src="thumbnail.php?id=${m.upload_id}&size=medium" class="message-img" alt="${m.filename}"></a></div>`;
                             } else if (m.mime && m.mime.startsWith('video/')) {
                                 html += `<div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=${m.drive_id}" class="message-video" controls></video></div>`;
                             } else {
