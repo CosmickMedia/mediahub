@@ -71,6 +71,10 @@ if (isset($_GET['load']) && $current_store_id) {
         ->execute([$current_store_id]);
     foreach ($msgs as &$m) {
         $m['created_at'] = format_ts($m['created_at']);
+        $m['like_by_admin'] = (int)$m['like_by_admin'];
+        $m['like_by_store'] = (int)$m['like_by_store'];
+        $m['love_by_admin'] = (int)$m['love_by_admin'];
+        $m['love_by_store'] = (int)$m['love_by_store'];
     }
     header('Content-Type: application/json');
     echo json_encode($msgs);
@@ -105,6 +109,12 @@ if ($current_store_id) {
     ");
     $stmt->execute([$current_store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($messages as &$m) {
+        $m['like_by_admin'] = (int)$m['like_by_admin'];
+        $m['like_by_store'] = (int)$m['like_by_store'];
+        $m['love_by_admin'] = (int)$m['love_by_admin'];
+        $m['love_by_store'] = (int)$m['love_by_store'];
+    }
     $upd = $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0");
     $upd->execute([$current_store_id]);
     $cnt = $pdo->prepare("SELECT COUNT(*) FROM store_messages WHERE store_id=? AND sender='store' AND read_by_admin=0");
