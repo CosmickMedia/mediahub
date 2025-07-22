@@ -18,4 +18,5 @@ return [
         // URL to google_callback.php in your installation
         'redirect_uri' => 'http://yourdomain.com/admin/google_callback.php',
     ],
+    'timezone' => 'America/New_York',
 ];

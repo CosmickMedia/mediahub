@@ -587,9 +587,9 @@ if (isset($_SESSION['store_id'])) {
                     </a>
                 </li>
                 <li class="nav-item-modern">
-                    <a class="nav-link-modern <?php echo $current_page == 'messages.php' ? 'active' : ''; ?>" href="messages.php">
+                    <a class="nav-link-modern <?php echo $current_page == 'chat.php' ? 'active' : ''; ?>" href="chat.php">
                         <i class="bi bi-chat-dots"></i>
-                        <span>Messages</span>
+                        <span>Chat</span>
                         <?php if ($unread_count > 0): ?>
                             <span class="nav-badge"><?php echo $unread_count; ?></span>
                         <?php endif; ?>
@@ -630,7 +630,7 @@ if (isset($_SESSION['store_id'])) {
                             <?php endif; ?>
                         </div>
                         <div class="notification-dropdown-footer">
-                            <a href="messages.php">View all messages</a>
+                            <a href="chat.php">View all messages</a>
                         </div>
                     </div>
                 </div>
@@ -706,9 +706,9 @@ if (isset($_SESSION['store_id'])) {
                         </a>
                     </li>
                     <li class="mobile-menu-item">
-                        <a class="mobile-menu-link <?php echo $current_page == 'messages.php' ? 'active' : ''; ?>" href="messages.php">
+                        <a class="mobile-menu-link <?php echo $current_page == 'chat.php' ? 'active' : ''; ?>" href="chat.php">
                             <i class="bi bi-chat-dots"></i>
-                            Messages
+                            Chat
                             <?php if ($unread_count > 0): ?>
                                 <span class="nav-badge ms-auto"><?php echo $unread_count; ?></span>
                             <?php endif; ?>

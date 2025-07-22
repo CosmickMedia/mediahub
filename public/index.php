@@ -178,15 +178,17 @@ if ($hasReplyColumn) {
     );
     $stmt->execute([$store_id]);
     $replies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $last_reply_id = empty($replies) ? 0 : max(array_column($replies, 'id'));
 } else {
     // Column doesn't exist, use simple query
     $stmt = $pdo->prepare('
-        SELECT * FROM store_messages 
-        WHERE (store_id = ? OR store_id IS NULL) 
+        SELECT * FROM store_messages
+        WHERE (store_id = ? OR store_id IS NULL)
         ORDER BY created_at DESC
     ');
     $stmt->execute([$store_id]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $last_reply_id = 0;
 }
 
 // Get statistics for dashboard
@@ -1176,7 +1178,7 @@ include __DIR__.'/header.php';
 
         <!-- Alerts -->
         <?php if (!empty($latest_broadcast)): ?>
-            <div class="alert-modern alert-broadcast animate__animated animate__fadeIn" id="broadcastAlert" data-id="<?php echo $latest_broadcast['id']; ?>">
+            <div class="alert alert-dismissible fade show alert-modern alert-broadcast animate__animated animate__fadeIn" id="broadcastAlert" data-id="<?php echo $latest_broadcast['id']; ?>">
                 <div class="alert-icon">
                     <i class="bi bi-megaphone-fill"></i>
                 </div>
@@ -1189,7 +1191,7 @@ include __DIR__.'/header.php';
         <?php endif; ?>
 
         <?php if (!empty($latest_chat)): ?>
-            <div class="alert-modern alert-info animate__animated animate__fadeIn" id="chatAlert" data-id="<?php echo $latest_chat['id']; ?>">
+            <div class="alert alert-dismissible fade show alert-modern alert-info animate__animated animate__fadeIn" id="chatAlert" data-id="<?php echo $latest_chat['id']; ?>">
                 <div class="alert-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
@@ -1201,7 +1203,7 @@ include __DIR__.'/header.php';
         <?php endif; ?>
 
         <?php if (!empty($replies)): ?>
-            <div class="alert-modern alert-warning animate__animated animate__fadeIn">
+            <div class="alert alert-dismissible fade show alert-modern alert-warning animate__animated animate__fadeIn" id="replyAlert" data-id="<?php echo $last_reply_id; ?>">
                 <div class="alert-icon">
                     <i class="bi bi-reply-fill"></i>
                 </div>
@@ -1448,13 +1450,13 @@ include __DIR__.'/header.php';
                             <i class="bi bi-chevron-right action-arrow"></i>
                         </a>
 
-                        <a href="messages.php" class="action-card messages">
+                        <a href="chat.php" class="action-card messages">
                             <div class="action-icon">
                                 <i class="bi bi-chat-dots"></i>
                             </div>
                             <div class="action-content">
                                 <h5 class="action-title">
-                                    Messages
+                                    Chat
                                     <?php if ($unread_count > 0): ?>
                                         <span class="action-badge"><?php echo $unread_count; ?></span>
                                     <?php endif; ?>
@@ -1533,6 +1535,7 @@ include __DIR__.'/header.php';
             // Alert handling
             const bcAlert = document.getElementById('broadcastAlert');
             const chatAlert = document.getElementById('chatAlert');
+            const replyAlert = document.getElementById('replyAlert');
 
             if (bcAlert) {
                 const id = bcAlert.dataset.id;
@@ -1541,6 +1544,7 @@ include __DIR__.'/header.php';
                 } else {
                     bcAlert.querySelector('.btn-close').addEventListener('click', () => {
                         localStorage.setItem('closedBroadcastId', id);
+                        bcAlert.remove();
                     });
                 }
             }
@@ -1552,8 +1556,21 @@ include __DIR__.'/header.php';
                 } else {
                     chatAlert.querySelector('.btn-close').addEventListener('click', () => {
                         localStorage.setItem('closedChatId', id);
+                        chatAlert.remove();
+                    });
+            }
+
+            if (replyAlert) {
+                const id = replyAlert.dataset.id;
+                if (localStorage.getItem('closedReplyId') == id) {
+                    replyAlert.remove();
+                } else {
+                    replyAlert.querySelector('.btn-close').addEventListener('click', () => {
+                        localStorage.setItem('closedReplyId', id);
+                        replyAlert.remove();
                     });
                 }
+            }
             }
 
             // Quick chat form

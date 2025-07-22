@@ -54,7 +54,7 @@ $s->execute([$store_id]);
 $messages = $s->fetchAll(PDO::FETCH_ASSOC);
 $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0")->execute([$store_id]);
 
-$active = 'messages';
+$active = 'chat';
 include __DIR__.'/header.php';
 ?>
 <h4>Conversation with <?php echo htmlspecialchars($store['name']); ?></h4>

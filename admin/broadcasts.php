@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 if (isset($_GET['delete'])) {
     $stmt = $pdo->prepare('DELETE FROM store_messages WHERE id = ?');
     $stmt->execute([$_GET['delete']]);
-    header('Location: messages.php');
+    header('Location: broadcasts.php');
     exit;
 }
 
@@ -127,7 +127,7 @@ $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $count = $pdo->query("SELECT COUNT(*) $baseQuery")->fetchColumn();
 $total_pages = ceil($count / $per_page);
 
-$active = 'messages';
+$active = 'broadcasts';
 include __DIR__.'/header.php';
 ?>
 

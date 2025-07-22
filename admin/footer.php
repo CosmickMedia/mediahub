@@ -570,7 +570,7 @@
                         break;
                     case 'm':
                         e.preventDefault();
-                        window.location.href = 'messages.php';
+                        window.location.href = 'broadcasts.php';
                         break;
                     case 'c':
                         e.preventDefault();
