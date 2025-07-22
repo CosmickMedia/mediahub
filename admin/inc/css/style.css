@@ -5376,3 +5376,9 @@ table th, table td {
             }
         }
 
+
+/* Larger tap area for store selector options */
+.ts-dropdown .option {
+    padding: 0.6rem 0.75rem;
+    line-height: 1.4;
+}

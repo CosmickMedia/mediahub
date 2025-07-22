@@ -23,3 +23,7 @@
 ## [1.3.8] - 2025-07-23
 - show store reactions in admin chat window
 - display upload button in dashboard widget
+
+## [1.3.9] - 2025-07-24
+- increase store selection option spacing for better mobile usability
+
