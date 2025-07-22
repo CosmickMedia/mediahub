@@ -707,8 +707,7 @@ include __DIR__.'/header.php';
                                                    target="_blank" class="btn btn-action btn-action-primary" title="View">
                                                     <i class="bi bi-search"></i>
                                                 </a>
-                                                <form method="post" action="uploads.php" class="d-inline" onsubmit="return confirm('Delete this file?');">
-                                                    <input type="hidden" name="delete_id" value="<?php echo $upload['id']; ?>">
+                                                <form class="d-inline delete-upload-form" data-id="<?php echo $upload['id']; ?>" onsubmit="return false;">
                                                     <button type="submit" class="btn btn-action btn-action-danger" title="Delete">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
@@ -941,5 +940,23 @@ include __DIR__.'/header.php';
             </div>
         </div>
     </div>
+
+    <script>
+    document.querySelectorAll('.delete-upload-form').forEach(form => {
+        form.addEventListener('submit', () => {
+            if(!confirm('Delete this file?')) return;
+            const id = form.dataset.id;
+            const fd = new FormData();
+            fd.append('id', id);
+            fetch('delete_upload.php', {method:'POST', body: fd})
+                .then(r => r.json())
+                .then(res => {
+                    if(res.success){
+                        form.closest('tr').remove();
+                    }
+                });
+        });
+    });
+    </script>
 
 <?php include __DIR__.'/footer.php'; ?>

@@ -13,8 +13,13 @@ if (!isset($_SESSION['store_id'])) {
 $store_id = $_SESSION['store_id'];
 
 // Get the upload ID
-$id = $_GET['id'] ?? 0;
+$id = intval($_GET['id'] ?? 0);
 $size = $_GET['size'] ?? 'medium';
+
+$cacheDir = __DIR__ . '/../assets/thumbs';
+if (!is_dir($cacheDir)) {
+    mkdir($cacheDir, 0777, true);
+}
 
 // Get upload details - verify it belongs to this store
 $pdo = get_pdo();
@@ -29,17 +34,28 @@ if (!$upload) {
     exit;
 }
 
+$isVideo = strpos($upload['mime'], 'video') !== false;
+$ext = $isVideo ? 'svg' : 'jpg';
+$cacheFile = "$cacheDir/{$id}_{$size}.{$ext}";
+
+if (file_exists($cacheFile)) {
+    header('Content-Type: ' . ($isVideo ? 'image/svg+xml' : 'image/jpeg'));
+    readfile($cacheFile);
+    exit;
+}
+
 // Check if it's a video
-if (strpos($upload['mime'], 'video') !== false) {
-    // Return video placeholder
-    header('Content-Type: image/svg+xml');
+if ($isVideo) {
     $width = $size === 'small' ? 80 : 200;
-    echo '<?xml version="1.0" encoding="UTF-8"?>
+    $svg = '<?xml version="1.0" encoding="UTF-8"?>
     <svg width="'.$width.'" height="'.$width.'" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <rect width="100" height="100" fill="#000"/>
         <circle cx="50" cy="50" r="20" fill="none" stroke="#fff" stroke-width="3"/>
         <polygon points="45,40 45,60 60,50" fill="#fff"/>
     </svg>';
+    file_put_contents($cacheFile, $svg);
+    header('Content-Type: image/svg+xml');
+    echo $svg;
     exit;
 }
 
@@ -81,8 +97,9 @@ try {
             curl_close($ch);
 
             if ($httpCode === 200 && $imageData) {
+                file_put_contents($cacheFile, $imageData);
                 header('Content-Type: ' . $contentType);
-                header('Cache-Control: public, max-age=86400'); // Cache for 24 hours
+                header('Cache-Control: public, max-age=86400');
                 echo $imageData;
                 exit;
             }
@@ -93,14 +110,15 @@ try {
     throw new Exception('No thumbnail available');
 
 } catch (Exception $e) {
-    // Return image placeholder
-    header('Content-Type: image/svg+xml');
     $width = $size === 'small' ? 80 : 200;
-    echo '<?xml version="1.0" encoding="UTF-8"?>
+    $svg = '<?xml version="1.0" encoding="UTF-8"?>
     <svg width="'.$width.'" height="'.$width.'" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <rect width="100" height="100" fill="#e9ecef"/>
         <path d="M30 70 L30 40 L45 25 L55 25 L70 40 L70 70 Z" fill="#6c757d"/>
         <circle cx="45" cy="45" r="8" fill="#e9ecef"/>
     </svg>';
+    file_put_contents($cacheFile, $svg);
+    header('Content-Type: image/svg+xml');
+    echo $svg;
 }
 ?>
