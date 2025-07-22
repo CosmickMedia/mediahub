@@ -338,6 +338,21 @@ try {
     echo "• status_id column might already exist\n";
 }
 
+// Add local_path and thumb_path columns to uploads
+try {
+    $pdo->exec("ALTER TABLE uploads ADD COLUMN local_path TEXT AFTER status_id");
+    echo "✓ Added local_path column to uploads table\n";
+} catch (PDOException $e) {
+    echo "• local_path column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE uploads ADD COLUMN thumb_path TEXT AFTER local_path");
+    echo "✓ Added thumb_path column to uploads table\n";
+} catch (PDOException $e) {
+    echo "• thumb_path column might already exist\n";
+}
+
 // Insert default statuses if not already present
 $defaultStatuses = [
     ['Reviewed', '#198754'],

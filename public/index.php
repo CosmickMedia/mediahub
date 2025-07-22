@@ -6,6 +6,7 @@ require_once __DIR__.'/../lib/helpers.php';
 require_once __DIR__.'/../lib/auth.php';
 
 $config = get_config();
+$localUploadDir = $config['local_upload_dir'] ?? (__DIR__ . '/uploads');
 
 ensure_session();
 
@@ -265,6 +266,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
         $uploadedFiles = [];
         $processedHashes = []; // Track processed files to prevent duplicates
 
+        // Detect available optional columns
+        $cols = $pdo->query("SHOW COLUMNS FROM uploads")->fetchAll(PDO::FETCH_COLUMN);
+        $hasCustomMessage = in_array('custom_message', $cols, true);
+        $hasLocalPath = in_array('local_path', $cols, true);
+        $hasThumbPath = in_array('thumb_path', $cols, true);
+
         for ($i = 0; $i < $totalFiles; $i++) {
             if (!is_uploaded_file($_FILES['files']['tmp_name'][$i])) {
                 continue;
@@ -306,43 +313,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
             }
 
             try {
-                // Upload to Google Drive
-                $driveId = drive_upload($tmpFile, $mimeType, $originalName, $storeFolderId);
+                // Build local storage paths
+                $subDir = $store_id . '/' . date('Y/m');
+                $targetDir = rtrim($localUploadDir, '/\\') . '/' . $subDir;
+                $thumbDir = $targetDir . '/thumbs';
+                if (!is_dir($thumbDir) && !mkdir($thumbDir, 0777, true) && !is_dir($thumbDir)) {
+                    throw new Exception('Failed to create upload directory');
+                }
+
+                $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($originalName));
+                $localPath = $targetDir . '/' . $safeName;
+                if (!move_uploaded_file($tmpFile, $localPath)) {
+                    throw new Exception('Failed to store file locally');
+                }
+
+                $thumbPath = $thumbDir . '/' . $safeName;
+                $thumbUrl = null;
+                if (create_local_thumbnail($localPath, $thumbPath, $mimeType)) {
+                    $thumbUrl = 'uploads/' . $subDir . '/thumbs/' . $safeName;
+                }
+
+                // Upload to Google Drive using local file
+                $driveId = drive_upload($localPath, $mimeType, $originalName, $storeFolderId);
 
                 // Get description
                 $description = $_POST['descriptions'][$i] ?? '';
 
-                // Save to database with custom message
+                // Save to database with optional columns
                 try {
-                    // Check if custom_message column exists
-                    $checkColumn = $pdo->query("SHOW COLUMNS FROM uploads LIKE 'custom_message'");
-                    $hasCustomMessage = $checkColumn->fetch() !== false;
+                    $fields = ['store_id', 'filename', 'description'];
+                    $placeholders = '?, ?, ?';
+                    $values = [$store_id, $originalName, $description];
 
                     if ($hasCustomMessage) {
-                        $stmt = $pdo->prepare('INSERT INTO uploads (store_id, filename, description, custom_message, created_at, ip, mime, size, drive_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)');
-                        $stmt->execute([
-                            $store_id,
-                            $originalName,
-                            $description,
-                            $customMessage,
-                            $_SERVER['REMOTE_ADDR'],
-                            $mimeType,
-                            $fileSize,
-                            $driveId
-                        ]);
-                    } else {
-                        // Insert without custom_message column
-                        $stmt = $pdo->prepare('INSERT INTO uploads (store_id, filename, description, created_at, ip, mime, size, drive_id) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)');
-                        $stmt->execute([
-                            $store_id,
-                            $originalName,
-                            $description,
-                            $_SERVER['REMOTE_ADDR'],
-                            $mimeType,
-                            $fileSize,
-                            $driveId
-                        ]);
+                        $fields[] = 'custom_message';
+                        $placeholders .= ', ?';
+                        $values[] = $customMessage;
                     }
+
+                    $fields[] = 'created_at';
+                    $placeholders .= ', NOW()';
+
+                    $fields[] = 'ip';
+                    $placeholders .= ', ?';
+                    $values[] = $_SERVER['REMOTE_ADDR'];
+
+                    $fields[] = 'mime';
+                    $placeholders .= ', ?';
+                    $values[] = $mimeType;
+
+                    $fields[] = 'size';
+                    $placeholders .= ', ?';
+                    $values[] = $fileSize;
+
+                    $fields[] = 'drive_id';
+                    $placeholders .= ', ?';
+                    $values[] = $driveId;
+
+                    if ($hasLocalPath) {
+                        $fields[] = 'local_path';
+                        $placeholders .= ', ?';
+                        $values[] = 'uploads/' . $subDir . '/' . $safeName;
+                    }
+
+                    if ($hasThumbPath) {
+                        $fields[] = 'thumb_path';
+                        $placeholders .= ', ?';
+                        $values[] = $thumbUrl;
+                    }
+
+                    $sql = 'INSERT INTO uploads (' . implode(',', $fields) . ') VALUES (' . $placeholders . ')';
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($values);
 
                     $uploadCount++;
                     $uploadedFiles[] = $originalName;
@@ -457,6 +499,31 @@ function getUploadErrorMessage($code) {
         default:
             return 'Unknown upload error';
     }
+}
+
+function create_local_thumbnail(string $src, string $dest, string $mime): bool {
+    $max = 400;
+    if (strpos($mime, 'image/') === 0) {
+        $img = @imagecreatefromstring(file_get_contents($src));
+        if (!$img) return false;
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $scale = min($max / $w, $max / $h, 1);
+        $tw = (int)($w * $scale);
+        $th = (int)($h * $scale);
+        $thumb = imagecreatetruecolor($tw, $th);
+        imagecopyresampled($thumb, $img, 0, 0, 0, 0, $tw, $th, $w, $h);
+        imagejpeg($thumb, $dest, 80);
+        imagedestroy($img);
+        imagedestroy($thumb);
+        return true;
+    }
+    if (strpos($mime, 'video/') === 0) {
+        $cmd = 'ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
+        exec($cmd);
+        return file_exists($dest);
+    }
+    return false;
 }
 
 // show upload form

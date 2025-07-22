@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $upload_id = $_POST['delete_id'];
 
     // Verify this upload belongs to the current store
-    $stmt = $pdo->prepare('SELECT drive_id FROM uploads WHERE id = ? AND store_id = ?');
+    $stmt = $pdo->prepare('SELECT drive_id, local_path, thumb_path FROM uploads WHERE id = ? AND store_id = ?');
     $stmt->execute([$upload_id, $store_id]);
     $upload = $stmt->fetch();
 
@@ -31,6 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
             drive_delete($upload['drive_id']);
         } catch (Exception $e) {
             // Continue even if Drive delete fails
+        }
+
+        if (!empty($upload['local_path'])) {
+            $path = __DIR__ . '/' . ltrim($upload['local_path'], '/');
+            @unlink($path);
+        }
+        if (!empty($upload['thumb_path'])) {
+            $path = __DIR__ . '/' . ltrim($upload['thumb_path'], '/');
+            @unlink($path);
         }
 
         // Delete from database
@@ -246,16 +255,16 @@ include __DIR__.'/header.php';
                     $fileExtension = pathinfo($upload['filename'], PATHINFO_EXTENSION);
                     ?>
                     <div class="upload-card animate__animated animate__fadeInUp" style="animation-delay: <?php echo min($index * 0.05, 0.5); ?>s">
-                        <div class="upload-media" onclick="showPreview('<?php echo $upload['id']; ?>', '<?php echo $isVideo ? 'video' : 'image'; ?>')">
+                        <div class="upload-media" onclick="showPreview('<?php echo $upload['id']; ?>', '<?php echo $isVideo ? 'video' : 'image'; ?>', '<?php echo $upload['local_path'] ?? ''; ?>')">
                             <?php if ($isVideo): ?>
-                                <img src="thumbnail.php?id=<?php echo $upload['id']; ?>&size=medium"
+                                <img src="<?php echo htmlspecialchars($upload['thumb_path'] ?: 'thumbnail.php?id=' . $upload['id'] . '&size=medium'); ?>"
                                      alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                                      loading="lazy">
                                 <div class="video-indicator">
                                     <i class="bi bi-play-circle-fill"></i>
                                 </div>
                             <?php else: ?>
-                                <img src="thumbnail.php?id=<?php echo $upload['id']; ?>&size=medium"
+                                <img src="<?php echo htmlspecialchars($upload['thumb_path'] ?: 'thumbnail.php?id=' . $upload['id'] . '&size=medium'); ?>"
                                      alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                                      loading="lazy">
                             <?php endif; ?>
@@ -444,7 +453,7 @@ include __DIR__.'/header.php';
         }
 
         // Preview functionality
-        function showPreview(uploadId, type) {
+        function showPreview(uploadId, type, localPath) {
             const modal = document.getElementById('previewModal');
             const content = document.getElementById('previewContent');
 
@@ -467,7 +476,11 @@ include __DIR__.'/header.php';
             img.onerror = function() {
                 content.innerHTML = '<div class="text-white"><i class="bi bi-exclamation-triangle"></i> Failed to load image</div>';
             };
-            img.src = `thumbnail.php?id=${uploadId}&size=large`;
+            if (localPath) {
+                img.src = localPath;
+            } else {
+                img.src = `thumbnail.php?id=${uploadId}&size=large`;
+            }
         }
 
         function closePreview(event) {
