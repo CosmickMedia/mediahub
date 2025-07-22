@@ -295,20 +295,20 @@ include __DIR__.'/header.php';
                                 </div>
                             <?php endif; ?>
 
-                            <div class="upload-actions">
+                            <div class="history-actions">
                                 <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
                                    target="_blank"
-                                   class="action-button view-button">
+                                   class="history-btn history-btn-primary">
                                     <i class="bi bi-eye"></i> View
                                 </a>
                                 <a href="https://drive.google.com/uc?export=download&id=<?php echo $upload['drive_id']; ?>"
                                    target="_blank"
-                                   class="action-button download-button">
+                                   class="history-btn history-btn-success">
                                     <i class="bi bi-download"></i> Download
                                 </a>
                                 <form method="post" class="flex-1" onsubmit="return confirmDelete('<?php echo htmlspecialchars($upload['filename']); ?>')">
                                     <input type="hidden" name="delete_id" value="<?php echo $upload['id']; ?>">
-                                    <button type="submit" class="action-button delete-button w-100">
+                                    <button type="submit" class="history-btn history-btn-danger w-100">
                                         <i class="bi bi-trash"></i> Delete
                                     </button>
                                 </form>
