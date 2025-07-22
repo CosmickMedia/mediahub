@@ -192,6 +192,9 @@
 
 <!-- Sweet Alert 2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php if ($active === 'broadcasts'): ?>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+<?php endif; ?>
 
 <script>
     // Modern Admin Features
