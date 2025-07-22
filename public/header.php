@@ -1,5 +1,6 @@
 <?php
-if (!isset($_SESSION)) { session_start(); }
+require_once __DIR__.'/../lib/auth.php';
+ensure_session();
 
 // Get current page for active state
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -161,7 +162,7 @@ if (isset($_SESSION['store_id'])) {
                 </div>
 
                 <!-- Logout -->
-                <a href="?logout=1" class="logout-btn" title="Logout">
+                <a href="logout.php" class="logout-btn" title="Logout">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>
 
@@ -231,7 +232,7 @@ if (isset($_SESSION['store_id'])) {
                             <span class="user-role">Store User</span>
                         </div>
                     </div>
-                    <a href="?logout=1" class="logout-btn" title="Logout">
+                    <a href="logout.php" class="logout-btn" title="Logout">
                         <i class="bi bi-box-arrow-right"></i>
                     </a>
                 </div>

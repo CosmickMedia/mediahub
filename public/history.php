@@ -7,7 +7,7 @@ require_once __DIR__.'/../lib/drive.php';
 $config = get_config();
 $localUploadDir = $config['local_upload_dir'] ?? (__DIR__ . '/uploads');
 
-session_start();
+ensure_session();
 
 // Check if logged in
 if (!isset($_SESSION['store_id'])) {

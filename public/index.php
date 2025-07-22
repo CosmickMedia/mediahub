@@ -13,20 +13,9 @@ ensure_session();
 $errors = [];
 $success = [];
 
-// Handle logout
+// Handle logout legacy parameter
 if (isset($_GET['logout'])) {
-    // Clear all store-related session data
-    unset($_SESSION['store_id']);
-    unset($_SESSION['store_pin']);
-    unset($_SESSION['store_name']);
-    unset($_SESSION['store_user_email']);
-    unset($_SESSION['store_first_name']);
-    unset($_SESSION['store_last_name']);
-
-    // Destroy the session completely
-    session_destroy();
-
-    header('Location: index.php');
+    header('Location: logout.php');
     exit;
 }
 
