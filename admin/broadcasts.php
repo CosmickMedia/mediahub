@@ -760,7 +760,7 @@ include __DIR__.'/header.php';
                                 </div>
 
                                 <div class="message-actions">
-                                    <a href="edit_message.php?id=<?php echo $msg['id']; ?>"
+                                    <a href="edit_broadcast.php?id=<?php echo $msg['id']; ?>"
                                        class="btn btn-action btn-action-secondary">
                                         <i class="bi bi-pencil-square"></i> Edit
                                     </a>
