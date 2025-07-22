@@ -1048,7 +1048,7 @@ include __DIR__.'/header.php';
 
         // Refresh messages
         function refreshMessages() {
-            fetch('messages.php?load=1')
+            fetch('chat.php?load=1')
                 .then(r => r.json())
                 .then(data => {
                     const container = document.getElementById('messages');

@@ -637,7 +637,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="messages.php" class="stat-card messages animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+            <a href="broadcasts.php" class="stat-card messages animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots"></i>
                 </div>
@@ -853,7 +853,7 @@ include __DIR__.'/header.php';
                                     </h6>
                                 </div>
                             </a>
-                            <a href="messages.php" class="action-card">
+                            <a href="broadcasts.php" class="action-card">
                                 <div class="action-icon">
                                     <i class="bi bi-chat-dots"></i>
                                 </div>

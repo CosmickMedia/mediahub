@@ -27,5 +27,5 @@ $stmt->execute([$_SESSION['store_id'], $message, $parent]);
 if (!empty($_POST['ajax'])) {
     echo json_encode(['success' => true]);
 } else {
-    header('Location: messages.php');
+    header('Location: chat.php');
 }

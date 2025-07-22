@@ -494,7 +494,7 @@ include __DIR__.'/header.php';
                     <i class="bi bi-graph-up"></i>
                     <h3>Marketing Report Not Set Up</h3>
                     <p>Your marketing analytics dashboard hasn't been configured yet. Contact your admin team to set up your personalized marketing report with real-time insights and performance metrics.</p>
-                    <a href="messages.php" class="contact-admin-btn">
+                    <a href="chat.php" class="contact-admin-btn">
                         <i class="bi bi-chat-dots"></i>
                         Contact Admin
                     </a>

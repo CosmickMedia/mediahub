@@ -20,5 +20,10 @@ function get_config(): array {
             throw new Exception('No configuration file found');
         }
     }
+    if (!empty($cfg['timezone'])) {
+        date_default_timezone_set($cfg['timezone']);
+    } else {
+        date_default_timezone_set('America/New_York');
+    }
     return $cfg;
 }

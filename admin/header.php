@@ -608,7 +608,7 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 <i class="bi bi-cloud-upload"></i>
                 <span>Content</span>
             </a>
-            <a class="nav-link<?php if($active==='messages') echo ' active'; ?>" href="messages.php">
+            <a class="nav-link<?php if($active==='broadcasts') echo ' active'; ?>" href="broadcasts.php">
                 <i class="bi bi-megaphone"></i>
                 <span>Broadcasts</span>
             </a>
@@ -676,7 +676,7 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 <i class="bi bi-cloud-upload"></i>
                 <span>Content Review</span>
             </a>
-            <a class="nav-link<?php if($active==='messages') echo ' active'; ?>" href="messages.php">
+            <a class="nav-link<?php if($active==='broadcasts') echo ' active'; ?>" href="broadcasts.php">
                 <i class="bi bi-megaphone"></i>
                 <span>Broadcasts</span>
             </a>

@@ -11,7 +11,7 @@ $stmt->execute([$id]);
 $message = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$message) {
-    header('Location: messages.php');
+    header('Location: broadcasts.php');
     exit;
 }
 
@@ -30,12 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     }
 }
 
-$active = 'messages';
+$active = 'broadcasts';
 include __DIR__.'/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4>Edit Broadcast</h4>
-    <a href="messages.php" class="btn btn-sm btn-outline-secondary">Back</a>
+    <a href="broadcasts.php" class="btn btn-sm btn-outline-secondary">Back</a>
 </div>
 <?php foreach ($errors as $e): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
