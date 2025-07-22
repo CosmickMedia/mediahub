@@ -2,6 +2,10 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/drive.php';
+
+$config = get_config();
+$localUploadDir = $config['local_upload_dir'] ?? (__DIR__ . '/uploads');
 
 session_start();
 
@@ -14,6 +18,98 @@ if (!isset($_SESSION['store_id'])) {
 $store_id = $_SESSION['store_id'];
 $store_name = $_SESSION['store_name'];
 $pdo = get_pdo();
+
+// Upload token
+if (empty($_SESSION['upload_token'])) {
+    $_SESSION['upload_token'] = bin2hex(random_bytes(16));
+}
+$upload_token = $_SESSION['upload_token'];
+
+// Handle quick image upload
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
+    $tokenValid = isset($_POST['upload_token']) && hash_equals($_SESSION['upload_token'], $_POST['upload_token']);
+    if ($tokenValid) {
+        unset($_SESSION['upload_token']);
+        try {
+            $storeFolderId = get_or_create_store_folder($store_id);
+            $totalFiles = count($_FILES['files']['name']);
+            $cols = $pdo->query("SHOW COLUMNS FROM uploads")->fetchAll(PDO::FETCH_COLUMN);
+            $hasLocalPath = in_array('local_path', $cols, true);
+            $hasThumbPath = in_array('thumb_path', $cols, true);
+            for ($i = 0; $i < $totalFiles; $i++) {
+                if (!is_uploaded_file($_FILES['files']['tmp_name'][$i])) continue;
+
+                $tmp = $_FILES['files']['tmp_name'][$i];
+                $name = $_FILES['files']['name'][$i];
+                $size = $_FILES['files']['size'][$i];
+                $err = $_FILES['files']['error'][$i];
+                if ($err !== UPLOAD_ERR_OK) {
+                    $errors[] = "Error uploading $name: " . getUploadErrorMessage($err);
+                    continue;
+                }
+                if ($size > 20 * 1024 * 1024) {
+                    $errors[] = "$name is too large (max 20MB)";
+                    continue;
+                }
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime = finfo_file($finfo, $tmp);
+                finfo_close($finfo);
+                if (strpos($mime, 'image/') !== 0) {
+                    $errors[] = "$name is not an image";
+                    continue;
+                }
+
+                try {
+                    $subDir = $store_id . '/' . date('Y/m');
+                    $targetDir = rtrim($localUploadDir, '/\\') . '/' . $subDir;
+                    $thumbDir = $targetDir . '/thumbs';
+                    if (!is_dir($thumbDir) && !mkdir($thumbDir, 0777, true) && !is_dir($thumbDir)) {
+                        throw new Exception('Failed to create upload directory');
+                    }
+
+                    $safe = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($name));
+                    $localPath = $targetDir . '/' . $safe;
+                    if (!move_uploaded_file($tmp, $localPath)) {
+                        throw new Exception('Failed to store file locally');
+                    }
+                    $thumbPath = $thumbDir . '/' . $safe;
+                    $thumbUrl = null;
+                    if (create_local_thumbnail($localPath, $thumbPath, $mime)) {
+                        $thumbUrl = 'uploads/' . $subDir . '/thumbs/' . $safe;
+                    }
+
+                    $driveId = drive_upload($localPath, $mime, $name, $storeFolderId);
+
+                    $fields = ['store_id', 'filename', 'created_at', 'ip', 'mime', 'size', 'drive_id'];
+                    $placeholders = '?, ?, NOW(), ?, ?, ?, ?';
+                    $values = [$store_id, $name, $_SERVER['REMOTE_ADDR'], $mime, $size, $driveId];
+
+                    if ($hasLocalPath) {
+                        $fields[] = 'local_path';
+                        $placeholders .= ', ?';
+                        $values[] = 'uploads/' . $subDir . '/' . $safe;
+                    }
+                    if ($hasThumbPath) {
+                        $fields[] = 'thumb_path';
+                        $placeholders .= ', ?';
+                        $values[] = $thumbUrl;
+                    }
+
+                    $sql = 'INSERT INTO uploads (' . implode(',', $fields) . ') VALUES (' . $placeholders . ')';
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($values);
+                    $success = 'Image uploaded successfully';
+                } catch (Exception $e) {
+                    $errors[] = "Failed to upload $name: " . $e->getMessage();
+                }
+            }
+        } catch (Exception $e) {
+            $errors[] = $e->getMessage();
+        }
+    } else {
+        $errors[] = 'Invalid upload token';
+    }
+}
 
 // Handle delete action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
@@ -122,6 +218,52 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 $total_size_gb = $stats['total_size'] / (1024 * 1024 * 1024);
 
+function getUploadErrorMessage($code) {
+    switch ($code) {
+        case UPLOAD_ERR_INI_SIZE:
+            return 'File exceeds upload_max_filesize in php.ini';
+        case UPLOAD_ERR_FORM_SIZE:
+            return 'File exceeds MAX_FILE_SIZE in form';
+        case UPLOAD_ERR_PARTIAL:
+            return 'File was only partially uploaded';
+        case UPLOAD_ERR_NO_FILE:
+            return 'No file was uploaded';
+        case UPLOAD_ERR_NO_TMP_DIR:
+            return 'Missing temporary folder';
+        case UPLOAD_ERR_CANT_WRITE:
+            return 'Failed to write file to disk';
+        case UPLOAD_ERR_EXTENSION:
+            return 'File upload stopped by extension';
+        default:
+            return 'Unknown upload error';
+    }
+}
+
+function create_local_thumbnail(string $src, string $dest, string $mime): bool {
+    $max = 400;
+    if (strpos($mime, 'image/') === 0) {
+        $img = @imagecreatefromstring(file_get_contents($src));
+        if (!$img) return false;
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $scale = min($max / $w, $max / $h, 1);
+        $tw = (int)($w * $scale);
+        $th = (int)($h * $scale);
+        $thumb = imagecreatetruecolor($tw, $th);
+        imagecopyresampled($thumb, $img, 0, 0, 0, 0, $tw, $th, $w, $h);
+        imagejpeg($thumb, $dest, 80);
+        imagedestroy($img);
+        imagedestroy($thumb);
+        return true;
+    }
+    if (strpos($mime, 'video/') === 0) {
+        $cmd = 'ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
+        exec($cmd);
+        return file_exists($dest);
+    }
+    return false;
+}
+
 include __DIR__.'/header.php';
 ?>
 
@@ -138,6 +280,34 @@ include __DIR__.'/header.php';
             <a href="index.php" class="btn btn-modern-primary">
                 <i class="bi bi-arrow-left"></i> Back to Upload
             </a>
+        </div>
+
+        <div class="text-end mb-3">
+            <button class="btn btn-modern-secondary" type="button" id="toggleQuickUpload">
+                <i class="bi bi-plus-circle"></i> Add Images
+            </button>
+        </div>
+
+        <div id="quickUpload" class="mb-4" style="display:none;">
+            <form method="post" enctype="multipart/form-data" id="quickUploadForm">
+                <div class="upload-area small" id="quickUploadArea">
+                    <i class="bi bi-cloud-upload upload-icon"></i>
+                    <p class="upload-text">Drag & drop or browse</p>
+                    <div class="file-buttons">
+                        <button type="button" class="btn-modern btn-modern-primary" onclick="document.getElementById('quickFiles').click();">
+                            <i class="bi bi-folder2-open"></i> Browse Files
+                        </button>
+                        <button type="button" class="btn-modern btn-modern-secondary" onclick="document.getElementById('quickCamera').click();">
+                            <i class="bi bi-camera"></i> Use Camera
+                        </button>
+                    </div>
+                    <input class="d-none" type="file" name="files[]" id="quickFiles" multiple accept="image/*">
+                    <input type="file" id="quickCamera" accept="image/*" capture="camera" class="d-none">
+                    <div id="quickFileList"></div>
+                </div>
+                <input type="hidden" name="upload_token" value="<?php echo htmlspecialchars($upload_token); ?>">
+                <button type="submit" class="btn-modern btn-modern-primary mt-2">Upload</button>
+            </form>
         </div>
 
         <?php if (isset($success)): ?>
@@ -444,6 +614,43 @@ include __DIR__.'/header.php';
                 params.set('page', '1');
 
                 window.location.search = params.toString();
+            }
+
+            const toggleBtn = document.getElementById('toggleQuickUpload');
+            const quickSection = document.getElementById('quickUpload');
+            const quickFiles = document.getElementById('quickFiles');
+            const quickCamera = document.getElementById('quickCamera');
+            const quickList = document.getElementById('quickFileList');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    if (quickSection.style.display === 'none') {
+                        quickSection.style.display = 'block';
+                    } else {
+                        quickSection.style.display = 'none';
+                    }
+                });
+            }
+
+            function updateQuickList(files) {
+                quickList.innerHTML = '';
+                Array.from(files).forEach(f => {
+                    const div = document.createElement('div');
+                    div.textContent = f.name;
+                    quickList.appendChild(div);
+                });
+            }
+
+            if (quickFiles) {
+                quickFiles.addEventListener('change', () => updateQuickList(quickFiles.files));
+            }
+            if (quickCamera) {
+                quickCamera.addEventListener('change', () => {
+                    if (quickCamera.files.length > 0) {
+                        updateQuickList(quickCamera.files);
+                        quickFiles.files = quickCamera.files;
+                    }
+                });
             }
         });
 
