@@ -247,8 +247,8 @@ include __DIR__.'/header.php';
                             <label for="store_id" class="form-label-modern">
                                 <i class="bi bi-shop"></i> Target Store
                             </label>
-                            <select name="store_id[]" id="store_id" class="form-select form-select-modern" multiple size="8">
-                                <option value="all">🌍 All Stores (Global Broadcast)</option>
+                            <select name="store_id[]" id="store_id" class="form-select form-select-modern" multiple>
+                                <option value="all" selected>🌍 All Stores (Global Broadcast)</option>
                                 <optgroup label="Individual Stores">
                                     <?php foreach ($stores as $store): ?>
                                         <option value="<?php echo $store['id']; ?>">
@@ -257,7 +257,7 @@ include __DIR__.'/header.php';
                                     <?php endforeach; ?>
                                 </optgroup>
                             </select>
-                            <div class="form-text">Hold Ctrl (Cmd on Mac) to select multiple stores</div>
+                            <div class="form-text">Start typing to add stores or leave as "All Stores"</div>
                         </div>
 
                         <div class="mb-4">
@@ -417,6 +417,24 @@ include __DIR__.'/header.php';
                 charCount.style.color = '#6c757d';
             }
         });
+
+        // Initialize Tom Select for store selector
+        const storeSelect = document.getElementById('store_id');
+        if (storeSelect && typeof TomSelect !== 'undefined') {
+            const ts = new TomSelect(storeSelect, {
+                plugins: ['remove_button'],
+                closeAfterSelect: true
+            });
+            ts.setValue(['all']);
+            ts.on('item_add', function(value) {
+                if (value === 'all') {
+                    ts.clear();
+                    ts.addItem('all');
+                } else if (ts.items.includes('all')) {
+                    ts.removeItem('all');
+                }
+            });
+        }
     </script>
 
 <?php include __DIR__.'/footer.php'; ?>

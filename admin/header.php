@@ -20,6 +20,10 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <!-- Sweet Alert 2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <?php if ($active === 'broadcasts'): ?>
+        <!-- Tom Select CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css">
+    <?php endif; ?>
     <link rel="stylesheet" href="inc/css/style.css?v=<?php echo $version; ?>">
 
     <!-- Favicon -->
