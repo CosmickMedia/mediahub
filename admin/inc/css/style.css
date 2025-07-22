@@ -38,7 +38,12 @@ a:hover { color: #1a252f; }
 .video-thumbnail { background-color: #000; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 3rem; }
 .article-excerpt { max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .status-badge { font-size: 0.875rem; font-weight: 500; }
-.login-page { background-color: #262829; display: flex; align-items: center; min-height: 100vh; }
+.login-page {
+    background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+}
 .login-page .login-logo { max-width: 200px; margin-bottom: 30px; }
 .login-page .btn-login { background-color: #ff675b; border-color: #ff675b; color: white; }
 .login-page .btn-login:hover { background-color: #e55750; border-color: #e55750; color: white; }
