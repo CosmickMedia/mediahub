@@ -87,6 +87,7 @@ $stmt = $pdo->prepare("SELECT m.*, s.name as store_name,
         $m['like_by_store'] = (int)$m['like_by_store'];
         $m['love_by_admin'] = (int)$m['love_by_admin'];
         $m['love_by_store'] = (int)$m['love_by_store'];
+        if (!empty($m["thumb_path"])) $m["thumb_path"] = public_upload_url($m["thumb_path"]);
     }
     header('Content-Type: application/json');
     echo json_encode($msgs);
@@ -133,6 +134,7 @@ if ($current_store_id) {
         $m['like_by_store'] = (int)$m['like_by_store'];
         $m['love_by_admin'] = (int)$m['love_by_admin'];
         $m['love_by_store'] = (int)$m['love_by_store'];
+        if (!empty($m["thumb_path"])) $m["thumb_path"] = public_upload_url($m["thumb_path"]);
     }
     $upd = $pdo->prepare("UPDATE store_messages SET read_by_admin=1 WHERE store_id=? AND sender='store' AND read_by_admin=0");
     $upd->execute([$current_store_id]);
@@ -361,7 +363,7 @@ include __DIR__.'/header.php';
                                         </div>
                                         <?php if (!empty($msg['filename'])): ?>
                                             <?php if (strpos($msg['mime'], 'image/') === 0): ?>
-                                                <?php $thumbSrc = !empty($msg['thumb_path']) ? $msg['thumb_path'] : 'thumbnail.php?id=' . $msg['upload_id'] . '&size=medium'; ?>
+                                                <?php $thumbSrc = !empty($msg['thumb_path']) ? public_upload_url($msg['thumb_path']) : 'thumbnail.php?id=' . $msg['upload_id'] . '&size=medium'; ?>
                                                 <div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" target="_blank"><img src="<?php echo htmlspecialchars($thumbSrc); ?>" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></a></div>
                                             <?php elseif (strpos($msg['mime'], 'video/') === 0): ?>
                                                 <div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" controls class="message-video"></video></div>

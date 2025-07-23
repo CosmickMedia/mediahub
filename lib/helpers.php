@@ -139,3 +139,12 @@ function normalize_tag(?string $tag): string {
     $tag = ltrim($tag, "#");
     return strtolower($tag);
 }
+
+/**
+ * Get the public URL for an uploaded file path.
+ * Adds the /public prefix to local paths stored in the database.
+ */
+function public_upload_url(?string $path): ?string {
+    if (!$path) return $path;
+    return "/public/" . ltrim($path, "/");
+}
