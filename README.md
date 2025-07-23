@@ -21,7 +21,9 @@ Fill in the `google_oauth` settings in `config.php` to enable "Login with Google
 
 ## Deployment
 
-A simple `deploy.sh` script is provided to rsync the files to a remote host. Edit the script with your server details.
+Upload the project to your PHP host using rsync, Git, or FTP. The previous
+`deploy.sh` helper script has been removed, so use whichever deployment method
+best fits your environment.
 
 ## Versioning
 
@@ -44,3 +46,17 @@ To debug Google Drive uploads, check **Drive Debug Logging** under **Admin → S
 ### Calendar Import
 
 To populate the calendar from Google Sheets, open **Admin → Settings** and paste the sheet's public URL in the **Google Sheet URL** field. The application automatically converts the standard editing link into the required CSV export format.
+
+## Recent Improvements
+
+Recent releases introduced several enhancements:
+
+- The admin uploads list now refreshes automatically so new content appears in
+  real time.
+- Admins receive email notifications when a store submits a quick upload.
+- Uploaded files can be downloaded directly from the content history page.
+- The chat interface shows each store user's full name and displays emoji
+  reactions.
+- A handy "Upload" button is available on the dashboard widget.
+
+See `CHANGELOG.md` for a complete history of changes.
