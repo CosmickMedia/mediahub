@@ -137,7 +137,7 @@ $stmt = $pdo->query('
     FROM uploads u
     JOIN stores s ON u.store_id = s.id
     LEFT JOIN upload_statuses us ON u.status_id = us.id
-    ORDER BY u.created_at DESC
+    ORDER BY u.created_at DESC, u.id DESC
     LIMIT 5
 ');
 $recent_uploads = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -270,7 +270,7 @@ include __DIR__.'/header.php';
                                     <?php foreach ($recent_uploads as $upload): ?>
                                         <tr>
                                             <td>
-                                                <?php $thumb = !empty($upload['thumb_path']) ? $upload['thumb_path'] : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
+                                                <?php $thumb = !empty($upload['thumb_path']) ? '/' . ltrim($upload['thumb_path'], '/') : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
                                                 <img src="<?php echo htmlspecialchars($thumb); ?>"
                                                      class="preview-img-sm"
                                                      alt="<?php echo htmlspecialchars($upload['filename']); ?>"
