@@ -502,6 +502,7 @@ include __DIR__.'/header.php';
             params.set('per_page', document.getElementById('perPageSelect').value);
             params.set('widget', widget);
             params.set('ajax', '1');
+            params.set('_', Date.now());
             return fetch('uploads.php?' + params.toString())
                 .then(r => r.json())
                 .then(data => {
@@ -536,6 +537,14 @@ include __DIR__.'/header.php';
                 }
             }
         });
+
+        // Periodically refresh the uploads list similar to the public side
+        setInterval(() => {
+            if (!loading) {
+                currentPage = 1;
+                loadUploads(1);
+            }
+        }, 10000);
     </script>
 
 <?php include __DIR__.'/footer.php'; ?>

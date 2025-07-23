@@ -53,3 +53,10 @@
 ## [1.3.14] - 2025-07-28
 - display store user's name in admin chat
 - fix article submission form validation
+
+## [1.3.15] - 2025-07-30
+- bump version
+
+## [1.3.16] - 2025-07-30
+- auto-refresh admin uploads list
+
