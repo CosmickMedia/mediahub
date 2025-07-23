@@ -36,3 +36,7 @@
 - e883778 - Fix public logout by using common session cleanup
 - 622c7af - Merge pull request #131 from CosmickMedia/codex/fix-logout-functionality-in-header
 
+
+## [1.3.11] - 2025-07-25
+- hide modern footer on admin login page
+- change public login title to "Store Login"

@@ -78,7 +78,7 @@ if (!$isLoggedIn) {
                 </div>
                 <div class="card shadow">
                     <div class="card-body">
-                        <h3 class="card-title text-center mb-4 store-pin-title">Store PIN</h3>
+                        <h3 class="card-title text-center mb-4 store-pin-title">Store Login</h3>
                         <?php foreach ($errors as $e): ?>
                             <div class="alert alert-danger"><?php echo htmlspecialchars($e); ?></div>
                         <?php endforeach; ?>
