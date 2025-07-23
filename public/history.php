@@ -36,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
             $cols = $pdo->query("SHOW COLUMNS FROM uploads")->fetchAll(PDO::FETCH_COLUMN);
             $hasLocalPath = in_array('local_path', $cols, true);
             $hasThumbPath = in_array('thumb_path', $cols, true);
+            $uploadCount = 0;
+            $uploadedFiles = [];
             for ($i = 0; $i < $totalFiles; $i++) {
                 if (!is_uploaded_file($_FILES['files']['tmp_name'][$i])) continue;
 
@@ -98,11 +100,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                     $sql = 'INSERT INTO uploads (' . implode(',', $fields) . ') VALUES (' . $placeholders . ')';
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute($values);
-                    $success = 'Image uploaded successfully';
+                    $uploadCount++;
+                    $uploadedFiles[] = $name;
                 } catch (Exception $e) {
                     $errors[] = "Failed to upload $name: " . $e->getMessage();
                 }
             }
+
+            if ($uploadCount > 0) {
+                $success = "Successfully uploaded $uploadCount file(s)";
+
+                $emailSettings = [];
+                $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('notification_email', 'email_from_name', 'email_from_address', 'admin_notification_subject', 'store_notification_subject')");
+                while ($row = $settingsQuery->fetch()) {
+                    $emailSettings[$row['name']] = $row['value'];
+                }
+
+                $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
+                $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
+                $adminSubject = str_replace('{store_name}', $store_name, $emailSettings['admin_notification_subject'] ?? 'New uploads from {store_name}');
+                $storeSubject = str_replace('{store_name}', $store_name, $emailSettings['store_notification_subject'] ?? 'Content Submission Confirmation - Cosmick Media');
+
+                $headers = "From: $fromName <$fromAddress>\r\n";
+                $headers .= "Reply-To: $fromAddress\r\n";
+                $headers .= "X-Mailer: PHP/" . phpversion();
+
+                $notifyEmails = $emailSettings['notification_email'] ?? '';
+                if ($notifyEmails) {
+                    $emailList = array_map('trim', explode(',', $notifyEmails));
+                    $message = "$uploadCount new file(s) uploaded from store: $store_name\n\n";
+                    $message .= "Files uploaded:\n";
+                    foreach ($uploadedFiles as $f) { $message .= "- $f\n"; }
+                    foreach ($emailList as $email) {
+                        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                            mail($email, $adminSubject, $message, $headers);
+                        }
+                    }
+                }
+
+                if (!empty($store['admin_email'])) {
+                    $confirmMessage = "Dear $store_name,\n\n";
+                    $confirmMessage .= "Thank you for your submission to the Cosmick Media Content Library.\n\n";
+                    $confirmMessage .= "We have successfully received the following files:\n";
+                    foreach ($uploadedFiles as $f) { $confirmMessage .= "- $f\n"; }
+                    $confirmMessage .= "\nYour content is now pending curation by our team.\n";
+                    $confirmMessage .= "We will review your submission and get back to you if we need any additional information.\n\n";
+                    $confirmMessage .= "Best regards,\n$fromName";
+
+                    mail($store['admin_email'], $storeSubject, $confirmMessage, $headers);
+                }
+            }
+
         } catch (Exception $e) {
             $errors[] = $e->getMessage();
         }

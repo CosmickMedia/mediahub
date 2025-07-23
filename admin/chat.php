@@ -312,11 +312,9 @@ include __DIR__.'/header.php';
                             <?php foreach ($messages as $msg): ?>
                                 <div class="message <?php echo $msg['sender'] === 'admin' ? 'admin' : 'store'; ?>">
                                     <div class="message-bubble">
-                                        <?php if ($msg['sender'] !== 'admin'): ?>
-                                            <div class="message-sender">
-                                                <?php echo htmlspecialchars($msg['store_name']); ?>
-                                            </div>
-                                        <?php endif; ?>
+                                        <div class="message-sender">
+                                            <?php echo $msg['sender'] === 'admin' ? 'You' : htmlspecialchars($msg['store_name']); ?>
+                                        </div>
                                         <?php if (!empty($msg['filename'])): ?>
                                             <?php if (strpos($msg['mime'], 'image/') === 0): ?>
                                                 <div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" target="_blank"><img src="thumbnail.php?id=<?php echo $msg['upload_id']; ?>&size=medium" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></a></div>
@@ -502,9 +500,7 @@ include __DIR__.'/header.php';
                         const wrap = document.createElement('div');
                         wrap.className = 'message ' + (m.sender === 'admin' ? 'admin' : 'store');
                         let html = '<div class="message-bubble">';
-                        if (m.sender !== 'admin') {
-                            html += `<div class="message-sender">${m.store_name}</div>`;
-                        }
+                        html += `<div class="message-sender">${m.sender === 'admin' ? 'You' : m.store_name}</div>`;
                         if (m.filename) {
                             if (m.mime && m.mime.startsWith('image/')) {
                                 html += `<div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=${m.drive_id}" target="_blank"><img src="thumbnail.php?id=${m.upload_id}&size=medium" class="message-img" alt="${m.filename}"></a></div>`;

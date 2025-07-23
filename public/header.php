@@ -309,7 +309,8 @@ if (isset($_SESSION['store_id'])) {
     // Initial check and periodic updates
     if (document.getElementById('notificationBtn')) {
         checkNotifications();
-        setInterval(checkNotifications, 30000); // Check every 30 seconds
+        // Poll every 3 seconds for near real-time notifications
+        setInterval(checkNotifications, 3000);
     }
 </script>
 

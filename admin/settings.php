@@ -127,6 +127,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['delete_stores'])) {
         $pdo->exec('DELETE FROM stores');
         $active_tab = 'reset';
+    } elseif (isset($_POST['clear_sessions'])) {
+        $path = session_save_path() ?: sys_get_temp_dir();
+        foreach (glob($path . '/sess_*') as $file) {
+            @unlink($file);
+        }
+        $active_tab = 'reset';
+    } elseif (isset($_POST['clear_cache'])) {
+        $cacheDir = __DIR__ . '/../public/calendar_media';
+        if (is_dir($cacheDir)) {
+            $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($cacheDir, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($files as $fileInfo) {
+                $todo = ($fileInfo->isDir() ? 'rmdir' : 'unlink');
+                @$todo($fileInfo->getRealPath());
+            }
+        }
+        $active_tab = 'reset';
     } elseif (isset($_POST['test_groundhogg'])) {
         [$ok, $msg] = test_groundhogg_connection();
         $test_result = [$ok, $msg];
@@ -789,6 +808,12 @@ include __DIR__.'/header.php';
                                     </button>
                                     <button class="btn btn-danger-modern" type="submit" name="delete_stores" onclick="return confirm('Delete all stores? This action cannot be undone.');">
                                         <i class="bi bi-shop"></i> Delete All Stores
+                                    </button>
+                                    <button class="btn btn-warning-modern" type="submit" name="clear_sessions" onclick="return confirm('Clear all sessions? Users will be logged out.');">
+                                        <i class="bi bi-x-circle"></i> Clear Sessions
+                                    </button>
+                                    <button class="btn btn-warning-modern" type="submit" name="clear_cache" onclick="return confirm('Clear cached calendar media?');">
+                                        <i class="bi bi-trash"></i> Clear Cache
                                     </button>
                                 </div>
                             </div>
