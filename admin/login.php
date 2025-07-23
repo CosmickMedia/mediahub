@@ -57,4 +57,4 @@ include __DIR__.'/login_header.php';
         </div>
     </div>
 </div>
-<?php include __DIR__.'/footer.php'; ?>
+<?php include __DIR__.'/login_footer.php'; ?>
