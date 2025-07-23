@@ -131,6 +131,14 @@ try {
     echo "• opt_in_status column might already exist\n";
 }
 
+// Add store_user_id column to store_messages table
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN store_user_id INT DEFAULT NULL AFTER store_id");
+    echo "✓ Added store_user_id column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• store_user_id column might already exist\n";
+}
+
 // Add sender column to store_messages table
 try {
     $pdo->exec("ALTER TABLE store_messages ADD COLUMN sender ENUM('admin','store') DEFAULT 'admin' AFTER store_id");

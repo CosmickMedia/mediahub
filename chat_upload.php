@@ -39,9 +39,10 @@ try {
     $sender = $isAdmin ? 'admin' : 'store';
     $read_admin = $isAdmin ? 1 : 0;
     $read_store = $isAdmin ? 0 : 1;
+    $storeUserId = $isAdmin ? null : ($_SESSION['store_user_id'] ?? null);
     $msg = sanitize_message($_POST['message'] ?? $orig);
-    $stmt = $pdo->prepare('INSERT INTO store_messages (store_id, sender, message, parent_id, upload_id, created_at, read_by_admin, read_by_store) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)');
-    $stmt->execute([$store_id, $sender, $msg, $parent_id, $upload_id, $read_admin, $read_store]);
+    $stmt = $pdo->prepare('INSERT INTO store_messages (store_id, store_user_id, sender, message, parent_id, upload_id, created_at, read_by_admin, read_by_store) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)');
+    $stmt->execute([$store_id, $storeUserId, $sender, $msg, $parent_id, $upload_id, $read_admin, $read_store]);
 
     echo json_encode(['success' => true]);
 } catch (Exception $e) {

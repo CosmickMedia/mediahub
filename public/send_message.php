@@ -22,8 +22,9 @@ if ($message === '') {
 
 $pdo = get_pdo();
 $parent = intval($_POST['parent_id'] ?? 0) ?: null;
-$stmt = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, parent_id, created_at, read_by_store, read_by_admin) VALUES (?, 'store', ?, ?, NOW(), 1, 0)");
-$stmt->execute([$_SESSION['store_id'], $message, $parent]);
+$storeUserId = $_SESSION['store_user_id'] ?? null;
+$stmt = $pdo->prepare("INSERT INTO store_messages (store_id, store_user_id, sender, message, parent_id, created_at, read_by_store, read_by_admin) VALUES (?, ?, 'store', ?, ?, NOW(), 1, 0)");
+$stmt->execute([$_SESSION['store_id'], $storeUserId, $message, $parent]);
 
 if (!empty($_POST['ajax'])) {
     echo json_encode(['success' => true]);
