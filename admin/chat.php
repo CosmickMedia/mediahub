@@ -58,14 +58,19 @@ if ($current_store_id) {
     $current_store = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+$uploadSelect = 'u.filename, u.drive_id, u.mime, u.id AS upload_id';
+if ($hasThumbPath) {
+    $uploadSelect .= ', u.thumb_path';
+}
+
 if (isset($_GET['load']) && $current_store_id) {
-    $stmt = $pdo->prepare("SELECT m.*, s.name as store_name,
-            COALESCE(CONCAT(COALESCE(su.first_name,''),' ',COALESCE(su.last_name,'')),
-                (SELECT CONCAT(COALESCE(su2.first_name,''),' ',COALESCE(su2.last_name,''))
-                 FROM store_users su2
-                 WHERE su2.store_id = s.id
-                 ORDER BY su2.id LIMIT 1)) AS contact_name,
-            u.filename, u.drive_id, u.mime, u.id AS upload_id
+$stmt = $pdo->prepare("SELECT m.*, s.name as store_name,
+        COALESCE(CONCAT(COALESCE(su.first_name,''),' ',COALESCE(su.last_name,'')),
+            (SELECT CONCAT(COALESCE(su2.first_name,''),' ',COALESCE(su2.last_name,''))
+             FROM store_users su2
+             WHERE su2.store_id = s.id
+             ORDER BY su2.id LIMIT 1)) AS contact_name,
+            $uploadSelect
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
         LEFT JOIN store_users su ON m.store_user_id = su.id
@@ -113,7 +118,7 @@ if ($current_store_id) {
                  FROM store_users su2
                  WHERE su2.store_id = s.id
                  ORDER BY su2.id LIMIT 1)) AS contact_name,
-            u.filename, u.drive_id, u.mime, u.id AS upload_id
+            $uploadSelect
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
         LEFT JOIN store_users su ON m.store_user_id = su.id
@@ -144,6 +149,31 @@ $stats['total_conversations'] = $pdo->query("SELECT COUNT(DISTINCT store_id) FRO
 $stats['unread_messages'] = $pdo->query("SELECT COUNT(*) FROM store_messages WHERE sender='store' AND read_by_admin=0")->fetchColumn();
 $stats['today_messages'] = $pdo->query("SELECT COUNT(*) FROM store_messages WHERE DATE(created_at) = CURDATE()")->fetchColumn();
 $stats['active_chats'] = $pdo->query("SELECT COUNT(DISTINCT store_id) FROM store_messages WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)")->fetchColumn();
+
+function create_local_thumbnail(string $src, string $dest, string $mime): bool {
+    $max = 400;
+    if (strpos($mime, 'image/') === 0) {
+        $img = @imagecreatefromstring(file_get_contents($src));
+        if (!$img) return false;
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $scale = min($max / $w, $max / $h, 1);
+        $tw = (int)($w * $scale);
+        $th = (int)($h * $scale);
+        $thumb = imagecreatetruecolor($tw, $th);
+        imagecopyresampled($thumb, $img, 0, 0, 0, 0, $tw, $th, $w, $h);
+        imagejpeg($thumb, $dest, 80);
+        imagedestroy($img);
+        imagedestroy($thumb);
+        return true;
+    }
+    if (strpos($mime, 'video/') === 0) {
+        $cmd = 'ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
+        exec($cmd);
+        return file_exists($dest);
+    }
+    return false;
+}
 
 $active = 'chat';
 include __DIR__.'/header.php';
@@ -331,7 +361,8 @@ include __DIR__.'/header.php';
                                         </div>
                                         <?php if (!empty($msg['filename'])): ?>
                                             <?php if (strpos($msg['mime'], 'image/') === 0): ?>
-                                                <div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" target="_blank"><img src="thumbnail.php?id=<?php echo $msg['upload_id']; ?>&size=medium" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></a></div>
+                                                <?php $thumbSrc = !empty($msg['thumb_path']) ? $msg['thumb_path'] : 'thumbnail.php?id=' . $msg['upload_id'] . '&size=medium'; ?>
+                                                <div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" target="_blank"><img src="<?php echo htmlspecialchars($thumbSrc); ?>" alt="<?php echo htmlspecialchars($msg['filename']); ?>" class="message-img"></a></div>
                                             <?php elseif (strpos($msg['mime'], 'video/') === 0): ?>
                                                 <div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=<?php echo $msg['drive_id']; ?>" controls class="message-video"></video></div>
                                             <?php else: ?>
@@ -518,7 +549,8 @@ include __DIR__.'/header.php';
                         html += `<div class="message-sender">${senderName}</div>`;
                         if (m.filename) {
                             if (m.mime && m.mime.startsWith('image/')) {
-                                html += `<div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=${m.drive_id}" target="_blank"><img src="thumbnail.php?id=${m.upload_id}&size=medium" class="message-img" alt="${m.filename}"></a></div>`;
+                                const thumbSrc = m.thumb_path ? m.thumb_path : `thumbnail.php?id=${m.upload_id}&size=medium`;
+                                html += `<div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=${m.drive_id}" target="_blank"><img src="${thumbSrc}" class="message-img" alt="${m.filename}"></a></div>`;
                             } else if (m.mime && m.mime.startsWith('video/')) {
                                 html += `<div class="mb-1"><video src="https://drive.google.com/uc?export=view&id=${m.drive_id}" class="message-video" controls></video></div>`;
                             } else {
