@@ -1,7 +1,0 @@
-{
-  "build": {
-    "android": {
-      "jdkVersion": "11"
-    }
-  }
-}
