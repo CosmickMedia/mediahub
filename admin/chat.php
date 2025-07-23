@@ -59,7 +59,9 @@ if ($current_store_id) {
 }
 
 if (isset($_GET['load']) && $current_store_id) {
-    $stmt = $pdo->prepare("SELECT m.*, s.name as store_name, u.filename, u.drive_id, u.mime, u.id AS upload_id
+    $stmt = $pdo->prepare("SELECT m.*, s.name as store_name,
+            CONCAT(COALESCE(s.first_name,''),' ',COALESCE(s.last_name,'')) AS contact_name,
+            u.filename, u.drive_id, u.mime, u.id AS upload_id
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
         LEFT JOIN uploads u ON m.upload_id = u.id
@@ -99,8 +101,10 @@ $stores = $pdo->query($stores_query)->fetchAll(PDO::FETCH_ASSOC);
 // Get messages for current store
 $messages = [];
 if ($current_store_id) {
-    $stmt = $pdo->prepare("
-        SELECT m.*, s.name as store_name, u.filename, u.drive_id, u.mime, u.id AS upload_id
+    $stmt = $pdo->prepare(
+        "SELECT m.*, s.name as store_name,
+            CONCAT(COALESCE(s.first_name,''),' ',COALESCE(s.last_name,'')) AS contact_name,
+            u.filename, u.drive_id, u.mime, u.id AS upload_id
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
         LEFT JOIN uploads u ON m.upload_id = u.id
@@ -313,7 +317,7 @@ include __DIR__.'/header.php';
                                 <div class="message <?php echo $msg['sender'] === 'admin' ? 'admin' : 'store'; ?>">
                                     <div class="message-bubble">
                                         <div class="message-sender">
-                                            <?php echo $msg['sender'] === 'admin' ? 'You' : htmlspecialchars($msg['store_name']); ?>
+                                            <?php echo $msg['sender'] === 'admin' ? 'You' : htmlspecialchars(trim($msg['contact_name']) ?: $msg['store_name']); ?>
                                         </div>
                                         <?php if (!empty($msg['filename'])): ?>
                                             <?php if (strpos($msg['mime'], 'image/') === 0): ?>
@@ -500,7 +504,8 @@ include __DIR__.'/header.php';
                         const wrap = document.createElement('div');
                         wrap.className = 'message ' + (m.sender === 'admin' ? 'admin' : 'store');
                         let html = '<div class="message-bubble">';
-                        html += `<div class="message-sender">${m.sender === 'admin' ? 'You' : m.store_name}</div>`;
+                        const senderName = m.sender === 'admin' ? 'You' : (m.contact_name && m.contact_name.trim() ? m.contact_name : m.store_name);
+                        html += `<div class="message-sender">${senderName}</div>`;
                         if (m.filename) {
                             if (m.mime && m.mime.startsWith('image/')) {
                                 html += `<div class="mb-1"><a href="https://drive.google.com/uc?export=view&id=${m.drive_id}" target="_blank"><img src="thumbnail.php?id=${m.upload_id}&size=medium" class="message-img" alt="${m.filename}"></a></div>`;

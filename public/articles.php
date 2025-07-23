@@ -566,7 +566,7 @@ include __DIR__.'/header.php';
                             <label for="content" class="form-label">
                                 <i class="bi bi-file-text"></i> Article Content *
                             </label>
-                            <textarea class="form-control-modern" id="content" name="content" required></textarea>
+                            <textarea class="form-control-modern" id="content" name="content"></textarea>
                             <div class="form-text">
                                 You can paste content from Word, Google Docs, or other sources. Formatting will be preserved.
                             </div>
@@ -1010,6 +1010,15 @@ include __DIR__.'/header.php';
         // Form submission
         if (document.getElementById('articleForm')) {
             document.getElementById('articleForm').addEventListener('submit', function(e) {
+                const contentField = document.getElementById('content');
+                const contentValue = editor ? editor.getData().trim() : contentField.value.trim();
+                if (!contentValue) {
+                    e.preventDefault();
+                    alert('Article content is required');
+                    return;
+                }
+                contentField.value = contentValue;
+
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
