@@ -4,6 +4,8 @@ require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_login();
 $pdo = get_pdo();
+$checkCat = $pdo->query("SHOW COLUMNS FROM articles LIKE 'category'");
+$hasCategory = $checkCat->fetch() !== false;
 
 $success = [];
 $errors = [];
@@ -215,6 +217,9 @@ include __DIR__.'/header.php';
                             <th>Title</th>
                             <th>Store</th>
                             <th>Status</th>
+                            <?php if ($hasCategory): ?>
+                                <th>Category</th>
+                            <?php endif; ?>
                             <th>Submitted</th>
                             <th>Excerpt</th>
                             <th>Actions</th>
@@ -240,6 +245,9 @@ include __DIR__.'/header.php';
                                         <?php echo ucfirst($article['status']); ?>
                                     </span>
                                 </td>
+                                <?php if ($hasCategory): ?>
+                                    <td><?php echo htmlspecialchars($article['category']); ?></td>
+                                <?php endif; ?>
                                 <td><?php echo format_ts($article['created_at']); ?></td>
                                 <td class="article-excerpt">
                                     <?php
@@ -362,6 +370,9 @@ include __DIR__.'/header.php';
                             <strong>Submitted:</strong> ${data.article.created_at}
                             ${data.article.updated_at ? ` | <strong>Updated:</strong> ${data.article.updated_at}` : ''}
                         </p>
+                        ${data.article.category ? `<p class="mb-1"><strong>Category:</strong> ${data.article.category}</p>` : ''}
+                        ${data.article.tags ? `<p class="mb-1"><strong>Tags:</strong> ${data.article.tags}</p>` : ''}
+                        ${data.article.ip ? `<p class="mb-1"><strong>IP:</strong> ${data.article.ip}</p>` : ''}
                         ${data.article.excerpt ? `<p class="mb-1"><strong>Excerpt:</strong> ${data.article.excerpt}</p>` : ''}
                         ${data.article.admin_notes ? `
                             <div class="alert alert-warning py-2 px-3">
@@ -369,6 +380,11 @@ include __DIR__.'/header.php';
                             </div>
                         ` : ''}
                     </div>
+                    ${data.article.images && data.article.images.length ? `
+                        <div class="article-attachments mb-3">
+                            ${data.article.images.map(img => `<a href="${img.url}" target="_blank"><img src="${img.thumb}" class="me-2 mb-2" style="max-width:150px"></a>`).join('')}
+                        </div>
+                    ` : ''}
                     <hr>
                     <div class="article-content">
                         ${data.article.content}
