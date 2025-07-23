@@ -34,6 +34,24 @@ if ($article['updated_at']) {
     $article['updated_at'] = format_ts($article['updated_at']);
 }
 
+// Parse attachments if available
+$images = [];
+if (!empty($article['images'])) {
+    $decoded = json_decode($article['images'], true);
+    if (is_array($decoded)) {
+        foreach ($decoded as $img) {
+            $path = $img['local_path'] ?? '';
+            $thumb = $img['thumb_path'] ?? $path;
+            $images[] = [
+                'url' => '/' . ltrim($path, '/'),
+                'thumb' => '/' . ltrim($thumb, '/'),
+                'filename' => $img['filename'] ?? basename($path)
+            ];
+        }
+    }
+}
+$article['images'] = $images;
+
 // Get status class for badge
 $statusClass = [
     'draft' => 'secondary',

@@ -73,17 +73,6 @@ if (isset($_SESSION['store_id'])) {
                     <a class="nav-link-modern <?php echo $current_page == 'articles.php' ? 'active' : ''; ?>" href="articles.php">
                         <i class="bi bi-pencil-square"></i>
                         <span>Articles</span>
-                        <?php
-                        $article_count = 0;
-                        try {
-                            $stmt = $pdo->prepare('SELECT COUNT(*) FROM articles WHERE store_id = ?');
-                            $stmt->execute([$_SESSION['store_id']]);
-                            $article_count = $stmt->fetchColumn();
-                        } catch (Exception $e) {}
-                        if ($article_count > 0):
-                            ?>
-                            <span class="nav-badge"><?php echo $article_count; ?></span>
-                        <?php endif; ?>
                     </a>
                 </li>
                 <li class="nav-item-modern">
@@ -200,9 +189,6 @@ if (isset($_SESSION['store_id'])) {
                         <a class="mobile-menu-link <?php echo $current_page == 'articles.php' ? 'active' : ''; ?>" href="articles.php">
                             <i class="bi bi-pencil-square"></i>
                             Articles
-                            <?php if ($article_count > 0): ?>
-                                <span class="nav-badge ms-auto"><?php echo $article_count; ?></span>
-                            <?php endif; ?>
                         </a>
                     </li>
                     <li class="mobile-menu-item">
