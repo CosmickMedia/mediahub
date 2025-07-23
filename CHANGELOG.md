@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Auto-refresh the admin uploads list to show new content in real-time.
 
+## [1.3.17] - 2025-07-31
+### Changed
+- Updated README with deployment instructions and a summary of recent features.
+### Removed
+- Deleted the obsolete `config.xml` file.
+
 ## [1.3.15] - 2025-07-30
 ### Changed
 - Bumped version number for release deployment.
