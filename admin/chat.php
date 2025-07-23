@@ -60,7 +60,10 @@ if ($current_store_id) {
 
 if (isset($_GET['load']) && $current_store_id) {
     $stmt = $pdo->prepare("SELECT m.*, s.name as store_name,
-            CONCAT(COALESCE(s.first_name,''),' ',COALESCE(s.last_name,'')) AS contact_name,
+            (SELECT CONCAT(COALESCE(su.first_name,''),' ',COALESCE(su.last_name,''))
+             FROM store_users su
+             WHERE su.store_id = s.id
+             ORDER BY su.id LIMIT 1) AS contact_name,
             u.filename, u.drive_id, u.mime, u.id AS upload_id
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
@@ -103,7 +106,10 @@ $messages = [];
 if ($current_store_id) {
     $stmt = $pdo->prepare(
         "SELECT m.*, s.name as store_name,
-            CONCAT(COALESCE(s.first_name,''),' ',COALESCE(s.last_name,'')) AS contact_name,
+            (SELECT CONCAT(COALESCE(su.first_name,''),' ',COALESCE(su.last_name,''))
+             FROM store_users su
+             WHERE su.store_id = s.id
+             ORDER BY su.id LIMIT 1) AS contact_name,
             u.filename, u.drive_id, u.mime, u.id AS upload_id
         FROM store_messages m
         JOIN stores s ON m.store_id = s.id
