@@ -280,7 +280,7 @@ include __DIR__.'/header.php';
                     <div class="modal-title w-100" id="eventModalTitle"></div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background-color: white !important; color: black !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
                 </div>
-                <div class="modal-body" id="eventModalBody" style="padding: 0; overflow: hidden;"></div>
+                <div class="modal-body" id="eventModalBody" style="padding: 0; max-height: 70vh; overflow-y: auto;"></div>
             </div>
         </div>
     </div>

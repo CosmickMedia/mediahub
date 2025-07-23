@@ -40,3 +40,12 @@
 ## [1.3.11] - 2025-07-25
 - hide modern footer on admin login page
 - change public login title to "Store Login"
+
+## [1.3.12] - 2025-07-26
+- add cache and session reset options
+- improve notification polling
+- fix calendar event modal scrolling
+
+## [1.3.13] - 2025-07-27
+- show "You" label for admin chat messages
+- send email notifications for quick uploads

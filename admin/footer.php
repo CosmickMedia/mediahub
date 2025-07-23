@@ -489,8 +489,8 @@
             .catch(err => console.log('Notification check failed:', err));
     }
 
-    // Check notifications every 10 seconds
-    setInterval(checkNotifications, 10000);
+    // Check notifications every 3 seconds for near real-time updates
+    setInterval(checkNotifications, 3000);
     checkNotifications();
 
     // Enhanced counter animations
