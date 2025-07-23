@@ -1056,7 +1056,22 @@ include __DIR__.'/header.php';
                         }
 
                         document.getElementById('articleModalBody').innerHTML = metaHtml + contentHtml;
-                        new bootstrap.Modal(document.getElementById('articleModal')).show();
+                        var modalEl = document.getElementById('articleModal');
+                        var myModal = new bootstrap.Modal(modalEl, {
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        myModal.show();
+
+                        // Force z-index after showing (same fix as calendar page)
+                        setTimeout(function () {
+                            modalEl.style.zIndex = '9999';
+                            var backdrops = document.querySelectorAll('.modal-backdrop');
+                            if (backdrops.length > 0) {
+                                var lastBackdrop = backdrops[backdrops.length - 1];
+                                lastBackdrop.style.zIndex = '9990';
+                            }
+                        }, 100);
                     } else {
                         alert('Failed to load article');
                     }

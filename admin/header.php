@@ -75,6 +75,10 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 <i class="bi bi-megaphone"></i>
                 <span>Broadcasts</span>
             </a>
+            <a class="nav-link<?php if($active==='articles') echo ' active'; ?>" href="articles.php">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Articles</span>
+            </a>
             <a class="nav-link<?php if($active==='chat') echo ' active'; ?>" href="chat.php">
                 <i class="bi bi-chat-dots"></i>
                 <span>Chat</span>
@@ -142,6 +146,10 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
             <a class="nav-link<?php if($active==='broadcasts') echo ' active'; ?>" href="broadcasts.php">
                 <i class="bi bi-megaphone"></i>
                 <span>Broadcasts</span>
+            </a>
+            <a class="nav-link<?php if($active==='articles') echo ' active'; ?>" href="articles.php">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Articles</span>
             </a>
             <a class="nav-link<?php if($active==='chat') echo ' active'; ?>" href="chat.php">
                 <i class="bi bi-chat-dots"></i>
