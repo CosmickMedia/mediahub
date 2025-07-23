@@ -140,7 +140,8 @@ function render_upload_row($upload, $statuses) {
     <tr>
         <td>
             <div class="media-preview">
-                <img src="thumbnail.php?id=<?php echo $upload['id']; ?>&size=small" alt="<?php echo htmlspecialchars($upload['filename']); ?>" loading="lazy">
+                <?php $thumb = !empty($upload['thumb_path']) ? $upload['thumb_path'] : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
+                <img src="<?php echo htmlspecialchars($thumb); ?>" alt="<?php echo htmlspecialchars($upload['filename']); ?>" loading="lazy">
                 <?php if ($isVideo): ?>
                     <div class="video-indicator"><i class="bi bi-play-fill"></i></div>
                 <?php endif; ?>
@@ -406,7 +407,8 @@ include __DIR__.'/header.php';
                             <tr>
                                 <td>
                                     <div class="media-preview">
-                                        <img src="thumbnail.php?id=<?php echo $upload['id']; ?>&size=small"
+                                        <?php $thumb = !empty($upload['thumb_path']) ? $upload['thumb_path'] : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
+                                        <img src="<?php echo htmlspecialchars($thumb); ?>"
                                              alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                                              loading="lazy">
                                         <?php if ($isVideo): ?>
