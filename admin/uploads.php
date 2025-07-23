@@ -108,7 +108,7 @@ $total = $stmt->fetchColumn();
 $total_pages = ceil($total / $per_page);
 
 // Get uploads
-$query .= ' ORDER BY u.created_at DESC LIMIT ' . $per_page . ' OFFSET ' . $offset;
+$query .= ' ORDER BY u.created_at DESC, u.id DESC LIMIT ' . $per_page . ' OFFSET ' . $offset;
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $uploads = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -140,7 +140,7 @@ function render_upload_row($upload, $statuses) {
     <tr>
         <td>
             <div class="media-preview">
-                <?php $thumb = !empty($upload['thumb_path']) ? $upload['thumb_path'] : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
+                <?php $thumb = !empty($upload['thumb_path']) ? '/' . ltrim($upload['thumb_path'], '/') : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
                 <img src="<?php echo htmlspecialchars($thumb); ?>" alt="<?php echo htmlspecialchars($upload['filename']); ?>" loading="lazy">
                 <?php if ($isVideo): ?>
                     <div class="video-indicator"><i class="bi bi-play-fill"></i></div>
@@ -407,7 +407,7 @@ include __DIR__.'/header.php';
                             <tr>
                                 <td>
                                     <div class="media-preview">
-                                        <?php $thumb = !empty($upload['thumb_path']) ? $upload['thumb_path'] : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
+                                        <?php $thumb = !empty($upload['thumb_path']) ? '/' . ltrim($upload['thumb_path'], '/') : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
                                         <img src="<?php echo htmlspecialchars($thumb); ?>"
                                              alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                                              loading="lazy">
