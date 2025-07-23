@@ -49,3 +49,7 @@
 ## [1.3.13] - 2025-07-27
 - show "You" label for admin chat messages
 - send email notifications for quick uploads
+
+## [1.3.14] - 2025-07-28
+- display store user's name in admin chat
+- fix article submission form validation
