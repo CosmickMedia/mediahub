@@ -47,6 +47,28 @@ foreach ($newGhSettings as $setting) {
     }
 }
 
+// Ensure calendar and Hootsuite display settings exist
+$calendarSettings = [
+    'calendar_enabled' => '0',
+    'calendar_display_customer' => '0',
+    'hootsuite_enabled' => '0',
+    'hootsuite_display_customer' => '1'
+];
+foreach ($calendarSettings as $name => $value) {
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM settings WHERE name = ?");
+        $stmt->execute([$name]);
+        if (!$stmt->fetchColumn()) {
+            $pdo->prepare("INSERT INTO settings (name, value) VALUES (?, ?)")->execute([$name, $value]);
+            echo "✓ Added setting $name\n";
+        } else {
+            echo "• Setting already exists: $name\n";
+        }
+    } catch (PDOException $e) {
+        echo "✗ Error adding setting $name: " . $e->getMessage() . "\n";
+    }
+}
+
 // Default email settings to add
 $defaultSettings = [
     'email_from_name' => 'Cosmick Media',
@@ -65,10 +87,6 @@ $defaultSettings = [
     'calendar_sheet_range' => 'Sheet1!A:A',
     'calendar_update_interval' => '24',
     'calendar_last_update' => '',
-    'calendar_enabled' => '0',
-    'calendar_display_customer' => '1',
-    'hootsuite_enabled' => '0',
-    'hootsuite_display_customer' => '1',
     'hootsuite_update_interval' => '24',
     'hootsuite_client_id' => '',
     'hootsuite_client_secret' => '',
