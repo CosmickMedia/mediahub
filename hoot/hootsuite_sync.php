@@ -212,7 +212,8 @@ function hootsuite_update(bool $force = false, bool $debug = false): array {
         $storeMap = [];
         $profileMap = [];
         $campaignMap = [];
-        foreach ($pdo->query('SELECT id, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids FROM stores') as $row) {
+        $propMap = [];
+        foreach ($pdo->query('SELECT id, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids, hootsuite_custom_property_key, hootsuite_custom_property_value FROM stores') as $row) {
             $norm = normalize_tag($row['hootsuite_campaign_tag'] ?? '');
             if ($norm !== '') {
                 $storeMap[$norm] = (int)$row['id'];
@@ -222,6 +223,12 @@ function hootsuite_update(bool $force = false, bool $debug = false): array {
             }
             foreach (to_string_array($row['hootsuite_profile_ids'] ?? null) as $pid) {
                 $profileMap[$pid] = (int)$row['id'];
+            }
+            $ckey = $row['hootsuite_custom_property_key'] ?? null;
+            $cval = $row['hootsuite_custom_property_value'] ?? null;
+            if ($ckey && $cval) {
+                if (!isset($propMap[$ckey])) { $propMap[$ckey] = []; }
+                $propMap[$ckey][$cval] = (int)$row['id'];
             }
         }
 
@@ -262,6 +269,15 @@ function hootsuite_update(bool $force = false, bool $debug = false): array {
             if (!$store_id) {
                 foreach ($campaignIds as $cid) {
                     if (isset($campaignMap[$cid])) { $store_id = $campaignMap[$cid]; break; }
+                }
+            }
+
+            $customProps = $m['customProperties'] ?? [];
+            if (!$store_id && is_array($customProps)) {
+                foreach ($customProps as $prop) {
+                    $pk = $prop['key'] ?? $prop['name'] ?? null;
+                    $pv = $prop['value'] ?? null;
+                    if ($pk !== null && $pv !== null && isset($propMap[$pk][$pv])) { $store_id = $propMap[$pk][$pv]; break; }
                 }
             }
 

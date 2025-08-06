@@ -47,6 +47,10 @@ To debug Google Drive uploads, check **Drive Debug Logging** under **Admin → S
 
 To populate the calendar from Google Sheets, open **Admin → Settings** and paste the sheet's public URL in the **Google Sheet URL** field. The application automatically converts the standard editing link into the required CSV export format.
 
+### Hootsuite Custom Properties
+
+Stores can be matched to scheduled Hootsuite posts using custom properties. In the store editor, configure the **Hootsuite Custom Property Key** and **Value** fields. When scheduling content in Hootsuite, add a custom property with the same key/value pair (e.g. `store_id:123`). During sync, posts containing this property will be automatically associated with the matching store.
+
 ## Recent Improvements
 
 Recent releases introduced several enhancements:
