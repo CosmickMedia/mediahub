@@ -17,13 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_profile_ids, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
                 $_POST['pin'],
                 $_POST['email'],
                 $_POST['folder'],
                 $_POST['hootsuite_campaign_tag'] ?? null,
+                $_POST['hootsuite_profile_ids'] ?? null,
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
                 format_mobile_number($_POST['phone'] ?? ''),
@@ -368,6 +369,12 @@ include __DIR__.'/header.php';
                             <label for="hootsuite_campaign_tag" class="form-label-modern">Hootsuite Tag</label>
                             <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag"
                                    class="form-control form-control-modern">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profile IDs</label>
+                            <input type="text" name="hootsuite_profile_ids" id="hootsuite_profile_ids"
+                                   class="form-control form-control-modern">
+                            <div class="form-text">Comma-separated or JSON array</div>
                         </div>
                         <div class="col-md-12">
                             <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>

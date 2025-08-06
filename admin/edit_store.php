@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_profile_ids=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
             $update->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['folder'],
                 $_POST['hootsuite_token'],
                 $_POST['hootsuite_campaign_tag'] ?? null,
+                $_POST['hootsuite_profile_ids'] ?? null,
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
                 format_mobile_number($_POST['phone'] ?? ''),
@@ -338,6 +339,14 @@ include __DIR__.'/header.php';
                                    placeholder="lowercase, no spaces"
                                    value="<?php echo htmlspecialchars($store['hootsuite_campaign_tag']); ?>">
                             <div class="form-text">Must match the tag in Hootsuite</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profile IDs</label>
+                            <input type="text" name="hootsuite_profile_ids" id="hootsuite_profile_ids"
+                                   class="form-control form-control-modern"
+                                   placeholder="comma-separated or JSON"
+                                   value="<?php echo htmlspecialchars($store['hootsuite_profile_ids']); ?>">
+                            <div class="form-text">Comma-separated or JSON array of profile IDs</div>
                         </div>
                         <div class="col-md-12">
                             <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>

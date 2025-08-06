@@ -210,10 +210,15 @@ function hootsuite_update(bool $force = false, bool $debug = false): array {
         }
 
         $storeMap = [];
-        foreach ($pdo->query('SELECT id, hootsuite_campaign_tag FROM stores') as $row) {
+        $storeMap = [];
+        $profileMap = [];
+        foreach ($pdo->query('SELECT id, hootsuite_campaign_tag, hootsuite_profile_ids FROM stores') as $row) {
             $norm = normalize_tag($row['hootsuite_campaign_tag'] ?? '');
             if ($norm !== '') {
                 $storeMap[$norm] = (int)$row['id'];
+            }
+            foreach (to_string_array($row['hootsuite_profile_ids'] ?? null) as $pid) {
+                $profileMap[$pid] = (int)$row['id'];
             }
         }
 
@@ -239,20 +244,32 @@ function hootsuite_update(bool $force = false, bool $debug = false): array {
             $postId = $m['id'] ?? null;
             if (!$postId) continue;
 
+            $profileIds = [];
+            if (isset($m['socialProfile']['id'])) { $profileIds[] = (string)$m['socialProfile']['id']; }
+            $profileIds = array_merge($profileIds, to_string_array($m['socialProfileId'] ?? []));
+            $profileIds = array_merge($profileIds, to_string_array($m['socialProfileIds'] ?? []));
+            $profileIds = array_values(array_unique(array_filter($profileIds, 'strlen')));
+
+            $store_id = null;
+            foreach ($profileIds as $pid) {
+                if (isset($profileMap[$pid])) { $store_id = $profileMap[$pid]; break; }
+            }
+
             $tags = $m['tags'] ?? [];
             if (!is_array($tags)) { $tags = []; } else { $tags = array_map('trim', $tags); }
-            $store_id = null;
-            foreach ($tags as $tag) {
-                $norm = normalize_tag($tag);
-                if ($norm !== '' && isset($storeMap[$norm])) { $store_id = $storeMap[$norm]; break; }
+            if (!$store_id) {
+                foreach ($tags as $tag) {
+                    $norm = normalize_tag($tag);
+                    if ($norm !== '' && isset($storeMap[$norm])) { $store_id = $storeMap[$norm]; break; }
+                }
             }
             if (!$store_id) continue;
 
+            $social_profile_id = $profileIds[0] ?? null;
             $state = $m['state'] ?? null;
             $text = trim($m['text'] ?? '');
             $scheduled = $m['scheduledSendTime'] ?? null;
             if ($scheduled) $scheduled = date('Y-m-d H:i:s', strtotime($scheduled));
-            $social_profile_id = $m['socialProfile']['id'] ?? null;
 
             [$urls, $thumbs, $media_arr] = hootsuite_extract_media($m);
             $cfg = get_config();

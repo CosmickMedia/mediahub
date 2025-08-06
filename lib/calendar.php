@@ -221,10 +221,14 @@ function calendar_update(bool $force = false): array {
     }
     $inserted = 0;
     $storeMap = [];
-    foreach ($pdo->query('SELECT id, hootsuite_campaign_tag FROM stores') as $row) {
+    $profileMap = [];
+    foreach ($pdo->query('SELECT id, hootsuite_campaign_tag, hootsuite_profile_ids FROM stores') as $row) {
         $norm = normalize_tag($row['hootsuite_campaign_tag'] ?? '');
         if ($norm !== '') {
             $storeMap[$norm] = (int)$row['id'];
+        }
+        foreach (to_string_array($row['hootsuite_profile_ids'] ?? null) as $pid) {
+            $profileMap[$pid] = (int)$row['id'];
         }
     }
     $checkStmt = $pdo->prepare('SELECT id FROM calendar WHERE post_id=?');
@@ -246,18 +250,30 @@ function calendar_update(bool $force = false): array {
         $checkStmt->execute([$postId]);
         if ($checkStmt->fetch()) continue;
 
+        $profileIds = [];
+        if (isset($post['socialProfile']['id'])) { $profileIds[] = (string)$post['socialProfile']['id']; }
+        $profileIds = array_merge($profileIds, to_string_array($post['socialProfileId'] ?? []));
+        $profileIds = array_merge($profileIds, to_string_array($post['socialProfileIds'] ?? []));
+        $profileIds = array_values(array_unique(array_filter($profileIds, 'strlen')));
+
+        $store_id = null;
+        foreach ($profileIds as $pid) {
+            if (isset($profileMap[$pid])) { $store_id = $profileMap[$pid]; break; }
+        }
+
         $tags = $post['tags'] ?? [];
         if (!is_array($tags)) {
             $tags = [];
         } else {
             $tags = array_map(fn($t) => trim($t), $tags);
         }
-        $store_id = null;
-        foreach ($tags as $tag) {
-            $norm = normalize_tag($tag);
-            if ($norm !== '' && isset($storeMap[$norm])) {
-                $store_id = $storeMap[$norm];
-                break;
+        if (!$store_id) {
+            foreach ($tags as $tag) {
+                $norm = normalize_tag($tag);
+                if ($norm !== '' && isset($storeMap[$norm])) {
+                    $store_id = $storeMap[$norm];
+                    break;
+                }
             }
         }
         if (!$store_id) continue;
@@ -266,7 +282,7 @@ function calendar_update(bool $force = false): array {
         $text = trim($post['text'] ?? '');
         $scheduled = $post['scheduledSendTime'] ?? null;
         if ($scheduled) $scheduled = date('Y-m-d H:i:s', strtotime($scheduled));
-        $social_profile_id = $post['socialProfile']['id'] ?? null;
+        $social_profile_id = $profileIds[0] ?? null;
 
         [$urls, $thumbs, $media_arr] = calendar_extract_media($post);
         $cfg = get_config();

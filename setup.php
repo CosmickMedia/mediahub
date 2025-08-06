@@ -236,6 +236,13 @@ try {
     // Column might already exist
 }
 
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_profile_ids TEXT AFTER hootsuite_campaign_tag");
+    echo "✓ Added hootsuite_profile_ids column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
 // Additional store contact columns
 try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN first_name VARCHAR(100) AFTER hootsuite_token");
