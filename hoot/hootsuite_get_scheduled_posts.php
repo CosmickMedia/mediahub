@@ -4,7 +4,7 @@ require_once __DIR__.'/../lib/settings.php';
 
 $access_token = $_SESSION['access_token'] ?? get_setting('hootsuite_access_token');
 if (!$access_token) {
-    die("No access token found. Please authenticate first by visiting ../lib/hootsuite/test_auth.php");
+    die("No access token found. Please authenticate first via ../admin/hootsuite_login.php");
 }
 $_SESSION['access_token'] = $access_token;
 

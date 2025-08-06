@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'calendar';
     } elseif (isset($_POST['refresh_hootsuite_token'])) {
         if (get_setting('hootsuite_enabled') === '1') {
-            require_once __DIR__.'/../lib/hootsuite/refresh_token.php';
+            require_once __DIR__.'/../hoot/hootsuite_refresh_token.php';
             [$ok, $msg] = hootsuite_refresh_token(get_setting('hootsuite_debug') === '1');
         } else {
             [$ok, $msg] = [false, 'Hootsuite integration disabled'];

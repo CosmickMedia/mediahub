@@ -10,7 +10,7 @@ if (!$access_token) {
     http_response_code(401);
     echo json_encode([
         'error' => true,
-        'message' => 'No access token found. Please authenticate first by visiting ../lib/hootsuite/test_auth.php'
+        'message' => 'No access token found. Please authenticate first via ../admin/hootsuite_login.php'
     ]);
     exit;
 }

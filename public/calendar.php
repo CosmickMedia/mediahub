@@ -2,7 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/calendar.php';
 require_once __DIR__.'/../lib/helpers.php';
-require_once __DIR__.'/../lib/hootsuite.php';
+require_once __DIR__.'/../hoot/hootsuite_api.php';
 require_once __DIR__.'/../lib/auth.php';
 
 ensure_session();
