@@ -1,11 +1,12 @@
 <?php
 // Debug: Check if config.php exists and is readable
-if (!file_exists('config.php')) {
+$configPath = __DIR__ . '/../../config.php';
+if (!file_exists($configPath)) {
     die('Error: config.php file not found');
 }
 
 // Include the config.php file to access Hootsuite credentials
-include('config.php');
+include $configPath;
 
 // Debug: Check if constants are defined
 if (!defined('HOOTSUITE_CLIENT_ID')) {

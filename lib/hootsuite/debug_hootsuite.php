@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('config.php');
+include __DIR__ . '/../../config.php';
 
 // Set JSON content type
 header('Content-Type: application/json');
