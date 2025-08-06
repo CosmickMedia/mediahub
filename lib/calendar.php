@@ -312,31 +312,37 @@ function calendar_get_posts(int $store_id): array {
     $pdo = get_pdo();
     calendar_ensure_schema($pdo);
 
-    // Determine scheduled time column in calendar table
-    $column = 'scheduled_send_time';
-    try {
-        $pdo->query('SELECT scheduled_send_time FROM calendar LIMIT 1');
-    } catch (PDOException $e) {
-        $column = 'scheduled_time';
-    }
+    $queries = [];
+    $params = [];
 
-    // Base query for Google Sheet sourced posts
-    $queries = [
-        "SELECT text, $column AS scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'Sheet' AS source FROM calendar WHERE store_id=?"
-    ];
-    $params = [$store_id];
-
-    // Include Hootsuite API posts if table exists
-    $hasHootsuite = false;
-    try {
-        $pdo->query('SELECT scheduled_send_time FROM hootsuite_posts LIMIT 1');
-        $hasHootsuite = true;
-    } catch (PDOException $e) {
-        $hasHootsuite = false;
-    }
-    if ($hasHootsuite) {
-        $queries[] = "SELECT text, scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'API' AS source FROM hootsuite_posts WHERE store_id=?";
+    if (get_setting('calendar_display_customer') === '1') {
+        // Determine scheduled time column in calendar table
+        $column = 'scheduled_send_time';
+        try {
+            $pdo->query('SELECT scheduled_send_time FROM calendar LIMIT 1');
+        } catch (PDOException $e) {
+            $column = 'scheduled_time';
+        }
+        $queries[] = "SELECT text, $column AS scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'Sheet' AS source FROM calendar WHERE store_id=?";
         $params[] = $store_id;
+    }
+
+    if (get_setting('hootsuite_display_customer') === '1') {
+        $hasHootsuite = false;
+        try {
+            $pdo->query('SELECT scheduled_send_time FROM hootsuite_posts LIMIT 1');
+            $hasHootsuite = true;
+        } catch (PDOException $e) {
+            $hasHootsuite = false;
+        }
+        if ($hasHootsuite) {
+            $queries[] = "SELECT text, scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'API' AS source FROM hootsuite_posts WHERE store_id=?";
+            $params[] = $store_id;
+        }
+    }
+
+    if (!$queries) {
+        return [];
     }
 
     $sql = implode(' UNION ALL ', $queries) . ' ORDER BY scheduled_send_time DESC';

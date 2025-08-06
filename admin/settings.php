@@ -63,7 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'calendar_sheet_range'    => trim($_POST['calendar_sheet_range'] ?? 'Sheet1!A:A'),
         'calendar_update_interval'=> trim($_POST['calendar_update_interval'] ?? '24'),
         'calendar_enabled'        => isset($_POST['calendar_enabled']) ? '1' : '0',
+        'calendar_display_customer' => isset($_POST['calendar_display_customer']) ? '1' : '0',
         'hootsuite_enabled'       => isset($_POST['hootsuite_enabled']) ? '1' : '0',
+        'hootsuite_display_customer' => isset($_POST['hootsuite_display_customer']) ? '1' : '0',
         'hootsuite_update_interval'=> trim($_POST['hootsuite_update_interval'] ?? '24'),
         'hootsuite_token_refresh_interval'=> trim($_POST['hootsuite_token_refresh_interval'] ?? '24'),
         'hootsuite_client_id'     => trim($_POST['hootsuite_client_id'] ?? ''),
@@ -273,7 +275,9 @@ $calendar_sheet_url = get_setting('calendar_sheet_url') ?: '';
 $calendar_sheet_range = get_setting('calendar_sheet_range') ?: 'Sheet1!A:A';
 $calendar_update_interval = get_setting('calendar_update_interval') ?: '24';
 $calendar_enabled = get_setting('calendar_enabled') ?: '0';
+$calendar_display_customer = get_setting('calendar_display_customer') ?: '1';
 $hootsuite_enabled = get_setting('hootsuite_enabled') ?: '0';
+$hootsuite_display_customer = get_setting('hootsuite_display_customer') ?: '1';
 $hootsuite_update_interval = get_setting('hootsuite_update_interval') ?: '24';
 $hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '24';
 $hootsuite_client_id = get_setting('hootsuite_client_id') ?: '';
@@ -798,6 +802,12 @@ include __DIR__.'/header.php';
                                     <strong>Enable Calendar Import</strong>
                                 </label>
                             </div>
+                            <div class="form-check-modern mb-3">
+                                <input type="checkbox" name="calendar_display_customer" id="calendar_display_customer" class="form-check-input" value="1" <?php if ($calendar_display_customer === '1') echo 'checked'; ?>>
+                                <label for="calendar_display_customer" class="form-check-label">
+                                    <strong>Display on customer calendar</strong>
+                                </label>
+                            </div>
                             <div class="row g-3">
                                 <div class="col-md-12">
                                     <label for="calendar_sheet_url" class="form-label-modern">
@@ -855,6 +865,12 @@ include __DIR__.'/header.php';
                                 <input type="checkbox" name="hootsuite_enabled" id="hootsuite_enabled" class="form-check-input" value="1" <?php if ($hootsuite_enabled === '1') echo 'checked'; ?>>
                                 <label for="hootsuite_enabled" class="form-check-label">
                                     <strong>Enable Hootsuite Integration</strong>
+                                </label>
+                            </div>
+                            <div class="form-check-modern mb-3">
+                                <input type="checkbox" name="hootsuite_display_customer" id="hootsuite_display_customer" class="form-check-input" value="1" <?php if ($hootsuite_display_customer === '1') echo 'checked'; ?>>
+                                <label for="hootsuite_display_customer" class="form-check-label">
+                                    <strong>Display on customer calendar</strong>
                                 </label>
                             </div>
                             <div class="row g-3">
