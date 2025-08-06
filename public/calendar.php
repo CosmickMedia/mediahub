@@ -2,7 +2,6 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/calendar.php';
 require_once __DIR__.'/../lib/helpers.php';
-require_once __DIR__.'/../hoot/hootsuite_api.php';
 require_once __DIR__.'/../lib/auth.php';
 
 ensure_session();
@@ -20,29 +19,16 @@ header('Expires: 0');
 $store_id = $_SESSION['store_id'];
 $pdo = get_pdo();
 
-$stmt = $pdo->prepare('SELECT name, hootsuite_token FROM stores WHERE id = ?');
+$stmt = $pdo->prepare('SELECT name FROM stores WHERE id = ?');
 $stmt->execute([$store_id]);
 $store = $stmt->fetch();
 $store_name = $store['name'];
-$token = $store['hootsuite_token'] ?? null;
 
 $profile_map = [];
-$type_map = [
-    'facebookpage'      => 'facebook',
-    'instagrambusiness' => 'instagram',
-    'threads'           => 'threads',
-    'youtubechannel'    => 'youtube',
-    'pinterest'         => 'pinterest',
-    'twitter'           => 'x',
-    'linkedincompany'   => 'linkedin',
-    'tiktokbusiness'    => 'tiktok',
-];
-foreach (hootsuite_get_social_profiles($token) as $prof) {
-    if (!empty($prof['id'])) {
-        $type = strtolower($prof['type'] ?? '');
-        if (isset($type_map[$type])) {
-            $profile_map[$prof['id']] = $type_map[$type];
-        }
+$res = $pdo->query('SELECT id, network FROM hootsuite_profiles');
+foreach ($res as $prof) {
+    if (!empty($prof['id']) && !empty($prof['network'])) {
+        $profile_map[$prof['id']] = strtolower($prof['network']);
     }
 }
 

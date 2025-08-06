@@ -243,6 +243,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (get_setting('hootsuite_enabled') === '1') {
             require_once __DIR__.'/../hoot/hootsuite_refresh_token.php';
             [$ok, $msg] = hootsuite_refresh_token(get_setting('hootsuite_debug') === '1');
+            if ($ok) {
+                require_once __DIR__.'/../hoot/hootsuite_profiles_sync.php';
+                hootsuite_update_profiles(get_setting('hootsuite_debug') === '1');
+            }
+        } else {
+            [$ok, $msg] = [false, 'Hootsuite integration disabled'];
+        }
+        $test_result = [$ok, $msg];
+        $test_action = 'hootsuite';
+        $active_tab = 'calendar';
+    } elseif (isset($_POST['update_hootsuite_profiles'])) {
+        if (get_setting('hootsuite_enabled') === '1') {
+            require_once __DIR__.'/../hoot/hootsuite_profiles_sync.php';
+            [$ok, $msg] = hootsuite_update_profiles(get_setting('hootsuite_debug') === '1');
         } else {
             [$ok, $msg] = [false, 'Hootsuite integration disabled'];
         }
@@ -948,6 +962,9 @@ include __DIR__.'/header.php';
                                     </button>
                                     <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="refresh_hootsuite_token">
                                         <i class="bi bi-arrow-clockwise"></i> Refresh Token
+                                    </button>
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="update_hootsuite_profiles">
+                                        <i class="bi bi-people"></i> Refresh Profiles
                                     </button>
                                 </div>
                                 <div class="form-text-modern mt-2">

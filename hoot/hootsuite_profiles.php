@@ -1,23 +1,23 @@
 <?php
-require_once __DIR__.'/../lib/settings.php';
-require_once __DIR__.'/hootsuite_api.php';
+require_once __DIR__.'/../lib/db.php';
 header('Content-Type: application/json');
-$token = get_setting('hootsuite_access_token');
-if (!$token) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Missing access token']);
+$pdo = get_pdo();
+$rows = [];
+try {
+    $stmt = $pdo->query('SELECT id, username, type FROM hootsuite_profiles ORDER BY username');
+    foreach ($stmt as $p) {
+        $username = $p['username'] ?? '';
+        $type = $p['type'] ?? '';
+        $label = trim($username) !== '' ? $username . ' (' . $type . ')' : $type;
+        $rows[] = [
+            'id' => $p['id'],
+            'name' => $label
+        ];
+    }
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'DB error']);
     exit;
 }
-$profiles = hootsuite_get_social_profiles($token);
-$out = [];
-foreach ($profiles as $p) {
-    $username = $p['socialNetworkUsername'] ?? '';
-    $type = $p['type'] ?? '';
-    $label = trim($username) !== '' ? $username . ' (' . $type . ')' : $type;
-    $out[] = [
-        'id' => $p['id'] ?? null,
-        'name' => $label
-    ];
-}
-echo json_encode($out);
+echo json_encode($rows);
 

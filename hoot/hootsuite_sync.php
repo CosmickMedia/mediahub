@@ -3,11 +3,12 @@ require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/settings.php';
 require_once __DIR__.'/../lib/config.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/hootsuite_profiles_sync.php';
 
 function hootsuite_ensure_schema(PDO $pdo): void {
+    hootsuite_profiles_ensure_schema($pdo);
     try {
         $pdo->query('SELECT media_thumb_urls FROM hootsuite_posts LIMIT 1');
-        return; // schema up to date
     } catch (PDOException $e) {
         // continue to add missing columns
     }
@@ -37,6 +38,9 @@ function hootsuite_ensure_schema(PDO $pdo): void {
     foreach ($columns as $col) {
         try { $pdo->exec("ALTER TABLE hootsuite_posts ADD COLUMN $col"); } catch (PDOException $e) {}
     }
+    try {
+        $pdo->exec('ALTER TABLE hootsuite_posts ADD CONSTRAINT fk_hootsuite_profile FOREIGN KEY (social_profile_id) REFERENCES hootsuite_profiles(id)');
+    } catch (PDOException $e) {}
 }
 
 function hootsuite_extract_media(array $post): array {
