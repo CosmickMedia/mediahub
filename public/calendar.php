@@ -29,6 +29,7 @@ foreach (hootsuite_get_social_profiles($token) as $prof) {
 }
 
 $posts = calendar_get_posts($store_id);
+$debug_mode = get_setting('hootsuite_debug') === '1';
 
 $network_map = [];
 foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
@@ -175,7 +176,8 @@ foreach ($posts as $p) {
             // Provide ISO datetime for display
             'time'  => $time ? str_replace(' ', 'T', $time) : null,
             'network' => $network_name,
-            'tags' => $tags
+            'tags' => $tags,
+            'source' => $p['source'] ?? ''
         ]
     ];
 }
@@ -322,6 +324,7 @@ include __DIR__.'/header.php';
 
             // Store all events globally for day view
             window.allEvents = <?php echo $events_json; ?>;
+            window.debugMode = <?php echo $debug_mode ? 'true' : 'false'; ?>;
 
             // Initialize calendar
             var calEl = document.getElementById('calendar');
@@ -355,6 +358,13 @@ include __DIR__.'/header.php';
                     network.className = 'event-network';
                     network.textContent = arg.event.title;
                     header.appendChild(network);
+
+                    if (window.debugMode && arg.event.extendedProps.source) {
+                        var src = document.createElement('span');
+                        src.className = 'badge bg-secondary ms-2';
+                        src.textContent = arg.event.extendedProps.source;
+                        header.appendChild(src);
+                    }
 
                     cont.appendChild(header);
 
@@ -435,7 +445,11 @@ include __DIR__.'/header.php';
                 if(event.extendedProps.icon){
                     titleHtml += '<span class="modal-icon" style="background:' + event.backgroundColor + '"><i class="bi ' + event.extendedProps.icon + '"></i></span>';
                 }
-                titleHtml += '<div><h5 class="mb-0">' + event.title + '</h5>';
+                titleHtml += '<div><h5 class="mb-0">' + event.title;
+                if(window.debugMode && event.extendedProps.source){
+                    titleHtml += ' <span class="badge bg-secondary ms-2">' + event.extendedProps.source + '</span>';
+                }
+                titleHtml += '</h5>';
                 if(event.extendedProps.time){
                     titleHtml += '<small class="text-white-50">' + new Date(event.extendedProps.time).toLocaleString() + '</small>';
                 }
@@ -548,7 +562,11 @@ include __DIR__.'/header.php';
                         html += '<i class="bi ' + event.extendedProps.icon + '"></i>';
                         html += '</div>';
                         html += '<div class="day-event-info">';
-                        html += '<div class="day-event-network">' + event.title + '</div>';
+                        html += '<div class="day-event-network">' + event.title;
+                        if (window.debugMode && event.extendedProps.source) {
+                            html += ' <span class="badge bg-secondary ms-2">' + event.extendedProps.source + '</span>';
+                        }
+                        html += '</div>';
                         html += '<div class="day-event-time">';
                         html += '<i class="bi bi-clock"></i> ' + time.toLocaleTimeString('en-US', {
                             hour: 'numeric',
