@@ -17,13 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_profile_ids, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
                 $_POST['pin'],
                 $_POST['email'],
                 $_POST['folder'],
                 $_POST['hootsuite_campaign_tag'] ?? null,
+                $_POST['hootsuite_campaign_id'] ?? null,
                 $_POST['hootsuite_profile_ids'] ?? null,
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
@@ -214,6 +215,7 @@ include __DIR__.'/header.php';
                                 <th>PIN</th>
                                 <th>Admin Email</th>
                                 <th>Drive Folder</th>
+                                <th>Campaign ID</th>
                                 <th>Chats</th>
                                 <th>Uploads</th>
                                 <th>Actions</th>
@@ -249,6 +251,9 @@ include __DIR__.'/header.php';
                                         <?php else: ?>
                                             <span class="text-muted">Auto-create</span>
                                         <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo htmlspecialchars($s['hootsuite_campaign_id'] ?? ''); ?>
                                     </td>
                                     <td>
                                         <span class="badge bg-info"><?php echo $s['chat_count']; ?></span>
@@ -371,6 +376,14 @@ include __DIR__.'/header.php';
                                    class="form-control form-control-modern">
                         </div>
                         <div class="col-md-6">
+                            <label for="hootsuite_campaign_id" class="form-label-modern">Hootsuite Campaign ID</label>
+                            <div class="input-group">
+                                <input type="number" name="hootsuite_campaign_id" id="hootsuite_campaign_id" class="form-control form-control-modern" list="campaigns_list">
+                                <button class="btn btn-outline-secondary" type="button" id="load_campaigns">Load</button>
+                            </div>
+                            <datalist id="campaigns_list"></datalist>
+                        </div>
+                        <div class="col-md-6">
                             <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profile IDs</label>
                             <input type="text" name="hootsuite_profile_ids" id="hootsuite_profile_ids"
                                    class="form-control form-control-modern">
@@ -392,5 +405,24 @@ include __DIR__.'/header.php';
             </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById('load_campaigns')?.addEventListener('click', function () {
+            fetch('../hoot/hootsuite_campaigns.php')
+                .then(r => r.json())
+                .then(data => {
+                    const list = document.getElementById('campaigns_list');
+                    list.innerHTML = '';
+                    data.forEach(c => {
+                        if (c.id && c.name !== undefined) {
+                            const opt = document.createElement('option');
+                            opt.value = c.id;
+                            opt.textContent = c.name;
+                            list.appendChild(opt);
+                        }
+                    });
+                });
+        });
+    </script>
 
 <?php include __DIR__.'/footer.php'; ?>

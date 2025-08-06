@@ -222,10 +222,14 @@ function calendar_update(bool $force = false): array {
     $inserted = 0;
     $storeMap = [];
     $profileMap = [];
-    foreach ($pdo->query('SELECT id, hootsuite_campaign_tag, hootsuite_profile_ids FROM stores') as $row) {
+    $campaignMap = [];
+    foreach ($pdo->query('SELECT id, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids FROM stores') as $row) {
         $norm = normalize_tag($row['hootsuite_campaign_tag'] ?? '');
         if ($norm !== '') {
             $storeMap[$norm] = (int)$row['id'];
+        }
+        if (!empty($row['hootsuite_campaign_id'])) {
+            $campaignMap[(string)$row['hootsuite_campaign_id']] = (int)$row['id'];
         }
         foreach (to_string_array($row['hootsuite_profile_ids'] ?? null) as $pid) {
             $profileMap[$pid] = (int)$row['id'];
@@ -259,6 +263,13 @@ function calendar_update(bool $force = false): array {
         $store_id = null;
         foreach ($profileIds as $pid) {
             if (isset($profileMap[$pid])) { $store_id = $profileMap[$pid]; break; }
+        }
+
+        $campaignIds = to_string_array($post['campaignIds'] ?? null);
+        if (!$store_id) {
+            foreach ($campaignIds as $cid) {
+                if (isset($campaignMap[$cid])) { $store_id = $campaignMap[$cid]; break; }
+            }
         }
 
         $tags = $post['tags'] ?? [];

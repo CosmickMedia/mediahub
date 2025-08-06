@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_profile_ids=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_campaign_id=?, hootsuite_profile_ids=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
             $update->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['folder'],
                 $_POST['hootsuite_token'],
                 $_POST['hootsuite_campaign_tag'] ?? null,
+                $_POST['hootsuite_campaign_id'] ?? null,
                 $_POST['hootsuite_profile_ids'] ?? null,
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
@@ -341,6 +342,14 @@ include __DIR__.'/header.php';
                             <div class="form-text">Must match the tag in Hootsuite</div>
                         </div>
                         <div class="col-md-6">
+                            <label for="hootsuite_campaign_id" class="form-label-modern">Hootsuite Campaign ID</label>
+                            <div class="input-group">
+                                <input type="number" name="hootsuite_campaign_id" id="hootsuite_campaign_id" class="form-control form-control-modern" list="campaigns_list" value="<?php echo htmlspecialchars($store['hootsuite_campaign_id']); ?>">
+                                <button class="btn btn-outline-secondary" type="button" id="load_campaigns">Load</button>
+                            </div>
+                            <datalist id="campaigns_list"></datalist>
+                        </div>
+                        <div class="col-md-6">
                             <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profile IDs</label>
                             <input type="text" name="hootsuite_profile_ids" id="hootsuite_profile_ids"
                                    class="form-control form-control-modern"
@@ -459,4 +468,23 @@ include __DIR__.'/header.php';
         </div>
     </div>
 
-<?php include __DIR__.'/footer.php'; ?>
+    <script>
+        document.getElementById('load_campaigns')?.addEventListener('click', function () {
+            fetch('../hoot/hootsuite_campaigns.php')
+                .then(r => r.json())
+                .then(data => {
+                    const list = document.getElementById('campaigns_list');
+                    list.innerHTML = '';
+                    data.forEach(c => {
+                        if (c.id && c.name !== undefined) {
+                            const opt = document.createElement('option');
+                            opt.value = c.id;
+                            opt.textContent = c.name;
+                            list.appendChild(opt);
+                        }
+                    });
+                });
+        });
+    </script>
+
+    <?php include __DIR__.'/footer.php'; ?>
