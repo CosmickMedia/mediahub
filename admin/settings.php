@@ -9,7 +9,17 @@ $pdo = get_pdo();
 
 $success = false;
 $test_result = null;
-$active_tab = $_POST['active_tab'] ?? 'general';
+$active_tab = $_POST['active_tab'] ?? ($_GET['active_tab'] ?? 'general');
+
+if (isset($_GET['hootsuite_token_saved'])) {
+    $test_result = [true, 'Access token saved'];
+    $test_action = 'hootsuite';
+    $active_tab = 'calendar';
+} elseif (isset($_GET['hootsuite_token_error'])) {
+    $test_result = [false, $_GET['hootsuite_token_error']];
+    $test_action = 'hootsuite';
+    $active_tab = 'calendar';
+}
 
 // Fetch upload statuses
 $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
@@ -899,7 +909,7 @@ include __DIR__.'/header.php';
                                     <i class="bi bi-arrow-repeat"></i> Hootsuite Actions
                                 </h6>
                                 <div class="d-flex flex-wrap gap-2">
-                                    <a class="btn btn-secondary-modern btn-sm-modern" href="../lib/hootsuite/test_auth.php">
+                                    <a class="btn btn-secondary-modern btn-sm-modern" href="hootsuite_login.php">
                                         <i class="bi bi-box-arrow-in-right"></i> Authenticate
                                     </a>
                                     <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="test_hootsuite_connection">
