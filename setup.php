@@ -251,6 +251,20 @@ try {
     // Column might already exist
 }
 
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_custom_property_key VARCHAR(100) AFTER hootsuite_profile_ids");
+    echo "✓ Added hootsuite_custom_property_key column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_custom_property_value VARCHAR(100) AFTER hootsuite_custom_property_key");
+    echo "✓ Added hootsuite_custom_property_value column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
 // Additional store contact columns
 try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN first_name VARCHAR(100) AFTER hootsuite_token");

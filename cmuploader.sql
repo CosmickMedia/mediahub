@@ -562,7 +562,9 @@ CREATE TABLE `stores` (
   `zip_code` varchar(20) DEFAULT NULL,
   `country` varchar(100) DEFAULT NULL,
   `marketing_report_url` varchar(255) DEFAULT NULL,
-  `hootsuite_profile_ids` text DEFAULT NULL
+  `hootsuite_profile_ids` text DEFAULT NULL,
+  `hootsuite_custom_property_key` varchar(100) DEFAULT NULL,
+  `hootsuite_custom_property_value` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

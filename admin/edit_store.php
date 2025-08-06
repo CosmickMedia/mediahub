@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
-            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_campaign_id=?, hootsuite_profile_ids=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_campaign_id=?, hootsuite_profile_ids=?, hootsuite_custom_property_key=?, hootsuite_custom_property_value=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
             $update->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -41,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['hootsuite_campaign_tag'] ?? null,
                 $_POST['hootsuite_campaign_id'] ?? null,
                 $_POST['hootsuite_profile_ids'] ?? null,
+                $_POST['hootsuite_custom_property_key'] ?? null,
+                $_POST['hootsuite_custom_property_value'] ?? null,
                 $_POST['first_name'] ?? null,
                 $_POST['last_name'] ?? null,
                 format_mobile_number($_POST['phone'] ?? ''),
@@ -356,6 +358,20 @@ include __DIR__.'/header.php';
                                    placeholder="comma-separated or JSON"
                                    value="<?php echo htmlspecialchars($store['hootsuite_profile_ids']); ?>">
                             <div class="form-text">Comma-separated or JSON array of profile IDs</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="hootsuite_custom_property_key" class="form-label-modern">Hootsuite Custom Property Key</label>
+                            <input type="text" name="hootsuite_custom_property_key" id="hootsuite_custom_property_key"
+                                   class="form-control form-control-modern"
+                                   value="<?php echo htmlspecialchars($store['hootsuite_custom_property_key']); ?>">
+                            <div class="form-text">Custom property name to match</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="hootsuite_custom_property_value" class="form-label-modern">Hootsuite Custom Property Value</label>
+                            <input type="text" name="hootsuite_custom_property_value" id="hootsuite_custom_property_value"
+                                   class="form-control form-control-modern"
+                                   value="<?php echo htmlspecialchars($store['hootsuite_custom_property_value']); ?>">
+                            <div class="form-text">Required value for the custom property</div>
                         </div>
                         <div class="col-md-12">
                             <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>
