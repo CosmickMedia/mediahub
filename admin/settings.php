@@ -51,7 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'company_country'         => trim($_POST['company_country'] ?? ''),
         'calendar_sheet_url'      => trim($_POST['calendar_sheet_url'] ?? ''),
         'calendar_sheet_range'    => trim($_POST['calendar_sheet_range'] ?? 'Sheet1!A:A'),
-        'calendar_update_interval'=> trim($_POST['calendar_update_interval'] ?? '24')
+        'calendar_update_interval'=> trim($_POST['calendar_update_interval'] ?? '24'),
+        'calendar_enabled'        => isset($_POST['calendar_enabled']) ? '1' : '0',
+        'hootsuite_enabled'       => isset($_POST['hootsuite_enabled']) ? '1' : '0',
+        'hootsuite_update_interval'=> trim($_POST['hootsuite_update_interval'] ?? '24'),
+        'hootsuite_client_id'     => trim($_POST['hootsuite_client_id'] ?? ''),
+        'hootsuite_client_secret' => trim($_POST['hootsuite_client_secret'] ?? ''),
+        'hootsuite_redirect_uri'  => trim($_POST['hootsuite_redirect_uri'] ?? ''),
+        'hootsuite_debug'         => isset($_POST['hootsuite_debug']) ? '1' : '0'
     ];
 
     foreach ($settings as $name => $value) {
@@ -155,11 +162,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         [$ok, $msg] = calendar_update(false);
         $test_result = [$ok, $msg];
         $test_action = 'calendar';
+        $active_tab = 'calendar';
     } elseif (isset($_POST['force_calendar_update'])) {
         require_once __DIR__.'/../lib/calendar.php';
         [$ok, $msg] = calendar_update(true);
         $test_result = [$ok, $msg];
         $test_action = 'calendar';
+        $active_tab = 'calendar';
+    } elseif (isset($_POST['erase_calendar'])) {
+        $pdo->exec('TRUNCATE TABLE calendar');
+        $test_result = [true, 'Calendar entries erased'];
+        $test_action = 'calendar';
+        $active_tab = 'calendar';
+    } elseif (isset($_POST['hootsuite_update'])) {
+        require_once __DIR__.'/../hoot/hootsuite_sync.php';
+        [$ok, $msg] = hootsuite_update(false, get_setting('hootsuite_debug') === '1');
+        $test_result = [$ok, $msg];
+        $test_action = 'hootsuite';
+        $active_tab = 'calendar';
+    } elseif (isset($_POST['force_hootsuite_update'])) {
+        require_once __DIR__.'/../hoot/hootsuite_sync.php';
+        [$ok, $msg] = hootsuite_update(true, get_setting('hootsuite_debug') === '1');
+        $test_result = [$ok, $msg];
+        $test_action = 'hootsuite';
+        $active_tab = 'calendar';
+    } elseif (isset($_POST['erase_hootsuite'])) {
+        require_once __DIR__.'/../hoot/hootsuite_sync.php';
+        [$ok, $msg] = hootsuite_erase_all();
+        $test_result = [$ok, $msg];
+        $test_action = 'hootsuite';
+        $active_tab = 'calendar';
+    } elseif (isset($_POST['test_hootsuite_connection'])) {
+        require_once __DIR__.'/../hoot/hootsuite_sync.php';
+        [$ok, $msg] = hootsuite_test_connection(get_setting('hootsuite_debug') === '1');
+        $test_result = [$ok, $msg];
+        $test_action = 'hootsuite';
+        $active_tab = 'calendar';
     }
     $success = true;
 }
@@ -185,6 +223,13 @@ $company_country = get_setting('company_country') ?: '';
 $calendar_sheet_url = get_setting('calendar_sheet_url') ?: '';
 $calendar_sheet_range = get_setting('calendar_sheet_range') ?: 'Sheet1!A:A';
 $calendar_update_interval = get_setting('calendar_update_interval') ?: '24';
+$calendar_enabled = get_setting('calendar_enabled') ?: '0';
+$hootsuite_enabled = get_setting('hootsuite_enabled') ?: '0';
+$hootsuite_update_interval = get_setting('hootsuite_update_interval') ?: '24';
+$hootsuite_client_id = get_setting('hootsuite_client_id') ?: '';
+$hootsuite_client_secret = get_setting('hootsuite_client_secret') ?: '';
+$hootsuite_redirect_uri = get_setting('hootsuite_redirect_uri') ?: '';
+$hootsuite_debug = get_setting('hootsuite_debug') ?: '0';
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
 $groundhogg_public_key = get_setting('groundhogg_public_key');
@@ -289,6 +334,20 @@ include __DIR__.'/header.php';
                     <div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
                         Calendar update failed: <?php echo htmlspecialchars($test_result[1]); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
+            <?php elseif ($test_action === 'hootsuite'): ?>
+                <?php if ($test_result[0]): ?>
+                    <div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        Hootsuite action successful: <?php echo htmlspecialchars($test_result[1]); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Hootsuite action failed: <?php echo htmlspecialchars($test_result[1]); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
@@ -682,6 +741,12 @@ include __DIR__.'/header.php';
                             </h5>
                         </div>
                         <div class="card-body-modern">
+                            <div class="form-check-modern mb-3">
+                                <input type="checkbox" name="calendar_enabled" id="calendar_enabled" class="form-check-input" value="1" <?php if ($calendar_enabled === '1') echo 'checked'; ?>>
+                                <label for="calendar_enabled" class="form-check-label">
+                                    <strong>Enable Calendar Import</strong>
+                                </label>
+                            </div>
                             <div class="row g-3">
                                 <div class="col-md-12">
                                     <label for="calendar_sheet_url" class="form-label-modern">
@@ -714,11 +779,85 @@ include __DIR__.'/header.php';
                                         <i class="bi bi-download"></i> Update
                                     </button>
                                     <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="force_calendar_update">
-                                        <i class="bi bi-trash"></i> Erase &amp; Update
+                                        <i class="bi bi-arrow-repeat"></i> Force Sync
+                                    </button>
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="erase_calendar">
+                                        <i class="bi bi-x-circle"></i> Erase All
                                     </button>
                                 </div>
                                 <div class="form-text-modern mt-2">
-                                    <strong>Update</strong> adds new sheet entries without removing existing ones. <strong>Erase &amp; Update</strong> clears all entries then syncs.
+                                    <strong>Update</strong> adds new sheet entries without removing existing ones. <strong>Force Sync</strong> clears all entries then syncs. <strong>Erase All</strong> removes all entries without syncing.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card animate__animated animate__fadeIn delay-40">
+                        <div class="card-header-modern">
+                            <h5 class="card-title-modern">
+                                <i class="bi bi-h-square"></i>
+                                Hootsuite Integration
+                            </h5>
+                        </div>
+                        <div class="card-body-modern">
+                            <div class="form-check-modern mb-3">
+                                <input type="checkbox" name="hootsuite_enabled" id="hootsuite_enabled" class="form-check-input" value="1" <?php if ($hootsuite_enabled === '1') echo 'checked'; ?>>
+                                <label for="hootsuite_enabled" class="form-check-label">
+                                    <strong>Enable Hootsuite Integration</strong>
+                                </label>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="hootsuite_client_id" class="form-label-modern">
+                                        <i class="bi bi-key"></i> Client ID
+                                    </label>
+                                    <input type="text" name="hootsuite_client_id" id="hootsuite_client_id" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_client_id); ?>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="hootsuite_client_secret" class="form-label-modern">
+                                        <i class="bi bi-lock"></i> Client Secret
+                                    </label>
+                                    <input type="text" name="hootsuite_client_secret" id="hootsuite_client_secret" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_client_secret); ?>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="hootsuite_redirect_uri" class="form-label-modern">
+                                        <i class="bi bi-link-45deg"></i> Redirect URI
+                                    </label>
+                                    <input type="text" name="hootsuite_redirect_uri" id="hootsuite_redirect_uri" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_redirect_uri); ?>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="hootsuite_update_interval" class="form-label-modern">
+                                        <i class="bi bi-clock"></i> Sync Interval (hours)
+                                    </label>
+                                    <input type="number" name="hootsuite_update_interval" id="hootsuite_update_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_update_interval); ?>">
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check-modern">
+                                        <input type="checkbox" name="hootsuite_debug" id="hootsuite_debug" class="form-check-input" value="1" <?php if ($hootsuite_debug === '1') echo 'checked'; ?>>
+                                        <label for="hootsuite_debug" class="form-check-label">
+                                            <strong>Debug Mode</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="test-section">
+                                <h6>
+                                    <i class="bi bi-arrow-repeat"></i> Hootsuite Actions
+                                </h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="test_hootsuite_connection">
+                                        <i class="bi bi-plug"></i> Test Connection
+                                    </button>
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="hootsuite_update">
+                                        <i class="bi bi-download"></i> Sync Now
+                                    </button>
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="force_hootsuite_update">
+                                        <i class="bi bi-arrow-repeat"></i> Force Sync
+                                    </button>
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="erase_hootsuite">
+                                        <i class="bi bi-x-circle"></i> Erase All
+                                    </button>
                                 </div>
                             </div>
                         </div>

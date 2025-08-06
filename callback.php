@@ -2,8 +2,11 @@
 // START SESSION AT THE VERY BEGINNING
 session_start();
 
-// Include the config.php file to access Hootsuite credentials
-include('config.php');
+// Load Hootsuite credentials from database settings
+require_once __DIR__.'/lib/settings.php';
+$client_id = get_setting('hootsuite_client_id');
+$client_secret = get_setting('hootsuite_client_secret');
+$redirect_uri = get_setting('hootsuite_redirect_uri');
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
@@ -21,9 +24,9 @@ if (isset($_GET['code'])) {
     $data = array(
         'grant_type' => 'authorization_code',
         'code' => $authorization_code,
-        'redirect_uri' => HOOTSUITE_REDIRECT_URI,
-        'client_id' => HOOTSUITE_CLIENT_ID,
-        'client_secret' => HOOTSUITE_CLIENT_SECRET
+        'redirect_uri' => $redirect_uri,
+        'client_id' => $client_id,
+        'client_secret' => $client_secret
     );
 
     // Make POST request to get the access token using cURL
