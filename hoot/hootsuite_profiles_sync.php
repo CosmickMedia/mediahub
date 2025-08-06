@@ -33,9 +33,22 @@ function hootsuite_update_profiles(bool $debug = false): array {
         'tiktokbusiness'    => 'tiktok',
     ];
 
+    // Determine if the profiles already exist in the database
+    $existing_ids = $pdo->query('SELECT id FROM hootsuite_profiles')->fetchAll(PDO::FETCH_COLUMN);
+    $new_ids = [];
+    foreach ($profiles as $p) {
+        $id = $p['id'] ?? null;
+        if ($id) $new_ids[] = $id;
+    }
+    sort($existing_ids);
+    sort($new_ids);
+    if ($existing_ids === $new_ids) {
+        return [true, 'Profiles already up to date'];
+    }
+
     try {
         $pdo->beginTransaction();
-        $pdo->exec('TRUNCATE TABLE hootsuite_profiles');
+        $pdo->exec('DELETE FROM hootsuite_profiles');
         $stmt = $pdo->prepare('INSERT INTO hootsuite_profiles (id, type, username, network, raw) VALUES (?, ?, ?, ?, ?)');
         foreach ($profiles as $p) {
             $id = $p['id'] ?? null;
@@ -57,6 +70,6 @@ function hootsuite_update_profiles(bool $debug = false): array {
         return [false, 'Failed to update profiles'];
     }
 
-    return [true, 'Updated '.count($profiles).' profiles'];
+    return [true, 'Updated '.count($new_ids).' profiles'];
 }
 ?>
