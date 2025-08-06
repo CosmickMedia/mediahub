@@ -65,6 +65,13 @@ $defaultSettings = [
     'calendar_sheet_range' => 'Sheet1!A:A',
     'calendar_update_interval' => '24',
     'calendar_last_update' => '',
+    'calendar_enabled' => '0',
+    'hootsuite_enabled' => '0',
+    'hootsuite_update_interval' => '24',
+    'hootsuite_client_id' => '',
+    'hootsuite_client_secret' => '',
+    'hootsuite_redirect_uri' => '',
+    'hootsuite_debug' => '0',
     'drive_debug' => '0',
     // Article notification settings
     'admin_article_notification_subject' => 'New article submission from {store_name}',
@@ -500,6 +507,23 @@ try {
 }
 
 // ========== CALENDAR FUNCTIONALITY ==========
+
+// Create Hootsuite posts table
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS hootsuite_posts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        post_id VARCHAR(50) NOT NULL,
+        store_id INT NOT NULL,
+        text TEXT,
+        scheduled_send_time DATETIME,
+        raw_json TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_store_time (store_id, scheduled_send_time)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "✓ Created hootsuite_posts table\n";
+} catch (PDOException $e) {
+    echo "✗ Error creating hootsuite_posts table: " . $e->getMessage() . "\n";
+}
 
 // Create calendar table
 try {
