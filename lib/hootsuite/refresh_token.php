@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('config.php');
+include __DIR__ . '/../../config.php';
 
 if (!isset($_SESSION['refresh_token'])) {
     die("No refresh token found. Please authenticate again.");

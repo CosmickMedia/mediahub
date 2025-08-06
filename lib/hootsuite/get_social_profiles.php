@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('config.php');
+include __DIR__ . '/../../config.php';
 
 // Check if we have an access token
 if (!isset($_SESSION['access_token'])) {
