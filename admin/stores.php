@@ -17,6 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->fetch()) {
             $errors[] = 'PIN already exists';
         } else {
+            $profile_ids = null;
+            if (isset($_POST['hootsuite_profile_ids'])) {
+                $profile_ids = implode(',', to_string_array($_POST['hootsuite_profile_ids']));
+                if ($profile_ids === '') $profile_ids = null;
+            }
             $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids, hootsuite_custom_property_key, hootsuite_custom_property_value, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
@@ -25,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['folder'],
                 $_POST['hootsuite_campaign_tag'] ?? null,
                 $_POST['hootsuite_campaign_id'] ?? null,
-                $_POST['hootsuite_profile_ids'] ?? null,
+                $profile_ids,
                 $_POST['hootsuite_custom_property_key'] ?? null,
                 $_POST['hootsuite_custom_property_value'] ?? null,
                 $_POST['first_name'] ?? null,
@@ -386,10 +391,10 @@ include __DIR__.'/header.php';
                             <datalist id="campaigns_list"></datalist>
                         </div>
                         <div class="col-md-6">
-                            <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profile IDs</label>
-                            <input type="text" name="hootsuite_profile_ids" id="hootsuite_profile_ids"
-                                   class="form-control form-control-modern">
-                            <div class="form-text">Comma-separated or JSON array</div>
+                            <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profiles</label>
+                            <select name="hootsuite_profile_ids[]" id="hootsuite_profile_ids" multiple
+                                    class="form-select form-select-modern"></select>
+                            <div class="form-text">Select one or more profiles</div>
                         </div>
                         <div class="col-md-6">
                             <label for="hootsuite_custom_property_key" class="form-label-modern">Hootsuite Custom Property Key</label>
@@ -433,6 +438,20 @@ include __DIR__.'/header.php';
                     });
                 });
         });
+
+        fetch('../hoot/hootsuite_profiles.php')
+            .then(r => r.json())
+            .then(data => {
+                const select = document.getElementById('hootsuite_profile_ids');
+                data.forEach(p => {
+                    if (p.id && p.name !== undefined) {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = p.name;
+                        select.appendChild(opt);
+                    }
+                });
+            });
     </script>
 
 <?php include __DIR__.'/footer.php'; ?>
