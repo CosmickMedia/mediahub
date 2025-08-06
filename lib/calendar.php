@@ -311,13 +311,36 @@ function calendar_update(bool $force = false): array {
 function calendar_get_posts(int $store_id): array {
     $pdo = get_pdo();
     calendar_ensure_schema($pdo);
+
+    // Determine scheduled time column in calendar table
     $column = 'scheduled_send_time';
     try {
         $pdo->query('SELECT scheduled_send_time FROM calendar LIMIT 1');
     } catch (PDOException $e) {
         $column = 'scheduled_time';
     }
-    $stmt = $pdo->prepare("SELECT text, $column, social_profile_id, media_urls, media_thumb_urls, tags FROM calendar WHERE store_id=? ORDER BY $column DESC");
-    $stmt->execute([$store_id]);
+
+    // Base query for Google Sheet sourced posts
+    $queries = [
+        "SELECT text, $column AS scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'Sheet' AS source FROM calendar WHERE store_id=?"
+    ];
+    $params = [$store_id];
+
+    // Include Hootsuite API posts if table exists
+    $hasHootsuite = false;
+    try {
+        $pdo->query('SELECT scheduled_send_time FROM hootsuite_posts LIMIT 1');
+        $hasHootsuite = true;
+    } catch (PDOException $e) {
+        $hasHootsuite = false;
+    }
+    if ($hasHootsuite) {
+        $queries[] = "SELECT text, scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'API' AS source FROM hootsuite_posts WHERE store_id=?";
+        $params[] = $store_id;
+    }
+
+    $sql = implode(' UNION ALL ', $queries) . ' ORDER BY scheduled_send_time DESC';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
