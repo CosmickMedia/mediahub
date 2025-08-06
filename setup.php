@@ -114,6 +114,15 @@ $queries = [
         UNIQUE KEY name_unique (name)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
+    // Hootsuite profiles cache
+    "CREATE TABLE IF NOT EXISTS hootsuite_profiles (
+        id VARCHAR(50) PRIMARY KEY,
+        type VARCHAR(100) NULL,
+        username VARCHAR(255) NULL,
+        network VARCHAR(50) NULL,
+        raw TEXT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
     // Upload status history table
     "CREATE TABLE IF NOT EXISTS upload_status_history (
         id INT AUTO_INCREMENT PRIMARY KEY,

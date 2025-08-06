@@ -179,6 +179,21 @@ CREATE TABLE `hootsuite_posts` (
   `campaign_ids` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hootsuite_profiles`
+--
+
+CREATE TABLE `hootsuite_profiles` (
+  `id` varchar(50) NOT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `network` varchar(50) DEFAULT NULL,
+  `raw` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Dumping data for table `hootsuite_posts`
 --
@@ -895,7 +910,8 @@ ALTER TABLE `calendar`
 ALTER TABLE `hootsuite_posts`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_post_id` (`post_id`),
-  ADD KEY `idx_store_time` (`store_id`,`scheduled_send_time`);
+  ADD KEY `idx_store_time` (`store_id`,`scheduled_send_time`),
+  ADD CONSTRAINT `fk_hootsuite_profile` FOREIGN KEY (`social_profile_id`) REFERENCES `hootsuite_profiles` (`id`);
 
 --
 -- Indexes for table `logs`

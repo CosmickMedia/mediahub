@@ -600,6 +600,20 @@ try {
     echo "✗ Error creating hootsuite_posts table: " . $e->getMessage() . "\n";
 }
 
+// Create Hootsuite profiles table
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS hootsuite_profiles (
+        id VARCHAR(50) PRIMARY KEY,
+        type VARCHAR(100) NULL,
+        username VARCHAR(255) NULL,
+        network VARCHAR(50) NULL,
+        raw TEXT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    echo "✓ Created hootsuite_profiles table\n";
+} catch (PDOException $e) {
+    echo "✗ Error creating hootsuite_profiles table: " . $e->getMessage() . "\n";
+}
+
 $hootColumns = [
     'state VARCHAR(50)',
     'social_profile_id VARCHAR(50)',
@@ -625,6 +639,13 @@ $hootColumns = [
 ];
 foreach ($hootColumns as $col) {
     try { $pdo->exec("ALTER TABLE hootsuite_posts ADD COLUMN $col"); } catch (PDOException $e) { }
+}
+
+try {
+    $pdo->exec("ALTER TABLE hootsuite_posts ADD CONSTRAINT fk_hootsuite_profile FOREIGN KEY (social_profile_id) REFERENCES hootsuite_profiles(id)");
+    echo "✓ Added hootsuite_posts profile relation\n";
+} catch (PDOException $e) {
+    echo "ℹ︎ Could not add hootsuite profile relation: " . $e->getMessage() . "\n";
 }
 
 try {
