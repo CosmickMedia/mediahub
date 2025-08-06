@@ -22,9 +22,22 @@ $store_name = $store['name'];
 $token = $store['hootsuite_token'] ?? null;
 
 $profile_map = [];
+$type_map = [
+    'facebookpage'      => 'facebook',
+    'instagrambusiness' => 'instagram',
+    'threads'           => 'threads',
+    'youtubechannel'    => 'youtube',
+    'pinterest'         => 'pinterest',
+    'twitter'           => 'x',
+    'linkedincompany'   => 'linkedin',
+    'tiktokbusiness'    => 'tiktok',
+];
 foreach (hootsuite_get_social_profiles($token) as $prof) {
     if (!empty($prof['id'])) {
-        $profile_map[$prof['id']] = $prof['type'] ?? '';
+        $type = strtolower($prof['type'] ?? '');
+        if (isset($type_map[$type])) {
+            $profile_map[$prof['id']] = $type_map[$type];
+        }
     }
 }
 
@@ -58,26 +71,28 @@ foreach ($posts as $p) {
         if (!is_array($tags)) $tags = [];
     }
 
-    foreach ($tags as $t) {
-        $clean = strtolower(trim($t, " \t#"));
-        if (isset($network_map[$clean])) {
-            $network_name = $network_map[$clean]['name'];
-            if (!isset($network_counts[$network_name])) {
-                $network_counts[$network_name] = 0;
-            }
-            $network_counts[$network_name]++;
-            break;
-        }
-        foreach ($network_map as $key => $val) {
-            if (strpos($clean, $key) !== false) {
-                $network_name = $val['name'];
-                if (!isset($network_counts[$network_name])) {
-                    $network_counts[$network_name] = 0;
-                }
-                $network_counts[$network_name]++;
-                break 2;
+    $network_key = null;
+    $profile_id = $p['social_profile_id'] ?? null;
+    if ($profile_id && isset($profile_map[$profile_id])) {
+        $network_key = $profile_map[$profile_id];
+    }
+
+    if ($network_key === null) {
+        foreach ($tags as $t) {
+            $clean = strtolower(trim($t, " \t#"));
+            if (isset($network_map[$clean])) { $network_key = $clean; break; }
+            foreach ($network_map as $key => $val) {
+                if (strpos($clean, $key) !== false) { $network_key = $key; break 2; }
             }
         }
+    }
+
+    if ($network_key !== null && isset($network_map[$network_key])) {
+        $network_name = $network_map[$network_key]['name'];
+        if (!isset($network_counts[$network_name])) {
+            $network_counts[$network_name] = 0;
+        }
+        $network_counts[$network_name]++;
     }
 }
 
@@ -139,14 +154,21 @@ foreach ($posts as $p) {
         $tags = json_decode($p['tags'], true);
         if (!is_array($tags)) $tags = [];
     }
-    $network = null;
-    foreach ($tags as $t) {
-        $clean = strtolower(trim($t, " \t#"));
-        if (isset($network_map[$clean])) { $network = $network_map[$clean]; break; }
-        foreach ($network_map as $key => $val) {
-            if (strpos($clean, $key) !== false) { $network = $val; break 2; }
+    $network_key = null;
+    $profile_id = $p['social_profile_id'] ?? null;
+    if ($profile_id && isset($profile_map[$profile_id])) {
+        $network_key = $profile_map[$profile_id];
+    }
+    if ($network_key === null) {
+        foreach ($tags as $t) {
+            $clean = strtolower(trim($t, " \t#"));
+            if (isset($network_map[$clean])) { $network_key = $clean; break; }
+            foreach ($network_map as $key => $val) {
+                if (strpos($clean, $key) !== false) { $network_key = $key; break 2; }
+            }
         }
     }
+    $network = $network_key !== null ? ($network_map[$network_key] ?? null) : null;
     $icon = $network['icon'] ?? 'bi-share';
     $color = $network['color'] ?? '#adb5bd';
     $network_name = $network['name'] ?? '';
