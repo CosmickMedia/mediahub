@@ -12,6 +12,11 @@ if (!isset($_SESSION['store_id'])) {
     exit;
 }
 
+// Disable caching to ensure the calendar is always up to date
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 $store_id = $_SESSION['store_id'];
 $pdo = get_pdo();
 
