@@ -270,6 +270,7 @@ $hootsuite_client_id = get_setting('hootsuite_client_id') ?: '';
 $hootsuite_client_secret = get_setting('hootsuite_client_secret') ?: '';
 $hootsuite_redirect_uri = get_setting('hootsuite_redirect_uri') ?: '';
 $hootsuite_debug = get_setting('hootsuite_debug') ?: '0';
+$hootsuite_access_token = get_setting('hootsuite_access_token') ?: '';
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
 $groundhogg_public_key = get_setting('groundhogg_public_key');
@@ -865,6 +866,12 @@ include __DIR__.'/header.php';
                                     </label>
                                     <input type="text" name="hootsuite_redirect_uri" id="hootsuite_redirect_uri" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_redirect_uri); ?>">
                                 </div>
+                                <div class="col-md-12">
+                                    <label for="hootsuite_access_token" class="form-label-modern">
+                                        <i class="bi bi-shield-check"></i> Access Token
+                                    </label>
+                                    <input type="text" id="hootsuite_access_token" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_access_token); ?>" readonly>
+                                </div>
                                 <div class="col-md-4">
                                     <label for="hootsuite_update_interval" class="form-label-modern">
                                         <i class="bi bi-clock"></i> Sync Interval (hours)
@@ -892,6 +899,9 @@ include __DIR__.'/header.php';
                                     <i class="bi bi-arrow-repeat"></i> Hootsuite Actions
                                 </h6>
                                 <div class="d-flex flex-wrap gap-2">
+                                    <a class="btn btn-secondary-modern btn-sm-modern" href="../lib/hootsuite/test_auth.php">
+                                        <i class="bi bi-box-arrow-in-right"></i> Authenticate
+                                    </a>
                                     <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="test_hootsuite_connection">
                                         <i class="bi bi-plug"></i> Test Connection
                                     </button>
