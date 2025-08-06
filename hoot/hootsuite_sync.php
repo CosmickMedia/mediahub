@@ -7,10 +7,20 @@ function hootsuite_update(bool $force = false, bool $debug = false): array {
     if ($enabled !== '1') {
         return [false, 'Hootsuite integration disabled'];
     }
+    $interval = (int)(get_setting('hootsuite_update_interval') ?: 24);
+    $last = get_setting('hootsuite_last_update');
+    if (!$force && $last && (time() - strtotime($last) < $interval * 3600)) {
+        return [false, 'Update not required yet'];
+    }
+
     // Placeholder for real sync logic
+    set_setting('hootsuite_last_update', date('Y-m-d H:i:s'));
     $msg = $force ? 'Forced Hootsuite sync executed' : 'Hootsuite sync executed';
     if ($debug) {
-        $msg .= ' (debug mode)';
+        $token = get_setting('hootsuite_access_token');
+        $last = get_setting('hootsuite_token_last_refresh');
+        $msg .= ' | token snippet: ' . ($token ? substr($token, 0, 8) . '...' : 'none');
+        $msg .= ' | last refresh: ' . ($last ?: 'never');
     }
     return [true, $msg];
 }
@@ -35,7 +45,7 @@ function hootsuite_test_connection(bool $debug = false): array {
     // Real implementation would attempt an OAuth handshake
     $msg = 'OAuth settings present';
     if ($debug) {
-        $msg .= ' (debug mode)';
+        $msg .= ' | client_id snippet: ' . substr($id, 0, 8) . '...';
     }
     return [true, $msg];
 }

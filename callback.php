@@ -57,14 +57,21 @@ if (isset($_GET['code'])) {
     if (isset($token_data['access_token'])) {
         $access_token = $token_data['access_token'];
 
-        // Store in session
+        // Store in session for immediate use
         $_SESSION['access_token'] = $access_token;
         if (isset($token_data['refresh_token'])) {
             $_SESSION['refresh_token'] = $token_data['refresh_token'];
         }
 
+        // Persist tokens in settings for long term storage
+        set_setting('hootsuite_access_token', $access_token);
+        if (isset($token_data['refresh_token'])) {
+            set_setting('hootsuite_refresh_token', $token_data['refresh_token']);
+        }
+        set_setting('hootsuite_token_last_refresh', date('Y-m-d H:i:s'));
+
         echo "<div style='background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; margin: 10px 0;'>";
-        echo "<strong>✅ Access token received and stored in session!</strong><br>";
+        echo "<strong>✅ Access token received and stored!</strong><br>";
         echo "Session ID: " . session_id() . "<br>";
         echo "Access Token (first 20 chars): " . substr($access_token, 0, 20) . "...<br>";
         if (isset($_SESSION['refresh_token'])) {
