@@ -512,7 +512,7 @@ try {
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS hootsuite_posts (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        post_id VARCHAR(50) NOT NULL,
+        post_id VARCHAR(50) NOT NULL UNIQUE,
         store_id INT NOT NULL,
         text TEXT,
         scheduled_send_time DATETIME,
@@ -523,6 +523,14 @@ try {
     echo "✓ Created hootsuite_posts table\n";
 } catch (PDOException $e) {
     echo "✗ Error creating hootsuite_posts table: " . $e->getMessage() . "\n";
+}
+
+// Ensure post_id is unique for existing installations
+try {
+    $pdo->exec("ALTER TABLE hootsuite_posts ADD UNIQUE KEY uniq_post_id (post_id)");
+    echo "✓ Added uniq_post_id index\n";
+} catch (PDOException $e) {
+    echo "ℹ︎ Could not add uniq_post_id index: " . $e->getMessage() . "\n";
 }
 
 // Create calendar table
