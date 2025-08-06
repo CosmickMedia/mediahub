@@ -279,10 +279,16 @@ try {
 }
 
 try {
-    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_campaign_id BIGINT AFTER hootsuite_campaign_tag");
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_campaign_id BIGINT NULL AFTER hootsuite_campaign_tag");
     echo "✓ Added hootsuite_campaign_id column to stores table\n";
 } catch (PDOException $e) {
     echo "• hootsuite_campaign_id column might already exist\n";
+}
+try {
+    $pdo->exec("ALTER TABLE stores MODIFY hootsuite_campaign_id BIGINT NULL");
+    echo "✓ Ensured hootsuite_campaign_id column allows NULL\n";
+} catch (PDOException $e) {
+    echo "• Could not modify hootsuite_campaign_id column: " . $e->getMessage() . "\n";
 }
 
 try {
