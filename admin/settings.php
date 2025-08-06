@@ -275,9 +275,15 @@ $calendar_sheet_url = get_setting('calendar_sheet_url') ?: '';
 $calendar_sheet_range = get_setting('calendar_sheet_range') ?: 'Sheet1!A:A';
 $calendar_update_interval = get_setting('calendar_update_interval') ?: '24';
 $calendar_enabled = get_setting('calendar_enabled') ?: '0';
-$calendar_display_customer = get_setting('calendar_display_customer') ?: '1';
+$calendar_display_customer = get_setting('calendar_display_customer');
+if ($calendar_display_customer === false) {
+    $calendar_display_customer = '1';
+}
 $hootsuite_enabled = get_setting('hootsuite_enabled') ?: '0';
-$hootsuite_display_customer = get_setting('hootsuite_display_customer') ?: '1';
+$hootsuite_display_customer = get_setting('hootsuite_display_customer');
+if ($hootsuite_display_customer === false) {
+    $hootsuite_display_customer = '1';
+}
 $hootsuite_update_interval = get_setting('hootsuite_update_interval') ?: '24';
 $hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '24';
 $hootsuite_client_id = get_setting('hootsuite_client_id') ?: '';

@@ -507,7 +507,9 @@ INSERT INTO `settings` (`id`, `name`, `value`) VALUES
 (4569, 'hootsuite_access_token', 'pt9Ud90D4yyGq-gTVJwyPXGaDBtprj63PZ34WBR9mKk.8Rg2AUXKd1vwtZM5yU3xl1cS_wrvYG-uRbEfUqtCNfc'),
 (4570, 'hootsuite_refresh_token', 'q7ftSa32pKi6xWh0UXUdnhLnOxg-CAlW7ShT7NDK4e8.sUEgV-1Qnk-fm0ee9YvvVNrXXqXnJsy4Xt2sxfKsxNQ'),
 (4571, 'hootsuite_token_last_refresh', '2025-08-06 10:41:30'),
-(5138, 'hootsuite_last_update', '2025-08-06 10:54:33');
+(5138, 'hootsuite_last_update', '2025-08-06 10:54:33'),
+(5139, 'calendar_display_customer', '1'),
+(5140, 'hootsuite_display_customer', '1');
 
 -- --------------------------------------------------------
 
