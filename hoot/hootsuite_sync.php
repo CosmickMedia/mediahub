@@ -13,14 +13,56 @@ function hootsuite_update(bool $force = false, bool $debug = false): array {
         return [false, 'Update not required yet'];
     }
 
-    // Placeholder for real sync logic
+    $token = get_setting('hootsuite_access_token');
+    if (!$token) {
+        return [false, 'Missing access token'];
+    }
+
+    $url = 'https://platform.hootsuite.com/v1/messages?state=SCHEDULED&limit=100';
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER => ["Authorization: Bearer $token", 'Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+    ]);
+    $response = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+
+    if ($curl_error) {
+        return [false, 'cURL error: ' . $curl_error];
+    }
+    if ($code !== 200) {
+        return [false, 'API error HTTP ' . $code . ($debug ? ' | ' . $response : '')];
+    }
+
+    $data = json_decode($response, true);
+    $messages = $data['data'] ?? [];
+
+    $pdo = get_pdo();
+    try {
+        $pdo->beginTransaction();
+        $pdo->exec('TRUNCATE TABLE hootsuite_posts');
+        $stmt = $pdo->prepare('INSERT INTO hootsuite_posts (post_id, store_id, text, scheduled_send_time, raw_json) VALUES (?, ?, ?, ?, ?)');
+        foreach ($messages as $m) {
+            $stmt->execute([
+                $m['id'] ?? '',
+                0,
+                $m['text'] ?? null,
+                isset($m['scheduledSendTime']) ? date('Y-m-d H:i:s', strtotime($m['scheduledSendTime'])) : null,
+                json_encode($m)
+            ]);
+        }
+        $pdo->commit();
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        return [false, $e->getMessage()];
+    }
+
     set_setting('hootsuite_last_update', date('Y-m-d H:i:s'));
-    $msg = $force ? 'Forced Hootsuite sync executed' : 'Hootsuite sync executed';
+    $msg = ($force ? 'Forced' : 'Automatic') . ' Hootsuite sync executed';
     if ($debug) {
-        $token = get_setting('hootsuite_access_token');
-        $last = get_setting('hootsuite_token_last_refresh');
-        $msg .= ' | token snippet: ' . ($token ? substr($token, 0, 8) . '...' : 'none');
-        $msg .= ' | last refresh: ' . ($last ?: 'never');
+        $msg .= ' | fetched ' . count($messages) . ' posts';
     }
     return [true, $msg];
 }
@@ -36,16 +78,34 @@ function hootsuite_erase_all(): array {
 }
 
 function hootsuite_test_connection(bool $debug = false): array {
-    $id = get_setting('hootsuite_client_id');
-    $secret = get_setting('hootsuite_client_secret');
-    $uri = get_setting('hootsuite_redirect_uri');
-    if (!$id || !$secret || !$uri) {
-        return [false, 'Missing Hootsuite OAuth credentials'];
+    $token = get_setting('hootsuite_access_token');
+    if (!$token) {
+        return [false, 'Missing access token'];
     }
-    // Real implementation would attempt an OAuth handshake
-    $msg = 'OAuth settings present';
+
+    $ch = curl_init('https://platform.hootsuite.com/v1/me');
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER => ["Authorization: Bearer $token"],
+        CURLOPT_RETURNTRANSFER => true,
+    ]);
+    $response = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+
+    if ($curl_error) {
+        return [false, 'cURL error: ' . $curl_error];
+    }
+    if ($code === 200) {
+        $msg = 'Connected to Hootsuite';
+        if ($debug) {
+            $msg .= ' | HTTP 200';
+        }
+        return [true, $msg];
+    }
+    $msg = 'API error HTTP ' . $code;
     if ($debug) {
-        $msg .= ' | client_id snippet: ' . substr($id, 0, 8) . '...';
+        $msg .= ' | ' . $response;
     }
-    return [true, $msg];
+    return [false, $msg];
 }
