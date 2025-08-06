@@ -552,6 +552,7 @@ CREATE TABLE `stores` (
   `drive_folder` varchar(255) DEFAULT NULL,
   `hootsuite_token` varchar(255) DEFAULT NULL,
   `hootsuite_campaign_tag` varchar(100) DEFAULT NULL,
+  `hootsuite_campaign_id` bigint DEFAULT NULL,
   `first_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,

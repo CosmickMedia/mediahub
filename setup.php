@@ -22,6 +22,7 @@ $queries = [
         drive_folder VARCHAR(255),
         hootsuite_token VARCHAR(255),
         hootsuite_campaign_tag VARCHAR(100),
+        hootsuite_campaign_id BIGINT,
         first_name VARCHAR(100),
         last_name VARCHAR(100),
         phone VARCHAR(50),
@@ -237,7 +238,14 @@ try {
 }
 
 try {
-    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_profile_ids TEXT AFTER hootsuite_campaign_tag");
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_campaign_id BIGINT AFTER hootsuite_campaign_tag");
+    echo "✓ Added hootsuite_campaign_id column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN hootsuite_profile_ids TEXT AFTER hootsuite_campaign_id");
     echo "✓ Added hootsuite_profile_ids column to stores table\n";
 } catch (PDOException $e) {
     // Column might already exist
