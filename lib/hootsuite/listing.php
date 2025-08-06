@@ -45,30 +45,30 @@ if (!$jsonProfilesData || !$jsonPostsData) {
     $profilesApiUrl = "https://platform.hootsuite.com/v1/socialProfiles?limit=100";
     $profilesApiData = makeApiCall($profilesApiUrl, $access_token);
 
-    // Fetch all messages (MUST include date range - API requires it)
+    // Fetch all messages (try different states)
     $allMessages = [];
 
-    // Get messages from past 60 days to future 60 days
-    $startDate = date('Y-m-d', strtotime('-60 days'));
-    $endDate = date('Y-m-d', strtotime('+60 days'));
-
-    // Get messages with date range (API requires this)
-    $calendarApiUrl = "https://platform.hootsuite.com/v1/messages?startTime={$startDate}T00:00:00Z&endTime={$endDate}T23:59:59Z&limit=100";
+    // Get scheduled messages
+    $today = date('Y-m-d');
+    $next_month = date('Y-m-d', strtotime('+60 days'));
+    $calendarApiUrl = "https://platform.hootsuite.com/v1/messages?startTime={$today}T00:00:00Z&endTime={$next_month}T23:59:59Z&limit=100";
     $calendarApiData = makeApiCall($calendarApiUrl, $access_token);
     if ($calendarApiData && isset($calendarApiData['data'])) {
         $allMessages = array_merge($allMessages, $calendarApiData['data']);
     }
 
-    // If we got pagination, fetch more pages
-    $nextPage = isset($calendarApiData['pagination']['next']) ? $calendarApiData['pagination']['next'] : null;
-    $pageCount = 1;
-    while ($nextPage && $pageCount < 5) { // Limit to 5 pages for safety
-        $nextPageData = makeApiCall($nextPage, $access_token);
-        if ($nextPageData && isset($nextPageData['data'])) {
-            $allMessages = array_merge($allMessages, $nextPageData['data']);
-        }
-        $nextPage = isset($nextPageData['pagination']['next']) ? $nextPageData['pagination']['next'] : null;
-        $pageCount++;
+    // Also get scheduled state specifically
+    $scheduledUrl = "https://platform.hootsuite.com/v1/messages?state=SCHEDULED&limit=100";
+    $scheduledData = makeApiCall($scheduledUrl, $access_token);
+    if ($scheduledData && isset($scheduledData['data'])) {
+        $allMessages = array_merge($allMessages, $scheduledData['data']);
+    }
+
+    // Get sent messages for historical data
+    $sentUrl = "https://platform.hootsuite.com/v1/messages?state=SENT&limit=50";
+    $sentData = makeApiCall($sentUrl, $access_token);
+    if ($sentData && isset($sentData['data'])) {
+        $allMessages = array_merge($allMessages, $sentData['data']);
     }
 
     // Create the expected structure
@@ -214,48 +214,35 @@ foreach ($posts as $post) {
         $profileIds = $post['socialProfileIds'];
     }
 
-    // Extract tags - THESE ARE THE KEY FOR COMPANY IDENTIFICATION
+    // Extract tags
     $tags = [];
     if (isset($post['tags']) && is_array($post['tags'])) {
         $tags = $post['tags'];
     }
+    // Also check for hashtags
+    if (isset($post['hashtags']) && is_array($post['hashtags'])) {
+        $tags = array_merge($tags, $post['hashtags']);
+    }
 
-    // PRIMARY METHOD: Use the FIRST tag as the company identifier
-    // Based on your data, tags like "petland-katy", "petland-racine" are the company identifiers
-    $companyTag = null;
+    // Determine company from tags (look for business name tags)
     $companyName = null;
-    $platformTag = null;
+    $companyTag = null;
+    foreach ($tags as $tag) {
+        // Tags might be objects or strings
+        $tagValue = is_array($tag) ? ($tag['name'] ?? $tag['value'] ?? $tag['tag'] ?? '') : $tag;
+        $tagValue = trim($tagValue);
 
-    if (!empty($tags)) {
-        // The first tag is typically the company/location identifier
-        $companyTag = $tags[0];
-
-        // Clean up the company name for display
-        $companyName = str_replace(['-', '_'], ' ', $companyTag);
-        $companyName = ucwords($companyName); // Capitalize each word
-
-        // Check if there's a platform tag (like "facebook", "instagram")
-        foreach ($tags as $tag) {
-            $lowerTag = strtolower($tag);
-            if (in_array($lowerTag, ['facebook', 'instagram', 'twitter', 'linkedin', 'tiktok', 'youtube', 'pinterest'])) {
-                $platformTag = $tag;
+        // Look for company indicators in tags
+        if (!empty($tagValue)) {
+            // Check if this might be a company name (you can customize this logic)
+            if (!preg_match('/^#/', $tagValue) || preg_match('/(company|business|store|shop|brand)/i', $tagValue)) {
+                if (!$companyTag) {
+                    $companyTag = $tagValue;
+                    $companyName = str_replace('#', '', $tagValue);
+                }
             }
         }
     }
-
-    // If no tags, fall back to extracting from profile name
-    if (!$companyTag && !empty($profileIds)) {
-        $profileId = $profileIds[0];
-        if (isset($profilesMap[$profileId])) {
-            $username = $profilesMap[$profileId]['socialNetworkUsername'];
-            // Create a tag-like identifier from the username
-            $companyTag = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $username));
-            $companyName = $username;
-        }
-    }
-
-    // Use the company tag as the unique company identifier
-    $companyId = $companyTag ?: 'no-company-tag';
 
     // Extract media URLs
     $mediaUrls = [];
@@ -288,16 +275,27 @@ foreach ($posts as $post) {
             'organizationId' => 'unknown'
         ];
 
-        // Update company map with tag-based company
-        if (!isset($companiesMap[$companyId])) {
-            $companiesMap[$companyId] = [
-                'profiles' => [],
-                'name' => $companyName ?: 'Unknown Company',
-                'tag' => $companyTag
-            ];
+        // Determine company group
+        $organizationId = $profileInfo['organizationId'];
+        if ($companyName) {
+            // Override with tag-based company name
+            if (!isset($companiesMap[$organizationId])) {
+                $companiesMap[$organizationId] = [
+                    'profiles' => [],
+                    'name' => $companyName
+                ];
+            } else {
+                $companiesMap[$organizationId]['name'] = $companyName;
+            }
         }
-        if (!in_array($profileId, $companiesMap[$companyId]['profiles'])) {
-            $companiesMap[$companyId]['profiles'][] = $profileId;
+
+        // If no company name from tags, try to extract from profile name
+        if (!$companiesMap[$organizationId]['name']) {
+            // Extract potential company name from profile username
+            $username = $profileInfo['socialNetworkUsername'];
+            // Remove common suffixes/prefixes
+            $cleanName = preg_replace('/(Official|Page|Account|Profile)$/i', '', $username);
+            $companiesMap[$organizationId]['name'] = trim($cleanName);
         }
 
         $postUrl = $post['postUrl'] ?? $post['permalink'] ?? $post['url'] ?? '';
@@ -306,42 +304,36 @@ foreach ($posts as $post) {
         $postState = $post['state'] ?? 'UNKNOWN';
 
         $mergedPost = [
-            'company_name' => $companyName ?: 'Unknown Company',
-            'company_id' => $companyId,
-            'company_tag' => $companyTag,
+            'company_name' => $companiesMap[$organizationId]['name'] ?? 'Unknown Company',
+            'company_id' => $organizationId,
             'location_name' => $profileInfo['socialNetworkUsername'],
             'profile_id' => $profileId,
             'profile_image_url' => $profileInfo['avatarUrl'],
             'network_type' => $profileInfo['networkType'],
             'network_icon' => $profileInfo['networkIcon'],
             'scheduled_date' => $scheduledTime,
-            'post_text' => substr($postText, 0, 200) . (strlen($postText) > 200 ? '...' : ''),
+            'post_text' => listing . phpsubstr($postText, 0, 200) . (strlen($postText) > 200 ? '...' : ''),
             'post_state' => $postState,
             'post_media' => $mediaUrls,
             'post_link' => $postUrl,
             'post_id' => $post['id'] ?? 'unknown',
             'tags' => $tags,
-            'platform_tag' => $platformTag
+            'company_tag' => $companyTag
         ];
 
         $mergedCalendarPosts[] = $mergedPost;
 
-        // Group by company using the company tag as the key
-        if (!isset($postsByCompany[$companyId])) {
-            $postsByCompany[$companyId] = [
-                'company_name' => $companyName ?: 'Unknown Company',
-                'company_tag' => $companyTag,
+        // Group by company
+        if (!isset($postsByCompany[$organizationId])) {
+            $postsByCompany[$organizationId] = [
+                'company_name' => $companiesMap[$organizationId]['name'] ?? 'Unknown Company',
                 'posts' => [],
-                'networks' => [],
-                'profiles' => []
+                'networks' => []
             ];
         }
-        $postsByCompany[$companyId]['posts'][] = $mergedPost;
-        if (!in_array($profileInfo['networkType'], $postsByCompany[$companyId]['networks'])) {
-            $postsByCompany[$companyId]['networks'][] = $profileInfo['networkType'];
-        }
-        if (!in_array($profileId, $postsByCompany[$companyId]['profiles'])) {
-            $postsByCompany[$companyId]['profiles'][] = $profileId;
+        $postsByCompany[$organizationId]['posts'][] = $mergedPost;
+        if (!in_array($profileInfo['networkType'], $postsByCompany[$organizationId]['networks'])) {
+            $postsByCompany[$organizationId]['networks'][] = $profileInfo['networkType'];
         }
     }
 }
@@ -511,10 +503,6 @@ usort($mergedCalendarPosts, function($a, $b) {
             color: white;
             font-weight: 500;
         }
-        .tag.platform-tag {
-            background: #6c757d;
-            color: white;
-        }
         .media-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -612,19 +600,14 @@ usort($mergedCalendarPosts, function($a, $b) {
                     <div class="company-name">
                         🏢 <?php echo htmlspecialchars($companyData['company_name']); ?>
                     </div>
-                    <div style="color: #666; font-size: 0.9em; margin: 5px 0;">
-                        Tag: <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">
-                            <?php echo htmlspecialchars($companyData['company_tag'] ?? 'none'); ?>
-                        </code>
-                    </div>
                     <div class="network-badges">
                         <?php foreach ($companyData['networks'] as $network): ?>
                             <span class="network-badge"><?php echo htmlspecialchars($network); ?></span>
                         <?php endforeach; ?>
                     </div>
                     <div style="margin-top: 10px; color: #666;">
-                        <?php echo count($companyData['posts']); ?> posts |
-                        <?php echo count($companyData['profiles'] ?? []); ?> profiles
+                        Company ID: <?php echo htmlspecialchars($companyId); ?> |
+                        <?php echo count($companyData['posts']); ?> posts scheduled
                     </div>
                 </div>
 
@@ -661,14 +644,13 @@ usort($mergedCalendarPosts, function($a, $b) {
 
                             <?php if (!empty($post['tags'])): ?>
                                 <div class="tags-container">
-                                    <?php foreach ($post['tags'] as $index => $tag): ?>
+                                    <?php foreach ($post['tags'] as $tag): ?>
                                         <?php
-                                        $isCompanyTag = ($index === 0); // First tag is the company tag
-                                        $isPlatformTag = (strtolower($tag) == strtolower($post['platform_tag'] ?? ''));
+                                        $tagValue = is_array($tag) ? ($tag['name'] ?? $tag['value'] ?? $tag['tag'] ?? '') : $tag;
+                                        $isCompanyTag = ($tagValue == $post['company_tag']);
                                         ?>
-                                        <span class="tag <?php echo $isCompanyTag ? 'company-tag' : ($isPlatformTag ? 'platform-tag' : ''); ?>"
-                                              title="<?php echo $isCompanyTag ? 'Company/Location Tag' : ($isPlatformTag ? 'Platform Tag' : 'Tag'); ?>">
-                                                <?php echo htmlspecialchars($tag); ?>
+                                        <span class="tag <?php echo $isCompanyTag ? 'company-tag' : ''; ?>">
+                                                <?php echo htmlspecialchars($tagValue); ?>
                                             </span>
                                     <?php endforeach; ?>
                                 </div>
