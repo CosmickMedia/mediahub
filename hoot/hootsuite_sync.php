@@ -18,26 +18,43 @@ function hootsuite_update(bool $force = false, bool $debug = false): array {
         return [false, 'Missing access token'];
     }
 
-    $url = 'https://platform.hootsuite.com/v1/messages?state=SCHEDULED&limit=100';
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_HTTPHEADER => ["Authorization: Bearer $token", 'Content-Type: application/json'],
-        CURLOPT_RETURNTRANSFER => true,
+    $startTime = date('c');
+    $endTime = date('c', strtotime('+28 days'));
+    $params = http_build_query([
+        'state' => 'SCHEDULED',
+        'limit' => 100,
+        'startTime' => $startTime,
+        'endTime' => $endTime,
     ]);
-    $response = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curl_error = curl_error($ch);
-    curl_close($ch);
+    $url = 'https://platform.hootsuite.com/v1/messages?' . $params;
 
-    if ($curl_error) {
-        return [false, 'cURL error: ' . $curl_error];
-    }
-    if ($code !== 200) {
-        return [false, 'API error HTTP ' . $code . ($debug ? ' | ' . $response : '')];
-    }
+    $messages = [];
+    $page = 0;
+    $max_pages = 10;
 
-    $data = json_decode($response, true);
-    $messages = $data['data'] ?? [];
+    do {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPHEADER => ["Authorization: Bearer $token", 'Content-Type: application/json'],
+            CURLOPT_RETURNTRANSFER => true,
+        ]);
+        $response = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+
+        if ($curl_error) {
+            return [false, 'cURL error: ' . $curl_error];
+        }
+        if ($code !== 200) {
+            return [false, 'API error HTTP ' . $code . ($debug ? ' | ' . $response : '')];
+        }
+
+        $data = json_decode($response, true);
+        $messages = array_merge($messages, $data['data'] ?? []);
+        $url = $data['pagination']['next'] ?? null;
+        $page++;
+    } while ($url && $page < $max_pages);
 
     $pdo = get_pdo();
     try {
