@@ -972,7 +972,7 @@ include __DIR__.'/header.php';
                                     <strong>Sync Now</strong> adds new posts without clearing existing ones.
                                     <strong>Force Sync</strong> clears all posts then syncs.
                                     <strong>Erase All</strong> removes all stored posts.
-                                    <strong>Refresh Token</strong> obtains a new access token using the saved refresh token.
+                                    <strong>Refresh Token</strong> uses the saved refresh token to obtain a new access token.
                                 </div>
                             </div>
                         </div>

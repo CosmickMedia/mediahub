@@ -350,6 +350,7 @@ include __DIR__.'/header.php';
                                    value="<?php echo htmlspecialchars($store['hootsuite_campaign_tag']); ?>">
                             <div class="form-text">Must match the tag in Hootsuite</div>
                         </div>
+                        <!--
                         <div class="col-md-6">
                             <label for="hootsuite_campaign_id" class="form-label-modern">Hootsuite Campaign ID</label>
                             <div class="input-group">
@@ -358,6 +359,7 @@ include __DIR__.'/header.php';
                             </div>
                             <datalist id="campaigns_list"></datalist>
                         </div>
+                        -->
                         <div class="col-md-6">
                             <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profiles</label>
                             <input type="text" id="hootsuite_profile_search" class="form-control form-control-modern mb-2" placeholder="Search profiles">
@@ -366,6 +368,7 @@ include __DIR__.'/header.php';
                                     data-selected="<?php echo htmlspecialchars($store['hootsuite_profile_ids']); ?>"></select>
                             <div class="form-text">Select one or more profiles</div>
                         </div>
+                        <!--
                         <div class="col-md-6">
                             <label for="hootsuite_custom_property_key" class="form-label-modern">Hootsuite Custom Property Key</label>
                             <input type="text" name="hootsuite_custom_property_key" id="hootsuite_custom_property_key"
@@ -380,6 +383,7 @@ include __DIR__.'/header.php';
                                    value="<?php echo htmlspecialchars($store['hootsuite_custom_property_value']); ?>">
                             <div class="form-text">Required value for the custom property</div>
                         </div>
+                        -->
                         <div class="col-md-12">
                             <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>
                             <input type="url" name="marketing_report_url" id="marketing_report_url"
