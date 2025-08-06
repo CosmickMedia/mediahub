@@ -358,6 +358,7 @@ include __DIR__.'/header.php';
                         </div>
                         <div class="col-md-6">
                             <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profiles</label>
+                            <input type="text" id="hootsuite_profile_search" class="form-control form-control-modern mb-2" placeholder="Search profiles">
                             <select name="hootsuite_profile_ids[]" id="hootsuite_profile_ids" multiple
                                     class="form-select form-select-modern"
                                     data-selected="<?php echo htmlspecialchars($store['hootsuite_profile_ids']); ?>"></select>
@@ -514,6 +515,7 @@ include __DIR__.'/header.php';
             .then(r => r.json())
             .then(data => {
                 const select = document.getElementById('hootsuite_profile_ids');
+                const search = document.getElementById('hootsuite_profile_search');
                 const selected = (select.dataset.selected || '').split(',').map(s => s.trim()).filter(Boolean);
                 data.forEach(p => {
                     if (p.id && p.name !== undefined) {
@@ -525,6 +527,13 @@ include __DIR__.'/header.php';
                         }
                         select.appendChild(opt);
                     }
+                });
+
+                search.addEventListener('input', () => {
+                    const term = search.value.toLowerCase();
+                    Array.from(select.options).forEach(opt => {
+                        opt.style.display = opt.textContent.toLowerCase().includes(term) ? '' : 'none';
+                    });
                 });
             });
     </script>
