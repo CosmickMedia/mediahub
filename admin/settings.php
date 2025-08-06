@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'calendar_enabled'        => isset($_POST['calendar_enabled']) ? '1' : '0',
         'hootsuite_enabled'       => isset($_POST['hootsuite_enabled']) ? '1' : '0',
         'hootsuite_update_interval'=> trim($_POST['hootsuite_update_interval'] ?? '24'),
+        'hootsuite_token_refresh_interval'=> trim($_POST['hootsuite_token_refresh_interval'] ?? '24'),
         'hootsuite_client_id'     => trim($_POST['hootsuite_client_id'] ?? ''),
         'hootsuite_client_secret' => trim($_POST['hootsuite_client_secret'] ?? ''),
         'hootsuite_redirect_uri'  => trim($_POST['hootsuite_redirect_uri'] ?? ''),
@@ -158,43 +159,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $test_result = [$ok, $msg];
         $test_action = 'groundhogg';
     } elseif (isset($_POST['calendar_update'])) {
-        require_once __DIR__.'/../lib/calendar.php';
-        [$ok, $msg] = calendar_update(false);
+        if (get_setting('calendar_enabled') === '1') {
+            require_once __DIR__.'/../lib/calendar.php';
+            [$ok, $msg] = calendar_update(false);
+        } else {
+            [$ok, $msg] = [false, 'Calendar integration disabled'];
+        }
         $test_result = [$ok, $msg];
         $test_action = 'calendar';
         $active_tab = 'calendar';
     } elseif (isset($_POST['force_calendar_update'])) {
-        require_once __DIR__.'/../lib/calendar.php';
-        [$ok, $msg] = calendar_update(true);
+        if (get_setting('calendar_enabled') === '1') {
+            require_once __DIR__.'/../lib/calendar.php';
+            [$ok, $msg] = calendar_update(true);
+        } else {
+            [$ok, $msg] = [false, 'Calendar integration disabled'];
+        }
         $test_result = [$ok, $msg];
         $test_action = 'calendar';
         $active_tab = 'calendar';
     } elseif (isset($_POST['erase_calendar'])) {
-        $pdo->exec('TRUNCATE TABLE calendar');
-        $test_result = [true, 'Calendar entries erased'];
+        if (get_setting('calendar_enabled') === '1') {
+            $pdo->exec('TRUNCATE TABLE calendar');
+            $test_result = [true, 'Calendar entries erased'];
+        } else {
+            $test_result = [false, 'Calendar integration disabled'];
+        }
         $test_action = 'calendar';
         $active_tab = 'calendar';
     } elseif (isset($_POST['hootsuite_update'])) {
-        require_once __DIR__.'/../hoot/hootsuite_sync.php';
-        [$ok, $msg] = hootsuite_update(false, get_setting('hootsuite_debug') === '1');
+        if (get_setting('hootsuite_enabled') === '1') {
+            require_once __DIR__.'/../hoot/hootsuite_sync.php';
+            [$ok, $msg] = hootsuite_update(false, get_setting('hootsuite_debug') === '1');
+        } else {
+            [$ok, $msg] = [false, 'Hootsuite integration disabled'];
+        }
         $test_result = [$ok, $msg];
         $test_action = 'hootsuite';
         $active_tab = 'calendar';
     } elseif (isset($_POST['force_hootsuite_update'])) {
-        require_once __DIR__.'/../hoot/hootsuite_sync.php';
-        [$ok, $msg] = hootsuite_update(true, get_setting('hootsuite_debug') === '1');
+        if (get_setting('hootsuite_enabled') === '1') {
+            require_once __DIR__.'/../hoot/hootsuite_sync.php';
+            [$ok, $msg] = hootsuite_update(true, get_setting('hootsuite_debug') === '1');
+        } else {
+            [$ok, $msg] = [false, 'Hootsuite integration disabled'];
+        }
         $test_result = [$ok, $msg];
         $test_action = 'hootsuite';
         $active_tab = 'calendar';
     } elseif (isset($_POST['erase_hootsuite'])) {
-        require_once __DIR__.'/../hoot/hootsuite_sync.php';
-        [$ok, $msg] = hootsuite_erase_all();
+        if (get_setting('hootsuite_enabled') === '1') {
+            require_once __DIR__.'/../hoot/hootsuite_sync.php';
+            [$ok, $msg] = hootsuite_erase_all();
+        } else {
+            [$ok, $msg] = [false, 'Hootsuite integration disabled'];
+        }
         $test_result = [$ok, $msg];
         $test_action = 'hootsuite';
         $active_tab = 'calendar';
     } elseif (isset($_POST['test_hootsuite_connection'])) {
-        require_once __DIR__.'/../hoot/hootsuite_sync.php';
-        [$ok, $msg] = hootsuite_test_connection(get_setting('hootsuite_debug') === '1');
+        if (get_setting('hootsuite_enabled') === '1') {
+            require_once __DIR__.'/../hoot/hootsuite_sync.php';
+            [$ok, $msg] = hootsuite_test_connection(get_setting('hootsuite_debug') === '1');
+        } else {
+            [$ok, $msg] = [false, 'Hootsuite integration disabled'];
+        }
+        $test_result = [$ok, $msg];
+        $test_action = 'hootsuite';
+        $active_tab = 'calendar';
+    } elseif (isset($_POST['refresh_hootsuite_token'])) {
+        if (get_setting('hootsuite_enabled') === '1') {
+            require_once __DIR__.'/../lib/hootsuite/refresh_token.php';
+            [$ok, $msg] = hootsuite_refresh_token(get_setting('hootsuite_debug') === '1');
+        } else {
+            [$ok, $msg] = [false, 'Hootsuite integration disabled'];
+        }
         $test_result = [$ok, $msg];
         $test_action = 'hootsuite';
         $active_tab = 'calendar';
@@ -226,6 +265,7 @@ $calendar_update_interval = get_setting('calendar_update_interval') ?: '24';
 $calendar_enabled = get_setting('calendar_enabled') ?: '0';
 $hootsuite_enabled = get_setting('hootsuite_enabled') ?: '0';
 $hootsuite_update_interval = get_setting('hootsuite_update_interval') ?: '24';
+$hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '24';
 $hootsuite_client_id = get_setting('hootsuite_client_id') ?: '';
 $hootsuite_client_secret = get_setting('hootsuite_client_secret') ?: '';
 $hootsuite_redirect_uri = get_setting('hootsuite_redirect_uri') ?: '';
@@ -832,6 +872,12 @@ include __DIR__.'/header.php';
                                     <input type="number" name="hootsuite_update_interval" id="hootsuite_update_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_update_interval); ?>">
                                 </div>
                                 <div class="col-md-4">
+                                    <label for="hootsuite_token_refresh_interval" class="form-label-modern">
+                                        <i class="bi bi-arrow-clockwise"></i> Token Refresh Interval (hours)
+                                    </label>
+                                    <input type="number" name="hootsuite_token_refresh_interval" id="hootsuite_token_refresh_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_token_refresh_interval); ?>">
+                                </div>
+                                <div class="col-md-4">
                                     <div class="form-check-modern">
                                         <input type="checkbox" name="hootsuite_debug" id="hootsuite_debug" class="form-check-input" value="1" <?php if ($hootsuite_debug === '1') echo 'checked'; ?>>
                                         <label for="hootsuite_debug" class="form-check-label">
@@ -858,6 +904,16 @@ include __DIR__.'/header.php';
                                     <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="erase_hootsuite">
                                         <i class="bi bi-x-circle"></i> Erase All
                                     </button>
+                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="refresh_hootsuite_token">
+                                        <i class="bi bi-arrow-clockwise"></i> Refresh Token
+                                    </button>
+                                </div>
+                                <div class="form-text-modern mt-2">
+                                    <strong>Test Connection</strong> checks OAuth settings.
+                                    <strong>Sync Now</strong> adds new posts without clearing existing ones.
+                                    <strong>Force Sync</strong> clears all posts then syncs.
+                                    <strong>Erase All</strong> removes all stored posts.
+                                    <strong>Refresh Token</strong> obtains a new access token using the saved refresh token.
                                 </div>
                             </div>
                         </div>

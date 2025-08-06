@@ -175,6 +175,9 @@ function calendar_cache_media(array $urls, string $dir, ?string $datetime = null
 }
 
 function calendar_update(bool $force = false): array {
+    if (get_setting('calendar_enabled') !== '1') {
+        return [false, 'Calendar integration disabled'];
+    }
     $sheetId = get_setting('calendar_sheet_id');
     $sheetRange = get_setting('calendar_sheet_range') ?: 'Sheet1!A:A';
     $sheetUrl = get_setting('calendar_sheet_url');
