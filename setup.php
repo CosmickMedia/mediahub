@@ -148,6 +148,7 @@ $queries = [
         text TEXT,
         scheduled_send_time DATETIME,
         social_profile_id VARCHAR(50),
+        campaign_ids TEXT,
         media_urls TEXT,
         media_thumb_urls TEXT,
         media TEXT,

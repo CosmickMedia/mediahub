@@ -550,6 +550,7 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         state VARCHAR(50),
         social_profile_id VARCHAR(50),
+        campaign_ids TEXT,
         media_urls TEXT,
         media_thumb_urls TEXT,
         media TEXT,
@@ -578,6 +579,7 @@ try {
 $hootColumns = [
     'state VARCHAR(50)',
     'social_profile_id VARCHAR(50)',
+    'campaign_ids TEXT',
     'media_urls TEXT',
     'media_thumb_urls TEXT',
     'media TEXT',
@@ -618,6 +620,7 @@ try {
         text TEXT,
         scheduled_send_time DATETIME,
         social_profile_id VARCHAR(50),
+        campaign_ids TEXT,
         media_urls TEXT,
         media_thumb_urls TEXT,
         media TEXT,
@@ -664,6 +667,7 @@ try {
 $calendarColumns = [
     'state VARCHAR(50)',
     'social_profile_id VARCHAR(50)',
+    'campaign_ids TEXT',
     'media_urls TEXT',
     'media_thumb_urls TEXT',
     'media TEXT',
