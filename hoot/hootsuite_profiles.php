@@ -11,9 +11,12 @@ if (!$token) {
 $profiles = hootsuite_get_social_profiles($token);
 $out = [];
 foreach ($profiles as $p) {
+    $username = $p['socialNetworkUsername'] ?? '';
+    $type = $p['type'] ?? '';
+    $label = trim($username) !== '' ? $username . ' (' . $type . ')' : $type;
     $out[] = [
         'id' => $p['id'] ?? null,
-        'name' => $p['type'] ?? ''
+        'name' => $label
     ];
 }
 echo json_encode($out);

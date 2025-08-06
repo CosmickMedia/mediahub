@@ -422,7 +422,7 @@ include __DIR__.'/header.php';
     </div>
 
     <script>
-        document.getElementById('load_campaigns')?.addEventListener('click', function () {
+        function loadCampaigns() {
             fetch('../hoot/hootsuite_campaigns.php')
                 .then(r => r.json())
                 .then(data => {
@@ -437,7 +437,11 @@ include __DIR__.'/header.php';
                         }
                     });
                 });
-        });
+        }
+
+        document.getElementById('load_campaigns')?.addEventListener('click', loadCampaigns);
+        // Load campaigns on page load for convenience
+        loadCampaigns();
 
         fetch('../hoot/hootsuite_profiles.php')
             .then(r => r.json())
