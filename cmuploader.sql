@@ -154,7 +154,27 @@ CREATE TABLE `hootsuite_posts` (
   `text` text DEFAULT NULL,
   `scheduled_send_time` datetime DEFAULT NULL,
   `raw_json` text DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp()
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `state` varchar(50) DEFAULT NULL,
+  `social_profile_id` varchar(50) DEFAULT NULL,
+  `media_urls` text DEFAULT NULL,
+  `media` text DEFAULT NULL,
+  `webhook_urls` text DEFAULT NULL,
+  `tags` text DEFAULT NULL,
+  `targeting` text DEFAULT NULL,
+  `privacy` text DEFAULT NULL,
+  `location` text DEFAULT NULL,
+  `email_notification` text DEFAULT NULL,
+  `post_url` text DEFAULT NULL,
+  `post_id_external` varchar(50) DEFAULT NULL,
+  `reviewers` text DEFAULT NULL,
+  `created_by_member_id` varchar(50) DEFAULT NULL,
+  `last_updated_by_member_id` varchar(50) DEFAULT NULL,
+  `extended_info` text DEFAULT NULL,
+  `sequence_number` int(11) DEFAULT NULL,
+  `imt_length` int(11) DEFAULT NULL,
+  `imt_index` int(11) DEFAULT NULL,
+  `media_thumb_urls` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

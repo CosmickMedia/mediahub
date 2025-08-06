@@ -11,8 +11,8 @@ if ($token) {
     $_SESSION['access_token'] = $token;
     echo "Access Token: " . $token;
 } else {
-    // If no access token, redirect to authentication flow
-    header('Location: ../lib/hootsuite/test_auth.php');
+    // If no access token, redirect to admin login to initiate OAuth
+    header('Location: ../admin/hootsuite_login.php');
     exit;
 }
 ?>

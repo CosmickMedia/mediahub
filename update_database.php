@@ -518,6 +518,26 @@ try {
         scheduled_send_time DATETIME,
         raw_json TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        state VARCHAR(50),
+        social_profile_id VARCHAR(50),
+        media_urls TEXT,
+        media_thumb_urls TEXT,
+        media TEXT,
+        webhook_urls TEXT,
+        tags TEXT,
+        targeting TEXT,
+        privacy TEXT,
+        location TEXT,
+        email_notification TEXT,
+        post_url TEXT,
+        post_id_external VARCHAR(50),
+        reviewers TEXT,
+        created_by_member_id VARCHAR(50),
+        last_updated_by_member_id VARCHAR(50),
+        extended_info TEXT,
+        sequence_number INT,
+        imt_length INT,
+        imt_index INT,
         INDEX idx_store_time (store_id, scheduled_send_time)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     echo "✓ Created hootsuite_posts table\n";
@@ -525,7 +545,32 @@ try {
     echo "✗ Error creating hootsuite_posts table: " . $e->getMessage() . "\n";
 }
 
-// Ensure post_id is unique for existing installations
+$hootColumns = [
+    'state VARCHAR(50)',
+    'social_profile_id VARCHAR(50)',
+    'media_urls TEXT',
+    'media_thumb_urls TEXT',
+    'media TEXT',
+    'webhook_urls TEXT',
+    'tags TEXT',
+    'targeting TEXT',
+    'privacy TEXT',
+    'location TEXT',
+    'email_notification TEXT',
+    'post_url TEXT',
+    'post_id_external VARCHAR(50)',
+    'reviewers TEXT',
+    'created_by_member_id VARCHAR(50)',
+    'last_updated_by_member_id VARCHAR(50)',
+    'extended_info TEXT',
+    'sequence_number INT',
+    'imt_length INT',
+    'imt_index INT'
+];
+foreach ($hootColumns as $col) {
+    try { $pdo->exec("ALTER TABLE hootsuite_posts ADD COLUMN $col"); } catch (PDOException $e) { }
+}
+
 try {
     $pdo->exec("ALTER TABLE hootsuite_posts ADD UNIQUE KEY uniq_post_id (post_id)");
     echo "✓ Added uniq_post_id index\n";

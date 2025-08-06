@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__.'/../lib/settings.php';
-require_once __DIR__.'/../lib/hootsuite/refresh_token.php';
+require_once __DIR__.'/hootsuite_refresh_token.php';
 
 $enabled = get_setting('hootsuite_enabled');
 if ($enabled !== '1') {

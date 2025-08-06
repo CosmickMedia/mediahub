@@ -1,12 +1,6 @@
 <?php
-require_once __DIR__.'/../settings.php';
+require_once __DIR__.'/../lib/settings.php';
 
-/**
- * Refresh the Hootsuite access token using the stored refresh token.
- *
- * @param bool $debug When true, includes HTTP details in the response message.
- * @return array [success:boolean, message:string]
- */
 function hootsuite_refresh_token(bool $debug = false): array {
     $refresh_token = get_setting('hootsuite_refresh_token');
     $client_id = get_setting('hootsuite_client_id');

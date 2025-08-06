@@ -99,8 +99,8 @@ if (isset($_GET['code'])) {
         // Add links to other pages
         echo "<div style='background: #cfe2ff; border: 1px solid #b6d4fe; padding: 10px; margin: 20px 0;'>";
         echo "<h3>Next Steps:</h3>";
-        echo "<a href='lib/hootsuite/get_scheduled_posts.php' style='display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; margin: 5px;'>View Scheduled Posts</a>";
-        echo "<a href='lib/hootsuite/access_token.php' style='display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; margin: 5px;'>Check Access Token</a>";
+        echo "<a href='hoot/hootsuite_get_scheduled_posts.php' style='display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; margin: 5px;'>View Scheduled Posts</a>";
+        echo "<a href='hoot/hootsuite_access_token.php' style='display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; margin: 5px;'>Check Access Token</a>";
         echo "</div>";
 
     } else {
@@ -118,7 +118,7 @@ if (isset($_GET['code'])) {
     }
     echo "</div>";
 } else {
-    echo "No authorization code or error received. Please start from <a href='lib/hootsuite/test_auth.php'>test_auth.php</a>";
+    echo "No authorization code or error received. Please start from <a href='admin/hootsuite_login.php'>hootsuite_login.php</a>";
 }
 
 // Debug: Show current session contents
