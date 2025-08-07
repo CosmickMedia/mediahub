@@ -299,118 +299,86 @@ if ($action === 'create' || $action === 'update') {
 
     if ($action === 'create') {
         $events = [];
-        $errors = [];
-        $success_count = 0;
 
-        foreach ($profile_ids as $profile_id) {
-            error_log("Creating post for profile: $profile_id");
+        // Format date in UTC with Z suffix (Hootsuite prefers this format)
+        $utc_time = gmdate('Y-m-d\TH:i:s\Z', $ts);
 
-            // Format date in UTC with Z suffix (Hootsuite prefers this format)
-            $utc_time = gmdate('Y-m-d\TH:i:s\Z', $ts);
+        $payload = [
+            'text' => $text,
+            'socialProfileIds' => $profile_ids,
+            'scheduledSendTime' => $utc_time
+        ];
+        if ($tagsArr) {
+            $payload['tags'] = $tagsArr;
+        }
+        if ($mediaPayload && !empty($mediaPayload[0]['id'])) {
+            $payload['media'] = $mediaPayload;
+        }
 
-            $payload = [
-                'text' => $text,
-                'socialProfileIds' => [$profile_id],
-                'scheduledSendTime' => $utc_time
-            ];
-
-            // Add tags if present
-            if ($tagsArr) {
-                $payload['tags'] = $tagsArr;
+        // Log the full payload for debugging
+        $payloadJson = json_encode($payload);
+        error_log("Full payload being sent: " . substr($payloadJson, 0, 1000));
+        if (strlen($payloadJson) > 1000) {
+            $chunks = str_split($payloadJson, 500);
+            foreach ($chunks as $i => $chunk) {
+                error_log("Payload chunk $i: $chunk");
             }
+        }
 
-            // Add media if present - try both formats
-            if ($mediaPayload && !empty($mediaPayload[0]['id'])) {
-                // Toggle this to test different formats
-                $useMediaIds = false; // CHANGED: Try the media format instead
+        $ch = curl_init('https://platform.hootsuite.com/v1/messages');
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPHEADER => [
+                "Authorization: Bearer $token",
+                'Content-Type: application/json',
+                'Accept: application/json'
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $payloadJson
+        ]);
+        $response = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
 
-                if ($useMediaIds) {
-                    // Format 1: Array of ID strings (didn't work)
-                    $mediaIds = array_map(function($m) { return $m['id']; }, $mediaPayload);
-                    $payload['mediaIds'] = $mediaIds;
-                    error_log("Using mediaIds format: " . json_encode($mediaIds));
-                } else {
-                    // Format 2: Try media array with objects containing id
-                    $payload['media'] = $mediaPayload; // Use the original array of {id: "..."} objects
-                    error_log("Using media format: " . json_encode($payload['media']));
-                }
-            }
+        // Write full response to a dedicated log file
+        $logFile = __DIR__ . '/hootsuite_api_log.txt';
+        $logEntry = date('Y-m-d H:i:s') . " - Profiles: " . implode(',', $profile_ids) . " - Code: $code\n";
+        $logEntry .= "Payload sent:\n" . json_encode($payload, JSON_PRETTY_PRINT) . "\n";
+        $logEntry .= "Response received:\n" . $response . "\n";
+        $logEntry .= "----------------------------------------\n\n";
+        file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
 
-            // Log the full payload for debugging
-            $payloadJson = json_encode($payload);
-            error_log("Full payload being sent: " . substr($payloadJson, 0, 1000));  // Log first 1000 chars
+        if ($err) {
+            error_log("cURL error: $err");
+            echo json_encode(['success' => false, 'error' => 'Network error']);
+            exit;
+        }
 
-            // If payload is very long, log it in chunks
-            if (strlen($payloadJson) > 1000) {
-                $chunks = str_split($payloadJson, 500);
+        // Always log the response for debugging
+        if ($response) {
+            if (strlen($response) > 500) {
+                $chunks = str_split($response, 500);
                 foreach ($chunks as $i => $chunk) {
-                    error_log("Payload chunk $i: $chunk");
-                }
-            }
-
-            $ch = curl_init('https://platform.hootsuite.com/v1/messages');
-            curl_setopt_array($ch, [
-                CURLOPT_HTTPHEADER => [
-                    "Authorization: Bearer $token",
-                    'Content-Type: application/json',
-                    'Accept: application/json'
-                ],
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $payloadJson
-            ]);
-            $response = curl_exec($ch);
-            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $err = curl_error($ch);
-            curl_close($ch);
-
-            // Write full response to a dedicated log file
-            $logFile = __DIR__ . '/hootsuite_api_log.txt';
-            $logEntry = date('Y-m-d H:i:s') . " - Profile: $profile_id - Code: $code\n";
-            $logEntry .= "Payload sent:\n" . json_encode($payload, JSON_PRETTY_PRINT) . "\n";
-            $logEntry .= "Response received:\n" . $response . "\n";
-            $logEntry .= "----------------------------------------\n\n";
-            file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
-
-            if ($err) {
-                error_log("cURL error for profile $profile_id: $err");
-                $errors[] = "Network error for profile $profile_id";
-                continue;
-            }
-
-            // Always log the response for debugging
-            if ($response) {
-                // Log response in chunks if it's too long
-                if (strlen($response) > 500) {
-                    $chunks = str_split($response, 500);
-                    foreach ($chunks as $i => $chunk) {
-                        error_log("API response chunk $i for profile $profile_id (code $code): $chunk");
-                    }
-                } else {
-                    error_log("API response for profile $profile_id (code $code): $response");
+                    error_log("API response chunk $i (code $code): $chunk");
                 }
             } else {
-                error_log("Empty API response for profile $profile_id (code $code)");
+                error_log("API response (code $code): $response");
             }
+        } else {
+            error_log("Empty API response (code $code)");
+        }
 
-            if ($code >= 200 && $code < 300) {
-                // Success! Parse the response properly
-                error_log("Success for profile $profile_id");
-                $success_count++;
+        if ($code >= 200 && $code < 300) {
+            $data = json_decode($response, true);
+            $messages = $data['data'] ?? [];
+            foreach ($messages as $msg) {
+                $profile_id = $msg['socialProfileId'] ?? null;
+                if (!$profile_id) continue;
 
-                $data = json_decode($response, true);
-
-                // Hootsuite returns data in an array
-                $postData = null;
-                if (!empty($data['data'][0])) {
-                    $postData = $data['data'][0];
-                } elseif (!empty($data['data'])) {
-                    $postData = $data['data'];
-                }
-
-                $postId = $postData['id'] ?? uniqid('post_');
-                $state = $postData['state'] ?? 'SCHEDULED';
-                $scheduledSendTime = $postData['scheduledSendTime'] ?? date('c', $ts);
+                $postId = $msg['id'] ?? uniqid('post_');
+                $state = $msg['state'] ?? 'SCHEDULED';
+                $scheduledSendTime = $msg['scheduledSendTime'] ?? date('c', $ts);
                 $scheduledSendTime = date('Y-m-d H:i:s', strtotime($scheduledSendTime));
 
                 // Get network info for display
@@ -470,71 +438,25 @@ if ($action === 'create' || $action === 'update') {
                         'network' => $networkName
                     ]
                 ];
-
-            } elseif ($code >= 400) {
-                $responseData = json_decode($response, true);
-                $errorMsg = 'Unknown error occurred';
-                $errorDetails = '';
-
-                // Try to extract a meaningful error message
-                if (!empty($responseData['errors'])) {
-                    if (is_array($responseData['errors'])) {
-                        $firstError = $responseData['errors'][0];
-                        $errorMsg = $firstError['message'] ?? 'Unknown error occurred';
-                        if (!empty($firstError['code'])) {
-                            $errorDetails = " (code: " . $firstError['code'] . ")";
-                        }
-
-                        // Also collect all error messages if there are multiple
-                        if (count($responseData['errors']) > 1) {
-                            $allErrors = array_map(function($e) {
-                                return $e['message'] ?? 'Unknown error';
-                            }, $responseData['errors']);
-                            $errorMsg = implode('; ', $allErrors);
-                        }
-                    }
-                } elseif (!empty($responseData['error'])) {
-                    $errorMsg = $responseData['error'];
-                } elseif (!empty($responseData['message'])) {
-                    $errorMsg = $responseData['message'];
-                }
-
-                error_log("API error for profile $profile_id: $errorMsg$errorDetails");
-                error_log("Full error response: " . $response);
-
-                // Create detailed error for user
-                $userError = "Failed for profile $profile_id: $errorMsg$errorDetails";
-
-                // Add debug info to error message if in debug mode
-                if (get_setting('hootsuite_debug') === '1') {
-                    $userError .= "\n\nFull API Response:\n" . json_encode($responseData, JSON_PRETTY_PRINT);
-                    $userError .= "\n\nCheck /public/hootsuite_api_log.txt for full details";
-                }
-
-                $errors[] = $userError;
-                continue;
             }
-        }
 
-        if ($success_count > 0) {
             echo json_encode(['success' => true, 'events' => $events]);
         } else {
-            $error_msg = 'Failed to schedule posts. ';
-            if (!empty($errors)) {
-                $error_msg .= implode(', ', $errors);
+            $responseData = json_decode($response, true);
+            $errorMsg = 'Failed to schedule posts';
+            if (!empty($responseData['errors'][0]['message'])) {
+                $errorMsg = $responseData['errors'][0]['message'];
+            } elseif (!empty($responseData['error'])) {
+                $errorMsg = $responseData['error'];
+            } elseif (!empty($responseData['message'])) {
+                $errorMsg = $responseData['message'];
             }
-
-            // Also write error summary to log file
-            $logFile = __DIR__ . '/hootsuite_api_log.txt';
-            $errorSummary = date('Y-m-d H:i:s') . " - ERROR SUMMARY\n";
-            $errorSummary .= "Error: " . $error_msg . "\n";
-            $errorSummary .= "========================================\n\n";
-            file_put_contents($logFile, $errorSummary, FILE_APPEND | LOCK_EX);
-
-            echo json_encode(['success' => false, 'error' => $error_msg, 'log_file' => 'Check /public/hootsuite_api_log.txt for full details']);
+            error_log("API error: $errorMsg");
+            echo json_encode(['success' => false, 'error' => $errorMsg]);
         }
         exit;
     }
+
 
     // Update existing post (single profile)
     $profile_id = $profile_ids[0];
