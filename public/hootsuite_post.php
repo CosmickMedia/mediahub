@@ -27,6 +27,145 @@ $stmt = $pdo->prepare('SELECT hootsuite_profile_ids FROM stores WHERE id=?');
 $stmt->execute([$store_id]);
 $allowed_profiles = array_filter(array_map('trim', explode(',', (string)$stmt->fetchColumn())));
 
+/**
+ * Upload media to Hootsuite using their 3-step process
+ * Step 1: Request upload URL (POST /v1/media)
+ * Step 2: Upload to S3
+ * Step 3: Poll until media is READY (downloadUrl is not null)
+ */
+function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
+    error_log("Starting Hootsuite media upload for: $fileName");
+
+    $fileSize = filesize($filePath);
+    error_log("File size: $fileSize bytes, MIME type: $mimeType");
+
+    // Step 1: Request upload URL from Hootsuite
+    $uploadRequestPayload = [
+        'sizeBytes' => $fileSize,
+        'mimeType' => $mimeType
+    ];
+
+    $ch = curl_init('https://platform.hootsuite.com/v1/media');
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer $token",
+            'Content-Type: application/json',
+            'Accept: application/json'
+        ],
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POSTFIELDS => json_encode($uploadRequestPayload)
+    ]);
+
+    $response = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($code !== 200 && $code !== 201) {
+        error_log("Failed to get upload URL (code $code)");
+        return null;
+    }
+
+    $uploadData = json_decode($response, true);
+    $uploadUrl = $uploadData['data']['uploadUrl'] ?? null;
+    $mediaId = $uploadData['data']['id'] ?? null;
+
+    if (!$uploadUrl || !$mediaId) {
+        error_log("Missing upload URL or media ID");
+        return null;
+    }
+
+    error_log("Got media ID: $mediaId");
+
+    // Step 2: Upload file to S3
+    $fileContent = file_get_contents($filePath);
+
+    $ch = curl_init($uploadUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => 'PUT',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POSTFIELDS => $fileContent,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: ' . $mimeType,
+            'Content-Length: ' . strlen($fileContent)
+        ]
+    ]);
+
+    $s3Response = curl_exec($ch);
+    $s3Code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($s3Code !== 200) {
+        error_log("S3 upload failed (code $s3Code)");
+        return null;
+    }
+
+    error_log("S3 upload successful");
+
+    // Step 3: CRITICAL - Poll until media is READY (has downloadUrl)
+    $maxAttempts = 15;  // Up to 30 seconds (15 attempts x 2 seconds)
+    $attempt = 0;
+    $mediaReady = false;
+
+    error_log("Polling for media to be ready (waiting for downloadUrl)...");
+
+    while ($attempt < $maxAttempts && !$mediaReady) {
+        $attempt++;
+
+        // Wait 2 seconds between polls
+        if ($attempt > 1) {
+            sleep(2);
+        }
+
+        $ch = curl_init('https://platform.hootsuite.com/v1/media/' . urlencode($mediaId));
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPHEADER => [
+                "Authorization: Bearer $token",
+                'Accept: application/json'
+            ],
+            CURLOPT_RETURNTRANSFER => true
+        ]);
+
+        $verifyResponse = curl_exec($ch);
+        $verifyCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($verifyCode === 200) {
+            $verifyData = json_decode($verifyResponse, true);
+
+            // Log the full response to understand what we're getting
+            error_log("Attempt $attempt response: " . json_encode($verifyData));
+
+            // Check multiple possible fields
+            $downloadUrl = $verifyData['data']['downloadUrl'] ?? null;
+            $state = $verifyData['data']['state'] ?? null;
+
+            if (!empty($downloadUrl)) {
+                error_log("Media READY on attempt $attempt! Download URL: " . substr($downloadUrl, 0, 100) . "...");
+                $mediaReady = true;
+                break;
+            } else if ($state === 'READY') {
+                error_log("Media state is READY on attempt $attempt (but no downloadUrl yet)");
+                $mediaReady = true;  // Try accepting READY state even without downloadUrl
+                break;
+            } else {
+                error_log("Attempt $attempt: Media still processing (downloadUrl: " . ($downloadUrl ?: 'null') . ", state: " . ($state ?: 'not provided') . ")");
+            }
+        } else {
+            error_log("Attempt $attempt: Failed to check status (code $verifyCode)");
+        }
+    }
+
+    if (!$mediaReady) {
+        error_log("WARNING: Media may not be ready after $maxAttempts attempts (30 seconds)");
+        error_log("Proceeding anyway, but image may not attach properly");
+    } else {
+        error_log("Media confirmed ready - safe to attach to post");
+    }
+
+    return $mediaId;
+}
+
 if ($action === 'create' || $action === 'update') {
     $text = trim($_POST['text'] ?? '');
     $scheduled = $_POST['scheduled_time'] ?? '';
@@ -57,63 +196,104 @@ if ($action === 'create' || $action === 'update') {
         $tagsArr = array_values(array_filter(array_map('trim', explode(',', $hashtags))));
     }
 
-    // Media upload handling - Fixed version
+    // Media upload handling - Fixed to handle both single and multiple files
     $mediaPayload = [];
-    if (!empty($_FILES['media']['tmp_name'])) {
-        error_log("Uploading media file: " . $_FILES['media']['name']);
+    $mediaUrls = [];
 
-        // Read the file content
-        $fileContent = file_get_contents($_FILES['media']['tmp_name']);
-        $fileName = $_FILES['media']['name'];
-        $mimeType = $_FILES['media']['type'];
+    if (!empty($_FILES['media'])) {
+        // Check if it's a single file or multiple files
+        $isSingleFile = !is_array($_FILES['media']['name']);
 
-        // Create a unique boundary
-        $boundary = uniqid();
+        if ($isSingleFile && !empty($_FILES['media']['tmp_name'])) {
+            // Single file upload
+            $fileName = $_FILES['media']['name'];
+            $tmpName = $_FILES['media']['tmp_name'];
+            $mimeType = $_FILES['media']['type'];
 
-        // Build the multipart request body
-        $body = "--$boundary\r\n";
-        $body .= "Content-Disposition: form-data; name=\"file\"; filename=\"$fileName\"\r\n";
-        $body .= "Content-Type: $mimeType\r\n\r\n";
-        $body .= $fileContent . "\r\n";
-        $body .= "--$boundary--\r\n";
+            error_log("Processing single media upload: $fileName");
 
-        $ch = curl_init('https://platform.hootsuite.com/v1/media');
-        curl_setopt_array($ch, [
-            CURLOPT_HTTPHEADER => [
-                "Authorization: Bearer $token",
-                "Content-Type: multipart/form-data; boundary=$boundary",
-                "Accept: application/json"
-            ],
-            CURLOPT_POST => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POSTFIELDS => $body
-        ]);
-
-        $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            error_log("Media upload cURL error: " . $error);
-        } else {
-            error_log("Media upload response (code $code): " . $resp);
-        }
-
-        if ($code >= 200 && $code < 300) {
-            $mdata = json_decode($resp, true);
-            if (!empty($mdata['data']['id'])) {
-                $mediaPayload[] = ['id' => $mdata['data']['id']];
-                error_log("Media uploaded successfully with ID: " . $mdata['data']['id']);
-            } else if (!empty($mdata['id'])) {
-                // Sometimes the ID is directly in the response
-                $mediaPayload[] = ['id' => $mdata['id']];
-                error_log("Media uploaded successfully with ID: " . $mdata['id']);
+            // Save file locally first
+            $uploadDir = __DIR__ . '/calendar_media/' . date('Y/m/', $ts);
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
             }
-        } else {
-            error_log("Media upload failed with code $code: " . $resp);
-            // For now, continue without media if upload fails
-            // You might want to save media locally and reference it differently
+
+            $savedFileName = time() . '_0_' . basename($fileName);
+            $localPath = $uploadDir . $savedFileName;
+
+            if (move_uploaded_file($tmpName, $localPath)) {
+                error_log("File saved locally: $localPath");
+
+                // Upload to Hootsuite
+                $mediaId = uploadMediaToHootsuite(
+                    $token,
+                    $localPath,
+                    $fileName,
+                    $mimeType
+                );
+
+                if ($mediaId) {
+                    $mediaPayload[] = ['id' => $mediaId];
+                    $mediaUrls[] = '/public/calendar_media/' . date('Y/m/', $ts) . $savedFileName;
+                    error_log("Media upload complete with ID: $mediaId");
+                } else {
+                    error_log("Media upload to Hootsuite failed, but keeping local copy");
+                    // Still save the local URL even if Hootsuite upload failed
+                    $mediaUrls[] = '/public/calendar_media/' . date('Y/m/', $ts) . $savedFileName;
+                }
+            } else {
+                error_log("Failed to save file locally");
+            }
+        } elseif (!$isSingleFile) {
+            // Multiple files upload (though Hootsuite typically only supports one media per post)
+            // We'll process only the first file for Hootsuite
+            $fileCount = count($_FILES['media']['name']);
+            error_log("Processing multiple files upload: $fileCount files");
+
+            for ($i = 0; $i < $fileCount; $i++) {
+                if (!empty($_FILES['media']['tmp_name'][$i])) {
+                    $fileName = $_FILES['media']['name'][$i];
+                    $tmpName = $_FILES['media']['tmp_name'][$i];
+                    $mimeType = $_FILES['media']['type'][$i];
+
+                    error_log("Processing file $i: $fileName");
+
+                    // Save file locally
+                    $uploadDir = __DIR__ . '/calendar_media/' . date('Y/m/', $ts);
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+
+                    $savedFileName = time() . '_' . $i . '_' . basename($fileName);
+                    $localPath = $uploadDir . $savedFileName;
+
+                    if (move_uploaded_file($tmpName, $localPath)) {
+                        error_log("File $i saved locally: $localPath");
+
+                        // Only upload the first file to Hootsuite (API limitation)
+                        if ($i === 0) {
+                            $mediaId = uploadMediaToHootsuite(
+                                $token,
+                                $localPath,
+                                $fileName,
+                                $mimeType
+                            );
+
+                            if ($mediaId) {
+                                $mediaPayload[] = ['id' => $mediaId];
+                                error_log("Media upload complete with ID: $mediaId");
+                            } else {
+                                error_log("Media upload to Hootsuite failed for file $i");
+                            }
+                        }
+
+                        // Save all local URLs
+                        $mediaUrls[] = '/public/calendar_media/' . date('Y/m/', $ts) . $savedFileName;
+                    } else {
+                        error_log("Failed to save file $i locally");
+                    }
+                }
+            }
         }
     }
 
@@ -131,12 +311,42 @@ if ($action === 'create' || $action === 'update') {
             $payload = [
                 'text' => $text,
                 'socialProfileIds' => [$profile_id],
-                'scheduledSendTime' => $utc_time  // Use UTC format with Z
+                'scheduledSendTime' => $utc_time
             ];
-            if ($tagsArr) $payload['tags'] = $tagsArr;
-            if ($mediaPayload) $payload['media'] = $mediaPayload;
 
-            error_log("Sending to Hootsuite API: " . json_encode($payload));
+            // Add tags if present
+            if ($tagsArr) {
+                $payload['tags'] = $tagsArr;
+            }
+
+            // Add media if present - try both formats
+            if ($mediaPayload && !empty($mediaPayload[0]['id'])) {
+                // Toggle this to test different formats
+                $useMediaIds = false; // CHANGED: Try the media format instead
+
+                if ($useMediaIds) {
+                    // Format 1: Array of ID strings (didn't work)
+                    $mediaIds = array_map(function($m) { return $m['id']; }, $mediaPayload);
+                    $payload['mediaIds'] = $mediaIds;
+                    error_log("Using mediaIds format: " . json_encode($mediaIds));
+                } else {
+                    // Format 2: Try media array with objects containing id
+                    $payload['media'] = $mediaPayload; // Use the original array of {id: "..."} objects
+                    error_log("Using media format: " . json_encode($payload['media']));
+                }
+            }
+
+            // Log the full payload for debugging
+            $payloadJson = json_encode($payload);
+            error_log("Full payload being sent: " . substr($payloadJson, 0, 1000));  // Log first 1000 chars
+
+            // If payload is very long, log it in chunks
+            if (strlen($payloadJson) > 1000) {
+                $chunks = str_split($payloadJson, 500);
+                foreach ($chunks as $i => $chunk) {
+                    error_log("Payload chunk $i: $chunk");
+                }
+            }
 
             $ch = curl_init('https://platform.hootsuite.com/v1/messages');
             curl_setopt_array($ch, [
@@ -147,12 +357,20 @@ if ($action === 'create' || $action === 'update') {
                 ],
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => json_encode($payload)
+                CURLOPT_POSTFIELDS => $payloadJson
             ]);
             $response = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $err = curl_error($ch);
             curl_close($ch);
+
+            // Write full response to a dedicated log file
+            $logFile = __DIR__ . '/hootsuite_api_log.txt';
+            $logEntry = date('Y-m-d H:i:s') . " - Profile: $profile_id - Code: $code\n";
+            $logEntry .= "Payload sent:\n" . json_encode($payload, JSON_PRETTY_PRINT) . "\n";
+            $logEntry .= "Response received:\n" . $response . "\n";
+            $logEntry .= "----------------------------------------\n\n";
+            file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
 
             if ($err) {
                 error_log("cURL error for profile $profile_id: $err");
@@ -160,87 +378,142 @@ if ($action === 'create' || $action === 'update') {
                 continue;
             }
 
-            if ($code >= 400) {
-                error_log("API error for profile $profile_id (code $code): $response");
+            // Always log the response for debugging
+            if ($response) {
+                // Log response in chunks if it's too long
+                if (strlen($response) > 500) {
+                    $chunks = str_split($response, 500);
+                    foreach ($chunks as $i => $chunk) {
+                        error_log("API response chunk $i for profile $profile_id (code $code): $chunk");
+                    }
+                } else {
+                    error_log("API response for profile $profile_id (code $code): $response");
+                }
+            } else {
+                error_log("Empty API response for profile $profile_id (code $code)");
+            }
+
+            if ($code >= 200 && $code < 300) {
+                // Success! Parse the response properly
+                error_log("Success for profile $profile_id");
+                $success_count++;
+
+                $data = json_decode($response, true);
+
+                // Hootsuite returns data in an array
+                $postData = null;
+                if (!empty($data['data'][0])) {
+                    $postData = $data['data'][0];
+                } elseif (!empty($data['data'])) {
+                    $postData = $data['data'];
+                }
+
+                $postId = $postData['id'] ?? uniqid('post_');
+                $state = $postData['state'] ?? 'SCHEDULED';
+                $scheduledSendTime = $postData['scheduledSendTime'] ?? date('c', $ts);
+                $scheduledSendTime = date('Y-m-d H:i:s', strtotime($scheduledSendTime));
+
+                // Get network info for display
+                $color = '#0d6efd';
+                $icon = 'bi-share';
+                $networkName = '';
+                $profStmt = $pdo->prepare('SELECT network FROM hootsuite_profiles WHERE id=?');
+                $profStmt->execute([$profile_id]);
+                if ($netKey = strtolower($profStmt->fetchColumn() ?: '')) {
+                    $netStmt = $pdo->prepare('SELECT name, icon, color FROM social_networks WHERE LOWER(name)=?');
+                    $netStmt->execute([$netKey]);
+                    if ($n = $netStmt->fetch()) {
+                        $networkName = $n['name'] ?? '';
+                        $color = $n['color'] ?? $color;
+                        $icon = $n['icon'] ?? $icon;
+                    }
+                }
+
+                // Save to database
+                try {
+                    $stmt = $pdo->prepare('INSERT INTO hootsuite_posts (post_id, store_id, text, scheduled_send_time, raw_json, state, social_profile_id, tags, media, created_by_user_id, media_urls) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE text=VALUES(text), scheduled_send_time=VALUES(scheduled_send_time), raw_json=VALUES(raw_json), state=VALUES(state), social_profile_id=VALUES(social_profile_id), tags=VALUES(tags), media=VALUES(media), created_by_user_id=VALUES(created_by_user_id), media_urls=VALUES(media_urls)');
+                    $stmt->execute([
+                        $postId,
+                        $store_id,
+                        $text,
+                        $scheduledSendTime,
+                        $response,
+                        $state,
+                        $profile_id,
+                        json_encode($tagsArr),
+                        json_encode($mediaPayload),
+                        $user_id,
+                        json_encode($mediaUrls)
+                    ]);
+                } catch (Exception $e) {
+                    error_log("Database error: " . $e->getMessage());
+                }
+
+                $events[] = [
+                    'id' => $postId,
+                    'title' => $networkName ?: 'Post',
+                    'start' => str_replace(' ', 'T', $scheduledSendTime),
+                    'backgroundColor' => $color,
+                    'borderColor' => $color,
+                    'classNames' => ['social-' . ($networkName ? preg_replace('/[^a-z0-9]+/','-', strtolower($networkName)) : 'default')],
+                    'extendedProps' => [
+                        'text' => $text,
+                        'time' => str_replace(' ', 'T', $scheduledSendTime),
+                        'tags' => $tagsArr,
+                        'source' => 'API',
+                        'post_id' => $postId,
+                        'created_by_user_id' => $user_id,
+                        'social_profile_id' => $profile_id,
+                        'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
+                        'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
+                        'icon' => $icon,
+                        'network' => $networkName
+                    ]
+                ];
+
+            } elseif ($code >= 400) {
                 $responseData = json_decode($response, true);
-                $errorMsg = $responseData['errors'][0]['message'] ?? 'Unknown error';
-                $errors[] = "Failed for profile $profile_id: $errorMsg";
+                $errorMsg = 'Unknown error occurred';
+                $errorDetails = '';
+
+                // Try to extract a meaningful error message
+                if (!empty($responseData['errors'])) {
+                    if (is_array($responseData['errors'])) {
+                        $firstError = $responseData['errors'][0];
+                        $errorMsg = $firstError['message'] ?? 'Unknown error occurred';
+                        if (!empty($firstError['code'])) {
+                            $errorDetails = " (code: " . $firstError['code'] . ")";
+                        }
+
+                        // Also collect all error messages if there are multiple
+                        if (count($responseData['errors']) > 1) {
+                            $allErrors = array_map(function($e) {
+                                return $e['message'] ?? 'Unknown error';
+                            }, $responseData['errors']);
+                            $errorMsg = implode('; ', $allErrors);
+                        }
+                    }
+                } elseif (!empty($responseData['error'])) {
+                    $errorMsg = $responseData['error'];
+                } elseif (!empty($responseData['message'])) {
+                    $errorMsg = $responseData['message'];
+                }
+
+                error_log("API error for profile $profile_id: $errorMsg$errorDetails");
+                error_log("Full error response: " . $response);
+
+                // Create detailed error for user
+                $userError = "Failed for profile $profile_id: $errorMsg$errorDetails";
+
+                // Add debug info to error message if in debug mode
+                if (get_setting('hootsuite_debug') === '1') {
+                    $userError .= "\n\nFull API Response:\n" . json_encode($responseData, JSON_PRETTY_PRINT);
+                    $userError .= "\n\nCheck /public/hootsuite_api_log.txt for full details";
+                }
+
+                $errors[] = $userError;
                 continue;
             }
-
-            error_log("Success for profile $profile_id: $response");
-            $success_count++;
-
-            $data = json_decode($response, true);
-            $postId = $data['data']['id'] ?? $data['id'] ?? uniqid('post_');
-            $state = $data['data']['state'] ?? $data['state'] ?? 'SCHEDULED';
-            $scheduledSendTime = $data['data']['scheduledSendTime'] ?? $data['scheduledSendTime'] ?? date('c', $ts);
-            $scheduledSendTime = date('Y-m-d H:i:s', strtotime($scheduledSendTime));
-
-            // Get network info for display
-            $color = '#0d6efd';
-            $icon = 'bi-share';
-            $networkName = '';
-            $profStmt = $pdo->prepare('SELECT network FROM hootsuite_profiles WHERE id=?');
-            $profStmt->execute([$profile_id]);
-            if ($netKey = strtolower($profStmt->fetchColumn() ?: '')) {
-                $netStmt = $pdo->prepare('SELECT name, icon, color FROM social_networks WHERE LOWER(name)=?');
-                $netStmt->execute([$netKey]);
-                if ($n = $netStmt->fetch()) {
-                    $networkName = $n['name'] ?? '';
-                    $color = $n['color'] ?? $color;
-                    $icon = $n['icon'] ?? $icon;
-                }
-            }
-
-            // Save media URLs if we have them
-            $mediaUrls = [];
-            if (!empty($mediaPayload)) {
-                // Save the original filename as a reference
-                $mediaUrls[] = $_FILES['media']['name'] ?? 'uploaded_media';
-            }
-
-            // Save to database
-            try {
-                $stmt = $pdo->prepare('INSERT INTO hootsuite_posts (post_id, store_id, text, scheduled_send_time, raw_json, state, social_profile_id, tags, media, created_by_user_id, media_urls) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE text=VALUES(text), scheduled_send_time=VALUES(scheduled_send_time), raw_json=VALUES(raw_json), state=VALUES(state), social_profile_id=VALUES(social_profile_id), tags=VALUES(tags), media=VALUES(media), created_by_user_id=VALUES(created_by_user_id), media_urls=VALUES(media_urls)');
-                $stmt->execute([
-                    $postId,
-                    $store_id,
-                    $text,
-                    $scheduledSendTime,
-                    $response,
-                    $state,
-                    $profile_id,
-                    json_encode($tagsArr),
-                    json_encode($mediaPayload),
-                    $user_id,
-                    json_encode($mediaUrls)
-                ]);
-            } catch (Exception $e) {
-                error_log("Database error: " . $e->getMessage());
-            }
-
-            $events[] = [
-                'id' => $postId,
-                'title' => $networkName ?: 'Post',
-                'start' => str_replace(' ', 'T', $scheduledSendTime),
-                'backgroundColor' => $color,
-                'borderColor' => $color,
-                'classNames' => ['social-' . ($networkName ? preg_replace('/[^a-z0-9]+/','-', strtolower($networkName)) : 'default')],
-                'extendedProps' => [
-                    'text' => $text,
-                    'time' => str_replace(' ', 'T', $scheduledSendTime),
-                    'tags' => $tagsArr,
-                    'source' => 'API',
-                    'post_id' => $postId,
-                    'created_by_user_id' => $user_id,
-                    'social_profile_id' => $profile_id,
-                    'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-                    'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-                    'icon' => $icon,
-                    'network' => $networkName
-                ]
-            ];
         }
 
         if ($success_count > 0) {
@@ -250,7 +523,15 @@ if ($action === 'create' || $action === 'update') {
             if (!empty($errors)) {
                 $error_msg .= implode(', ', $errors);
             }
-            echo json_encode(['success' => false, 'error' => $error_msg]);
+
+            // Also write error summary to log file
+            $logFile = __DIR__ . '/hootsuite_api_log.txt';
+            $errorSummary = date('Y-m-d H:i:s') . " - ERROR SUMMARY\n";
+            $errorSummary .= "Error: " . $error_msg . "\n";
+            $errorSummary .= "========================================\n\n";
+            file_put_contents($logFile, $errorSummary, FILE_APPEND | LOCK_EX);
+
+            echo json_encode(['success' => false, 'error' => $error_msg, 'log_file' => 'Check /public/hootsuite_api_log.txt for full details']);
         }
         exit;
     }
@@ -264,10 +545,14 @@ if ($action === 'create' || $action === 'update') {
     $payload = [
         'text' => $text,
         'socialProfileIds' => [$profile_id],
-        'scheduledSendTime' => $utc_time  // Use UTC format
+        'scheduledSendTime' => $utc_time
     ];
     if ($tagsArr) $payload['tags'] = $tagsArr;
-    if ($mediaPayload) $payload['media'] = $mediaPayload;
+    // Add media if present - use mediaIds format for update too
+    if ($mediaPayload && !empty($mediaPayload[0]['id'])) {
+        $mediaIds = array_map(function($m) { return $m['id']; }, $mediaPayload);
+        $payload['mediaIds'] = $mediaIds;
+    }
 
     $url = 'https://platform.hootsuite.com/v1/messages/' . urlencode($post_id);
     $ch = curl_init($url);
@@ -322,12 +607,6 @@ if ($action === 'create' || $action === 'update') {
     if ($owner && $owner != $user_id) {
         echo json_encode(['success' => false, 'error' => 'Not authorized to update this post']);
         exit;
-    }
-
-    // Save media URLs if we have them
-    $mediaUrls = [];
-    if (!empty($mediaPayload)) {
-        $mediaUrls[] = $_FILES['media']['name'] ?? 'uploaded_media';
     }
 
     $stmt = $pdo->prepare('UPDATE hootsuite_posts SET text=?, scheduled_send_time=?, raw_json=?, state=?, social_profile_id=?, tags=?, media=?, created_by_user_id=?, media_urls=? WHERE post_id=? AND store_id=?');

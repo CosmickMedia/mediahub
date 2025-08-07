@@ -499,22 +499,31 @@ include __DIR__.'/header.php';
                             <div class="form-section full-width">
                                 <div class="section-header">
                                     <i class="bi bi-image"></i>
-                                    <span>Media Attachment</span>
+                                    <span>Media Attachments</span>
                                 </div>
                                 <div class="form-group">
+                                    <div class="media-upload-info">
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle"></i>
+                                            <strong>Media Guidelines:</strong>
+                                            <ul class="mb-0 mt-2">
+                                                <li>Accepted formats: JPG, PNG, GIF for images; MP4 for videos</li>
+                                                <li>Maximum file size: 10MB per file</li>
+                                                <li>Recommended image size: 1200x630px for best results</li>
+                                                <li>You can upload multiple images (up to 4 for most platforms)</li>
+                                                <li>Videos should be under 60 seconds for best compatibility</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                     <div class="media-upload-area">
-                                        <input type="file" class="form-control" id="postMedia" name="media" accept="image/*,video/*" style="display: none;">
+                                        <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,video/*" multiple style="display: none;">
                                         <div class="media-upload-content" id="mediaUploadContent">
                                             <i class="bi bi-cloud-arrow-up"></i>
                                             <p class="upload-text">Click to upload or drag and drop</p>
-                                            <p class="upload-subtext">PNG, JPG, GIF or MP4 (max. 10MB)</p>
+                                            <p class="upload-subtext">PNG, JPG, GIF or MP4 (max. 10MB each, up to 4 files)</p>
                                         </div>
-                                        <div class="media-preview" id="mediaPreview" style="display: none;">
-                                            <img id="previewImage" src="" alt="Preview" style="display: none;">
-                                            <video id="previewVideo" controls style="display: none;"></video>
-                                            <button type="button" class="remove-media" id="removeMedia">
-                                                <i class="bi bi-x-circle-fill"></i>
-                                            </button>
+                                        <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
+                                            <!-- Media previews will be added here -->
                                         </div>
                                     </div>
                                 </div>
@@ -783,14 +792,14 @@ include __DIR__.'/header.php';
                     });
                 }
 
-                // Media upload handling
+                // Media upload handling - UPDATED FOR MULTIPLE FILES
                 var mediaInput = document.getElementById('postMedia');
                 var uploadContent = document.getElementById('mediaUploadContent');
-                var mediaPreview = document.getElementById('mediaPreview');
-                var previewImage = document.getElementById('previewImage');
-                var previewVideo = document.getElementById('previewVideo');
-                var removeMediaBtn = document.getElementById('removeMedia');
+                var mediaPreviewGrid = document.getElementById('mediaPreviewGrid');
                 var uploadArea = document.querySelector('.media-upload-area');
+
+                // Store selected files
+                var selectedFiles = [];
 
                 if (uploadContent) {
                     uploadContent.addEventListener('click', function() {
@@ -814,50 +823,115 @@ include __DIR__.'/header.php';
                         e.preventDefault();
                         this.classList.remove('dragging');
 
-                        var files = e.dataTransfer.files;
-                        if (files.length > 0) {
-                            mediaInput.files = files;
-                            handleMediaSelect();
-                        }
+                        var files = Array.from(e.dataTransfer.files);
+                        handleMultipleFiles(files);
                     });
                 }
 
                 if (mediaInput) {
-                    mediaInput.addEventListener('change', handleMediaSelect);
+                    mediaInput.addEventListener('change', function() {
+                        var files = Array.from(this.files);
+                        handleMultipleFiles(files);
+                    });
                 }
 
-                function handleMediaSelect() {
-                    var file = mediaInput.files[0];
-                    if (file) {
-                        var reader = new FileReader();
+                function handleMultipleFiles(files) {
+                    // Filter and limit files
+                    var validFiles = files.filter(function(file) {
+                        return file.type.startsWith('image/') || file.type.startsWith('video/');
+                    });
 
-                        reader.onload = function(e) {
-                            if (file.type.startsWith('image/')) {
-                                previewImage.src = e.target.result;
-                                previewImage.style.display = 'block';
-                                previewVideo.style.display = 'none';
-                            } else if (file.type.startsWith('video/')) {
-                                previewVideo.src = e.target.result;
-                                previewVideo.style.display = 'block';
-                                previewImage.style.display = 'none';
-                            }
+                    // Limit to 4 files total
+                    if (selectedFiles.length + validFiles.length > 4) {
+                        alert('You can upload a maximum of 4 media files');
+                        validFiles = validFiles.slice(0, 4 - selectedFiles.length);
+                    }
 
-                            uploadContent.parentElement.style.display = 'none';
-                            mediaPreview.style.display = 'block';
+                    // Add new files to selected files
+                    selectedFiles = selectedFiles.concat(validFiles);
+
+                    // Update the file input
+                    var dt = new DataTransfer();
+                    selectedFiles.forEach(function(file) {
+                        dt.items.add(file);
+                    });
+                    mediaInput.files = dt.files;
+
+                    // Display previews
+                    displayMediaPreviews();
+                }
+
+                function displayMediaPreviews() {
+                    if (selectedFiles.length === 0) {
+                        uploadContent.parentElement.style.display = 'block';
+                        mediaPreviewGrid.style.display = 'none';
+                        mediaPreviewGrid.innerHTML = '';
+                        return;
+                    }
+
+                    uploadContent.parentElement.style.display = 'none';
+                    mediaPreviewGrid.style.display = 'grid';
+                    mediaPreviewGrid.innerHTML = '';
+
+                    selectedFiles.forEach(function(file, index) {
+                        var previewItem = document.createElement('div');
+                        previewItem.className = 'media-preview-item';
+
+                        var removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'remove-media-item';
+                        removeBtn.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+                        removeBtn.onclick = function() {
+                            removeMediaItem(index);
                         };
 
-                        reader.readAsDataURL(file);
-                    }
+                        if (file.type.startsWith('image/')) {
+                            var img = document.createElement('img');
+                            img.className = 'media-preview-image';
+
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                img.src = e.target.result;
+                            };
+                            reader.readAsDataURL(file);
+
+                            previewItem.appendChild(img);
+                        } else if (file.type.startsWith('video/')) {
+                            var video = document.createElement('video');
+                            video.className = 'media-preview-video';
+                            video.controls = true;
+
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                video.src = e.target.result;
+                            };
+                            reader.readAsDataURL(file);
+
+                            previewItem.appendChild(video);
+                        }
+
+                        previewItem.appendChild(removeBtn);
+
+                        var fileName = document.createElement('div');
+                        fileName.className = 'media-filename';
+                        fileName.textContent = file.name;
+                        previewItem.appendChild(fileName);
+
+                        mediaPreviewGrid.appendChild(previewItem);
+                    });
                 }
 
-                if (removeMediaBtn) {
-                    removeMediaBtn.addEventListener('click', function() {
-                        mediaInput.value = '';
-                        previewImage.src = '';
-                        previewVideo.src = '';
-                        mediaPreview.style.display = 'none';
-                        uploadContent.parentElement.style.display = 'block';
+                function removeMediaItem(index) {
+                    selectedFiles.splice(index, 1);
+
+                    // Update the file input
+                    var dt = new DataTransfer();
+                    selectedFiles.forEach(function(file) {
+                        dt.items.add(file);
                     });
+                    mediaInput.files = dt.files;
+
+                    displayMediaPreviews();
                 }
 
                 if(scheduleBtn){
@@ -871,6 +945,12 @@ include __DIR__.'/header.php';
                 if(!scheduleModal) return;
                 var form = document.getElementById('scheduleForm');
                 form.reset();
+
+                // Clear media
+                selectedFiles = [];
+                if (window.displayMediaPreviews) {
+                    window.displayMediaPreviews();
+                }
 
                 // Clear checkboxes
                 document.querySelectorAll('.profile-checkbox-input').forEach(function(cb) {
@@ -995,8 +1075,10 @@ include __DIR__.'/header.php';
                                 document.querySelectorAll('.profile-checkbox-input').forEach(function(cb) {
                                     cb.checked = false;
                                 });
-                                var removeBtn = document.getElementById('removeMedia');
-                                if(removeBtn) removeBtn.click();
+                                selectedFiles = [];
+                                if (window.displayMediaPreviews) {
+                                    window.displayMediaPreviews();
+                                }
                             } else {
                                 alert(res.error || 'Unable to save post');
                             }
@@ -1306,6 +1388,10 @@ include __DIR__.'/header.php';
                     calendar.changeView(this.value);
                 });
             }
+
+            // Make selected files accessible globally for modal
+            window.selectedFiles = [];
+            window.displayMediaPreviews = displayMediaPreviews;
         });
     </script>
 
