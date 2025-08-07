@@ -423,7 +423,7 @@ include __DIR__.'/header.php';
 
     <script>
         function loadCampaigns() {
-            fetch('../hoot/hootsuite_campaigns.php')
+            fetch('../hootsuite/hootsuite_campaigns.php')
                 .then(r => r.json())
                 .then(data => {
                     const list = document.getElementById('campaigns_list');
@@ -443,7 +443,7 @@ include __DIR__.'/header.php';
         // Load campaigns on page load for convenience
         loadCampaigns();
 
-        fetch('../hoot/hootsuite_profiles.php')
+        fetch('../hootsuite/hootsuite_profiles.php')
             .then(r => r.json())
             .then(data => {
                 const select = document.getElementById('hootsuite_profile_ids');
