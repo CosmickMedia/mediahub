@@ -764,15 +764,18 @@ include __DIR__.'/header.php';
                 var datePicker = flatpickr("#postDate", {
                     dateFormat: "m/d/Y",  // American date format
                     minDate: "today",
-                    disableMobile: true
+                    disableMobile: true,
+                    static: true
                 });
 
-                var timePicker = flatpickr("#postTime", {
+                window.timePicker = flatpickr("#postTime", {
                     enableTime: true,
                     noCalendar: true,
                     dateFormat: "h:i K",  // 12-hour format with AM/PM
                     time_24hr: false,
-                    disableMobile: true
+                    disableMobile: true,
+                    static: true,
+                    defaultDate: "12:00 PM"
                 });
 
                 document.getElementById('postDate').addEventListener('change', updateScheduledTime);
@@ -863,13 +866,13 @@ include __DIR__.'/header.php';
 
                 function displayMediaPreviews() {
                     if (selectedFiles.length === 0) {
-                        uploadContent.parentElement.style.display = 'block';
+                        uploadContent.style.display = 'block';
                         mediaPreviewGrid.style.display = 'none';
                         mediaPreviewGrid.innerHTML = '';
                         return;
                     }
 
-                    uploadContent.parentElement.style.display = 'none';
+                    uploadContent.style.display = 'none';
                     mediaPreviewGrid.style.display = 'grid';
                     mediaPreviewGrid.innerHTML = '';
 
@@ -959,7 +962,10 @@ include __DIR__.'/header.php';
 
                 // Clear date/time pickers
                 document.getElementById('postDate').value = '';
-                document.getElementById('postTime').value = '';
+                document.getElementById('postTime').value = '12:00 PM';
+                if (window.timePicker) {
+                    window.timePicker.setDate('12:00 PM', false);
+                }
                 document.getElementById('postSchedule').value = '';
 
                 document.getElementById('postAction').value = 'create';
@@ -983,7 +989,11 @@ include __DIR__.'/header.php';
                         var ampm = hours >= 12 ? 'PM' : 'AM';
                         hours = hours % 12;
                         hours = hours ? hours : 12;
-                        document.getElementById('postTime').value = hours + ':' + minutes.toString().padStart(2, '0') + ' ' + ampm;
+                        var timeValue = hours + ':' + minutes.toString().padStart(2, '0') + ' ' + ampm;
+                        document.getElementById('postTime').value = timeValue;
+                        if (window.timePicker) {
+                            window.timePicker.setDate(timeValue, false);
+                        }
                     }
                     if(eventObj.extendedProps.social_profile_id){
                         var checkbox = document.querySelector('.profile-checkbox-input[value="' + eventObj.extendedProps.social_profile_id + '"]');

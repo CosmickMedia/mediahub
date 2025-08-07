@@ -7151,6 +7151,8 @@ textarea.form-control-modern {
     padding: 1rem;
     background: #f8f9fa;
     border-radius: 12px;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .media-preview-item {
@@ -7206,6 +7208,26 @@ textarea.form-control-modern {
     text-overflow: ellipsis;
     background: white;
     border-top: 1px solid #e9ecef;
+}
+
+/* Larger time picker controls */
+.flatpickr-time .numInputWrapper {
+    width: 70px;
+    height: 45px;
+}
+
+.flatpickr-time .numInputWrapper input {
+    font-size: 1.25rem;
+}
+
+.flatpickr-time .flatpickr-am-pm {
+    height: 45px;
+    font-size: 1.25rem;
+}
+
+.flatpickr-time .numInputWrapper span.arrowUp,
+.flatpickr-time .numInputWrapper span.arrowDown {
+    height: 45px;
 }
 
 /* Media Upload Area Dragging State */
