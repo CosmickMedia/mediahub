@@ -6636,3 +6636,485 @@ table th, table td {
             border-radius: 0;
         }
 
+
+
+/* ===== SCHEDULE POST MODAL UNIQUE STYLES ===== */
+
+/* Modal Header Content */
+#scheduleModal .modal-header-content h5 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#scheduleModal .modal-header-content h5 i {
+    font-size: 1.75rem;
+}
+
+#scheduleModal .modal-subtitle {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* Schedule Form Grid */
+.schedule-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.form-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.section-header i {
+    color: #667eea;
+    font-size: 1.25rem;
+}
+
+/* Form Elements */
+.form-label .required {
+    color: #dc3545;
+    margin-left: 0.25rem;
+}
+
+.form-control-modern {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-control-modern:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea.form-control-modern {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.form-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Date Time Wrapper */
+.date-time-wrapper {
+    position: relative;
+}
+
+.date-time-wrapper .input-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+}
+
+.date-time-wrapper input {
+    padding-right: 3rem;
+}
+
+/* Profile Selector Checkboxes */
+.profiles-selector {
+    display: grid;
+    gap: 0.75rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.profile-checkbox {
+    display: block;
+    cursor: pointer;
+}
+
+.profile-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.profile-checkbox-label {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.profile-checkbox-label:hover {
+    border-color: var(--profile-color);
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.profile-checkbox-input:checked + .profile-checkbox-label {
+    background: linear-gradient(135deg,
+    color-mix(in srgb, var(--profile-color) 10%, white),
+    color-mix(in srgb, var(--profile-color) 5%, white));
+    border-color: var(--profile-color);
+}
+
+.profile-checkbox-label i:first-child {
+    font-size: 1.5rem;
+    color: var(--profile-color);
+    margin-right: 1rem;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-network {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.profile-username {
+    display: block;
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.check-icon {
+    color: var(--profile-color);
+    font-size: 1.25rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-checkbox-input:checked + .profile-checkbox-label .check-icon {
+    opacity: 1;
+}
+
+.profiles-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Media Upload */
+.media-upload-area {
+    position: relative;
+    border: 3px dashed #e0e0e0;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    min-height: 200px;
+}
+
+.media-upload-area:hover {
+    border-color: #667eea;
+    background: #f5f7ff;
+}
+
+.media-upload-area.dragging {
+    border-color: #667eea;
+    background: #f5f7ff;
+}
+
+.media-upload-content {
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.media-upload-content i {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.media-preview {
+    position: relative;
+    padding: 1rem;
+}
+
+.media-preview img,
+.media-preview video {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 12px;
+    display: block;
+    margin: 0 auto;
+}
+
+.remove-media {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.remove-media:hover {
+    transform: scale(1.1);
+    background: #dc3545;
+    color: white;
+}
+
+.remove-media i {
+    font-size: 1.25rem;
+}
+
+/* Success and Warning Animations */
+.success-animation {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: successPulse 0.6s ease-out;
+}
+
+.success-animation i {
+    font-size: 3rem;
+    color: white;
+}
+
+.warning-animation {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: warningShake 0.6s ease-out;
+}
+
+.warning-animation i {
+    font-size: 3rem;
+    color: white;
+}
+
+@keyframes successPulse {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes warningShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-10px);
+    }
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+/* Flatpickr Overrides */
+.flatpickr-calendar {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    border: none !important;
+}
+
+.flatpickr-day.selected {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-color: transparent !important;
+}
+
+.flatpickr-day:hover {
+    background: #f5f7ff !important;
+    border-color: #667eea !important;
+}
+
+/* Button Modern Danger */
+.btn-modern-danger {
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 500;
+    border: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+    color: white;
+}
+
+.btn-modern-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(245, 87, 108, 0.3);
+}
+
+/* Profiles Scrollbar */
+.profiles-selector::-webkit-scrollbar {
+    width: 8px;
+}
+
+.profiles-selector::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.profiles-selector::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 10px;
+}
+
+.profiles-selector::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;
+}
+
+/* Responsive for Schedule Modal */
+@media (max-width: 768px) {
+    .schedule-form-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .profiles-selector {
+        max-height: 200px;
+    }
+
+    .media-upload-content {
+        padding: 2rem 1rem;
+    }
+}
+
+
+
+
+
+/* Fix Success and Delete Modal Z-Index Issues */
+#scheduleSuccessModal {
+    z-index: 10000 !important;
+}
+
+#scheduleSuccessModal .modal-dialog {
+    z-index: 10000 !important;
+    position: relative;
+}
+
+#scheduleSuccessModal .modal-content {
+    z-index: 10000 !important;
+    position: relative !important;
+}
+
+#deleteConfirmModal {
+    z-index: 10000 !important;
+}
+
+#deleteConfirmModal .modal-dialog {
+    z-index: 10000 !important;
+    position: relative;
+}
+
+#deleteConfirmModal .modal-content {
+    z-index: 10000 !important;
+    position: relative !important;
+}
+
+/* Ensure Schedule Modal has proper z-index */
+#scheduleModal {
+    z-index: 9998 !important;
+}
+
+#scheduleModal .modal-dialog {
+    z-index: 9998 !important;
+}
+
+#scheduleModal .modal-content {
+    z-index: 9998 !important;
+}
+
+/* Fix modal backdrops stacking */
+.modal-backdrop {
+    z-index: 9997 !important;
+}
+
+.modal-backdrop.show ~ .modal-backdrop.show {
+    z-index: 9999 !important;
+}
+
+/* Ensure modals stack properly when multiple are open */
+.modal.show {
+    z-index: 9998 !important;
+}
+
+.modal.show ~ .modal.show {
+    z-index: 10000 !important;
+}
+
+/* Force success/delete modals to be on top of everything */
+#scheduleSuccessModal.show,
+#deleteConfirmModal.show {
+    z-index: 10001 !important;
+}
+
+#scheduleSuccessModal .modal-backdrop,
+#deleteConfirmModal .modal-backdrop {
+    z-index: 10000 !important;
+}
+

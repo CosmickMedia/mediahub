@@ -11,10 +11,22 @@ if (!isset($_SESSION['store_id'])) {
     exit;
 }
 
-// Disable caching to ensure the calendar is always up to date
-header('Cache-Control: no-cache, no-store, must-revalidate');
+// Disable ALL caching to ensure the calendar is always up to date
+header('Cache-Control: no-cache, no-store, must-revalidate, private, max-age=0');
 header('Pragma: no-cache');
 header('Expires: 0');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+header('X-Accel-Expires: 0');
+header('X-Accel-Buffering: no');
+
+// Explicitly tell Kinsta to bypass full-page cache
+header('X-Kinsta-Cache: BYPASS');
+
+// Optional: also support query param override
+if (isset($_GET['kinsta-cache-bypass'])) {
+    header('X-Kinsta-Cache: BYPASS');
+}
+
 
 $store_id = $_SESSION['store_id'];
 $pdo = get_pdo();
@@ -216,11 +228,10 @@ foreach ($posts as $p) {
 $events_json = json_encode($events);
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 <style>
-#scheduleModal { z-index: 9999 !important; }
+#scheduleModal { z-index: 9998 !important; }
 #scheduleModal .modal-dialog,
-#scheduleModal .modal-content { z-index: 9999 !important; }
+#scheduleModal .modal-content { z-index: 9998 !important; }
 #scheduleModal .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; }
 #scheduleModal .btn-close { background: #fff; opacity: 1; }
 </style>
@@ -241,9 +252,9 @@ include __DIR__.'/header.php';
             </div>
             <div class="header-actions">
                 <?php if ($allow_schedule): ?>
-                <button id="schedulePostBtn" class="btn btn-modern-primary me-2">
-                    <i class="bi bi-plus-circle"></i> Schedule Post
-                </button>
+                    <button id="schedulePostBtn" class="btn btn-modern-primary me-2">
+                        <i class="bi bi-plus-circle"></i> Schedule Post
+                    </button>
                 <?php endif; ?>
                 <select id="viewSelector" class="view-selector">
                     <option value="dayGridMonth">Month View</option>
@@ -349,60 +360,229 @@ include __DIR__.'/header.php';
         </div>
     </div>
 
-    <!-- Override any conflicting styles -->
-
 <?php if ($allow_schedule): ?>
     <!-- Schedule Post Modal -->
     <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog" style="z-index:9999 !important;">
-            <div class="modal-content" style="z-index:9999 !important;">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
                 <form id="scheduleForm" enctype="multipart/form-data">
                     <div class="modal-header">
-                        <h5 class="modal-title">Schedule Post</h5>
+                        <div class="modal-header-content">
+                            <h5 class="modal-title">
+                                <i class="bi bi-calendar-plus"></i>
+                                Schedule Social Media Post
+                            </h5>
+                            <p class="modal-subtitle">Create and schedule your content across multiple platforms</p>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="postText" class="form-label">Post Text</label>
-                            <textarea class="form-control" id="postText" name="text" rows="4" required></textarea>
+                        <div class="schedule-form-grid">
+                            <!-- Post Content Section -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span>Post Content</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="postText" class="form-label">
+                                        What would you like to share?
+                                        <span class="required">*</span>
+                                    </label>
+                                    <textarea
+                                            class="form-control form-control-modern"
+                                            id="postText"
+                                            name="text"
+                                            rows="5"
+                                            placeholder="Write your post here..."
+                                            required
+                                            maxlength="500"></textarea>
+                                    <div class="char-counter">
+                                        <span id="charCount">0</span> / 500 characters
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="postHashtags" class="form-label">
+                                        <i class="bi bi-hash"></i>
+                                        Hashtags
+                                    </label>
+                                    <input
+                                            type="text"
+                                            class="form-control form-control-modern"
+                                            id="postHashtags"
+                                            name="hashtags"
+                                            placeholder="Enter hashtags separated by commas (e.g., marketing, social, business)">
+                                    <small class="form-text">Tip: Don't include the # symbol, we'll add it for you</small>
+                                </div>
+                            </div>
+
+                            <!-- Schedule & Platforms Section -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Schedule Settings</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="postDate" class="form-label">
+                                        Date
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="date-time-wrapper">
+                                        <input
+                                                type="text"
+                                                class="form-control form-control-modern"
+                                                id="postDate"
+                                                placeholder="Select date"
+                                                required>
+                                        <i class="bi bi-calendar-event input-icon"></i>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="postTime" class="form-label">
+                                        Time
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="date-time-wrapper">
+                                        <input
+                                                type="text"
+                                                class="form-control form-control-modern"
+                                                id="postTime"
+                                                placeholder="Select time"
+                                                required>
+                                        <i class="bi bi-clock input-icon"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Hidden combined field for backend -->
+                                <input type="hidden" id="postSchedule" name="scheduled_time">
+
+                                <div class="form-group">
+                                    <label for="postProfiles" class="form-label">
+                                        <i class="bi bi-share"></i>
+                                        Social Profiles
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="profiles-selector">
+                                        <?php foreach ($profiles as $prof):
+                                            $networkLower = strtolower($prof['network'] ?? '');
+                                            $networkInfo = $network_map[$networkLower] ?? null;
+                                            $icon = $networkInfo['icon'] ?? 'bi-share';
+                                            $color = $networkInfo['color'] ?? '#6c757d';
+                                            ?>
+                                            <label class="profile-checkbox">
+                                                <input
+                                                        type="checkbox"
+                                                        name="profile_ids[]"
+                                                        value="<?php echo htmlspecialchars($prof['id']); ?>"
+                                                        class="profile-checkbox-input">
+                                                <div class="profile-checkbox-label" style="--profile-color: <?php echo $color; ?>">
+                                                    <i class="bi <?php echo $icon; ?>"></i>
+                                                    <div class="profile-info">
+                                                        <span class="profile-network"><?php echo htmlspecialchars($prof['network'] ?? ''); ?></span>
+                                                        <span class="profile-username">@<?php echo htmlspecialchars($prof['username'] ?? ''); ?></span>
+                                                    </div>
+                                                    <i class="bi bi-check-circle-fill check-icon"></i>
+                                                </div>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <div class="profiles-error" style="display: none;">
+                                        Please select at least one social profile
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Media Upload Section -->
+                            <div class="form-section full-width">
+                                <div class="section-header">
+                                    <i class="bi bi-image"></i>
+                                    <span>Media Attachment</span>
+                                </div>
+                                <div class="form-group">
+                                    <div class="media-upload-area">
+                                        <input type="file" class="form-control" id="postMedia" name="media" accept="image/*,video/*" style="display: none;">
+                                        <div class="media-upload-content" id="mediaUploadContent">
+                                            <i class="bi bi-cloud-arrow-up"></i>
+                                            <p class="upload-text">Click to upload or drag and drop</p>
+                                            <p class="upload-subtext">PNG, JPG, GIF or MP4 (max. 10MB)</p>
+                                        </div>
+                                        <div class="media-preview" id="mediaPreview" style="display: none;">
+                                            <img id="previewImage" src="" alt="Preview" style="display: none;">
+                                            <video id="previewVideo" controls style="display: none;"></video>
+                                            <button type="button" class="remove-media" id="removeMedia">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="postSchedule" class="form-label">Schedule Time</label>
-                            <input type="text" class="form-control" id="postSchedule" name="scheduled_time" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="postProfiles" class="form-label">Social Profiles</label>
-                            <select class="form-select" id="postProfiles" name="profile_ids[]" multiple required>
-                                <?php foreach ($profiles as $prof): ?>
-                                    <option value="<?php echo htmlspecialchars($prof['id']); ?>">
-                                        <?php echo htmlspecialchars(($prof['network'] ?? '') . ' - ' . ($prof['username'] ?? '')); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="postHashtags" class="form-label">Hashtags (comma separated)</label>
-                            <input type="text" class="form-control" id="postHashtags" name="hashtags">
-                        </div>
-                        <div class="mb-3">
-                            <label for="postMedia" class="form-label">Media</label>
-                            <input type="file" class="form-control" id="postMedia" name="media">
-                        </div>
+
                         <input type="hidden" name="post_id" id="postId">
                         <input type="hidden" name="action" id="postAction" value="create">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-modern-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-modern-primary" id="scheduleSubmitBtn">
+                            <i class="bi bi-check-circle"></i>
+                            <span id="submitBtnText">Schedule Post</span>
+                        </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Confirmation Modal -->
+    <div class="modal fade" id="scheduleSuccessModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="success-animation">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <h4 class="mt-3">Post Scheduled Successfully!</h4>
+                    <p class="text-muted" id="successMessage">Your post has been scheduled and will be published automatically.</p>
+                    <button type="button" class="btn btn-modern-primary mt-3" data-bs-dismiss="modal">
+                        Got it!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="warning-animation">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h4 class="mt-3">Delete Scheduled Post?</h4>
+                    <p class="text-muted">This action cannot be undone. The post will be permanently removed.</p>
+                    <div class="d-flex gap-2 justify-content-center mt-4">
+                        <button type="button" class="btn btn-modern-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-modern-danger" id="confirmDeleteBtn">
+                            <i class="bi bi-trash"></i>
+                            Delete Post
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.min.js"></script>
     <script>
@@ -536,20 +716,150 @@ include __DIR__.'/header.php';
 
             calendar.render();
 
+            // Function to update combined scheduled time
+            function updateScheduledTime() {
+                var date = document.getElementById('postDate').value;
+                var time = document.getElementById('postTime').value;
+
+                if (date && time) {
+                    // Convert to backend format (Y-m-d H:i)
+                    var dateParts = date.split('/');
+                    if(dateParts.length === 3) {
+                        var formattedDate = dateParts[2] + '-' + dateParts[0].padStart(2, '0') + '-' + dateParts[1].padStart(2, '0');
+
+                        // Parse time
+                        var timeParts = time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                        if (timeParts) {
+                            var hours = parseInt(timeParts[1]);
+                            var minutes = timeParts[2];
+                            var ampm = timeParts[3].toUpperCase();
+
+                            if (ampm === 'PM' && hours !== 12) hours += 12;
+                            if (ampm === 'AM' && hours === 12) hours = 0;
+
+                            var formattedTime = hours.toString().padStart(2, '0') + ':' + minutes;
+                            document.getElementById('postSchedule').value = formattedDate + ' ' + formattedTime;
+                        }
+                    }
+                }
+            }
+
             var scheduleBtn = document.getElementById('schedulePostBtn');
             var scheduleModalEl = document.getElementById('scheduleModal');
-            var scheduleModal, profileChoices, datePicker;
+            var scheduleModal;
+
             if(scheduleModalEl){
                 scheduleModal = new bootstrap.Modal(scheduleModalEl);
-                datePicker = flatpickr("#postSchedule", {
+
+                // Initialize date and time pickers separately
+                var datePicker = flatpickr("#postDate", {
+                    dateFormat: "m/d/Y",  // American date format
+                    minDate: "today",
+                    disableMobile: true
+                });
+
+                var timePicker = flatpickr("#postTime", {
                     enableTime: true,
-                    dateFormat: "Y-m-d H:i",
-                    minDate: "today"
+                    noCalendar: true,
+                    dateFormat: "h:i K",  // 12-hour format with AM/PM
+                    time_24hr: false,
+                    disableMobile: true
                 });
-                profileChoices = new Choices('#postProfiles', {
-                    removeItemButton: true,
-                    shouldSort: false
-                });
+
+                document.getElementById('postDate').addEventListener('change', updateScheduledTime);
+                document.getElementById('postTime').addEventListener('change', updateScheduledTime);
+
+                // Character counter
+                var textArea = document.getElementById('postText');
+                var charCount = document.getElementById('charCount');
+                if (textArea && charCount) {
+                    textArea.addEventListener('input', function() {
+                        charCount.textContent = this.value.length;
+                        if (this.value.length > 450) {
+                            charCount.style.color = '#dc3545';
+                        } else {
+                            charCount.style.color = '#6c757d';
+                        }
+                    });
+                }
+
+                // Media upload handling
+                var mediaInput = document.getElementById('postMedia');
+                var uploadContent = document.getElementById('mediaUploadContent');
+                var mediaPreview = document.getElementById('mediaPreview');
+                var previewImage = document.getElementById('previewImage');
+                var previewVideo = document.getElementById('previewVideo');
+                var removeMediaBtn = document.getElementById('removeMedia');
+                var uploadArea = document.querySelector('.media-upload-area');
+
+                if (uploadContent) {
+                    uploadContent.addEventListener('click', function() {
+                        mediaInput.click();
+                    });
+                }
+
+                // Drag and drop
+                if (uploadArea) {
+                    uploadArea.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        this.classList.add('dragging');
+                    });
+
+                    uploadArea.addEventListener('dragleave', function(e) {
+                        e.preventDefault();
+                        this.classList.remove('dragging');
+                    });
+
+                    uploadArea.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        this.classList.remove('dragging');
+
+                        var files = e.dataTransfer.files;
+                        if (files.length > 0) {
+                            mediaInput.files = files;
+                            handleMediaSelect();
+                        }
+                    });
+                }
+
+                if (mediaInput) {
+                    mediaInput.addEventListener('change', handleMediaSelect);
+                }
+
+                function handleMediaSelect() {
+                    var file = mediaInput.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+
+                        reader.onload = function(e) {
+                            if (file.type.startsWith('image/')) {
+                                previewImage.src = e.target.result;
+                                previewImage.style.display = 'block';
+                                previewVideo.style.display = 'none';
+                            } else if (file.type.startsWith('video/')) {
+                                previewVideo.src = e.target.result;
+                                previewVideo.style.display = 'block';
+                                previewImage.style.display = 'none';
+                            }
+
+                            uploadContent.parentElement.style.display = 'none';
+                            mediaPreview.style.display = 'block';
+                        };
+
+                        reader.readAsDataURL(file);
+                    }
+                }
+
+                if (removeMediaBtn) {
+                    removeMediaBtn.addEventListener('click', function() {
+                        mediaInput.value = '';
+                        previewImage.src = '';
+                        previewVideo.src = '';
+                        mediaPreview.style.display = 'none';
+                        uploadContent.parentElement.style.display = 'block';
+                    });
+                }
+
                 if(scheduleBtn){
                     scheduleBtn.addEventListener('click', function(){
                         openScheduleModal();
@@ -561,17 +871,43 @@ include __DIR__.'/header.php';
                 if(!scheduleModal) return;
                 var form = document.getElementById('scheduleForm');
                 form.reset();
-                profileChoices.removeActiveItems();
-                datePicker.clear();
+
+                // Clear checkboxes
+                document.querySelectorAll('.profile-checkbox-input').forEach(function(cb) {
+                    cb.checked = false;
+                });
+
+                // Clear date/time pickers
+                document.getElementById('postDate').value = '';
+                document.getElementById('postTime').value = '';
+                document.getElementById('postSchedule').value = '';
+
                 document.getElementById('postAction').value = 'create';
                 document.getElementById('postId').value = '';
+
                 if(eventObj){
                     document.getElementById('postText').value = eventObj.extendedProps.text || '';
                     if(eventObj.extendedProps.time){
-                        datePicker.setDate(eventObj.extendedProps.time.replace('Z','').slice(0,16));
+                        // Parse backend time to separate date and time fields
+                        var datetime = new Date(eventObj.extendedProps.time.replace('Z','').replace('T', ' '));
+
+                        // Set date in American format
+                        var month = (datetime.getMonth() + 1).toString();
+                        var day = datetime.getDate().toString();
+                        var year = datetime.getFullYear();
+                        document.getElementById('postDate').value = month + '/' + day + '/' + year;
+
+                        // Set time in 12-hour format
+                        var hours = datetime.getHours();
+                        var minutes = datetime.getMinutes();
+                        var ampm = hours >= 12 ? 'PM' : 'AM';
+                        hours = hours % 12;
+                        hours = hours ? hours : 12;
+                        document.getElementById('postTime').value = hours + ':' + minutes.toString().padStart(2, '0') + ' ' + ampm;
                     }
                     if(eventObj.extendedProps.social_profile_id){
-                        profileChoices.setChoiceByValue(eventObj.extendedProps.social_profile_id);
+                        var checkbox = document.querySelector('.profile-checkbox-input[value="' + eventObj.extendedProps.social_profile_id + '"]');
+                        if(checkbox) checkbox.checked = true;
                     }
                     if(eventObj.extendedProps.tags){
                         document.getElementById('postHashtags').value = eventObj.extendedProps.tags.join(',');
@@ -586,17 +922,58 @@ include __DIR__.'/header.php';
             if(scheduleForm){
                 scheduleForm.addEventListener('submit', function(e){
                     e.preventDefault();
-                    var selected = profileChoices.getValue();
-                    var names = selected.map(function(o){ return o.label; });
-                    var time = document.getElementById('postSchedule').value;
-                    var summary = 'Schedule post for ' + time + '\nProfiles: ' + names.join(', ');
-                    if(!confirm(summary)) return;
+
+                    // Validate at least one profile is selected
+                    var checkedProfiles = document.querySelectorAll('.profile-checkbox-input:checked');
+                    if (checkedProfiles.length === 0) {
+                        var errorDiv = document.querySelector('.profiles-error');
+                        if(errorDiv) errorDiv.style.display = 'block';
+                        return;
+                    } else {
+                        var errorDiv = document.querySelector('.profiles-error');
+                        if(errorDiv) errorDiv.style.display = 'none';
+                    }
+
+                    // Update combined datetime field
+                    updateScheduledTime();
+
+                    // Show loading state
+                    var submitBtn = document.getElementById('scheduleSubmitBtn');
+                    var originalText = submitBtn ? submitBtn.innerHTML : 'Save';
+                    if(submitBtn) {
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Scheduling...';
+                        submitBtn.disabled = true;
+                    }
+
                     var formData = new FormData(this);
+
                     fetch('hootsuite_post.php', { method:'POST', body: formData })
                         .then(r=>r.json())
                         .then(function(res){
+                            if(submitBtn) {
+                                submitBtn.innerHTML = originalText;
+                                submitBtn.disabled = false;
+                            }
+
                             if(res.success){
                                 scheduleModal.hide();
+
+                                // Show success modal if it exists
+                                var successModalEl = document.getElementById('scheduleSuccessModal');
+                                if(successModalEl) {
+                                    var successModal = new bootstrap.Modal(successModalEl);
+                                    successModal.show();
+
+                                    // Force reload after modal is closed
+                                    successModalEl.addEventListener('hidden.bs.modal', function () {
+                                        // Force hard reload bypassing cache
+                                        window.location.href = window.location.href + '?t=' + Date.now();
+                                    }, { once: true });
+                                } else {
+                                    // If no modal, reload immediately
+                                    window.location.href = window.location.href + '?t=' + Date.now();
+                                }
+
                                 if(res.events){
                                     res.events.forEach(function(ev){
                                         if(ev.id){
@@ -612,31 +989,68 @@ include __DIR__.'/header.php';
                                     }
                                     calendar.addEvent(res.event);
                                 }
+
+                                // Reset form
+                                scheduleForm.reset();
+                                document.querySelectorAll('.profile-checkbox-input').forEach(function(cb) {
+                                    cb.checked = false;
+                                });
+                                var removeBtn = document.getElementById('removeMedia');
+                                if(removeBtn) removeBtn.click();
                             } else {
                                 alert(res.error || 'Unable to save post');
                             }
-                        }).catch(function(){ alert('Unable to save post'); });
+                        }).catch(function(){
+                        if(submitBtn) {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        }
+                        alert('Unable to save post');
+                    });
                 });
             }
 
-            function deleteScheduledPost(eventObj){
-                if(!confirm('Delete this scheduled post?')) return;
-                var fd = new FormData();
-                fd.append('action','delete');
-                fd.append('post_id', eventObj.extendedProps.post_id);
-                fetch('hootsuite_post.php',{method:'POST',body:fd})
-                    .then(r=>r.json())
-                    .then(function(res){
-                        if(res.success){
-                            var ev = calendar.getEventById(eventObj.extendedProps.post_id);
-                            if(ev) ev.remove();
-                            var modal = bootstrap.Modal.getInstance(document.getElementById('eventModalCalendar'));
-                            if(modal) modal.hide();
-                        } else {
-                            alert(res.error || 'Unable to delete');
-                        }
-                    }).catch(function(){ alert('Unable to delete'); });
-            }
+            // Delete post with custom modal
+            window.deleteScheduledPost = function(eventObj) {
+                window.pendingDeletePost = eventObj;
+
+                var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+                deleteModal.show();
+            };
+
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                if (window.pendingDeletePost) {
+                    var eventObj = window.pendingDeletePost;
+
+                    var fd = new FormData();
+                    fd.append('action', 'delete');
+                    fd.append('post_id', eventObj.extendedProps.post_id);
+
+                    fetch('hootsuite_post.php', {
+                        method: 'POST',
+                        body: fd
+                    })
+                        .then(r => r.json())
+                        .then(function(res) {
+                            if (res.success) {
+                                var ev = calendar.getEventById(eventObj.extendedProps.post_id);
+                                if (ev) ev.remove();
+
+                                // Close both modals
+                                bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal')).hide();
+                                var eventModal = bootstrap.Modal.getInstance(document.getElementById('eventModalCalendar'));
+                                if (eventModal) eventModal.hide();
+                            } else {
+                                alert(res.error || 'Unable to delete');
+                            }
+                        })
+                        .catch(function() {
+                            alert('Unable to delete');
+                        });
+
+                    window.pendingDeletePost = null;
+                }
+            });
 
             // Function to show event details
             window.showEventDetails = function(event) {
