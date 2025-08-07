@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'calendar';
     } elseif (isset($_POST['hootsuite_update'])) {
         if (get_setting('hootsuite_enabled') === '1') {
-            require_once __DIR__.'/../hoot/hootsuite_sync.php';
+            require_once __DIR__.'/../hootsuite/hootsuite_sync.php';
             [$ok, $msg] = hootsuite_update(false, get_setting('hootsuite_debug') === '1');
         } else {
             [$ok, $msg] = [false, 'Hootsuite integration disabled'];
@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'calendar';
     } elseif (isset($_POST['force_hootsuite_update'])) {
         if (get_setting('hootsuite_enabled') === '1') {
-            require_once __DIR__.'/../hoot/hootsuite_sync.php';
+            require_once __DIR__.'/../hootsuite/hootsuite_sync.php';
             [$ok, $msg] = hootsuite_update(true, get_setting('hootsuite_debug') === '1');
         } else {
             [$ok, $msg] = [false, 'Hootsuite integration disabled'];
@@ -221,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'calendar';
     } elseif (isset($_POST['erase_hootsuite'])) {
         if (get_setting('hootsuite_enabled') === '1') {
-            require_once __DIR__.'/../hoot/hootsuite_sync.php';
+            require_once __DIR__.'/../hootsuite/hootsuite_sync.php';
             [$ok, $msg] = hootsuite_erase_all();
         } else {
             [$ok, $msg] = [false, 'Hootsuite integration disabled'];
@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'calendar';
     } elseif (isset($_POST['test_hootsuite_connection'])) {
         if (get_setting('hootsuite_enabled') === '1') {
-            require_once __DIR__.'/../hoot/hootsuite_sync.php';
+            require_once __DIR__.'/../hootsuite/hootsuite_sync.php';
             [$ok, $msg] = hootsuite_test_connection(get_setting('hootsuite_debug') === '1');
         } else {
             [$ok, $msg] = [false, 'Hootsuite integration disabled'];
@@ -241,10 +241,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'calendar';
     } elseif (isset($_POST['refresh_hootsuite_token'])) {
         if (get_setting('hootsuite_enabled') === '1') {
-            require_once __DIR__.'/../hoot/hootsuite_refresh_token.php';
+            require_once __DIR__.'/../hootsuite/hootsuite_refresh_token.php';
             [$ok, $msg] = hootsuite_refresh_token(get_setting('hootsuite_debug') === '1');
             if ($ok) {
-                require_once __DIR__.'/../hoot/hootsuite_profiles_sync.php';
+                require_once __DIR__.'/../hootsuite/hootsuite_profiles_sync.php';
                 hootsuite_update_profiles(get_setting('hootsuite_debug') === '1');
             }
         } else {
@@ -255,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $active_tab = 'calendar';
     } elseif (isset($_POST['update_hootsuite_profiles'])) {
         if (get_setting('hootsuite_enabled') === '1') {
-            require_once __DIR__.'/../hoot/hootsuite_profiles_sync.php';
+            require_once __DIR__.'/../hootsuite/hootsuite_profiles_sync.php';
             [$ok, $msg] = hootsuite_update_profiles(get_setting('hootsuite_debug') === '1');
         } else {
             [$ok, $msg] = [false, 'Hootsuite integration disabled'];
