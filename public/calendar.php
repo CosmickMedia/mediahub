@@ -44,7 +44,18 @@ foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
     ];
 }
 
-$profiles = $pdo->query('SELECT id, username, network FROM hootsuite_profiles ORDER BY network, username')->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->prepare('SELECT hootsuite_profile_ids FROM stores WHERE id = ?');
+$stmt->execute([$store_id]);
+$store_profile_ids = array_filter(array_map('trim', explode(',', (string)$stmt->fetchColumn())));
+if ($store_profile_ids) {
+    $placeholders = implode(',', array_fill(0, count($store_profile_ids), '?'));
+    $stmt = $pdo->prepare("SELECT id, username, network FROM hootsuite_profiles WHERE id IN ($placeholders) ORDER BY network, username");
+    $stmt->execute($store_profile_ids);
+    $profiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    $profiles = [];
+}
+$allow_schedule = count($profiles) > 0;
 $current_user_id = $_SESSION['store_user_id'] ?? null;
 
 // Calculate analytics
@@ -203,6 +214,17 @@ foreach ($posts as $p) {
 }
 
 $events_json = json_encode($events);
+$extra_head = <<<HTML
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+<style>
+#scheduleModal { z-index: 9999 !important; }
+#scheduleModal .modal-dialog,
+#scheduleModal .modal-content { z-index: 9999 !important; }
+#scheduleModal .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; }
+#scheduleModal .btn-close { background: #fff; opacity: 1; }
+</style>
+HTML;
 
 include __DIR__.'/header.php';
 ?>
@@ -218,9 +240,11 @@ include __DIR__.'/header.php';
                 <p class="calendar-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
             </div>
             <div class="header-actions">
+                <?php if ($allow_schedule): ?>
                 <button id="schedulePostBtn" class="btn btn-modern-primary me-2">
                     <i class="bi bi-plus-circle"></i> Schedule Post
                 </button>
+                <?php endif; ?>
                 <select id="viewSelector" class="view-selector">
                     <option value="dayGridMonth">Month View</option>
                     <option value="timeGridWeek">Week View</option>
@@ -327,10 +351,11 @@ include __DIR__.'/header.php';
 
     <!-- Override any conflicting styles -->
 
+<?php if ($allow_schedule): ?>
     <!-- Schedule Post Modal -->
     <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
+        <div class="modal-dialog" style="z-index:9999 !important;">
+            <div class="modal-content" style="z-index:9999 !important;">
                 <form id="scheduleForm" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title">Schedule Post</h5>
@@ -343,11 +368,11 @@ include __DIR__.'/header.php';
                         </div>
                         <div class="mb-3">
                             <label for="postSchedule" class="form-label">Schedule Time</label>
-                            <input type="datetime-local" class="form-control" id="postSchedule" name="scheduled_time" required min="<?php echo date('Y-m-d\TH:i'); ?>">
+                            <input type="text" class="form-control" id="postSchedule" name="scheduled_time" required>
                         </div>
                         <div class="mb-3">
-                            <label for="postProfile" class="form-label">Social Profile</label>
-                            <select class="form-select" id="postProfile" name="profile_id" required>
+                            <label for="postProfiles" class="form-label">Social Profiles</label>
+                            <select class="form-select" id="postProfiles" name="profile_ids[]" multiple required>
                                 <?php foreach ($profiles as $prof): ?>
                                     <option value="<?php echo htmlspecialchars($prof['id']); ?>">
                                         <?php echo htmlspecialchars(($prof['network'] ?? '') . ' - ' . ($prof['username'] ?? '')); ?>
@@ -374,7 +399,10 @@ include __DIR__.'/header.php';
             </div>
         </div>
     </div>
+<?php endif; ?>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.min.js"></script>
     <script>
@@ -508,23 +536,42 @@ include __DIR__.'/header.php';
 
             calendar.render();
 
-            var scheduleModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
-            document.getElementById('schedulePostBtn').addEventListener('click', function(){
-                openScheduleModal();
-            });
+            var scheduleBtn = document.getElementById('schedulePostBtn');
+            var scheduleModalEl = document.getElementById('scheduleModal');
+            var scheduleModal, profileChoices, datePicker;
+            if(scheduleModalEl){
+                scheduleModal = new bootstrap.Modal(scheduleModalEl);
+                datePicker = flatpickr("#postSchedule", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    minDate: "today"
+                });
+                profileChoices = new Choices('#postProfiles', {
+                    removeItemButton: true,
+                    shouldSort: false
+                });
+                if(scheduleBtn){
+                    scheduleBtn.addEventListener('click', function(){
+                        openScheduleModal();
+                    });
+                }
+            }
 
             function openScheduleModal(eventObj){
+                if(!scheduleModal) return;
                 var form = document.getElementById('scheduleForm');
                 form.reset();
+                profileChoices.removeActiveItems();
+                datePicker.clear();
                 document.getElementById('postAction').value = 'create';
                 document.getElementById('postId').value = '';
                 if(eventObj){
                     document.getElementById('postText').value = eventObj.extendedProps.text || '';
                     if(eventObj.extendedProps.time){
-                        document.getElementById('postSchedule').value = eventObj.extendedProps.time.replace('Z','').slice(0,16);
+                        datePicker.setDate(eventObj.extendedProps.time.replace('Z','').slice(0,16));
                     }
                     if(eventObj.extendedProps.social_profile_id){
-                        document.getElementById('postProfile').value = eventObj.extendedProps.social_profile_id;
+                        profileChoices.setChoiceByValue(eventObj.extendedProps.social_profile_id);
                     }
                     if(eventObj.extendedProps.tags){
                         document.getElementById('postHashtags').value = eventObj.extendedProps.tags.join(',');
@@ -535,26 +582,42 @@ include __DIR__.'/header.php';
                 scheduleModal.show();
             }
 
-            document.getElementById('scheduleForm').addEventListener('submit', function(e){
-                e.preventDefault();
-                var formData = new FormData(this);
-                fetch('hootsuite_post.php', { method:'POST', body: formData })
-                    .then(r=>r.json())
-                    .then(function(res){
-                        if(res.success){
-                            scheduleModal.hide();
-                            if(res.event){
-                                if(res.event.id){
-                                    var ex = calendar.getEventById(res.event.id);
-                                    if(ex) ex.remove();
+            var scheduleForm = document.getElementById('scheduleForm');
+            if(scheduleForm){
+                scheduleForm.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    var selected = profileChoices.getValue();
+                    var names = selected.map(function(o){ return o.label; });
+                    var time = document.getElementById('postSchedule').value;
+                    var summary = 'Schedule post for ' + time + '\nProfiles: ' + names.join(', ');
+                    if(!confirm(summary)) return;
+                    var formData = new FormData(this);
+                    fetch('hootsuite_post.php', { method:'POST', body: formData })
+                        .then(r=>r.json())
+                        .then(function(res){
+                            if(res.success){
+                                scheduleModal.hide();
+                                if(res.events){
+                                    res.events.forEach(function(ev){
+                                        if(ev.id){
+                                            var ex = calendar.getEventById(ev.id);
+                                            if(ex) ex.remove();
+                                        }
+                                        calendar.addEvent(ev);
+                                    });
+                                } else if(res.event){
+                                    if(res.event.id){
+                                        var ex = calendar.getEventById(res.event.id);
+                                        if(ex) ex.remove();
+                                    }
+                                    calendar.addEvent(res.event);
                                 }
-                                calendar.addEvent(res.event);
+                            } else {
+                                alert(res.error || 'Unable to save post');
                             }
-                        } else {
-                            alert(res.error || 'Unable to save post');
-                        }
-                    }).catch(function(){ alert('Unable to save post'); });
-            });
+                        }).catch(function(){ alert('Unable to save post'); });
+                });
+            }
 
             function deleteScheduledPost(eventObj){
                 if(!confirm('Delete this scheduled post?')) return;
