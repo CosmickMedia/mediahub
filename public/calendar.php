@@ -44,6 +44,9 @@ foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
     ];
 }
 
+$profiles = $pdo->query('SELECT id, username, network FROM hootsuite_profiles ORDER BY network, username')->fetchAll(PDO::FETCH_ASSOC);
+$current_user_id = $_SESSION['store_user_id'] ?? null;
+
 // Calculate analytics
 $total_posts = count($posts);
 $network_counts = [];
@@ -175,6 +178,7 @@ foreach ($posts as $p) {
         $class = 'social-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($network['name'] ?? ''));
     }
     $events[] = [
+        'id' => $p['post_id'] ?? null,
         'title' => $network_name ?: 'Post',
         // Convert datetime to ISO format for FullCalendar
         'start' => $time ? str_replace(' ', 'T', $time) : null,
@@ -190,7 +194,10 @@ foreach ($posts as $p) {
             'time'  => $time ? str_replace(' ', 'T', $time) : null,
             'network' => $network_name,
             'tags' => $tags,
-            'source' => $p['source'] ?? ''
+            'source' => $p['source'] ?? '',
+            'post_id' => $p['post_id'] ?? null,
+            'created_by_user_id' => $p['created_by_user_id'] ?? null,
+            'social_profile_id' => $p['social_profile_id'] ?? null
         ]
     ];
 }
@@ -211,6 +218,9 @@ include __DIR__.'/header.php';
                 <p class="calendar-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
             </div>
             <div class="header-actions">
+                <button id="schedulePostBtn" class="btn btn-modern-primary me-2">
+                    <i class="bi bi-plus-circle"></i> Schedule Post
+                </button>
                 <select id="viewSelector" class="view-selector">
                     <option value="dayGridMonth">Month View</option>
                     <option value="timeGridWeek">Week View</option>
@@ -317,6 +327,54 @@ include __DIR__.'/header.php';
 
     <!-- Override any conflicting styles -->
 
+    <!-- Schedule Post Modal -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="scheduleForm" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Schedule Post</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="postText" class="form-label">Post Text</label>
+                            <textarea class="form-control" id="postText" name="text" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postSchedule" class="form-label">Schedule Time</label>
+                            <input type="datetime-local" class="form-control" id="postSchedule" name="scheduled_time" required min="<?php echo date('Y-m-d\TH:i'); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="postProfile" class="form-label">Social Profile</label>
+                            <select class="form-select" id="postProfile" name="profile_id" required>
+                                <?php foreach ($profiles as $prof): ?>
+                                    <option value="<?php echo htmlspecialchars($prof['id']); ?>">
+                                        <?php echo htmlspecialchars(($prof['network'] ?? '') . ' - ' . ($prof['username'] ?? '')); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="postHashtags" class="form-label">Hashtags (comma separated)</label>
+                            <input type="text" class="form-control" id="postHashtags" name="hashtags">
+                        </div>
+                        <div class="mb-3">
+                            <label for="postMedia" class="form-label">Media</label>
+                            <input type="file" class="form-control" id="postMedia" name="media">
+                        </div>
+                        <input type="hidden" name="post_id" id="postId">
+                        <input type="hidden" name="action" id="postAction" value="create">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.min.js"></script>
     <script>
@@ -338,6 +396,7 @@ include __DIR__.'/header.php';
             // Store all events globally for day view
             window.allEvents = <?php echo $events_json; ?>;
             window.debugMode = <?php echo $debug_mode ? 'true' : 'false'; ?>;
+            window.currentUserId = <?php echo $current_user_id ? (int)$current_user_id : 'null'; ?>;
 
             // Initialize calendar
             var calEl = document.getElementById('calendar');
@@ -449,6 +508,73 @@ include __DIR__.'/header.php';
 
             calendar.render();
 
+            var scheduleModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+            document.getElementById('schedulePostBtn').addEventListener('click', function(){
+                openScheduleModal();
+            });
+
+            function openScheduleModal(eventObj){
+                var form = document.getElementById('scheduleForm');
+                form.reset();
+                document.getElementById('postAction').value = 'create';
+                document.getElementById('postId').value = '';
+                if(eventObj){
+                    document.getElementById('postText').value = eventObj.extendedProps.text || '';
+                    if(eventObj.extendedProps.time){
+                        document.getElementById('postSchedule').value = eventObj.extendedProps.time.replace('Z','').slice(0,16);
+                    }
+                    if(eventObj.extendedProps.social_profile_id){
+                        document.getElementById('postProfile').value = eventObj.extendedProps.social_profile_id;
+                    }
+                    if(eventObj.extendedProps.tags){
+                        document.getElementById('postHashtags').value = eventObj.extendedProps.tags.join(',');
+                    }
+                    document.getElementById('postId').value = eventObj.extendedProps.post_id || '';
+                    document.getElementById('postAction').value = 'update';
+                }
+                scheduleModal.show();
+            }
+
+            document.getElementById('scheduleForm').addEventListener('submit', function(e){
+                e.preventDefault();
+                var formData = new FormData(this);
+                fetch('hootsuite_post.php', { method:'POST', body: formData })
+                    .then(r=>r.json())
+                    .then(function(res){
+                        if(res.success){
+                            scheduleModal.hide();
+                            if(res.event){
+                                if(res.event.id){
+                                    var ex = calendar.getEventById(res.event.id);
+                                    if(ex) ex.remove();
+                                }
+                                calendar.addEvent(res.event);
+                            }
+                        } else {
+                            alert(res.error || 'Unable to save post');
+                        }
+                    }).catch(function(){ alert('Unable to save post'); });
+            });
+
+            function deleteScheduledPost(eventObj){
+                if(!confirm('Delete this scheduled post?')) return;
+                var fd = new FormData();
+                fd.append('action','delete');
+                fd.append('post_id', eventObj.extendedProps.post_id);
+                fetch('hootsuite_post.php',{method:'POST',body:fd})
+                    .then(r=>r.json())
+                    .then(function(res){
+                        if(res.success){
+                            var ev = calendar.getEventById(eventObj.extendedProps.post_id);
+                            if(ev) ev.remove();
+                            var modal = bootstrap.Modal.getInstance(document.getElementById('eventModalCalendar'));
+                            if(modal) modal.hide();
+                        } else {
+                            alert(res.error || 'Unable to delete');
+                        }
+                    }).catch(function(){ alert('Unable to delete'); });
+            }
+
             // Function to show event details
             window.showEventDetails = function(event) {
                 var body = document.getElementById('eventModalBody');
@@ -503,9 +629,25 @@ include __DIR__.'/header.php';
                 html += '<div class="meta-item"><i class="bi bi-share"></i><span>Platform</span><strong>' + event.extendedProps.network + '</strong></div>';
                 html += '</div>';
 
+                if(event.extendedProps.created_by_user_id && window.currentUserId && parseInt(event.extendedProps.created_by_user_id) === parseInt(window.currentUserId)){
+                    html += '<div class="text-end mt-3">';
+                    html += '<button class="btn btn-sm btn-primary me-2" id="editEventBtn">Edit</button>';
+                    html += '<button class="btn btn-sm btn-danger" id="deleteEventBtn">Delete</button>';
+                    html += '</div>';
+                }
+
                 html += '</div></div>';
 
                 body.innerHTML = html;
+
+                if(event.extendedProps.created_by_user_id && window.currentUserId && parseInt(event.extendedProps.created_by_user_id) === parseInt(window.currentUserId)){
+                    document.getElementById('editEventBtn').addEventListener('click', function(){
+                        openScheduleModal(event);
+                    });
+                    document.getElementById('deleteEventBtn').addEventListener('click', function(){
+                        deleteScheduledPost(event);
+                    });
+                }
 
                 // Show modal using Bootstrap's method
                 var myModal = new bootstrap.Modal(document.getElementById('eventModalCalendar'), {
