@@ -233,7 +233,7 @@ $extra_head = <<<HTML
 #scheduleModal .modal-dialog,
 #scheduleModal .modal-content { z-index: 9998 !important; }
 #scheduleModal .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; }
-#scheduleModal .btn-close { background: #fff; opacity: 1; }
+#scheduleModal .btn-close { opacity: 1; }
 </style>
 HTML;
 
@@ -251,16 +251,19 @@ include __DIR__.'/header.php';
                 <p class="calendar-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
             </div>
             <div class="header-actions">
-                <?php if ($allow_schedule): ?>
-                    <button id="schedulePostBtn" class="btn btn-modern-primary me-2">
-                        <i class="bi bi-plus-circle"></i> Schedule Post
-                    </button>
-                <?php endif; ?>
+
                 <select id="viewSelector" class="view-selector">
                     <option value="dayGridMonth">Month View</option>
                     <option value="timeGridWeek">Week View</option>
                     <option value="timeGridDay">Day View</option>
                 </select>
+
+                <?php if ($allow_schedule): ?>
+                    <button id="schedulePostBtn" class="btn btn-modern-primary">
+                        <i class="bi bi-plus-circle"></i> Schedule Post
+                    </button>
+                <?php endif; ?>
+
                 <a href="index.php" class="btn btn-modern-primary">
                     <i class="bi bi-arrow-left"></i> Back to Upload
                 </a>
@@ -506,12 +509,22 @@ include __DIR__.'/header.php';
                                         <div class="alert alert-info">
                                             <i class="bi bi-info-circle"></i>
                                             <strong>Media Guidelines:</strong>
-                                            <ul class="mb-0 mt-2">
-                                                <li>Accepted formats: JPG, PNG, GIF for images; MP4 for videos</li>
-                                                <li>Maximum file size: 10MB per file</li>
-                                                <li>Recommended image size: 1200x630px for best results</li>
-                                                <li>You can upload multiple images (up to 4 for most platforms)</li>
-                                                <li>Videos should be under 60 seconds for best compatibility</li>
+
+                                            <strong class="d-block mt-2">Images:</strong>
+                                            <ul class="mb-2">
+                                                <li>Accepted formats: JPG, PNG</li>
+                                                <li>Maximum file size: 10MB (5MB recommended)</li>
+                                                <li>Recommended: 1200x1200px square for best compatibility</li>
+                                                <li>Alternative sizes: 1200x630px (landscape) or 1080x1350px (portrait)</li>
+                                                <li><small class="text-muted">Note: Instagram requires square (1:1) or portrait (4:5) ratios</small></li>
+                                            </ul>
+
+                                            <strong class="d-block">Videos:</strong>
+                                            <ul class="mb-0">
+                                                <li>Accepted format: MP4</li>
+                                                <li>Maximum file size: 10MB</li>
+                                                <li>Duration: Under 60 seconds recommended</li>
+                                                <li>Recommended resolution: 1080x1080px or 1920x1080px</li>
                                             </ul>
                                         </div>
                                     </div>
