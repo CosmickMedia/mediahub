@@ -135,6 +135,17 @@ foreach ($posts as $p) {
     }
 }
 
+// Map store user IDs to names for display
+$user_name_map = [];
+$stmt = $pdo->query('SELECT id, first_name, last_name, email FROM store_users');
+foreach ($stmt as $u) {
+    $name = trim(($u['first_name'] ?? '') . ' ' . ($u['last_name'] ?? ''));
+    if ($name === '') {
+        $name = $u['email'] ?? '';
+    }
+    $user_name_map[$u['id']] = $name;
+}
+
 // Build events for calendar
 $events = [];
 foreach ($posts as $p) {
@@ -231,7 +242,9 @@ foreach ($posts as $p) {
             'tags' => $tags,
             'source' => $p['source'] ?? '',
             'post_id' => $p['post_id'] ?? null,
+            'created_by_user_id' => $p['created_by_user_id'] ?? null,
             'social_profile_id' => $p['social_profile_id'] ?? null,
+            'posted_by' => $user_name_map[$p['created_by_user_id'] ?? 0] ?? '',
             'store_name' => $p['store_name'] ?? ($current_store['name'] ?? ''),
             'store_id' => $p['store_id'] ?? $selected_store_id
         ]
@@ -672,6 +685,18 @@ include __DIR__.'/header.php';
         #dayViewModal,
         #scheduleModal {
             z-index: 10000 !important;
+        }
+        #scheduleModal .modal-dialog,
+        #scheduleModal .modal-content {
+            z-index: 10001 !important;
+        }
+        #scheduleModal .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+        }
+        #scheduleModal .btn-close {
+            opacity: 1;
         }
 
         .modal-backdrop {
