@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__.'/../../lib/admin.php';
-require_once __DIR__.'/../../lib/db.php';
-require_once __DIR__.'/../../lib/calendar.php';
-require_once __DIR__.'/../../lib/helpers.php';
-require_once __DIR__.'/../../lib/settings.php';
+require_once __DIR__.'/../lib/db.php';
+require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/calendar.php';
+require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/settings.php';
 
-ensure_admin();
+require_login();
 $active = 'calendars';
 $pdo = get_pdo();
 
@@ -908,7 +908,7 @@ include __DIR__.'/header.php';
             <div class="modal-content">
                 <form id="scheduleForm" enctype="multipart/form-data">
                     <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
-                        <div class="modal-header-content">
+                        <div class="modal-header-content w-100">
                             <h5 class="modal-title">
                                 <i class="bi bi-calendar-plus"></i>
                                 Schedule Post for <?php echo htmlspecialchars($current_store['name']); ?>
