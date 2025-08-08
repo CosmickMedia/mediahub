@@ -5417,3 +5417,411 @@ table th, table td {
     padding: 0.6rem 0.75rem;
     line-height: 1.4;
 }
+
+/* ===== SCHEDULE POST MODAL UNIQUE STYLES ===== */
+
+/* Modal Header Content */
+#scheduleModal .modal-header-content h5 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#scheduleModal .modal-header-content h5 i {
+    font-size: 1.75rem;
+}
+
+#scheduleModal .modal-subtitle {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* Schedule Form Grid */
+.schedule-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.form-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.section-header i {
+    color: #667eea;
+    font-size: 1.25rem;
+}
+
+/* Form Elements */
+.form-label .required {
+    color: #dc3545;
+    margin-left: 0.25rem;
+}
+
+.form-control-modern {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-control-modern:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea.form-control-modern {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.form-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Date Time Wrapper */
+.date-time-wrapper {
+    position: relative;
+}
+
+.date-time-wrapper .input-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+}
+
+.date-time-wrapper input {
+    padding-right: 3rem;
+}
+
+/* Profile Selector Checkboxes */
+.profiles-selector {
+    display: grid;
+    gap: 0.75rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.profile-checkbox {
+    display: block;
+    cursor: pointer;
+}
+
+.profile-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.profile-checkbox-label {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.profile-checkbox-label:hover {
+    border-color: var(--profile-color);
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.profile-checkbox-input:checked + .profile-checkbox-label {
+    background: linear-gradient(135deg,
+    color-mix(in srgb, var(--profile-color) 10%, white),
+    color-mix(in srgb, var(--profile-color) 5%, white));
+    border-color: var(--profile-color);
+}
+
+.profile-checkbox-label i:first-child {
+    font-size: 1.5rem;
+    color: var(--profile-color);
+    margin-right: 1rem;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-network {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.profile-username {
+    display: block;
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.check-icon {
+    color: var(--profile-color);
+    font-size: 1.25rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-checkbox-input:checked + .profile-checkbox-label .check-icon {
+    opacity: 1;
+}
+
+.profiles-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Media Upload */
+.media-upload-area {
+    position: relative;
+    border: 3px dashed #e0e0e0;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    min-height: 200px;
+}
+
+.media-upload-area:hover {
+    border-color: #667eea;
+    background: #f5f7ff;
+}
+
+.media-upload-area.dragging {
+    border-color: #667eea;
+    background: #f5f7ff;
+    transform: scale(1.02);
+}
+
+.media-upload-content {
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.media-upload-content i {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.media-preview {
+    position: relative;
+    padding: 1rem;
+}
+
+.media-preview img,
+.media-preview video {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 12px;
+    display: block;
+    margin: 0 auto;
+}
+
+.remove-media {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.remove-media:hover {
+    transform: scale(1.1);
+    background: #dc3545;
+    color: white;
+}
+
+.remove-media i {
+    font-size: 1.25rem;
+}
+
+/* Media Upload Info Alert */
+.media-upload-info {
+    margin-bottom: 1rem;
+}
+
+.media-upload-info .alert {
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #0d47a1;
+}
+
+.media-upload-info .alert ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.media-upload-info .alert li {
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+}
+
+/* Media Preview Grid */
+.media-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.media-preview-item {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.media-preview-image,
+.media-preview-video {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.remove-media-item {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.remove-media-item:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.1);
+}
+
+.remove-media-item i {
+    font-size: 1rem;
+}
+
+.media-filename {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: white;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Larger time picker controls */
+.flatpickr-time .numInputWrapper {
+    width: 70px;
+    height: 45px;
+}
+
+.flatpickr-time .numInputWrapper input {
+    font-size: 1.25rem;
+}
+
+.flatpickr-time .flatpickr-am-pm {
+    height: 45px;
+    font-size: 1.25rem;
+}
+
+.flatpickr-time .numInputWrapper span.arrowUp,
+.flatpickr-time .numInputWrapper span.arrowDown {
+    height: 45px;
+}
+
+/* Alert Info Style in Modal */
+#scheduleModal .alert-info {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: none;
+    color: #0d47a1;
+}
+
+#scheduleModal .alert-info strong {
+    color: #01579b;
+}
+
+/* Responsive for Schedule Modal */
+@media (max-width: 768px) {
+    .schedule-form-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .profiles-selector {
+        max-height: 200px;
+    }
+
+    .media-upload-content {
+        padding: 2rem 1rem;
+    }
+}

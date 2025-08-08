@@ -1186,15 +1186,15 @@ include __DIR__.'/header.php';
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <form id="scheduleForm" enctype="multipart/form-data">
-                    <div class="modal-header modal-header-gradient">
-                        <div class="modal-header-content w-100">
+                    <div class="modal-header">
+                        <div class="modal-header-content">
                             <h5 class="modal-title">
                                 <i class="bi bi-calendar-plus"></i>
                                 Schedule Post for <?php echo htmlspecialchars($current_store['name']); ?>
                             </h5>
                             <p class="modal-subtitle">Posting as Administrator</p>
                         </div>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="schedule-form-grid">
@@ -1204,23 +1204,36 @@ include __DIR__.'/header.php';
                                     <i class="bi bi-pencil-square"></i>
                                     <span>Post Content</span>
                                 </div>
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="postText" class="form-label">
-                                        Message <span class="text-danger">*</span>
+                                        What would you like to share?
+                                        <span class="required">*</span>
                                     </label>
-                                    <textarea class="form-control" id="postText" name="text" rows="5" required maxlength="500"></textarea>
-                                    <div class="char-counter text-end mt-1">
-                                        <span id="charCount">0</span> / 500
+                                    <textarea
+                                            class="form-control form-control-modern"
+                                            id="postText"
+                                            name="text"
+                                            rows="5"
+                                            placeholder="Write your post here..."
+                                            required
+                                            maxlength="500"></textarea>
+                                    <div class="char-counter">
+                                        <span id="charCount">0</span> / 500 characters
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="postHashtags" class="form-label">
-                                        <i class="bi bi-hash"></i> Hashtags
+                                        <i class="bi bi-hash"></i>
+                                        Hashtags
                                     </label>
-                                    <input type="text" class="form-control" id="postHashtags" name="hashtags"
-                                           placeholder="Enter hashtags separated by commas">
-                                    <small class="form-text text-muted">Don't include the # symbol</small>
+                                    <input
+                                            type="text"
+                                            class="form-control form-control-modern"
+                                            id="postHashtags"
+                                            name="hashtags"
+                                            placeholder="Enter hashtags separated by commas (e.g., marketing, social, business)">
+                                    <small class="form-text">Tip: Don't include the # symbol, we'll add it for you</small>
                                 </div>
                             </div>
 
@@ -1231,27 +1244,48 @@ include __DIR__.'/header.php';
                                     <span>Schedule Settings</span>
                                 </div>
 
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="postDate" class="form-label">
-                                        Date <span class="text-danger">*</span>
+                                        Date
+                                        <span class="required">*</span>
                                     </label>
-                                    <input type="text" class="form-control" id="postDate" required>
+                                    <div class="date-time-wrapper">
+                                        <input
+                                                type="text"
+                                                class="form-control form-control-modern"
+                                                id="postDate"
+                                                placeholder="Select date"
+                                                required>
+                                        <i class="bi bi-calendar-event input-icon"></i>
+                                    </div>
                                 </div>
 
-                                <div class="form-group mb-3">
+                                <div class="form-group">
                                     <label for="postTime" class="form-label">
-                                        Time <span class="text-danger">*</span>
+                                        Time
+                                        <span class="required">*</span>
                                     </label>
-                                    <input type="text" class="form-control" id="postTime" required>
+                                    <div class="date-time-wrapper">
+                                        <input
+                                                type="text"
+                                                class="form-control form-control-modern"
+                                                id="postTime"
+                                                placeholder="Select time"
+                                                required>
+                                        <i class="bi bi-clock input-icon"></i>
+                                    </div>
                                 </div>
 
+                                <!-- Hidden combined field for backend -->
                                 <input type="hidden" id="postSchedule" name="scheduled_time">
                                 <input type="hidden" name="store_id" value="<?php echo $selected_store_id; ?>">
                                 <input type="hidden" name="admin_post" value="1">
 
                                 <div class="form-group">
-                                    <label class="form-label">
-                                        <i class="bi bi-share"></i> Social Profiles <span class="text-danger">*</span>
+                                    <label for="postProfiles" class="form-label">
+                                        <i class="bi bi-share"></i>
+                                        Social Profiles
+                                        <span class="required">*</span>
                                     </label>
                                     <div class="profiles-selector">
                                         <?php foreach ($profiles as $prof):
@@ -1261,10 +1295,12 @@ include __DIR__.'/header.php';
                                             $color = $networkInfo['color'] ?? '#6c757d';
                                             ?>
                                             <label class="profile-checkbox">
-                                                <input type="checkbox" name="profile_ids[]"
-                                                       value="<?php echo htmlspecialchars($prof['id']); ?>"
-                                                       class="profile-checkbox-input">
-                                                <div class="profile-checkbox-label" data-profile-color="<?php echo $color; ?>">
+                                                <input
+                                                        type="checkbox"
+                                                        name="profile_ids[]"
+                                                        value="<?php echo htmlspecialchars($prof['id']); ?>"
+                                                        class="profile-checkbox-input">
+                                                <div class="profile-checkbox-label" style="--profile-color: <?php echo $color; ?>;">
                                                     <i class="bi <?php echo $icon; ?>"></i>
                                                     <div class="profile-info">
                                                         <span class="profile-network"><?php echo htmlspecialchars($prof['network'] ?? ''); ?></span>
@@ -1275,7 +1311,7 @@ include __DIR__.'/header.php';
                                             </label>
                                         <?php endforeach; ?>
                                     </div>
-                                    <div class="profiles-error text-danger d-none">
+                                    <div class="profiles-error" style="display: none;">
                                         Please select at least one social profile
                                     </div>
                                 </div>
@@ -1289,14 +1325,13 @@ include __DIR__.'/header.php';
                                 </div>
                                 <div class="form-group">
                                     <div class="media-upload-area">
-                                        <input type="file" class="form-control d-none" id="postMedia" name="media[]"
-                                               accept="image/*,video/*" multiple>
-                                        <div class="media-upload-content text-center py-5" id="mediaUploadContent">
-                                            <i class="bi bi-cloud-arrow-up upload-icon"></i>
-                                            <p class="mt-2">Click to upload or drag and drop</p>
-                                            <p class="text-muted small">PNG, JPG, GIF or MP4 (max. 10MB each)</p>
+                                        <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,video/*" multiple style="display: none;">
+                                        <div class="media-upload-content" id="mediaUploadContent">
+                                            <i class="bi bi-cloud-arrow-up"></i>
+                                            <p class="upload-text">Click to upload or drag and drop</p>
+                                            <p class="upload-subtext">PNG, JPG, GIF or MP4 (max. 10MB each, up to 4 files)</p>
                                         </div>
-                                        <div class="media-preview-grid d-none" id="mediaPreviewGrid"></div>
+                                        <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1349,10 +1384,6 @@ include __DIR__.'/header.php';
 
             document.querySelectorAll('.network-stat[data-network-color]').forEach(function(el) {
                 el.style.setProperty('--network-color', el.dataset.networkColor);
-            });
-
-            document.querySelectorAll('.profile-checkbox-label[data-profile-color]').forEach(function(el) {
-                el.style.setProperty('--profile-color', el.dataset.profileColor);
             });
 
             // Store events and configurations
