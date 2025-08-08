@@ -228,9 +228,9 @@ $events_json = json_encode($events);
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <style>
-#scheduleModal { z-index: 9998 !important; }
+#scheduleModal { z-index: 10000 !important; }
 #scheduleModal .modal-dialog,
-#scheduleModal .modal-content { z-index: 9998 !important; }
+#scheduleModal .modal-content { z-index: 10001 !important; }
 #scheduleModal .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; }
 #scheduleModal .btn-close { opacity: 1; }
 </style>
@@ -1018,6 +1018,17 @@ include __DIR__.'/header.php';
                     document.getElementById('postAction').value = 'update';
                 }
                 scheduleModal.show();
+                setTimeout(function() {
+                    var modalEl = document.getElementById('scheduleModal');
+                    if (modalEl) {
+                        modalEl.style.zIndex = '10001';
+                    }
+                    var backdrops = document.querySelectorAll('.modal-backdrop');
+                    if (backdrops.length > 0) {
+                        var lastBackdrop = backdrops[backdrops.length - 1];
+                        lastBackdrop.style.zIndex = '10000';
+                    }
+                }, 100);
             }
 
             var scheduleForm = document.getElementById('scheduleForm');
