@@ -5598,6 +5598,25 @@ textarea.form-control-modern {
     margin-top: 0.25rem;
 }
 
+/* Profiles Scrollbar */
+.profiles-selector::-webkit-scrollbar {
+    width: 8px;
+}
+
+.profiles-selector::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.profiles-selector::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 10px;
+}
+
+.profiles-selector::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;
+}
+
 .check-icon {
     color: var(--profile-color);
     font-size: 1.25rem;
