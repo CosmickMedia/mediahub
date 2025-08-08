@@ -83,13 +83,17 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 <i class="bi bi-chat-dots"></i>
                 <span>Chat</span>
             </a>
-            <a class="nav-link<?php if($active==='settings') echo ' active'; ?>" href="settings.php">
-                <i class="bi bi-gear"></i>
-                <span>Settings</span>
+            <a class="nav-link<?php if($active==='calendars') echo ' active'; ?>" href="calendars.php">
+                <i class="bi bi-calendar3"></i>
+                <span>Calendars</span>
             </a>
             <a class="nav-link<?php if($active==='users') echo ' active'; ?>" href="users.php">
                 <i class="bi bi-people"></i>
                 <span>Users</span>
+            </a>
+            <a class="nav-link<?php if($active==='settings') echo ' active'; ?>" href="settings.php">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
             </a>
         </div>
 
