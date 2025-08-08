@@ -291,9 +291,9 @@ include __DIR__.'/header.php';
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .admin-calendar-container {
+        .calendar-container {
             padding: 2rem;
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -418,6 +418,43 @@ include __DIR__.'/header.php';
         .view-selector:hover {
             border-color: #667eea;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .view-selector:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-modern-primary {
+            padding: 0.7rem 1.5rem;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-modern-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .btn-modern-secondary {
+            background: white;
+            color: #6c757d;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-modern-secondary:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
         }
 
         /* Analytics Dashboard */
@@ -689,6 +726,10 @@ include __DIR__.'/header.php';
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
+        .fc-event {
+            overflow: hidden !important;
+        }
+
         .modern-event-card {
             padding: 0.75rem;
             height: 100%;
@@ -698,6 +739,111 @@ include __DIR__.'/header.php';
             color: white;
             width: 100%;
             overflow: hidden;
+        }
+
+        .modern-event-card .event-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .modern-event-card .event-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .modern-event-card .event-icon i {
+            font-size: 0.875rem;
+        }
+
+        .modern-event-card .event-network {
+            font-weight: 600;
+            font-size: 0.875rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .modern-event-card .event-media-preview {
+            position: relative;
+            width: 100%;
+            margin: 0;
+            height: 60px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+
+        .modern-event-card .event-media-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modern-event-card .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .modern-event-card .event-content {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            opacity: 0.95;
+        }
+
+        .modern-event-card .event-footer {
+            font-size: 0.7rem;
+            opacity: 0.85;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .modern-event-card .event-footer i {
+            font-size: 0.75rem;
+        }
+
+        .fc-more-link {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white !important;
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 0.25rem;
+            display: inline-block;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .fc-more-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .fc-more-popover {
+            display: none !important;
         }
 
         /* Modal overrides */
@@ -736,7 +882,7 @@ include __DIR__.'/header.php';
         }
 
         @media (max-width: 768px) {
-            .admin-calendar-container {
+            .calendar-container {
                 padding: 1rem;
             }
 
@@ -758,7 +904,7 @@ include __DIR__.'/header.php';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 
-    <div class="admin-calendar-container">
+    <div class="calendar-container">
         <!-- Store Selector Section -->
         <div class="store-selector-section">
             <div class="store-selector-label">
@@ -819,7 +965,7 @@ include __DIR__.'/header.php';
                 </select>
 
                 <?php if ($allow_schedule && $current_store): ?>
-                    <button id="schedulePostBtn" class="btn btn-primary">
+                    <button id="schedulePostBtn" class="btn btn-modern-primary">
                         <i class="bi bi-plus-circle"></i> Schedule Post
                     </button>
                 <?php endif; ?>
@@ -1072,8 +1218,8 @@ include __DIR__.'/header.php';
                         <input type="hidden" name="action" id="postAction" value="create">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="scheduleSubmitBtn">
+                        <button type="button" class="btn btn-modern-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-modern-primary" id="scheduleSubmitBtn">
                             <i class="bi bi-check-circle"></i>
                             <span id="submitBtnText">Schedule Post</span>
                         </button>
