@@ -70,6 +70,18 @@ if ($store_profile_ids) {
 $allow_schedule = count($profiles) > 0;
 $current_user_id = $_SESSION['store_user_id'] ?? null;
 
+// Map store user IDs to names for display
+$user_name_map = [];
+$stmt = $pdo->prepare('SELECT id, first_name, last_name, email FROM store_users WHERE store_id = ?');
+$stmt->execute([$store_id]);
+foreach ($stmt as $u) {
+    $name = trim(($u['first_name'] ?? '') . ' ' . ($u['last_name'] ?? ''));
+    if ($name === '') {
+        $name = $u['email'] ?? '';
+    }
+    $user_name_map[$u['id']] = $name;
+}
+
 // Calculate analytics
 $total_posts = count($posts);
 $network_counts = [];
@@ -118,52 +130,37 @@ foreach ($posts as $p) {
     $time = $p['scheduled_send_time'] ?? $p['scheduled_time'] ?? null;
     $img = '';
     $video = '';
+    $media_urls = [];
     if (!empty($p['media_urls'])) {
         $urls = to_string_array($p['media_urls']);
         foreach ($urls as $u) {
-            if (!$video && preg_match('/\.mp4(\?|$)/i', $u)) {
+            $orig = $u;
+            if (str_starts_with($u, '/calendar_media/')) {
+                $u = '/public' . $u;
+            } elseif (preg_match('/^https?:/', $u)) {
+                $sub = '';
+                if ($time && ($ts = strtotime($time)) !== false) {
+                    $sub = date('Y/m', $ts) . '/';
+                }
+                $base = basename(parse_url($u, PHP_URL_PATH) ?? '');
+                $local = __DIR__ . '/calendar_media/' . $sub . $base;
+                if (is_file($local)) {
+                    $u = '/public/calendar_media/' . $sub . $base;
+                }
+            }
+            $media_urls[] = $u;
+            if (!$video && preg_match('/\.mp4(\?|$)/i', $orig)) {
                 $video = $u;
             } elseif (!$img) {
                 $img = $u;
             }
         }
     }
-    if (!$img && !$video && !empty($p['media_thumb_urls'])) {
+    if (!$media_urls && !empty($p['media_thumb_urls'])) {
         $urls = to_string_array($p['media_thumb_urls']);
-        if (!empty($urls)) {
-            $img = $urls[0];
-        }
-    }
-
-    // Normalize to local paths if files exist
-    if ($img) {
-        if (str_starts_with($img, '/calendar_media/')) {
-            $img = '/public' . $img;
-        } elseif (preg_match('/^https?:/', $img)) {
-            $sub = '';
-            if ($time && ($ts = strtotime($time)) !== false) {
-                $sub = date('Y/m', $ts) . '/';
-            }
-            $base = basename(parse_url($img, PHP_URL_PATH) ?? '');
-            $local = __DIR__ . '/calendar_media/' . $sub . $base;
-            if (is_file($local)) {
-                $img = '/public/calendar_media/' . $sub . $base;
-            }
-        }
-    }
-    if ($video) {
-        if (str_starts_with($video, '/calendar_media/')) {
-            $video = '/public' . $video;
-        } elseif (preg_match('/^https?:/', $video)) {
-            $sub = '';
-            if ($time && ($ts = strtotime($time)) !== false) {
-                $sub = date('Y/m', $ts) . '/';
-            }
-            $base = basename(parse_url($video, PHP_URL_PATH) ?? '');
-            $local = __DIR__ . '/calendar_media/' . $sub . $base;
-            if (is_file($local)) {
-                $video = '/public/calendar_media/' . $sub . $base;
-            }
+        foreach ($urls as $u) {
+            $media_urls[] = $u;
+            if (!$img) { $img = $u; }
         }
     }
     $tags = [];
@@ -211,6 +208,7 @@ foreach ($posts as $p) {
         'extendedProps' => [
             'image' => $video ? '' : $img,
             'video' => $video,
+            'media_urls' => $media_urls,
             'icon'  => $icon,
             'text'  => $p['text'] ?? '',
             // Provide ISO datetime for display
@@ -220,7 +218,8 @@ foreach ($posts as $p) {
             'source' => $p['source'] ?? '',
             'post_id' => $p['post_id'] ?? null,
             'created_by_user_id' => $p['created_by_user_id'] ?? null,
-            'social_profile_id' => $p['social_profile_id'] ?? null
+            'social_profile_id' => $p['social_profile_id'] ?? null,
+            'posted_by' => $user_name_map[$p['created_by_user_id'] ?? 0] ?? ''
         ]
     ];
 }
@@ -1181,7 +1180,17 @@ include __DIR__.'/header.php';
 
                 // Left column - Media
                 html += '<div class="modal-media-column">';
-                if(event.extendedProps.video){
+                if(event.extendedProps.media_urls && event.extendedProps.media_urls.length){
+                    html += '<div class="media-scroll">';
+                    event.extendedProps.media_urls.forEach(function(url){
+                        if(/\.mp4(\?|$)/i.test(url)){
+                            html += '<video controls class="media-item"><source src="'+url+'" type="video/mp4"></video>';
+                        } else {
+                            html += '<img src="'+url+'" class="media-item">';
+                        }
+                    });
+                    html += '</div>';
+                } else if(event.extendedProps.video){
                     html += '<video controls class="w-100"><source src="'+event.extendedProps.video+'" type="video/mp4"></video>';
                 } else if(event.extendedProps.image){
                     html += '<img src="'+event.extendedProps.image+'" class="img-fluid">';
@@ -1209,6 +1218,9 @@ include __DIR__.'/header.php';
                 html += '<div class="meta-item"><i class="bi bi-calendar-event"></i><span>Scheduled</span><strong>' + new Date(event.extendedProps.time).toLocaleDateString() + '</strong></div>';
                 html += '<div class="meta-item"><i class="bi bi-clock"></i><span>Time</span><strong>' + new Date(event.extendedProps.time).toLocaleTimeString() + '</strong></div>';
                 html += '<div class="meta-item"><i class="bi bi-share"></i><span>Platform</span><strong>' + event.extendedProps.network + '</strong></div>';
+                if(event.extendedProps.posted_by){
+                    html += '<div class="meta-item"><i class="bi bi-person-circle"></i><span>Posted by</span><strong>' + event.extendedProps.posted_by + '</strong></div>';
+                }
                 html += '</div>';
 
                 if(event.extendedProps.created_by_user_id && window.currentUserId && parseInt(event.extendedProps.created_by_user_id) === parseInt(window.currentUserId)){

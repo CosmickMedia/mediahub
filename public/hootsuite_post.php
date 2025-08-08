@@ -42,6 +42,17 @@ $stmt = $pdo->prepare('SELECT hootsuite_profile_ids FROM stores WHERE id=?');
 $stmt->execute([$store_id]);
 $allowed_profiles = array_filter(array_map('trim', explode(',', (string)$stmt->fetchColumn())));
 
+// Fetch the name of the store user for "posted by" info
+$user_name = '';
+$stmt = $pdo->prepare('SELECT first_name, last_name, email FROM store_users WHERE id=? AND store_id=?');
+$stmt->execute([$user_id, $store_id]);
+if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $user_name = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+    if ($user_name === '') {
+        $user_name = $row['email'] ?? '';
+    }
+}
+
 /**
  * Upload media to Hootsuite using their 3-step process
  * Step 1: Request upload URL (POST /v1/media)
@@ -447,27 +458,29 @@ if ($action === 'create' || $action === 'update') {
                     error_log("Database error: " . $e->getMessage());
                 }
 
-                $events[] = [
-                    'id' => $postId,
-                    'title' => $networkName ?: 'Post',
-                    'start' => str_replace(' ', 'T', $scheduledSendTime),
-                    'backgroundColor' => $color,
-                    'borderColor' => $color,
-                    'classNames' => ['social-' . ($networkName ? preg_replace('/[^a-z0-9]+/','-', strtolower($networkName)) : 'default')],
-                    'extendedProps' => [
-                        'text' => $text,
-                        'time' => str_replace(' ', 'T', $scheduledSendTime),
-                        'tags' => $tagsArr,
-                        'source' => 'API',
-                        'post_id' => $postId,
-                        'created_by_user_id' => $user_id,
-                        'social_profile_id' => $profile_id,
-                        'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-                        'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-                        'icon' => $icon,
-                        'network' => $networkName
-                    ]
-                ];
+                    $events[] = [
+                        'id' => $postId,
+                        'title' => $networkName ?: 'Post',
+                        'start' => str_replace(' ', 'T', $scheduledSendTime),
+                        'backgroundColor' => $color,
+                        'borderColor' => $color,
+                        'classNames' => ['social-' . ($networkName ? preg_replace('/[^a-z0-9]+/','-', strtolower($networkName)) : 'default')],
+                        'extendedProps' => [
+                            'text' => $text,
+                            'time' => str_replace(' ', 'T', $scheduledSendTime),
+                            'tags' => $tagsArr,
+                            'source' => 'API',
+                            'post_id' => $postId,
+                            'created_by_user_id' => $user_id,
+                            'social_profile_id' => $profile_id,
+                            'media_urls' => $mediaUrls,
+                            'posted_by' => $user_name,
+                            'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
+                            'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
+                            'icon' => $icon,
+                            'network' => $networkName
+                        ]
+                    ];
             }
 
             echo json_encode(['success' => true, 'events' => $events]);
@@ -614,6 +627,8 @@ if ($action === 'create' || $action === 'update') {
                             'post_id' => $postId,
                             'created_by_user_id' => $user_id,
                             'social_profile_id' => $profile_id,
+                            'media_urls' => $mediaUrls,
+                            'posted_by' => $user_name,
                             'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
                             'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
                             'icon' => $icon,
@@ -721,6 +736,8 @@ if ($action === 'create' || $action === 'update') {
                                     'post_id' => $postId,
                                     'created_by_user_id' => $user_id,
                                     'social_profile_id' => $profile_id,
+                                    'media_urls' => $mediaUrls,
+                                    'posted_by' => $user_name,
                                     'image' => '', // No image since media failed
                                     'video' => '',
                                     'icon' => $icon,
@@ -877,6 +894,8 @@ if ($action === 'create' || $action === 'update') {
             'post_id' => $postId,
             'created_by_user_id' => $user_id,
             'social_profile_id' => $profile_id,
+            'media_urls' => $mediaUrls,
+            'posted_by' => $user_name,
             'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
             'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
             'icon' => $icon,
