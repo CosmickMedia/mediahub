@@ -708,6 +708,17 @@ include __DIR__.'/header.php';
             background: rgba(102, 126, 234, 0.05);
         }
 
+        /* FullCalendar event container fix */
+        .fc-daygrid-event-harness {
+            overflow: hidden !important;
+            width: 100% !important;
+        }
+
+        .fc-event-main {
+            overflow: hidden !important;
+            width: 100% !important;
+        }
+
         /* Modern Event Card */
         .fc-daygrid-event {
             border: none !important;
@@ -718,7 +729,7 @@ include __DIR__.'/header.php';
             transition: var(--transition);
             cursor: pointer;
             width: calc(100% - 0.5rem);
-            max-width: 100%;
+            max-width: 100% !important;
         }
 
         .fc-daygrid-event:hover {
@@ -844,6 +855,83 @@ include __DIR__.'/header.php';
 
         .fc-more-popover {
             display: none !important;
+        }
+
+        /* Social network color classes with gradients */
+        .social-facebook{
+            background: linear-gradient(135deg, #1877f2, #0d65d9) !important;
+            border-color:#1877f2 !important;
+        }
+        .social-instagram{
+            background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af) !important;
+            border-color:#dd2a7b !important;
+        }
+        .social-x{
+            background: linear-gradient(135deg, #000000, #1a1a1a) !important;
+            border-color:#000000 !important;
+        }
+        .social-tiktok{
+            background: linear-gradient(135deg, #ff0050, #00f2ea) !important;
+            border-color:#ff0050 !important;
+        }
+        .social-snapchat{
+            background: linear-gradient(135deg, #fffc00, #ffe600) !important;
+            border-color:#fffc00 !important;
+        }
+        .social-snapchat .modern-event-card {
+            color: #000 !important;
+        }
+        .social-snapchat .modern-event-card * {
+            color: #000 !important;
+        }
+        .social-linkedin{
+            background: linear-gradient(135deg, #0a66c2, #004182) !important;
+            border-color:#0a66c2 !important;
+        }
+        .social-youtube{
+            background: linear-gradient(135deg, #ff0000, #cc0000) !important;
+            border-color:#ff0000 !important;
+        }
+        .social-pinterest{
+            background: linear-gradient(135deg, #e60023, #b80020) !important;
+            border-color:#e60023 !important;
+        }
+        .social-whatsapp{
+            background: linear-gradient(135deg, #25d366, #128c7e) !important;
+            border-color:#25d366 !important;
+        }
+        .social-telegram{
+            background: linear-gradient(135deg, #0088cc, #0077b5) !important;
+            border-color:#0088cc !important;
+        }
+        .social-reddit{
+            background: linear-gradient(135deg, #ff4500, #ff6314) !important;
+            border-color:#ff4500 !important;
+        }
+        .social-discord{
+            background: linear-gradient(135deg, #5865f2, #4752c4) !important;
+            border-color:#5865f2 !important;
+        }
+        .social-threads{
+            background: linear-gradient(135deg, #ff0040, #d9002c) !important;
+            border-color:#ff0040 !important;
+        }
+        .social-tumblr{
+            background: linear-gradient(135deg, #36465d, #2c3a4b) !important;
+            border-color:#36465d !important;
+        }
+        .social-twitch{
+            background: linear-gradient(135deg, #6441a5, #4b2f7f) !important;
+            border-color:#6441a5 !important;
+        }
+        .social-default{
+            background: linear-gradient(135deg, #adb5bd, #868e96) !important;
+            border-color:#adb5bd !important;
+        }
+
+        /* Bootstrap Icons override for Threads */
+        .bi-threads::before {
+            content: "\F8D9";
         }
 
         /* Modal overrides */
