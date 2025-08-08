@@ -312,14 +312,12 @@ if ($action === 'create' || $action === 'update') {
                     if (move_uploaded_file($tmpName, $localPath)) {
                         error_log("File $i saved locally: $localPath");
 
-                        // Only keep first file for Hootsuite upload (API limitation)
-                        if ($i === 0) {
-                            $localMediaPaths[] = [
-                                'path' => $localPath,
-                                'name' => $fileName,
-                                'mime' => $mimeType
-                            ];
-                        }
+                        // Add all files to localMediaPaths (not just the first file)
+                        $localMediaPaths[] = [
+                            'path' => $localPath,
+                            'name' => $fileName,
+                            'mime' => $mimeType
+                        ];
 
                         $mediaUrls[] = '/public/calendar_media/' . date('Y/m/', $ts) . $savedFileName;
                     } else {
@@ -340,17 +338,19 @@ if ($action === 'create' || $action === 'update') {
         $mediaPayload = [];
 
         if ($hasMedia) {
-            $mediaFile = $localMediaPaths[0];
-            $mediaId = uploadMediaToHootsuite(
-                $token,
-                $mediaFile['path'],
-                $mediaFile['name'],
-                $mediaFile['mime']
-            );
+            // Upload all media files
+            foreach ($localMediaPaths as $mediaFile) {
+                $mediaId = uploadMediaToHootsuite(
+                    $token,
+                    $mediaFile['path'],
+                    $mediaFile['name'],
+                    $mediaFile['mime']
+                );
 
-            if ($mediaId) {
-                $mediaPayload[] = ['id' => $mediaId];
-                error_log("Media upload complete with ID: $mediaId");
+                if ($mediaId) {
+                    $mediaPayload[] = ['id' => $mediaId];
+                    error_log("Media upload complete with ID: $mediaId");
+                }
             }
         }
 
@@ -366,7 +366,7 @@ if ($action === 'create' || $action === 'update') {
         }
 
         if ($mediaPayload && !empty($mediaPayload[0]['id'])) {
-            $payload['media'] = $mediaPayload;
+            $payload['media'] = $mediaPayload; // Attach all media files
         }
 
         error_log("Attempting to create post for all profiles together: " . implode(',', $profile_ids));
@@ -622,7 +622,7 @@ if ($action === 'create' || $action === 'update') {
                     ];
                 }
             } else {
-                // If media failed, try without media
+                $failedProfiles[] = $profile_id;
                 $responseData = json_decode($profileResponse, true);
                 $errorCode = $responseData['errors'][0]['code'] ?? null;
                 $errorMsg = $responseData['errors'][0]['message'] ?? 'Unknown error';
@@ -757,6 +757,7 @@ if ($action === 'create' || $action === 'update') {
     }
 
     // Update existing post (single profile) - keeping this part the same
+    // This section remains unchanged
     $profile_id = $profile_ids[0];
 
     // Upload media for update if needed
