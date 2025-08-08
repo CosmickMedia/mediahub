@@ -871,6 +871,7 @@ table th, table td {
     justify-content: center;
     padding: 2rem;
     border-right: 1px solid #e0e0e0;
+    overflow: hidden;
 }
 
 .modal-media-column img,
@@ -880,6 +881,19 @@ table th, table td {
     object-fit: contain;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.media-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    max-height: 60vh;
+}
+
+.media-scroll img,
+.media-scroll video {
+    max-height: 60vh;
+    max-width: 100%;
 }
 
 .no-media {
