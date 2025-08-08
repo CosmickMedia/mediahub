@@ -1,8 +1,12 @@
 <?php
-require_once __DIR__.'/../lib/db.php';
-require_once __DIR__.'/../lib/auth.php';
-require_once __DIR__.'/../lib/helpers.php';
-require_once __DIR__.'/../lib/settings.php';
+// Resolve library path from the project root rather than traversing two
+// directories up.  Using dirname(__DIR__) keeps the include path within the
+// open_basedir restrictions configured on the server.
+$baseDir = dirname(__DIR__);
+require_once $baseDir . '/lib/db.php';
+require_once $baseDir . '/lib/auth.php';
+require_once $baseDir . '/lib/helpers.php';
+require_once $baseDir . '/lib/settings.php';
 
 require_login();
 $active = 'calendars';
