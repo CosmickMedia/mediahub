@@ -1324,6 +1324,27 @@ include __DIR__.'/header.php';
                                     <span>Media Attachments</span>
                                 </div>
                                 <div class="form-group">
+                                    <div class="media-upload-info">
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle"></i>
+                                            <strong>Media Guidelines:</strong>
+                                            <strong class="d-block mt-2">Images:</strong>
+                                            <ul class="mb-2">
+                                                <li>Accepted formats: JPG, PNG</li>
+                                                <li>Maximum file size: 10MB (5MB recommended)</li>
+                                                <li>Recommended: 1200x1200px square for best compatibility</li>
+                                                <li>Alternative sizes: 1200x630px (landscape) or 1080x1350px (portrait)</li>
+                                                <li><small class="text-muted">Note: Instagram requires square (1:1) or portrait (4:5) ratios</small></li>
+                                            </ul>
+                                            <strong class="d-block">Videos:</strong>
+                                            <ul class="mb-0">
+                                                <li>Accepted format: MP4</li>
+                                                <li>Maximum file size: 10MB</li>
+                                                <li>Duration: Under 60 seconds recommended</li>
+                                                <li>Recommended resolution: 1080x1080px or 1920x1080px</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                     <div class="media-upload-area">
                                         <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,video/*" multiple style="display: none;">
                                         <div class="media-upload-content" id="mediaUploadContent">
@@ -1331,7 +1352,9 @@ include __DIR__.'/header.php';
                                             <p class="upload-text">Click to upload or drag and drop</p>
                                             <p class="upload-subtext">PNG, JPG, GIF or MP4 (max. 10MB each, up to 4 files)</p>
                                         </div>
-                                        <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;"></div>
+                                        <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
+                                            <!-- Media previews will be added here -->
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1341,7 +1364,10 @@ include __DIR__.'/header.php';
                         <input type="hidden" name="action" id="postAction" value="create">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-modern-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-modern-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i>
+                            Cancel
+                        </button>
                         <button type="submit" class="btn btn-modern-primary" id="scheduleSubmitBtn">
                             <i class="bi bi-check-circle"></i>
                             <span id="submitBtnText">Schedule Post</span>
