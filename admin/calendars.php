@@ -1020,14 +1020,14 @@ include __DIR__.'/header.php';
         <!-- Quick Store Navigation Pills -->
         <?php if (!$selected_store_id && count($stores) > 1): ?>
             <div class="store-pills">
-                <span style="font-weight: 600; margin-right: 1rem;">Quick Navigation:</span>
+                <span class="quick-nav-label">Quick Navigation:</span>
                 <?php foreach (array_slice($stores, 0, 10) as $store): ?>
                     <a href="?store_id=<?php echo $store['id']; ?>" class="store-pill">
                         <?php echo htmlspecialchars($store['name']); ?>
                     </a>
                 <?php endforeach; ?>
                 <?php if (count($stores) > 10): ?>
-                    <span class="store-pill" style="cursor: default; background: #f8f9fa;">+<?php echo count($stores) - 10; ?> more</span>
+                    <span class="store-pill store-pill-more">+<?php echo count($stores) - 10; ?> more</span>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -1077,7 +1077,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card upcoming-posts animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            <div class="stat-card success animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-clock-history"></i>
                 </div>
@@ -1085,11 +1085,11 @@ include __DIR__.'/header.php';
                     <div class="stat-number" data-count="<?php echo $upcoming_posts; ?>">0</div>
                     <div class="stat-label">Upcoming</div>
                 </div>
-                <div class="stat-bg" style="background: var(--success-gradient);"></div>
+                <div class="stat-bg"></div>
             </div>
 
             <?php if (!$selected_store_id && count($posts_by_store) > 0): ?>
-                <div class="stat-card stores-stat animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                <div class="stat-card warning animate__animated animate__fadeInUp delay-20">
                     <div class="stat-icon">
                         <i class="bi bi-shop"></i>
                     </div>
@@ -1097,7 +1097,7 @@ include __DIR__.'/header.php';
                         <div class="stat-number" data-count="<?php echo count($posts_by_store); ?>">0</div>
                         <div class="stat-label">Active Stores</div>
                     </div>
-                    <div class="stat-bg" style="background: var(--warning-gradient);"></div>
+                    <div class="stat-bg"></div>
                 </div>
             <?php endif; ?>
 
@@ -1117,15 +1117,15 @@ include __DIR__.'/header.php';
                         $display_name = 'X';
                     }
                     ?>
-                    <div class="stat-card network-stat animate__animated animate__fadeInUp" style="animation-delay: <?php echo $delay; ?>s; --network-color: <?php echo $net_info['color']; ?>;">
-                        <div class="stat-icon" style="color: <?php echo $net_info['color']; ?>">
+                    <div class="stat-card network-stat animate__animated animate__fadeInUp delay-<?php echo intval($delay*100); ?>" data-network-color="<?php echo $net_info['color']; ?>">
+                        <div class="stat-icon">
                             <i class="bi <?php echo !empty($net_info['icon']) ? $net_info['icon'] : 'bi-share'; ?>"></i>
                         </div>
                         <div class="stat-content">
                             <div class="stat-number" data-count="<?php echo $count; ?>">0</div>
                             <div class="stat-label"><?php echo $display_name; ?></div>
                         </div>
-                        <div class="stat-bg" style="background: <?php echo $net_info['color']; ?>"></div>
+                        <div class="stat-bg"></div>
                     </div>
                     <?php
                     $delay += 0.1;
@@ -1158,11 +1158,11 @@ include __DIR__.'/header.php';
     <div class="modal fade" id="eventModalCalendar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1.5rem;">
+                <div class="modal-header modal-header-gradient p-4">
                     <div class="modal-title w-100" id="eventModalTitle"></div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="eventModalBody" style="padding: 0;"></div>
+                <div class="modal-body p-0" id="eventModalBody"></div>
             </div>
         </div>
     </div>
@@ -1171,7 +1171,7 @@ include __DIR__.'/header.php';
     <div class="modal fade" id="dayViewModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1.5rem;">
+                <div class="modal-header modal-header-gradient p-4">
                     <h5 class="modal-title" id="dayViewTitle"></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -1186,7 +1186,7 @@ include __DIR__.'/header.php';
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <form id="scheduleForm" enctype="multipart/form-data">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                    <div class="modal-header modal-header-gradient">
                         <div class="modal-header-content w-100">
                             <h5 class="modal-title">
                                 <i class="bi bi-calendar-plus"></i>
@@ -1264,7 +1264,7 @@ include __DIR__.'/header.php';
                                                 <input type="checkbox" name="profile_ids[]"
                                                        value="<?php echo htmlspecialchars($prof['id']); ?>"
                                                        class="profile-checkbox-input">
-                                                <div class="profile-checkbox-label" style="--profile-color: <?php echo $color; ?>">
+                                                <div class="profile-checkbox-label" data-profile-color="<?php echo $color; ?>">
                                                     <i class="bi <?php echo $icon; ?>"></i>
                                                     <div class="profile-info">
                                                         <span class="profile-network"><?php echo htmlspecialchars($prof['network'] ?? ''); ?></span>
@@ -1275,7 +1275,7 @@ include __DIR__.'/header.php';
                                             </label>
                                         <?php endforeach; ?>
                                     </div>
-                                    <div class="profiles-error text-danger" style="display: none;">
+                                    <div class="profiles-error text-danger d-none">
                                         Please select at least one social profile
                                     </div>
                                 </div>
@@ -1289,14 +1289,14 @@ include __DIR__.'/header.php';
                                 </div>
                                 <div class="form-group">
                                     <div class="media-upload-area">
-                                        <input type="file" class="form-control" id="postMedia" name="media[]"
-                                               accept="image/*,video/*" multiple style="display: none;">
+                                        <input type="file" class="form-control d-none" id="postMedia" name="media[]"
+                                               accept="image/*,video/*" multiple>
                                         <div class="media-upload-content text-center py-5" id="mediaUploadContent">
-                                            <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: #667eea;"></i>
+                                            <i class="bi bi-cloud-arrow-up upload-icon"></i>
                                             <p class="mt-2">Click to upload or drag and drop</p>
                                             <p class="text-muted small">PNG, JPG, GIF or MP4 (max. 10MB each)</p>
                                         </div>
-                                        <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;"></div>
+                                        <div class="media-preview-grid d-none" id="mediaPreviewGrid"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1345,6 +1345,14 @@ include __DIR__.'/header.php';
                 if (!animation.error) {
                     animation.start();
                 }
+            });
+
+            document.querySelectorAll('.network-stat[data-network-color]').forEach(function(el) {
+                el.style.setProperty('--network-color', el.dataset.networkColor);
+            });
+
+            document.querySelectorAll('.profile-checkbox-label[data-profile-color]').forEach(function(el) {
+                el.style.setProperty('--profile-color', el.dataset.profileColor);
             });
 
             // Store events and configurations
