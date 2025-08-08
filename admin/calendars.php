@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
-require_once __DIR__.'/../lib/calendar.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_once __DIR__.'/../lib/settings.php';
 
@@ -38,12 +37,28 @@ foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
     ];
 }
 
+function fetch_hootsuite_posts(PDO $pdo, int $store_id): array {
+    $stmt = $pdo->prepare('SELECT post_id, created_by_user_id, text, scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags FROM hootsuite_posts WHERE store_id=?');
+    $stmt->execute([$store_id]);
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($posts as &$p) {
+        $p['source'] = 'API';
+    }
+    return $posts;
+}
+
 // Get posts based on selection
 if ($selected_store_id) {
-    $posts = calendar_get_posts($selected_store_id);
     $store_stmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
     $store_stmt->execute([$selected_store_id]);
     $current_store = $store_stmt->fetch();
+
+    $posts = fetch_hootsuite_posts($pdo, (int)$selected_store_id);
+    foreach ($posts as &$post) {
+        $post['store_name'] = $current_store['name'] ?? '';
+        $post['store_id'] = $current_store['id'] ?? $selected_store_id;
+    }
+    unset($post);
 
     // Get profiles for selected store
     $store_profile_ids = array_filter(array_map('trim', explode(',', (string)$current_store['hootsuite_profile_ids'])));
@@ -59,11 +74,12 @@ if ($selected_store_id) {
     // Get all posts across all stores
     $posts = [];
     foreach ($stores as $store) {
-        $store_posts = calendar_get_posts($store['id']);
+        $store_posts = fetch_hootsuite_posts($pdo, $store['id']);
         foreach ($store_posts as &$post) {
             $post['store_name'] = $store['name'];
             $post['store_id'] = $store['id'];
         }
+        unset($post);
         $posts = array_merge($posts, $store_posts);
     }
     $profiles = [];
