@@ -372,9 +372,9 @@ include __DIR__.'/header.php';
                         <div class="modal-header-content">
                             <h5 class="modal-title">
                                 <i class="bi bi-calendar-plus"></i>
-                                Schedule Social Media Post
+                                Schedule Post for <?php echo htmlspecialchars($store_name); ?>
                             </h5>
-                            <p class="modal-subtitle">Create and schedule your content across multiple platforms</p>
+                            <p class="modal-subtitle">Posting as <?php echo htmlspecialchars($user_name_map[$current_user_id] ?? ''); ?></p>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -419,7 +419,7 @@ include __DIR__.'/header.php';
                                 </div>
                             </div>
 
-                            <!-- Schedule & Platforms Section -->
+                            <!-- Schedule Settings -->
                             <div class="form-section">
                                 <div class="section-header">
                                     <i class="bi bi-clock"></i>
@@ -460,6 +460,7 @@ include __DIR__.'/header.php';
 
                                 <!-- Hidden combined field for backend -->
                                 <input type="hidden" id="postSchedule" name="scheduled_time">
+                                <input type="hidden" name="store_id" value="<?php echo $store_id; ?>">
 
                                 <div class="form-group">
                                     <label for="postProfiles" class="form-label">
@@ -480,7 +481,7 @@ include __DIR__.'/header.php';
                                                         name="profile_ids[]"
                                                         value="<?php echo htmlspecialchars($prof['id']); ?>"
                                                         class="profile-checkbox-input">
-                                                <div class="profile-checkbox-label" style="--profile-color: <?php echo $color; ?>">
+                                                <div class="profile-checkbox-label" style="--profile-color: <?php echo $color; ?>;">
                                                     <i class="bi <?php echo $icon; ?>"></i>
                                                     <div class="profile-info">
                                                         <span class="profile-network"><?php echo htmlspecialchars($prof['network'] ?? ''); ?></span>
@@ -497,7 +498,7 @@ include __DIR__.'/header.php';
                                 </div>
                             </div>
 
-                            <!-- Media Upload Section -->
+                            <!-- Media Upload -->
                             <div class="form-section full-width">
                                 <div class="section-header">
                                     <i class="bi bi-image"></i>
@@ -508,7 +509,6 @@ include __DIR__.'/header.php';
                                         <div class="alert alert-info">
                                             <i class="bi bi-info-circle"></i>
                                             <strong>Media Guidelines:</strong>
-
                                             <strong class="d-block mt-2">Images:</strong>
                                             <ul class="mb-2">
                                                 <li>Accepted formats: JPG, PNG</li>
@@ -517,7 +517,6 @@ include __DIR__.'/header.php';
                                                 <li>Alternative sizes: 1200x630px (landscape) or 1080x1350px (portrait)</li>
                                                 <li><small class="text-muted">Note: Instagram requires square (1:1) or portrait (4:5) ratios</small></li>
                                             </ul>
-
                                             <strong class="d-block">Videos:</strong>
                                             <ul class="mb-0">
                                                 <li>Accepted format: MP4</li>
