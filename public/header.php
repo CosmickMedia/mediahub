@@ -14,6 +14,7 @@ if (isset($_SESSION['store_id'])) {
     $stmt->execute([$_SESSION['store_id']]);
     $unread_count = $stmt->fetchColumn();
 }
+$version = trim(file_get_contents(__DIR__.'/../VERSION'));
 ?>
 <!doctype html>
 <html lang="en">
@@ -30,7 +31,8 @@ if (isset($_SESSION['store_id'])) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="inc/css/style.css">
+    <link rel="stylesheet" href="/assets/css/common.css?v=<?php echo $version; ?>">
+    <link rel="stylesheet" href="inc/css/style.css?v=<?php echo $version; ?>">
     <?php if(isset($extra_head)) echo $extra_head; ?>
 
 </head>
