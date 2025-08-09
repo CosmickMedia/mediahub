@@ -2779,6 +2779,32 @@ body {
     z-index: 10000 !important;
 }
 
+.schedule-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.form-section.full-width {
+    grid-column: 1 / -1;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.section-header i {
+    color: #667eea;
+    font-size: 1.25rem;
+}
+
 .form-label .required {
     color: #dc3545;
     margin-left: 0.25rem;
