@@ -3003,6 +3003,32 @@ table th, table td {
             box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
         }
 
+        /* Settings Button */
+        .settings-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .settings-btn:hover {
+            background: var(--primary-gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .settings-btn i {
+            font-size: 1.25rem;
+        }
+
         .logout-btn i {
             font-size: 1.25rem;
         }
