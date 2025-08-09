@@ -1,4 +1,8 @@
 /* Admin styles */
+
+:root {
+    --admin-navbar-height: 72px;
+}
 .navbar-brand { font-weight: 600; }
 .navbar { background-color: #2c3e50 !important; }
 .card { border: 1px solid #dee2e6; }
