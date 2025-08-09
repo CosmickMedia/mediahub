@@ -561,50 +561,6 @@ include __DIR__.'/header.php';
 
         .admin-action-btn {
             flex: 1;
-            padding: 0.5rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.25rem;
-        }
-
-        .admin-edit-btn {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .admin-edit-btn:hover {
-            background: #92400e;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .admin-delete-btn {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .admin-delete-btn:hover {
-            background: #dc2626;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .admin-post-as-btn {
-            background: #e0f2fe;
-            color: #0369a1;
-        }
-
-        .admin-post-as-btn:hover {
-            background: #0369a1;
-            color: white;
-            transform: translateY(-2px);
         }
 
         /* Store Pills */
@@ -688,6 +644,14 @@ include __DIR__.'/header.php';
         .fc .fc-button-primary:hover {
             background: var(--primary-gradient) !important;
             border-color: transparent !important;
+        }
+
+        .fc .fc-button-group .fc-button {
+            margin-right: 0.5rem;
+        }
+
+        .fc .fc-button-group .fc-button:last-child {
+            margin-right: 0;
         }
 
         .fc-col-header-cell {
@@ -1425,7 +1389,7 @@ include __DIR__.'/header.php';
                     headerToolbar: {
                         left: 'prev,next today',
                         center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                        right: ''
                     },
                     height: 'auto',
                     events: window.allEvents,
@@ -1599,8 +1563,8 @@ include __DIR__.'/header.php';
 
                 // Admin actions
                 html += '<div class="admin-quick-actions">';
-                html += '<button class="admin-action-btn admin-edit-btn" onclick="editPost(\'' + event.extendedProps.post_id + '\', ' + event.extendedProps.store_id + ')"><i class="bi bi-pencil"></i> Edit</button>';
-                html += '<button class="admin-action-btn admin-delete-btn" onclick="deletePost(\'' + event.extendedProps.post_id + '\', ' + event.extendedProps.store_id + ')"><i class="bi bi-trash"></i> Delete</button>';
+                html += '<button class="btn btn-sm btn-primary admin-action-btn" onclick="editPost(\'' + event.extendedProps.post_id + '\', ' + event.extendedProps.store_id + ')"><i class="bi bi-pencil"></i> Edit</button>';
+                html += '<button class="btn btn-sm btn-danger admin-action-btn" onclick="deletePost(\'' + event.extendedProps.post_id + '\', ' + event.extendedProps.store_id + ')"><i class="bi bi-trash"></i> Delete</button>';
                 html += '</div>';
 
                 html += '</div></div>';
