@@ -35,7 +35,7 @@ include __DIR__.'/login_header.php';
 ?>
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
-        <div class="text-center">
+        <div class="text-center mb-4">
             <img src="/assets/images/mediahub-admin-logo.png" alt="MediaHub Admin" class="login-logo">
         </div>
         <div class="card shadow">
