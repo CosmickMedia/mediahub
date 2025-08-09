@@ -93,10 +93,15 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 <i class="bi bi-people"></i>
                 <span>Users</span>
             </a>
-            <a class="nav-link<?php if($active==='settings') echo ' active'; ?>" href="settings.php">
-                <i class="bi bi-gear"></i>
-                <span>Settings</span>
-            </a>
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle<?php if($active==='reports') echo ' active'; ?>" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Reports</span>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                    <li><a class="dropdown-item" href="schedule-reports.php">Posting Report</a></li>
+                </ul>
+            </div>
         </div>
 
         <!-- Admin User Section -->
@@ -129,9 +134,14 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 </div>
             </div>
 
+            <!-- Settings -->
+            <a href="settings.php" class="settings-btn" title="Settings">
+                <i class="bi bi-gear"></i>
+            </a>
+
             <!-- Logout -->
             <a href="logout.php" class="logout-btn" title="Logout" onclick="return confirmLogout()">
-                <i class="bi bi-box-arrow-right"></i>
+                <i class="bi bi-power"></i>
             </a>
         </div>
 
@@ -169,6 +179,15 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 <i class="bi bi-people"></i>
                 <span>Users</span>
             </a>
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle<?php if($active==='reports') echo ' active'; ?>" href="#" id="reportsDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Reports</span>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="reportsDropdownMobile">
+                    <li><a class="dropdown-item" href="schedule-reports.php">Posting Report</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>

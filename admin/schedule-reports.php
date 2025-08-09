@@ -5,7 +5,7 @@ require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_login();
 
-$active = 'calendars'; // keeps Calendars highlighted in nav
+$active = 'reports';
 $pdo = get_pdo();
 
 // --------------------
