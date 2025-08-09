@@ -13,14 +13,6 @@ $pdo = get_pdo();
 // --------------------
 $stores = $pdo->query('SELECT id, name, hootsuite_profile_ids FROM stores ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
 $networks = $pdo->query('SELECT DISTINCT network FROM hootsuite_profiles ORDER BY network')->fetchAll(PDO::FETCH_COLUMN);
-$admins   = $pdo->query('SELECT id, username FROM users ORDER BY username')->fetchAll(PDO::FETCH_ASSOC);
-
-// Map admin id to name for later use
-$adminMap = [];
-foreach ($admins as $a) {
-    $adminMap[$a['id']] = $a['username'];
-}
-$adminMap[0] = 'Unassigned';
 
 // --------------------
 // Parse Filters
@@ -29,7 +21,6 @@ $start = $_GET['start_date'] ?? date('Y-m-d', strtotime('-7 days'));
 $end   = $_GET['end_date']   ?? date('Y-m-d');
 $storeFilter    = isset($_GET['store'])   ? array_filter(array_map('intval', (array)$_GET['store'])) : [];
 $networkFilter  = isset($_GET['network']) ? array_filter((array)$_GET['network']) : [];
-$adminFilter    = isset($_GET['admin'])   ? array_filter(array_map('intval', (array)$_GET['admin'])) : [];
 
 // Build dynamic WHERE clause
 $params = [];
@@ -46,16 +37,12 @@ if ($networkFilter) {
     $where[] = 'pr.network IN ('.implode(',', array_fill(0, count($networkFilter), '?')).')';
     $params = array_merge($params, $networkFilter);
 }
-if ($adminFilter) {
-    $where[] = '(p.created_by_user_id IN ('.implode(',', array_fill(0, count($adminFilter), '?')).'))';
-    $params = array_merge($params, $adminFilter);
-}
 $whereSql = $where ? implode(' AND ', $where) : '1=1';
 
 // --------------------
 // Fetch Posts within range applying filters
 // --------------------
-$stmt = $pdo->prepare("SELECT p.store_id, s.name AS store_name, pr.network, p.state, p.created_by_user_id, p.scheduled_send_time
+$stmt = $pdo->prepare("SELECT p.store_id, s.name AS store_name, pr.network, p.state, p.scheduled_send_time
                         FROM hootsuite_posts p
                         JOIN stores s ON p.store_id = s.id
                         LEFT JOIN hootsuite_profiles pr ON p.social_profile_id = pr.id
@@ -90,10 +77,6 @@ $storesPosting = [];
 $postsByStatus = [];
 $postsByNetwork = [];
 $coverage = [];
-$postsByStorePublished = [];
-$postsByAdminPublished = [];
-$failuresByStore = [];
-$failuresByAdmin = [];
 $postsByDayNetwork = [];
 $postsByHour = array_fill(0, 24, 0);
 $postsByDay = [];
@@ -103,7 +86,6 @@ foreach ($posts as $p) {
     $network = strtolower($p['network'] ?? 'unknown');
     $storeId = (int)$p['store_id'];
     $storeName = $p['store_name'];
-    $adminId = (int)($p['created_by_user_id'] ?? 0);
     $day = substr($p['scheduled_send_time'], 0, 10);
     $hour = (int)date('H', strtotime($p['scheduled_send_time']));
 
@@ -126,12 +108,8 @@ foreach ($posts as $p) {
     if ($state === 'PUBLISHED') {
         $coverage[$storeId][$network]['published']++;
         $storesPosting[$storeId] = true;
-        $postsByStorePublished[$storeName] = ($postsByStorePublished[$storeName] ?? 0) + 1;
-        $postsByAdminPublished[$adminId] = ($postsByAdminPublished[$adminId] ?? 0) + 1;
     } elseif ($state === 'FAILED') {
         $coverage[$storeId][$network]['failed']++;
-        $failuresByStore[$storeName] = ($failuresByStore[$storeName] ?? 0) + 1;
-        $failuresByAdmin[$adminId] = ($failuresByAdmin[$adminId] ?? 0) + 1;
     } else {
         $coverage[$storeId][$network]['scheduled']++;
     }
@@ -149,12 +127,6 @@ $storesNoPosts = $totalActiveStores - $storesPostingCount;
 
 // Calculate success rate
 $successRate = $totalPosts > 0 ? round((($postsByStatus['PUBLISHED'] ?? 0) / $totalPosts) * 100, 1) : 0;
-
-// Leaderboard sorting
-arsort($postsByStorePublished);
-arsort($postsByAdminPublished);
-arsort($failuresByStore);
-arsort($failuresByAdmin);
 
 // Alerts: stores with no posts in last 7/14 days and no scheduled posts next 7 days
 $lastPublished = [];
@@ -203,41 +175,9 @@ $networkColors = [
     'snapchat' => '#FFFC00',
     'unknown' => '#6c757d'
 ];
-
-// Export CSV if requested
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="social-health-report-' . date('Y-m-d') . '.csv"');
-
-    $output = fopen('php://output', 'w');
-
-    // Headers
-    fputcsv($output, ['Store', 'Network', 'Published', 'Scheduled', 'Failed', 'Total', 'Success Rate']);
-
-    // Data
-    foreach ($stores as $s) {
-        foreach ($networks as $n) {
-            $cell = $coverage[$s['id']][$n] ?? ['published'=>0,'scheduled'=>0,'failed'=>0];
-            $total = $cell['published'] + $cell['scheduled'] + $cell['failed'];
-            $successRate = $total > 0 ? round(($cell['published'] / $total) * 100, 1) . '%' : '0%';
-            fputcsv($output, [
-                $s['name'],
-                ucfirst($n),
-                $cell['published'],
-                $cell['scheduled'],
-                $cell['failed'],
-                $total,
-                $successRate
-            ]);
-        }
-    }
-
-    fclose($output);
-    exit;
-}
-
 include __DIR__.'/header.php';
 ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css">
 
 <style>
     /* Dashboard Variables */
@@ -366,6 +306,10 @@ include __DIR__.'/header.php';
         outline: none;
     }
 
+    .date-input {
+        max-width: 140px;
+    }
+
     .form-label-modern {
         font-weight: 600;
         color: #495057;
@@ -413,25 +357,6 @@ include __DIR__.'/header.php';
         color: #667eea;
         transform: translateY(-2px);
         background: #f8f9ff;
-    }
-
-    .btn-export {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        transition: var(--transition);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn-export:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        color: white;
     }
 
     /* KPI Cards */
@@ -797,105 +722,6 @@ include __DIR__.'/header.php';
         opacity: 1;
     }
 
-    /* Leaderboards */
-    .leaderboards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .leaderboard-card {
-        background: white;
-        border-radius: 20px;
-        box-shadow: var(--card-shadow);
-        overflow: hidden;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .leaderboard-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.25rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .leaderboard-header i {
-        font-size: 1.25rem;
-    }
-
-    .leaderboard-body {
-        padding: 0;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    .leaderboard-item {
-        display: flex;
-        align-items: center;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid #f0f0f0;
-        transition: var(--transition);
-    }
-
-    .leaderboard-item:hover {
-        background: #f8f9fa;
-        transform: translateX(5px);
-    }
-
-    .leaderboard-item:last-child {
-        border-bottom: none;
-    }
-
-    .leaderboard-rank {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.875rem;
-        margin-right: 1rem;
-        flex-shrink: 0;
-    }
-
-    .leaderboard-item:nth-child(1) .leaderboard-rank {
-        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        color: white;
-    }
-
-    .leaderboard-item:nth-child(2) .leaderboard-rank {
-        background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
-        color: white;
-    }
-
-    .leaderboard-item:nth-child(3) .leaderboard-rank {
-        background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
-        color: white;
-    }
-
-    .leaderboard-item:nth-child(n+4) .leaderboard-rank {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    .leaderboard-name {
-        flex: 1;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-
-    .leaderboard-value {
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #667eea;
-    }
-
     /* Alerts Section */
     .alerts-grid {
         display: grid;
@@ -1072,10 +898,6 @@ include __DIR__.'/header.php';
             grid-template-columns: 1fr;
         }
 
-        .leaderboards-grid {
-            grid-template-columns: 1fr;
-        }
-
         .alerts-grid {
             grid-template-columns: 1fr;
         }
@@ -1206,21 +1028,21 @@ include __DIR__.'/header.php';
             <div class="filter-icon">
                 <i class="bi bi-funnel"></i>
             </div>
-            <h3 class="filter-title">Filters & Export</h3>
+            <h3 class="filter-title">Filters</h3>
         </div>
         <form method="get" id="filterForm">
             <div class="row g-3 align-items-end">
                 <div class="col-md-2">
                     <label class="form-label-modern">Start Date</label>
-                    <input type="date" name="start_date" value="<?=htmlspecialchars($start)?>" class="form-control-modern">
+                    <input type="date" name="start_date" value="<?=htmlspecialchars($start)?>" class="form-control-modern date-input">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label-modern">End Date</label>
-                    <input type="date" name="end_date" value="<?=htmlspecialchars($end)?>" class="form-control-modern">
+                    <input type="date" name="end_date" value="<?=htmlspecialchars($end)?>" class="form-control-modern date-input">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-4">
                     <label class="form-label-modern">Stores</label>
-                    <select name="store[]" class="form-select-modern" multiple style="height: 43px;">
+                    <select name="store[]" class="form-select-modern" multiple style="height: 43px; min-width:250px;">
                         <?php foreach ($stores as $s): ?>
                             <option value="<?=$s['id']?>" <?php if(in_array($s['id'],$storeFilter)) echo 'selected';?>><?=htmlspecialchars($s['name'])?></option>
                         <?php endforeach; ?>
@@ -1235,14 +1057,6 @@ include __DIR__.'/header.php';
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label-modern">Admins</label>
-                    <select name="admin[]" class="form-select-modern" multiple style="height: 43px;">
-                        <?php foreach ($admins as $a): ?>
-                            <option value="<?=$a['id']?>" <?php if(in_array($a['id'],$adminFilter)) echo 'selected';?>><?=htmlspecialchars($a['username'])?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-2">
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn-gradient-primary">
                             <i class="bi bi-search"></i> Apply
@@ -1250,9 +1064,6 @@ include __DIR__.'/header.php';
                         <a href="schedule-reports.php" class="btn-outline-modern">
                             <i class="bi bi-arrow-clockwise"></i> Reset
                         </a>
-                        <button type="submit" name="export" value="csv" class="btn-export">
-                            <i class="bi bi-download"></i> CSV
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1431,88 +1242,6 @@ include __DIR__.'/header.php';
             </tbody>
         </table>
     </div>
-
-    <!-- Leaderboards -->
-    <div class="leaderboards-grid">
-        <!-- Top Posting Stores -->
-        <div class="leaderboard-card">
-            <div class="leaderboard-header">
-                <i class="bi bi-trophy"></i>
-                Top Posting Stores
-            </div>
-            <div class="leaderboard-body">
-                <?php
-                $rank = 1;
-                foreach (array_slice($postsByStorePublished, 0, 10, true) as $store => $count):
-                    ?>
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank"><?=$rank?></div>
-                        <div class="leaderboard-name"><?=htmlspecialchars($store)?></div>
-                        <div class="leaderboard-value"><?=$count?></div>
-                    </div>
-                    <?php
-                    $rank++;
-                endforeach;
-                ?>
-            </div>
-        </div>
-
-        <!-- Top Admins -->
-        <div class="leaderboard-card">
-            <div class="leaderboard-header">
-                <i class="bi bi-person-badge"></i>
-                Top Admins
-            </div>
-            <div class="leaderboard-body">
-                <?php
-                $rank = 1;
-                foreach (array_slice($postsByAdminPublished, 0, 10, true) as $id => $count):
-                    ?>
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank"><?=$rank?></div>
-                        <div class="leaderboard-name"><?=htmlspecialchars($adminMap[$id] ?? 'Unknown')?></div>
-                        <div class="leaderboard-value"><?=$count?></div>
-                    </div>
-                    <?php
-                    $rank++;
-                endforeach;
-                ?>
-            </div>
-        </div>
-
-        <!-- Stores with Most Failures -->
-        <div class="leaderboard-card">
-            <div class="leaderboard-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-                <i class="bi bi-exclamation-circle"></i>
-                Failure Analysis
-            </div>
-            <div class="leaderboard-body">
-                <?php
-                if (empty($failuresByStore)):
-                    ?>
-                    <div class="alert-empty">
-                        <i class="bi bi-check-circle"></i>
-                        <p>No failures recorded!</p>
-                    </div>
-                <?php
-                else:
-                    $rank = 1;
-                    foreach (array_slice($failuresByStore, 0, 10, true) as $store => $count):
-                        ?>
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"><?=$rank?></div>
-                            <div class="leaderboard-name"><?=htmlspecialchars($store)?></div>
-                            <div class="leaderboard-value" style="color: #ef4444;"><?=$count?></div>
-                        </div>
-                        <?php
-                        $rank++;
-                    endforeach;
-                endif;
-                ?>
-            </div>
-        </div>
-    </div>
-
     <!-- Alerts Section -->
     <div class="alerts-grid">
         <!-- Critical Alerts -->
@@ -1661,6 +1390,7 @@ include __DIR__.'/header.php';
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1687,17 +1417,20 @@ include __DIR__.'/header.php';
 
       
 
-            // Initialize select2 for better multi-select
-            if (typeof $ !== 'undefined' && $.fn.select2) {
-                $('select[multiple]').select2({
-                    placeholder: 'Select options...',
-                    allowClear: true,
-                    width: '100%'
+            // Initialize Tom Select for better multi-select
+            if (typeof TomSelect !== 'undefined') {
+                new TomSelect('select[name="store[]"]', {
+                    plugins: ['remove_button'],
+                    persist: false
+                });
+                new TomSelect('select[name="network[]"]', {
+                    plugins: ['remove_button'],
+                    persist: false
                 });
             }
 
             // Add hover effects to cards
-            document.querySelectorAll('.kpi-card, .leaderboard-card, .alert-card').forEach(card => {
+            document.querySelectorAll('.kpi-card, .alert-card').forEach(card => {
                 card.addEventListener('mouseenter', function() {
                     this.style.transform = 'translateY(-5px) scale(1.02)';
                 });
