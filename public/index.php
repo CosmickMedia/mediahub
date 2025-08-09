@@ -68,13 +68,14 @@ if (!$isLoggedIn) {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/assets/css/common.css">
         <link rel="stylesheet" href="inc/css/style.css">
     </head>
     <body class="login-page">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-4">
-                <div class="text-center">
+                <div class="text-center mb-4">
                     <img src="/assets/images/mediahub-logo.png" alt="MediaHub" class="login-logo">
                 </div>
                 <div class="card shadow">
