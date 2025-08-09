@@ -22,14 +22,31 @@ require_once __DIR__.'/../lib/settings.php';
 ensure_session();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['store_id']) || !isset($_SESSION['store_user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-    exit;
+// Allow admin to perform certain actions (like delete) by passing
+// `admin_delete=1` and providing a store_id via POST. Admin sessions use
+// `user_id` rather than store-specific session variables.
+$is_admin_action = !empty($_POST['admin_delete']) && !empty($_SESSION['user_id']);
+
+if ($is_admin_action) {
+    // For admin actions, store_id must be supplied explicitly
+    $store_id = (int)($_POST['store_id'] ?? 0);
+    if ($store_id <= 0) {
+        echo json_encode(['success' => false, 'error' => 'Missing store id']);
+        exit;
+    }
+    // Use admin user id for logging if needed, but skip store user checks
+    $user_id = (int)$_SESSION['user_id'];
+} else {
+    // Regular store user action requires store_id and store_user_id in session
+    if (!isset($_SESSION['store_id']) || !isset($_SESSION['store_user_id'])) {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+    $store_id = (int)$_SESSION['store_id'];
+    $user_id  = (int)$_SESSION['store_user_id'];
 }
 
-$store_id = (int)$_SESSION['store_id'];
-$user_id  = (int)$_SESSION['store_user_id'];
-$action   = $_POST['action'] ?? 'create';
+$action = $_POST['action'] ?? 'create';
 
 $token = get_setting('hootsuite_access_token');
 if (!$token) {
@@ -915,10 +932,11 @@ if ($action === 'delete') {
     }
 
     // Check ownership
+    // Check ownership for normal store users. Admins can bypass this check.
     $stmt = $pdo->prepare('SELECT created_by_user_id FROM hootsuite_posts WHERE post_id=? AND store_id=?');
     $stmt->execute([$post_id, $store_id]);
     $owner = $stmt->fetchColumn();
-    if ($owner && $owner != $user_id) {
+    if (!$is_admin_action && $owner && $owner != $user_id) {
         echo json_encode(['success' => false, 'error' => 'Not authorized to delete this post']);
         exit;
     }
