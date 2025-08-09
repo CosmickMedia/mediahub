@@ -1,0 +1,186 @@
+MediaHub Technical Overview
+
+MediaHub is a comprehensive content and communication platform built for franchise and multi-location retail environments. It streamlines how field teams capture media, how headquarters curates marketing assets, and how both sides stay aligned on campaigns and day‑to‑day tasks.
+
+MEDIA COLLECTION
+================
+MediaHub’s foundation is a frictionless intake system designed for busy store staff. Each location receives a unique link or QR code leading to a branded upload page that works on any device. Staff can snap photos or record videos on their phones, add captions, tag the store, and instantly send the files to corporate.
+
+Uploads do not require logins and can handle multiple files at once. The system performs basic validation, resizes oversized media, and automatically names files using the store identifier, date, and time. Submitted assets are transferred to your corporate Google Drive within a structured folder hierarchy, preserving EXIF data and generating thumbnails for quick preview.
+
+ADMINISTRATIVE DASHBOARD
+========================
+Administrators sign in to a powerful dashboard where all incoming content and store activity is centralized. The dashboard presents a live feed of uploads with filtering by store, file type, or date range. Bulk download tools allow marketing teams to compile assets for campaigns without hunting through individual folders.
+
+From the dashboard, managers can view or revoke uploads, leave notes for store teams, and flag content for follow‑up. Advanced search surfaces historical submissions across seasons or specific promotions, helping stakeholders understand what assets exist and where gaps remain.
+
+STORE & USER MANAGEMENT
+========================
+MediaHub allows fine‑grained control over stores and personnel. Admins can create, edit, or archive store profiles, assign unique upload links, and map physical addresses for geo‑specific campaigns. Role‑based access enables read‑only users, marketing managers, and super admins to operate with the appropriate permissions.
+
+The platform records every login and action, providing traceability and accountability. User invitations, password resets, and access revocations happen directly inside the dashboard without touching the underlying server.
+
+REAL‑TIME COMMUNICATION
+=======================
+MediaHub includes an integrated messaging system that closes the loop between stores and headquarters. Each store has a private chat channel with the admin team. Messages support rich text, emoji reactions, and file attachments, keeping conversations contextual to the marketing assets being discussed.
+
+Push notifications alert users when a new message arrives, ensuring that critical instructions aren’t missed. Conversation history is fully searchable, and archived chat transcripts can be exported for compliance purposes.
+
+BROADCAST ANNOUNCEMENTS & CONTENT LIBRARY
+=========================================
+Beyond one‑to‑one messaging, MediaHub offers a broadcast feature for announcements, training materials, and marketing articles. Administrators can publish text posts, attach PDFs or images, and target distribution to specific regions or the entire network.
+
+Stores access these materials through a responsive portal that doubles as a marketing asset library. Search filters help locate promotional graphics, logos, or compliance documents. Version indicators mark obsolete files, reducing the risk of outdated branding going to market.
+
+SCHEDULING & CAMPAIGN COORDINATION
+==================================
+A built‑in calendar gives headquarters a high‑level view of upcoming campaigns, product launches, and seasonal events. Events can be created manually or imported from Google Sheets to align with external planning tools. Stores see a personalized schedule that highlights the campaigns relevant to them, complete with attached briefs or sample imagery.
+
+Calendar entries support reminders and status tracking. As stores submit required assets or confirm task completion, admins update the calendar to reflect progress, providing transparency across departments.
+
+CRM & MARKETING AUTOMATION INTEGRATION
+======================================
+MediaHub integrates with the Groundhogg CRM to ensure store‑level contacts and campaign engagement data flow back to your marketing automation system. When a new store or user is added, the platform creates or updates the corresponding contact in Groundhogg, eliminating duplicate data entry.
+
+The integration handles OAuth authentication, refreshes access tokens automatically, and logs API responses for debugging. Triggered workflows in Groundhogg can respond to MediaHub events, such as initiating a welcome email sequence when a new store is onboarded.
+
+SOCIAL MEDIA SCHEDULING WITH HOOTSUITE
+======================================
+For teams using Hootsuite, MediaHub syncs campaign details and location metadata so that scheduled posts can be tagged with the appropriate store. A recurring cron job pulls the latest list of Hootsuite profiles, checks token validity, and writes sync results to the log for administrators to review.
+
+This connection enables cross‑posting and social analytics tracking at a per‑store level, supporting localized marketing while retaining central oversight.
+
+NOTIFICATIONS & ALERTS
+======================
+To keep everyone informed, MediaHub emits notifications through multiple channels. Stores receive confirmation emails after successful uploads, while admins get real‑time alerts for high‑priority submissions. The system can escalate unresolved messages or missing assets via daily summary emails.
+
+In addition, configurable webhooks allow integration with third‑party services such as Slack, Microsoft Teams, or SMS gateways, ensuring that urgent communications reach the right people.
+
+SECURITY & COMPLIANCE
+======================
+MediaHub employs industry‑standard security practices. All data transfer occurs over HTTPS. Uploaded files are stored in your own Google Drive, inheriting Google’s encryption at rest and access controls. User passwords are hashed using modern algorithms, and optional two‑factor authentication can be enabled for admin logins.
+
+Audit logs capture login attempts, file deletions, and configuration changes. These logs are exportable to SIEM tools, facilitating compliance with corporate policies or regulatory requirements.
+
+CUSTOMIZATION & BRANDING
+=========================
+Organizations can tailor MediaHub’s look and feel to match their brand. The upload portal supports custom logos, color schemes, and welcome messages. Email templates for notifications can be edited with your brand voice, ensuring consistent presentation across all touchpoints.
+
+For advanced needs, administrators can define custom metadata fields for uploads, such as campaign codes or product categories, enabling deeper analytics and more precise asset filtering.
+
+REPORTING & INSIGHTS
+=====================
+The platform aggregates metrics that help evaluate marketing performance. Dashboards show the volume of uploads by store or region, response times to admin messages, and participation rates for scheduled campaigns. Data can be exported to CSV for analysis in external BI tools.
+
+These insights allow leadership to spot high‑performing locations, identify stores needing additional support, and measure the return on marketing initiatives.
+
+DEPENDABILITY & SCALABILITY
+==========================
+MediaHub is built with reliability in mind. Cron jobs monitor background tasks like Google Drive syncs and CRM integrations, retrying failed jobs and notifying administrators if repeated errors occur. The application scales horizontally to support hundreds of stores submitting thousands of files without degradation.
+
+Version information is stored directly within the application, and detailed changelogs document every release. Rollback procedures are defined, allowing safe updates without disrupting store operations.
+
+ONBOARDING & SUPPORT
+====================
+The system includes tools to assist with rollout. Guided setup wizards help new administrators configure Google Drive folders, connect third‑party services, and invite stores. Inline documentation and tooltip explanations walk users through unfamiliar features.
+
+Support teams benefit from the ability to impersonate store accounts (with appropriate permission) to troubleshoot issues quickly. A ticketing module can route store inquiries to the correct department, ensuring timely resolution.
+
+TYPICAL WORKFLOW
+================
+1. Headquarters creates store profiles and invites store managers.
+2. Each store posts new photos through its unique upload link.
+3. Admins review submissions in the dashboard, chat with stores if clarification is needed, and organize assets into campaigns.
+4. Approved content feeds into scheduled social posts via Hootsuite and CRM workflows via Groundhogg.
+5. Corporate monitors campaign progress through the calendar and reporting dashboards, providing feedback and guidance through chat and broadcast announcements.
+
+VALUE PROPOSITION
+=================
+MediaHub reduces friction between frontline staff and corporate marketing teams. By unifying media intake, communication, scheduling, and third‑party integrations, it eliminates scattered email threads, lost files, and missed campaign deadlines.
+
+Organizations adopt MediaHub to accelerate content gathering, maintain consistent branding, and empower stores to participate actively in marketing efforts. The result is faster campaign execution, better visibility into field activity, and a stronger connection between the brand and its locations.
+
+ADMIN HEADER MENU WALKTHROUGH
+=============================
+MediaHub’s administrative interface places every power tool at your fingertips through a persistent navigation bar. Each link opens a dedicated workspace designed to streamline a specific aspect of marketing operations.
+
+DASHBOARD
+---------
+The dashboard greets administrators with key performance tiles that count total stores, assets uploaded today or this week, pending articles, and active users. A recent activity feed lists the latest uploads, articles, and broadcasts, allowing managers to jump directly into review or follow-up. Quick message widgets enable instant announcements to all stores without leaving the page, while color-coded statistics highlight trends that need attention.
+
+STORES
+------
+The Stores page acts as a CRM for brick‑and‑mortar locations. Admins can add new stores, assign unique upload links, manage contact details, and configure Hootsuite campaign tags or profile mappings. Integrated Google Maps fields capture addresses for geo‑targeted initiatives, and upload and chat counters reveal each store’s engagement level. Bulk actions streamline onboarding, and one click opens an edit form where passwords, emails, or report URLs can be adjusted.
+
+CONTENT REVIEW
+--------------
+The Content page aggregates every photo and video submitted from the field. Powerful filters slice assets by store, date range, media type, status, or keyword. Thumbnails load on demand with visual indicators for video files, and hovering reveals descriptions or custom messages from store staff. Moderators can approve, reject, or tag assets, trigger email notifications, download originals, or jump to the corresponding Google Drive folder. Pagination and AJAX loading keep the experience fast even with massive libraries.
+
+BROADCASTS
+----------
+Broadcasts are the corporate megaphone. From this page administrators craft announcements with rich text and attachments, target them to all stores or a select region, and automatically email the message to each location’s inbox. Statistics track how many broadcasts were sent in the past week or month and which stores are actively reading them. A history table preserves every alert with deletion controls for housekeeping.
+
+ARTICLES
+--------
+The Articles section collects long‑form submissions such as blog posts, testimonials, or staff spotlights. Filters sort drafts by store or approval status, and inline actions let editors approve, reject, or annotate content with personalized notes. Approval triggers branded emails back to the authoring store, keeping them informed of progress. Statistics summarise total, pending, approved, and rejected articles to gauge contribution rates across the network.
+
+CHAT
+----
+The Chat page delivers real‑time, threaded conversations with each store. A left‑hand sidebar lists all locations with unread indicators and last‑message previews. Selecting a store reveals the full history, supports drag‑and‑drop file sharing, emoji reactions, and read receipts, and allows admins to mark messages as handled. Background cron jobs update unread counts in the header notification badge so urgent questions never slip through.
+
+CALENDARS
+---------
+Calendars consolidate scheduled social posts pulled from Hootsuite. Administrators can filter by store to view a location’s upcoming content, inspect attached media thumbnails, and identify which social networks are covered. Analytics panels tally posts by network and highlight stores lacking coverage, empowering teams to fill gaps before campaigns launch. Hovering over events reveals post text, media previews, and scheduled send times.
+
+USERS
+-----
+The Users page manages internal admin accounts. Forms create new logins with roles and Groundhogg synchronization. Status cards display total, recent, and active administrators, while the table view lists account details with deletion controls. All password hashing and permission checks occur automatically, giving organizations confidence in secure access management.
+
+REPORTS
+-------
+The Reports section currently features a Posting Report that analyzes Hootsuite data across date ranges, stores, and social networks. Visual heatmaps reveal publishing cadence by day and channel, success metrics calculate overall publishing rate, and alert panels flag stores that haven’t posted recently or have nothing scheduled. Export options allow marketing leads to capture snapshots for presentations.
+
+SETTINGS
+--------
+Settings is the configuration nerve center. Tabs organize Google Drive credentials, email templates, Groundhogg API keys, calendar and Hootsuite integration options, and upload status or social network definitions. Administrators can also purge demo data, clear caches, or wipe chat histories for a fresh start. OAuth wizards guide users through connecting external services and immediately test token validity.
+
+NOTIFICATIONS
+-------------
+An in‑app bell icon surfaces unread store messages. The count updates in real time via AJAX, and clicking opens the relevant chat thread. Combined with email alerts, this ensures urgent store communications never go unnoticed.
+
+STORE PORTAL MENU WALKTHROUGH
+=============================
+MediaHub also includes a streamlined portal tailored for store personnel. Its header menu mirrors day‑to‑day tasks so local teams can contribute content and stay aligned with corporate strategy.
+
+STORE DASHBOARD & UPLOAD HUB
+----------------------------
+After logging in with a simple PIN and email, store users land on a dashboard that doubles as an upload center. The interface supports multi‑file drag‑and‑drop, inline captioning, and instant previews. Progress bars confirm successful transfers, and confirmation emails reassure users their files reached headquarters. Dashboard tiles recap recent uploads, unread messages, and upcoming calendar events so staff know what’s expected next.
+
+HISTORY
+-------
+The History page provides a searchable archive of every asset the store has ever submitted. Filters narrow results by date or media type, and each entry links back to the original file on Google Drive. This transparency helps stores avoid duplicate submissions and quickly retrieve assets for local reuse.
+
+CALENDAR
+--------
+Store teams view a tailored marketing calendar highlighting only the campaigns relevant to their location. Events imported from corporate planning sheets include briefs, sample graphics, and due dates. Color‑coded markers show which social networks each post targets, and tooltip summaries outline required actions. Stores can confirm completion or message admins directly from the calendar for clarification.
+
+ARTICLES
+--------
+From the Articles page, store contributors submit text stories or review past entries. A WYSIWYG editor supports rich formatting, embedded images, and word count limits enforced by admin settings. Submission status indicators—submitted, approved, or rejected—keep authors informed, while read‑only views of approved articles inspire content quality across the network.
+
+MARKETING ANALYTICS
+-------------------
+The Marketing Report section embeds a live dashboard from platforms like Looker or Data Studio. Stores can refresh the iframe, expand to full screen, or open the report in a new tab. If a report hasn’t been configured, the page gently prompts users to contact headquarters, reinforcing collaboration around performance metrics.
+
+STORE CHAT
+----------
+A dedicated Chat page mirrors the admin view, enabling real‑time support requests, file sharing, and emoji reactions. Unread badges in the header notify store users when corporate replies, and a notification dropdown summarizes new messages. This keeps frontline teams engaged and reduces the lag between question and answer.
+
+MARKET COMPARISON: MEDIAHUB VS HOOTSUITE
+========================================
+Hootsuite excels at scheduling and monitoring social media, but it relies on marketers to supply assets and coordinate with field teams through separate tools. MediaHub closes that gap by combining Hootsuite’s publishing power with upstream content collection, store communication, and localized reporting. Whereas Hootsuite focuses on social channels, MediaHub manages the entire lifecycle—from capturing photos in a store to approving them, chatting about revisions, scheduling posts, and tracking performance. Organizations that pair MediaHub with Hootsuite gain a specialized layer built for franchise operations, dramatically reducing the time between inspiration and publication.
+
+FUTURE OUTLOOK
+==============
+The roadmap includes AI‑assisted tagging for uploads, deeper analytics dashboards, and optional integrations with popular DAM systems. As the platform evolves, the core mission remains unchanged: to create a single hub where stores and headquarters collaborate on every aspect of media and marketing.
+
