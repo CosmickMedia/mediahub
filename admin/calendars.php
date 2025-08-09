@@ -1022,6 +1022,10 @@ include __DIR__.'/header.php';
                     </button>
                 <?php endif; ?>
 
+                <a href="/admin/schedule-reports.php" class="btn btn-outline-primary" target="_blank">
+                    <i class="fa fa-chart-line"></i> Social Health Report
+                </a>
+
                 <button onclick="refreshCalendar()" class="btn btn-outline-primary">
                     <i class="bi bi-arrow-clockwise"></i> Refresh
                 </button>
