@@ -1031,18 +1031,18 @@ include __DIR__.'/header.php';
             <h3 class="filter-title">Filters</h3>
         </div>
         <form method="get" id="filterForm">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-2">
+            <div class="row g-2 align-items-end flex-wrap">
+                <div class="col-auto">
                     <label class="form-label-modern">Start Date</label>
                     <input type="date" name="start_date" value="<?=htmlspecialchars($start)?>" class="form-control-modern date-input">
                 </div>
-                <div class="col-md-2">
+                <div class="col-auto">
                     <label class="form-label-modern">End Date</label>
                     <input type="date" name="end_date" value="<?=htmlspecialchars($end)?>" class="form-control-modern date-input">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 flex-grow-1">
                     <label class="form-label-modern">Stores</label>
-                    <select name="store[]" class="form-select-modern" multiple style="height: 43px; min-width:250px;">
+                    <select name="store[]" class="form-select-modern w-100" multiple style="height: 43px; min-width:200px;">
                         <?php foreach ($stores as $s): ?>
                             <option value="<?=$s['id']?>" <?php if(in_array($s['id'],$storeFilter)) echo 'selected';?>><?=htmlspecialchars($s['name'])?></option>
                         <?php endforeach; ?>
@@ -1056,7 +1056,7 @@ include __DIR__.'/header.php';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-auto">
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn-gradient-primary">
                             <i class="bi bi-search"></i> Apply
