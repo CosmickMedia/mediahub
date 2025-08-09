@@ -106,14 +106,6 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
 
         <!-- Admin User Section -->
         <div class="admin-user-section">
-            <!-- Notifications -->
-            <div class="notification-container">
-                <div class="notification-bell" id="notifyWrap" title="Notifications">
-                    <i class="bi bi-bell notification-icon" id="notifyBell"></i>
-                    <span class="notification-badge" id="notifyCount">0</span>
-                </div>
-            </div>
-
             <!-- User Info -->
             <div class="admin-user-info">
                 <div class="admin-avatar">
@@ -123,19 +115,18 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                     echo strtoupper(substr($firstName, 0, 1) . substr($lastName, 0, 1));
                     ?>
                 </div>
-                <div class="admin-details">
-                    <div class="admin-name">
-                        <?php
-                        $fullName = trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''));
-                        echo htmlspecialchars($fullName ?: $_SESSION['username'] ?? 'Admin');
-                        ?>
-                    </div>
-                    <div class="admin-role">Administrator</div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="notification-container">
+                <div class="notification-bell" id="notifyWrap" title="Notifications">
+                    <i class="bi bi-bell notification-icon" id="notifyBell"></i>
+                    <span class="notification-badge" id="notifyCount">0</span>
                 </div>
             </div>
 
             <!-- Settings -->
-            <a href="settings.php" class="settings-btn" title="Settings">
+            <a href="settings.php" class="logout-btn settings-btn" title="Settings">
                 <i class="bi bi-gear"></i>
             </a>
 
