@@ -2897,23 +2897,6 @@ table th, table td {
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .admin-details {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        .admin-name {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: white;
-        }
-
-        .admin-role {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-        }
 
         /* Notification Bell */
         .notification-container {
@@ -2981,29 +2964,8 @@ table th, table td {
             100% { transform: scale(1); }
         }
 
-        /* Logout Button */
-        .logout-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: var(--transition);
-            border: 2px solid transparent;
-        }
-
-        .logout-btn:hover {
-            background: var(--danger-gradient);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
-        }
-
-        /* Settings Button */
+        /* Header Icon Buttons */
+        .logout-btn,
         .settings-btn {
             display: flex;
             align-items: center;
@@ -3018,18 +2980,16 @@ table th, table td {
             border: 2px solid transparent;
         }
 
+        .logout-btn:hover,
         .settings-btn:hover {
-            background: var(--primary-gradient);
+            background: var(--danger-gradient);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
         }
 
+        .logout-btn i,
         .settings-btn i {
-            font-size: 1.25rem;
-        }
-
-        .logout-btn i {
             font-size: 1.25rem;
         }
 
