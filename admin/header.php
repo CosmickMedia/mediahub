@@ -27,6 +27,7 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
         <!-- Tom Select CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css">
     <?php endif; ?>
+    <link rel="stylesheet" href="/assets/css/common.css?v=<?php echo $version; ?>">
     <link rel="stylesheet" href="inc/css/style.css?v=<?php echo $version; ?>">
 
     <!-- Favicon -->
