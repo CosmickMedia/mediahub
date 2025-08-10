@@ -109,10 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
                         }
                         $driveId = drive_upload($localPath, $mimeType, $originalName, $storeFolderId);
                         $uploadedImages[] = [
-                            'filename' => $originalName,
-                            'drive_id' => $driveId,
-                            'local_path' => 'uploads/' . $subDir . '/' . $safeName,
-                            'thumb_path' => $thumbUrl
+                                'filename' => $originalName,
+                                'drive_id' => $driveId,
+                                'local_path' => 'uploads/' . $subDir . '/' . $safeName,
+                                'thumb_path' => $thumbUrl
                         ];
                     } catch (Exception $e) {
                         $errors[] = "Failed to upload $originalName: " . $e->getMessage();
@@ -230,11 +230,11 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
 // Calculate approval rate
 $approval_rate = $stats['total_articles'] > 0 ?
-    round(($stats['approved_articles'] / $stats['total_articles']) * 100) : 0;
+        round(($stats['approved_articles'] / $stats['total_articles']) * 100) : 0;
 
 // Get store's articles with pagination
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$per_page = 9; // 3x3 grid
+$per_page = 12;
 $offset = ($page - 1) * $per_page;
 
 // Get filter parameters
@@ -296,8 +296,6 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Get active tab
 $tab = $_GET['tab'] ?? 'submit';
 
-// Get saved draft from localStorage (handled by JavaScript)
-
 function getUploadErrorMessage($code) {
     switch ($code) {
         case UPLOAD_ERR_INI_SIZE:
@@ -347,10 +345,11 @@ function create_local_thumbnail(string $src, string $dest, string $mime): bool {
 // Add versioned additional styles before including header
 $version = trim(file_get_contents(__DIR__.'/../VERSION'));
 $extra_head = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">'
-    . '<link rel="stylesheet" href="inc/css/articles.css?v=' . $version . '">';
+        . '<link rel="stylesheet" href="inc/css/articles.css?v=' . $version . '">';
 
 include __DIR__.'/header.php';
 ?>
+
     <div class="articles-container animate__animated animate__fadeIn">
         <!-- Header Section -->
         <div class="articles-header">
@@ -379,7 +378,7 @@ include __DIR__.'/header.php';
 
         <!-- Statistics Dashboard -->
         <div class="stats-dashboard">
-            <div class="stat-card total animate__animated animate__fadeInUp">
+            <div class="stat-card primary animate__animated animate__fadeInUp">
                 <div class="stat-icon">
                     <i class="bi bi-file-text-fill"></i>
                 </div>
@@ -388,7 +387,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card pending animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card warning animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
@@ -397,7 +396,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card approved animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card success animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-check-circle-fill"></i>
                 </div>
@@ -406,7 +405,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card rejected animate__animated animate__fadeInUp delay-30">
+            <div class="stat-card danger animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-x-circle-fill"></i>
                 </div>
@@ -415,7 +414,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card drafts animate__animated animate__fadeInUp delay-40">
+            <div class="stat-card secondary animate__animated animate__fadeInUp delay-40">
                 <div class="stat-icon">
                     <i class="bi bi-file-earmark-text"></i>
                 </div>
@@ -424,7 +423,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card rate animate__animated animate__fadeInUp delay-50">
+            <div class="stat-card info animate__animated animate__fadeInUp delay-50">
                 <div class="stat-icon">
                     <i class="bi bi-graph-up-arrow"></i>
                 </div>
@@ -435,120 +434,133 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Tabs -->
-        <div class="modern-tabs animate__animated animate__fadeIn delay-60">
-            <a class="tab-link <?php echo $tab === 'submit' ? 'active' : ''; ?>" href="?tab=submit">
+        <div class="tab-navigation animate__animated animate__fadeIn delay-60">
+            <a class="tab-btn <?php echo $tab === 'submit' ? 'active' : ''; ?>" href="?tab=submit">
                 <i class="bi bi-pencil-square"></i>
-                Submit Article
+                <span>Submit Article</span>
             </a>
-            <a class="tab-link <?php echo $tab === 'history' ? 'active' : ''; ?>" href="?tab=history">
+            <a class="tab-btn <?php echo $tab === 'history' ? 'active' : ''; ?>" href="?tab=history">
                 <i class="bi bi-clock-history"></i>
-                Article History
+                <span>Article History</span>
                 <?php if ($total_count > 0): ?>
-                    <span class="tab-badge"><?php echo $total_count; ?></span>
+                    <span class="tab-count"><?php echo $total_count; ?></span>
                 <?php endif; ?>
             </a>
         </div>
 
         <?php if ($tab === 'submit'): ?>
             <!-- Submit Article Tab -->
-            <div class="article-form-section animate__animated animate__fadeIn delay-70">
+            <div class="form-container animate__animated animate__fadeIn delay-70">
                 <div class="form-header">
-                    <h3 class="form-title">Submit New Article</h3>
-                    <p class="form-description">Share your story, news, or press release with us</p>
+                    <h3 class="section-title">
+                        <i class="bi bi-pencil-square"></i>
+                        Submit New Article
+                    </h3>
+                    <p class="section-subtitle">Share your story, news, or press release with us</p>
                 </div>
 
                 <form method="post" enctype="multipart/form-data" id="articleForm">
                     <input type="hidden" name="submit_article" value="1">
 
                     <div class="form-grid">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="title" class="form-label">
-                                    <i class="bi bi-type"></i> Article Title *
-                                </label>
-                                <input type="text"
-                                       class="form-control-modern"
-                                       id="title"
-                                       name="title"
-                                       required
-                                       placeholder="Enter a compelling title"
-                                       maxlength="255">
-                                <div class="char-counter">
-                                    <span id="titleCount">0</span> / 255
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <i class="bi bi-folder"></i> Category *
-                                </label>
-                                <div class="category-grid">
-                                    <div class="category-option">
-                                        <input type="radio" name="category" id="cat-blog" value="blog" checked>
-                                        <label for="cat-blog" class="category-label">
-                                            <i class="bi bi-journal-text category-icon"></i>
-                                            <span>Blog</span>
-                                        </label>
-                                    </div>
-                                    <div class="category-option">
-                                        <input type="radio" name="category" id="cat-news" value="news">
-                                        <label for="cat-news" class="category-label">
-                                            <i class="bi bi-newspaper category-icon"></i>
-                                            <span>News</span>
-                                        </label>
-                                    </div>
-                                    <div class="category-option">
-                                        <input type="radio" name="category" id="cat-press" value="press">
-                                        <label for="cat-press" class="category-label">
-                                            <i class="bi bi-megaphone category-icon"></i>
-                                            <span>Press</span>
-                                        </label>
-                                    </div>
-                                    <div class="category-option">
-                                        <input type="radio" name="category" id="cat-story" value="story">
-                                        <label for="cat-story" class="category-label">
-                                            <i class="bi bi-book category-icon"></i>
-                                            <span>Story</span>
-                                        </label>
-                                    </div>
-                                </div>
+                        <!-- Title Field -->
+                        <div class="form-group full-width">
+                            <label for="title" class="form-label">
+                                Article Title <span class="required">*</span>
+                            </label>
+                            <input type="text"
+                                   class="form-control-modern"
+                                   id="title"
+                                   name="title"
+                                   required
+                                   placeholder="Enter a compelling title"
+                                   maxlength="255">
+                            <div class="field-helper">
+                                <span id="titleCount">0</span> / 255 characters
                             </div>
                         </div>
 
+                        <!-- Category Selection -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Category <span class="required">*</span>
+                            </label>
+                            <div class="category-grid">
+                                <label class="category-card">
+                                    <input type="radio" name="category" value="blog" checked>
+                                    <div class="category-content">
+                                        <i class="bi bi-journal-text"></i>
+                                        <span>Blog</span>
+                                    </div>
+                                </label>
+                                <label class="category-card">
+                                    <input type="radio" name="category" value="news">
+                                    <div class="category-content">
+                                        <i class="bi bi-newspaper"></i>
+                                        <span>News</span>
+                                    </div>
+                                </label>
+                                <label class="category-card">
+                                    <input type="radio" name="category" value="press">
+                                    <div class="category-content">
+                                        <i class="bi bi-megaphone"></i>
+                                        <span>Press</span>
+                                    </div>
+                                </label>
+                                <label class="category-card">
+                                    <input type="radio" name="category" value="story">
+                                    <div class="category-content">
+                                        <i class="bi bi-book"></i>
+                                        <span>Story</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Excerpt Field -->
                         <div class="form-group">
                             <label for="excerpt" class="form-label">
-                                <i class="bi bi-text-paragraph"></i> Brief Description (Optional)
+                                Brief Description
+                                <span class="form-label-optional">(Optional)</span>
                             </label>
                             <textarea class="form-control-modern"
                                       id="excerpt"
                                       name="excerpt"
                                       rows="3"
-                                      placeholder="Brief summary of your article (optional)"
+                                      placeholder="Brief summary of your article"
                                       maxlength="500"></textarea>
-                            <div class="char-counter">
-                                <span id="excerptCount">0</span> / 500
+                            <div class="field-helper">
+                                <span id="excerptCount">0</span> / 500 characters
                             </div>
                         </div>
 
-                        <div class="form-group tag-input-wrapper">
+                        <!-- Tags Field -->
+                        <div class="form-group">
                             <label for="tags" class="form-label">
-                                <i class="bi bi-tags"></i> Tags (Optional)
+                                Tags
+                                <span class="form-label-optional">(Optional)</span>
                             </label>
                             <input type="text"
                                    class="form-control-modern"
                                    id="tags"
                                    name="tags"
-                                   placeholder="Add tags separated by commas (e.g., marketing, social media, tips)">
+                                   placeholder="Add tags separated by commas">
+                            <div class="field-helper">
+                                E.g., marketing, social media, tips
+                            </div>
                             <div class="tag-suggestions" id="tagSuggestions"></div>
                         </div>
 
-                        <div class="form-group">
+                        <!-- Media Upload -->
+                        <div class="form-group full-width">
                             <label class="form-label">
-                                <i class="bi bi-image"></i> Article Images
+                                Article Images
+                                <span class="form-label-optional">(Optional)</span>
                             </label>
                             <div class="upload-area small" id="articleImageArea">
                                 <i class="bi bi-cloud-upload upload-icon"></i>
-                                <p class="upload-text">Drag & drop or browse</p>
+                                <p class="upload-text">Drag & drop images or click to browse</p>
+                                <p class="upload-subtext">PNG, JPG up to 20MB</p>
                                 <div class="file-buttons">
                                     <button type="button" class="btn-modern btn-modern-primary" onclick="document.getElementById('articleImages').click();">
                                         <i class="bi bi-folder2-open"></i> Browse Files
@@ -559,29 +571,33 @@ include __DIR__.'/header.php';
                                 </div>
                                 <input class="d-none" type="file" name="article_images[]" id="articleImages" multiple accept="image/*">
                                 <input type="file" id="articleCamera" accept="image/*" capture="camera" class="d-none">
-                                <div id="articleFileList"></div>
                             </div>
+                            <div id="articleFileList" class="file-list"></div>
                         </div>
 
-                        <div class="form-group">
+                        <!-- Content Editor -->
+                        <div class="form-group full-width">
                             <label for="content" class="form-label">
-                                <i class="bi bi-file-text"></i> Article Content *
+                                Article Content <span class="required">*</span>
                             </label>
-                            <textarea class="form-control-modern" id="content" name="content"></textarea>
-                            <div class="form-text">
-                                You can paste content from Word, Google Docs, or other sources. Formatting will be preserved.
+                            <div class="editor-wrapper">
+                                <textarea class="form-control-modern" id="content" name="content"></textarea>
+                            </div>
+                            <div class="field-helper">
+                                <i class="bi bi-info-circle"></i>
+                                You can paste content from Word or Google Docs. Formatting will be preserved.
                             </div>
                         </div>
                     </div>
 
-                    <div class="article-actions">
-                        <button type="submit" class="btn-modern btn-modern-primary" id="submitBtn">
-                            <i class="bi bi-send"></i>
-                            Submit Article
-                        </button>
+                    <div class="form-actions">
                         <button type="button" class="btn-modern btn-modern-secondary" onclick="saveDraft()">
                             <i class="bi bi-save"></i>
                             Save Draft
+                        </button>
+                        <button type="submit" class="btn-modern btn-modern-primary" id="submitBtn">
+                            <i class="bi bi-send"></i>
+                            Submit Article
                         </button>
                     </div>
                 </form>
@@ -626,6 +642,10 @@ include __DIR__.'/header.php';
                                class="filter-button <?php echo $filter_status === 'rejected' ? 'active' : ''; ?>">
                                 Rejected
                             </a>
+                            <a href="?tab=history&status=draft"
+                               class="filter-button <?php echo $filter_status === 'draft' ? 'active' : ''; ?>">
+                                Drafts
+                            </a>
                         </div>
 
                         <div class="search-box">
@@ -652,6 +672,9 @@ include __DIR__.'/header.php';
                                 <option value="title_desc" <?php echo $orderBy === 'title_desc' ? 'selected' : ''; ?>>
                                     Title Z-A
                                 </option>
+                                <option value="status" <?php echo $orderBy === 'status' ? 'selected' : ''; ?>>
+                                    By Status
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -662,73 +685,70 @@ include __DIR__.'/header.php';
                     <?php foreach ($articles as $index => $article):
                         $category = $article['category'] ?? 'blog';
                         $categoryIcons = [
-                            'blog' => 'bi-journal-text',
-                            'news' => 'bi-newspaper',
-                            'press' => 'bi-megaphone',
-                            'story' => 'bi-book'
+                                'blog' => 'bi-journal-text',
+                                'news' => 'bi-newspaper',
+                                'press' => 'bi-megaphone',
+                                'story' => 'bi-book'
                         ];
                         ?>
                         <div class="article-card animate__animated animate__fadeInUp"
-                             style="animation-delay: <?php echo min($index * 0.1, 0.5); ?>s">
+                             style="animation-delay: <?php echo min($index * 0.05, 0.5); ?>s">
                             <div class="article-header">
-                                <div class="article-meta">
-                                <span class="article-category">
-                                    <i class="bi <?php echo $categoryIcons[$category] ?? 'bi-file-text'; ?>"></i>
-                                    <?php echo ucfirst($category); ?>
-                                </span>
-                                    <span class="article-status status-<?php echo $article['status']; ?>">
-                                    <?php echo ucfirst($article['status']); ?>
-                                </span>
-                                </div>
+                            <span class="article-category">
+                                <i class="bi <?php echo $categoryIcons[$category] ?? 'bi-file-text'; ?>"></i>
+                                <?php echo ucfirst($category); ?>
+                            </span>
+                                <span class="article-status status-<?php echo $article['status']; ?>">
+                                <?php echo ucfirst($article['status']); ?>
+                            </span>
                             </div>
 
-                            <div class="article-body">
-                                <h5 class="article-title">
-                                    <?php echo htmlspecialchars($article['title']); ?>
-                                </h5>
+                            <h5 class="article-title">
+                                <?php echo htmlspecialchars($article['title']); ?>
+                            </h5>
 
-                                <p class="article-excerpt">
+                            <p class="article-excerpt">
+                                <?php
+                                $excerpt = $article['excerpt'] ?: strip_tags($article['content']);
+                                echo htmlspecialchars(substr($excerpt, 0, 150)) . '...';
+                                ?>
+                            </p>
+
+                            <?php if (!empty($article['tags'])): ?>
+                                <div class="article-tags">
                                     <?php
-                                    $excerpt = $article['excerpt'] ?: strip_tags($article['content']);
-                                    echo htmlspecialchars(substr($excerpt, 0, 150)) . '...';
-                                    ?>
-                                </p>
+                                    $tags = array_slice(explode(',', $article['tags']), 0, 3);
+                                    foreach ($tags as $tag):
+                                        ?>
+                                        <span class="tag-badge">
+                                        <i class="bi bi-hash"></i><?php echo trim($tag); ?>
+                                    </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
 
-                                <?php if (!empty($article['tags'])): ?>
-                                    <div class="article-tags mb-2">
-                                        <?php
-                                        $tags = array_slice(explode(',', $article['tags']), 0, 3);
-                                        foreach ($tags as $tag):
-                                            ?>
-                                            <span class="tag-badge">
-                                            <i class="bi bi-hash"></i><?php echo trim($tag); ?>
-                                        </span>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="article-footer">
-                                    <div class="article-date">
-                                        <i class="bi bi-calendar3"></i>
-                                        <?php echo format_ts($article['created_at']); ?>
-                                    </div>
-                                    <div class="article-actions-btn">
-                                        <button class="action-btn view-btn"
-                                                onclick="viewArticle(<?php echo $article['id']; ?>)">
-                                            <i class="bi bi-eye"></i> View
-                                        </button>
-                                        <?php if ($article['status'] === 'draft'): ?>
-                                            <a href="?tab=submit&edit=<?php echo $article['id']; ?>"
-                                               class="action-btn edit-btn">
-                                                <i class="bi bi-pencil"></i> Edit
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
+                            <div class="article-footer">
+                                <div class="article-date">
+                                    <i class="bi bi-calendar3"></i>
+                                    <?php echo format_ts($article['created_at']); ?>
+                                </div>
+                                <div class="article-actions">
+                                    <button class="action-btn primary"
+                                            onclick="viewArticle(<?php echo $article['id']; ?>)">
+                                        <i class="bi bi-eye"></i> View
+                                    </button>
+                                    <?php if ($article['status'] === 'draft'): ?>
+                                        <a href="?tab=submit&edit=<?php echo $article['id']; ?>"
+                                           class="action-btn secondary">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
                             <?php if (!empty($article['admin_notes'])): ?>
                                 <div class="admin-notes">
+                                    <i class="bi bi-chat-square-text"></i>
                                     <strong>Admin Notes:</strong>
                                     <?php echo htmlspecialchars($article['admin_notes']); ?>
                                 </div>
@@ -766,7 +786,7 @@ include __DIR__.'/header.php';
                         if ($start_page > 1): ?>
                             <a href="<?php echo build_page_url(1, $query_params); ?>" class="page-link-modern">1</a>
                             <?php if ($start_page > 2): ?>
-                                <span class="text-muted">...</span>
+                                <span class="page-dots">...</span>
                             <?php endif; ?>
                         <?php endif; ?>
 
@@ -779,7 +799,7 @@ include __DIR__.'/header.php';
 
                         <?php if ($end_page < $total_pages): ?>
                             <?php if ($end_page < $total_pages - 1): ?>
-                                <span class="text-muted">...</span>
+                                <span class="page-dots">...</span>
                             <?php endif; ?>
                             <a href="<?php echo build_page_url($total_pages, $query_params); ?>" class="page-link-modern">
                                 <?php echo $total_pages; ?>
@@ -804,13 +824,13 @@ include __DIR__.'/header.php';
 
     <!-- Article View Modal -->
     <div class="modal fade" id="articleModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-article modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header modal-header-article">
-                    <h5 class="modal-title modal-title-article" id="articleModalTitle"></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="articleModalTitle"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body modal-body-article" id="articleModalBody">
+                <div class="modal-body" id="articleModalBody">
                     <!-- Article content will be loaded here -->
                 </div>
             </div>
@@ -824,6 +844,7 @@ include __DIR__.'/header.php';
     <script>
         let editor;
         let autosaveTimer;
+        let selectedFiles = [];
 
         // Initialize counters animation
         document.addEventListener('DOMContentLoaded', function() {
@@ -835,7 +856,7 @@ include __DIR__.'/header.php';
                     duration: 2,
                     useEasing: true,
                     useGrouping: true,
-                    suffix: counter.closest('.stat-card').classList.contains('rate') ? '%' : ''
+                    suffix: counter.closest('.stat-card').classList.contains('info') ? '%' : ''
                 });
                 if (!animation.error) {
                     animation.start();
@@ -894,10 +915,109 @@ include __DIR__.'/header.php';
                 params.set('page', '1');
                 window.location.search = params.toString();
             }
+
+            // File upload handling
+            setupFileUpload();
+
+            // Initialize CKEditor if content field exists
+            if (document.querySelector('#content')) {
+                initializeEditor();
+            }
         });
 
+        function setupFileUpload() {
+            const imgInput = document.getElementById('articleImages');
+            const cameraInput = document.getElementById('articleCamera');
+            const uploadArea = document.getElementById('articleImageArea');
+            const fileList = document.getElementById('articleFileList');
+
+            if (!imgInput || !uploadArea) return;
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+                handleFiles(files);
+            });
+
+            // File input change
+            imgInput.addEventListener('change', () => {
+                handleFiles(Array.from(imgInput.files));
+            });
+
+            // Camera input
+            if (cameraInput) {
+                cameraInput.addEventListener('change', () => {
+                    if (cameraInput.files.length > 0) {
+                        handleFiles(Array.from(cameraInput.files));
+                    }
+                });
+            }
+        }
+
+        function handleFiles(files) {
+            selectedFiles = selectedFiles.concat(files).slice(0, 10); // Max 10 files
+            updateFileList();
+            updateFileInput();
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('articleFileList');
+            if (!fileList) return;
+
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.innerHTML = `
+                <div class="file-icon">
+                    <i class="bi bi-image-fill"></i>
+                </div>
+                <div class="file-info">
+                    <p class="file-name">${file.name}</p>
+                    <p class="file-size">${formatFileSize(file.size)}</p>
+                </div>
+                <i class="bi bi-x-circle-fill file-remove" onclick="removeFile(${index})"></i>
+            `;
+                fileList.appendChild(item);
+            });
+        }
+
+        function updateFileInput() {
+            const imgInput = document.getElementById('articleImages');
+            if (!imgInput) return;
+
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            imgInput.files = dt.files;
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            updateFileInput();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         // Initialize CKEditor
-        if (document.querySelector('#content')) {
+        function initializeEditor() {
             ClassicEditor
                 .create(document.querySelector('#content'), {
                     toolbar: [
@@ -919,21 +1039,9 @@ include __DIR__.'/header.php';
                 })
                 .then(newEditor => {
                     editor = newEditor;
-
-                    // Update word count
-                    const updateWordCount = () => {
-                        const text = editor.getData().replace(/<[^>]*>/g, ' ').trim();
-                        const words = text.split(/\s+/).filter(word => word.length > 0);
-                        // You can add a word count display if needed
-                    };
-
                     editor.model.document.on('change:data', () => {
-                        updateWordCount();
                         triggerAutosave();
                     });
-                    updateWordCount();
-
-                    // Load draft on page load
                     loadDraft();
                 })
                 .catch(error => {
@@ -944,10 +1052,9 @@ include __DIR__.'/header.php';
         // Autosave functionality
         function triggerAutosave() {
             clearTimeout(autosaveTimer);
-            autosaveTimer = setTimeout(saveDraft, 2000); // Save after 2 seconds of inactivity
+            autosaveTimer = setTimeout(saveDraft, 2000);
         }
 
-        // Save draft function
         function saveDraft(showIndicator = true) {
             if (!document.getElementById('title')) return;
 
@@ -959,7 +1066,6 @@ include __DIR__.'/header.php';
 
             if (!title && !content) return;
 
-            // Store in localStorage
             const draft = {
                 title: title,
                 excerpt: excerpt,
@@ -972,16 +1078,14 @@ include __DIR__.'/header.php';
             localStorage.setItem('articleDraft', JSON.stringify(draft));
 
             if (showIndicator) {
-                // Show autosave indicator
                 const indicator = document.getElementById('autosaveIndicator');
-                indicator.classList.add('show', 'success');
+                indicator.classList.add('show');
                 setTimeout(() => {
                     indicator.classList.remove('show');
                 }, 2000);
             }
         }
 
-        // Load draft on page load
         function loadDraft() {
             const draft = localStorage.getItem('articleDraft');
             if (draft && document.getElementById('title') && !document.getElementById('title').value) {
@@ -993,7 +1097,6 @@ include __DIR__.'/header.php';
                     document.getElementById('excerpt').value = draftData.excerpt;
                     document.getElementById('tags').value = draftData.tags;
 
-                    // Set category
                     const categoryInput = document.querySelector(`input[name="category"][value="${draftData.category}"]`);
                     if (categoryInput) categoryInput.checked = true;
 
@@ -1001,7 +1104,6 @@ include __DIR__.'/header.php';
                         editor.setData(draftData.content);
                     }
 
-                    // Update character counts
                     document.getElementById('titleCount').textContent = draftData.title.length;
                     document.getElementById('excerptCount').textContent = draftData.excerpt.length;
                 }
@@ -1009,8 +1111,9 @@ include __DIR__.'/header.php';
         }
 
         // Form submission
-        if (document.getElementById('articleForm')) {
-            document.getElementById('articleForm').addEventListener('submit', function(e) {
+        const articleForm = document.getElementById('articleForm');
+        if (articleForm) {
+            articleForm.addEventListener('submit', function(e) {
                 const contentField = document.getElementById('content');
                 const contentValue = editor ? editor.getData().trim() : contentField.value.trim();
                 if (!contentValue) {
@@ -1022,9 +1125,8 @@ include __DIR__.'/header.php';
 
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
 
-                // Clear draft after successful submission
                 localStorage.removeItem('articleDraft');
             });
         }
@@ -1038,41 +1140,35 @@ include __DIR__.'/header.php';
                         const article = data.article;
                         document.getElementById('articleModalTitle').textContent = article.title;
 
-                        let metaHtml = '<div class="article-modal-meta">';
-                        metaHtml += `<div class="meta-item"><i class="bi bi-calendar3"></i> ${article.created_at}</div>`;
-                        metaHtml += `<div class="meta-item"><i class="bi bi-tag"></i> ${article.status}</div>`;
-                        if (article.category) {
-                            metaHtml += `<div class="meta-item"><i class="bi bi-folder"></i> ${article.category}</div>`;
-                        }
-                        metaHtml += '</div>';
-
                         let contentHtml = '<div class="article-modal-content">';
+
+                        // Meta information
+                        contentHtml += '<div class="article-modal-meta">';
+                        contentHtml += `<span class="meta-item"><i class="bi bi-calendar3"></i> ${article.created_at}</span>`;
+                        contentHtml += `<span class="meta-item status-${article.status}"><i class="bi bi-tag"></i> ${article.status}</span>`;
+                        if (article.category) {
+                            contentHtml += `<span class="meta-item"><i class="bi bi-folder"></i> ${article.category}</span>`;
+                        }
+                        contentHtml += '</div>';
+
+                        // Article content
+                        contentHtml += '<div class="article-content-body">';
                         contentHtml += article.content;
                         contentHtml += '</div>';
 
                         if (article.admin_notes) {
-                            contentHtml += '<div class="admin-notes mt-3">';
-                            contentHtml += '<strong>Admin Notes:</strong> ' + article.admin_notes;
+                            contentHtml += '<div class="admin-notes-modal">';
+                            contentHtml += '<strong><i class="bi bi-chat-square-text"></i> Admin Notes:</strong><br>';
+                            contentHtml += article.admin_notes;
                             contentHtml += '</div>';
                         }
 
-                        document.getElementById('articleModalBody').innerHTML = metaHtml + contentHtml;
-                        var modalEl = document.getElementById('articleModal');
-                        var myModal = new bootstrap.Modal(modalEl, {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        myModal.show();
+                        contentHtml += '</div>';
 
-                        // Force z-index after showing (same fix as calendar page)
-                        setTimeout(function () {
-                            modalEl.style.zIndex = '9999';
-                            var backdrops = document.querySelectorAll('.modal-backdrop');
-                            if (backdrops.length > 0) {
-                                var lastBackdrop = backdrops[backdrops.length - 1];
-                                lastBackdrop.style.zIndex = '9990';
-                            }
-                        }, 100);
+                        document.getElementById('articleModalBody').innerHTML = contentHtml;
+
+                        const modal = new bootstrap.Modal(document.getElementById('articleModal'));
+                        modal.show();
                     } else {
                         alert('Failed to load article');
                     }
@@ -1088,11 +1184,10 @@ include __DIR__.'/header.php';
         const tagSuggestions = document.getElementById('tagSuggestions');
         const commonTags = [
             'marketing', 'social media', 'content', 'strategy', 'tips',
-            'business', 'branding', 'digital', 'seo', 'advertising',
-            'promotion', 'engagement', 'analytics', 'trends', 'campaign'
+            'business', 'branding', 'digital', 'seo', 'advertising'
         ];
 
-        if (tagInput) {
+        if (tagInput && tagSuggestions) {
             tagInput.addEventListener('focus', function() {
                 const currentTags = this.value.split(',').map(t => t.trim().toLowerCase());
                 const availableTags = commonTags.filter(tag => !currentTags.includes(tag));
@@ -1122,32 +1217,6 @@ include __DIR__.'/header.php';
                         tagInput.value = tag;
                     }
                     tagInput.focus();
-                }
-            });
-        }
-
-        // Simple preview of selected article images
-        const imgInput = document.getElementById('articleImages');
-        const cameraInput = document.getElementById('articleCamera');
-        const fileList = document.getElementById('articleFileList');
-
-        function updateArticleList(files) {
-            fileList.innerHTML = '';
-            Array.from(files).forEach(f => {
-                const div = document.createElement('div');
-                div.textContent = f.name;
-                fileList.appendChild(div);
-            });
-        }
-
-        if (imgInput) {
-            imgInput.addEventListener('change', () => updateArticleList(imgInput.files));
-        }
-        if (cameraInput) {
-            cameraInput.addEventListener('change', () => {
-                if (cameraInput.files.length > 0) {
-                    updateArticleList(cameraInput.files);
-                    imgInput.files = cameraInput.files;
                 }
             });
         }
