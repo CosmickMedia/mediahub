@@ -344,12 +344,13 @@ function create_local_thumbnail(string $src, string $dest, string $mime): bool {
     return false;
 }
 
+// Add versioned additional styles before including header
+$version = trim(file_get_contents(__DIR__.'/../VERSION'));
+$extra_head = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">'
+    . '<link rel="stylesheet" href="inc/css/articles.css?v=' . $version . '">';
+
 include __DIR__.'/header.php';
 ?>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-
-
     <div class="articles-container animate__animated animate__fadeIn">
         <!-- Header Section -->
         <div class="articles-header">
