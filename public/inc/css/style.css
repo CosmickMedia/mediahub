@@ -96,6 +96,49 @@ body {
     color: white;
 }
 
+/* Stats Dashboard */
+.stats-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: center;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-label {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.stat-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background: var(--primary-gradient);
+    z-index: 0;
+}
+
 /* Marketing Page Styles */
 .marketing-container {
     padding: 2rem;
