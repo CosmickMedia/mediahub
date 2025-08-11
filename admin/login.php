@@ -62,6 +62,9 @@ include __DIR__.'/login_header.php';
                     </div>
                     <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
                 </form>
+                <div class="text-center admin-link">
+                    <a href="/" class="text-muted text-decoration-none">Back to public</a>
+                </div>
             </div>
         </div>
     </div>

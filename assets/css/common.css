@@ -143,7 +143,7 @@ body {
 }
 
 .login-page {
-    background: linear-gradient(180deg, #4c5bd4 0%, #667eea 50%, #764ba2 100%);
+    background: linear-gradient(180deg, #404db4 0%, #566bc7 50%, #644089 100%);
     display: flex;
     align-items: center;
     min-height: 100vh;
@@ -152,13 +152,23 @@ body {
 @media (max-width: 576px) {
     .login-page {
         align-items: flex-start;
-        padding-top: 40px;
+        padding-top: 20px;
     }
 }
 
 .login-page .login-logo {
-    max-width: 200px;
+    max-width: 230px;
     margin-bottom: 30px;
+}
+
+.login-page .form-check-input {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+.login-page .admin-link {
+    margin-top: 20px;
+    font-size: 0.875rem;
 }
 
 .login-page .btn-login {
