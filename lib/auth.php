@@ -13,12 +13,17 @@ function ensure_session() {
     if (session_status() === PHP_SESSION_NONE) {
         $isAdmin = isset($_SERVER['SCRIPT_NAME']) && strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
         $sessionName = $isAdmin ? 'cm_admin_session' : 'cm_public_session';
+        $rememberCookie = $isAdmin ? 'cm_admin_remember' : 'cm_public_remember';
         session_name($sessionName);
 
+        $lifetime = isset($_COOKIE[$rememberCookie]) ? 60 * 60 * 24 * 30 : 0;
+        if ($lifetime > 0) {
+            ini_set('session.gc_maxlifetime', (string)$lifetime);
+        }
+
         // Set session cookie parameters before starting session
-        $currentCookieParams = session_get_cookie_params();
         session_set_cookie_params([
-            'lifetime' => $currentCookieParams["lifetime"],
+            'lifetime' => $lifetime,
             'path' => '/',
             'domain' => '', // Empty means current domain
             'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
@@ -86,6 +91,11 @@ function logout() {
             $params["secure"], $params["httponly"]
         );
     }
+
+    // Clear persistent login cookie
+    $isAdmin = isset($_SERVER['SCRIPT_NAME']) && strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
+    $rememberCookie = $isAdmin ? 'cm_admin_remember' : 'cm_public_remember';
+    setcookie($rememberCookie, '', time() - 3600, '/');
 
     // Destroy the session
     session_destroy();
