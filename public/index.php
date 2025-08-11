@@ -43,6 +43,13 @@ if (!$isLoggedIn) {
                 $_SESSION['store_user_id'] = $store['uid'] ?? null;
                 $_SESSION['store_first_name'] = $store['ufname'] ?? '';
                 $_SESSION['store_last_name'] = $store['ulname'] ?? '';
+
+                if (!empty($_POST['remember'])) {
+                    $rememberLifetime = 60 * 60 * 24 * 30;
+                    setcookie('cm_public_remember', '1', time() + $rememberLifetime, '/', '', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', true);
+                    setcookie(session_name(), session_id(), time() + $rememberLifetime, '/', '', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', true);
+                }
+
                 header('Location: index.php');
                 exit;
             } else {
@@ -92,6 +99,10 @@ if (!$isLoggedIn) {
                             <div class="mb-3">
                                 <label for="pin" class="form-label">Store PIN</label>
                                 <input type="text" name="pin" id="pin" class="form-control form-control-lg" required>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" value="1" id="remember" name="remember">
+                                <label class="form-check-label" for="remember">Remember me</label>
                             </div>
                             <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
                         </form>

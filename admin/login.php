@@ -19,6 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             header('Location: index.php');
         }
+        if (!empty($_POST['remember'])) {
+            $rememberLifetime = 60 * 60 * 24 * 30;
+            setcookie('cm_admin_remember', '1', time() + $rememberLifetime, '/', '', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', true);
+            setcookie(session_name(), session_id(), time() + $rememberLifetime, '/', '', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', true);
+        }
         exit;
     } else {
         $errors[] = 'Login failed - Invalid username or password';
@@ -50,6 +55,10 @@ include __DIR__.'/login_header.php';
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
                         <input type="password" name="password" id="password" class="form-control form-control-lg" required>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" value="1" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">Remember me</label>
                     </div>
                     <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
                 </form>

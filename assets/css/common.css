@@ -143,10 +143,17 @@ body {
 }
 
 .login-page {
-    background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
+    background: linear-gradient(180deg, #4c5bd4 0%, #667eea 50%, #764ba2 100%);
     display: flex;
     align-items: center;
     min-height: 100vh;
+}
+
+@media (max-width: 576px) {
+    .login-page {
+        align-items: flex-start;
+        padding-top: 40px;
+    }
 }
 
 .login-page .login-logo {
