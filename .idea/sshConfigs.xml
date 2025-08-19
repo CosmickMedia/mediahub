@@ -2,7 +2,9 @@
 <project version="4">
   <component name="SshConfigs">
     <configs>
-      <sshConfig authType="PASSWORD" host="35.196.5.93" id="740c849b-8b9c-4f75-860b-83b6fe297648" port="54409" nameFormat="DESCRIPTIVE" username="cmuploader" useOpenSSHConfig="true" />
+      <sshConfig authType="PASSWORD" host="35.196.5.93" id="13a9bcb8-9d34-4d7e-9cad-43b30271eb97" port="24361" customName="MediaHub Dev" nameFormat="CUSTOM" username="cmuploader" useOpenSSHConfig="true">
+        <option name="customName" value="MediaHub Dev" />
+      </sshConfig>
     </configs>
   </component>
 </project>

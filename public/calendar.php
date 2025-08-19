@@ -227,12 +227,438 @@ foreach ($posts as $p) {
 $events_json = json_encode($events);
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.5.5">
 <style>
 #scheduleModal { z-index: 10000 !important; }
 #scheduleModal .modal-dialog,
 #scheduleModal .modal-content { z-index: 10001 !important; }
 #scheduleModal .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; }
 #scheduleModal .btn-close { opacity: 1; }
+
+/* Calendar specific styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.calendar-container {
+    padding: 2rem;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.calendar-title {
+    font-size: 2rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.calendar-subtitle {
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.view-selector {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    background: white;
+    font-size: 0.9rem;
+}
+
+.btn-modern-primary {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-modern-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.analytics-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.stat-bg {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 150%;
+    height: 200%;
+    opacity: 0.05;
+    transform: rotate(45deg);
+}
+
+.calendar-wrapper {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.modern-event-card {
+    padding: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.event-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.event-icon {
+    font-size: 0.8rem;
+}
+
+.event-network {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.event-media-preview {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 2px 0;
+    height: 40px;
+}
+
+.event-media-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 1.2rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.event-content {
+    font-size: 0.7rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin: 2px 0;
+}
+
+.event-footer {
+    font-size: 0.65rem;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+}
+
+/* Modal styles */
+.modal-event-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.modal-media-column .media-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.modal-media-column .media-item {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+}
+
+.no-media {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+.no-media i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.modal-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #495057;
+    margin-bottom: 1.5rem;
+}
+
+.meta-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.tag-badge {
+    background: #f8f9fa;
+    color: #495057;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.meta-item i {
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.meta-item span {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.meta-item strong {
+    color: #495057;
+}
+
+/* Day view modal styles */
+.day-view-header {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 1.5rem;
+}
+
+.day-view-events {
+    padding: 1rem;
+}
+
+.day-event-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.day-event-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.day-event-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.day-event-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.day-event-info {
+    flex: 1;
+}
+
+.day-event-network {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.day-event-time {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.day-event-content {
+    display: flex;
+    gap: 1rem;
+}
+
+.day-event-media {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.day-event-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.day-event-text {
+    flex: 1;
+    color: #495057;
+    line-height: 1.4;
+}
+
+.day-event-tags {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.day-event-tag {
+    background: white;
+    color: #6c757d;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+}
+
+.no-events-message {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+.no-events-message i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Mobile button text hiding */
+@media (max-width: 768px) {
+    #schedulePostBtn span,
+    .btn-modern-primary span.btn-text {
+        display: none;
+    }
+    
+    #schedulePostBtn i,
+    .btn-modern-primary i {
+        margin: 0 !important;
+    }
+    
+    .btn-modern-primary {
+        padding: 0.75rem 1rem;
+    }
+    
+    .header-actions {
+        gap: 0.5rem;
+    }
+    
+    .view-selector {
+        display: none;
+    }
+}
 </style>
 HTML;
 
@@ -259,12 +685,12 @@ include __DIR__.'/header.php';
 
                 <?php if ($allow_schedule): ?>
                     <button id="schedulePostBtn" class="btn btn-modern-primary">
-                        <i class="bi bi-plus-circle"></i> Schedule Post
+                        <i class="bi bi-plus-circle"></i> <span class="btn-text">Schedule Post</span>
                     </button>
                 <?php endif; ?>
 
                 <a href="index.php" class="btn btn-modern-primary">
-                    <i class="bi bi-arrow-left"></i> Back to Upload
+                    <i class="bi bi-arrow-left"></i> <span class="btn-text">Back to Upload</span>
                 </a>
             </div>
         </div>
@@ -327,9 +753,26 @@ include __DIR__.'/header.php';
                     <?php endif; endforeach; ?>
             </div>
 
+            <!-- Mobile View Toggle -->
+            <div class="view-toggle-mobile" id="viewToggleMobile">
+                <button class="btn-toggle active" data-view="calendar">
+                    <i class="bi bi-calendar3"></i>
+                    Calendar
+                </button>
+                <button class="btn-toggle" data-view="list">
+                    <i class="bi bi-list-ul"></i>
+                    List
+                </button>
+            </div>
+
             <!-- Calendar -->
-            <div class="calendar-wrapper animate__animated animate__fadeIn delay-30">
+            <div class="calendar-wrapper animate__animated animate__fadeIn delay-30" id="calendarWrapper">
                 <div id="calendar"></div>
+            </div>
+
+            <!-- List View -->
+            <div class="calendar-list-view" id="listView">
+                <!-- List items will be dynamically added here -->
             </div>
         <?php endif; ?>
     </div>
@@ -1437,6 +1880,188 @@ include __DIR__.'/header.php';
             // Make selected files accessible globally for modal
             window.selectedFiles = [];
             window.displayMediaPreviews = displayMediaPreviews;
+
+            // List View Functionality
+            function initializeListView() {
+                const viewToggle = document.getElementById('viewToggleMobile');
+                const calendarWrapper = document.getElementById('calendarWrapper');
+                const listView = document.getElementById('listView');
+                
+                if (!viewToggle) return;
+                
+                // Toggle view buttons
+                const toggleButtons = viewToggle.querySelectorAll('.btn-toggle');
+                toggleButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const view = this.getAttribute('data-view');
+                        
+                        // Update active state
+                        toggleButtons.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Show/hide views
+                        if (view === 'list') {
+                            calendarWrapper.style.display = 'none';
+                            listView.style.display = 'block';
+                            listView.classList.add('active');
+                            renderListView();
+                        } else {
+                            calendarWrapper.style.display = 'block';
+                            listView.style.display = 'none';
+                            listView.classList.remove('active');
+                        }
+                    });
+                });
+            }
+            
+            function renderListView() {
+                const listView = document.getElementById('listView');
+                if (!listView || !window.allEvents) return;
+                
+                // Group events by date
+                const eventsByDate = {};
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                window.allEvents.forEach(event => {
+                    const eventDate = new Date(event.start);
+                    const dateKey = eventDate.toISOString().split('T')[0];
+                    
+                    if (!eventsByDate[dateKey]) {
+                        eventsByDate[dateKey] = [];
+                    }
+                    eventsByDate[dateKey].push(event);
+                });
+                
+                // Sort dates
+                const sortedDates = Object.keys(eventsByDate).sort();
+                
+                // Build HTML
+                let html = '';
+                
+                if (sortedDates.length === 0) {
+                    html = '<div class="list-empty-state">';
+                    html += '<i class="bi bi-calendar-x"></i>';
+                    html += '<h4>No Scheduled Posts</h4>';
+                    html += '<p>Start scheduling your social media content to see it appear here.</p>';
+                    html += '</div>';
+                } else {
+                    sortedDates.forEach(dateKey => {
+                        const date = new Date(dateKey + 'T00:00:00');
+                        const events = eventsByDate[dateKey];
+                        const isToday = date.toDateString() === today.toDateString();
+                        
+                        // Sort events by time
+                        events.sort((a, b) => new Date(a.start) - new Date(b.start));
+                        
+                        html += '<div class="list-date-group">';
+                        
+                        // Date header
+                        html += '<div class="list-date-header">';
+                        html += '<div>';
+                        html += '<h3>' + date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }) + '</h3>';
+                        html += '<div class="date-full">' + date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</div>';
+                        html += '</div>';
+                        if (isToday) {
+                            html += '<span class="list-today-badge">Today</span>';
+                        }
+                        html += '<span class="post-count">' + events.length + ' post' + (events.length > 1 ? 's' : '') + '</span>';
+                        html += '</div>';
+                        
+                        // Events
+                        events.forEach(event => {
+                            const time = new Date(event.start);
+                            const hours = time.getHours();
+                            const minutes = time.getMinutes();
+                            const ampm = hours >= 12 ? 'PM' : 'AM';
+                            const displayHours = hours % 12 || 12;
+                            const displayTime = displayHours + ':' + minutes.toString().padStart(2, '0');
+                            
+                            // Get network info
+                            const networkName = event.title;
+                            const icon = event.extendedProps.icon || 'bi-share';
+                            const color = event.backgroundColor || '#6c757d';
+                            
+                            html += '<div class="list-event-item" style="--event-color: ' + color + '" onclick="showEventDetailsFromList(\'' + event.start + '\')">';
+                            
+                            // Time
+                            html += '<div class="list-event-time">';
+                            html += '<span class="time-hour">' + displayTime + '</span>';
+                            html += '<span class="time-period">' + ampm + '</span>';
+                            html += '</div>';
+                            
+                            // Content
+                            html += '<div class="list-event-content">';
+                            
+                            // Header
+                            html += '<div class="list-event-header">';
+                            html += '<span class="list-event-network" style="--event-color: ' + color + '; --event-color-bg: ' + color + '20;">';
+                            html += '<i class="bi ' + icon + '"></i> ' + networkName;
+                            html += '</span>';
+                            html += '</div>';
+                            
+                            // Text
+                            if (event.extendedProps.text) {
+                                html += '<div class="list-event-text">' + event.extendedProps.text + '</div>';
+                            }
+                            
+                            // Media preview
+                            if (event.extendedProps.media_urls && event.extendedProps.media_urls.length > 0) {
+                                html += '<div class="list-event-media">';
+                                const mediaCount = event.extendedProps.media_urls.length;
+                                const previewCount = Math.min(3, mediaCount);
+                                
+                                for (let i = 0; i < previewCount; i++) {
+                                    const url = event.extendedProps.media_urls[i];
+                                    if (/\.mp4(\?|$)/i.test(url)) {
+                                        html += '<div class="media-preview video-preview"><i class="bi bi-play-circle-fill"></i></div>';
+                                    } else {
+                                        html += '<img src="' + url + '" alt="Media">';
+                                    }
+                                }
+                                
+                                if (mediaCount > 3) {
+                                    html += '<div class="media-count">+' + (mediaCount - 3) + '</div>';
+                                }
+                                
+                                html += '</div>';
+                            }
+                            
+                            // Tags
+                            if (event.extendedProps.tags && event.extendedProps.tags.length > 0) {
+                                html += '<div class="list-event-tags">';
+                                event.extendedProps.tags.forEach(tag => {
+                                    html += '<span class="list-event-tag">#' + tag + '</span>';
+                                });
+                                html += '</div>';
+                            }
+                            
+                            html += '</div>'; // list-event-content
+                            html += '</div>'; // list-event-item
+                        });
+                        
+                        html += '</div>'; // list-date-group
+                    });
+                }
+                
+                listView.innerHTML = html;
+            }
+            
+            // Show event details from list view
+            window.showEventDetailsFromList = function(eventStart) {
+                const event = window.allEvents.find(e => e.start === eventStart);
+                if (event) {
+                    const eventObj = {
+                        title: event.title,
+                        backgroundColor: event.backgroundColor,
+                        extendedProps: event.extendedProps
+                    };
+                    showEventDetails(eventObj);
+                }
+            };
+            
+            // Initialize list view
+            initializeListView();
         });
     </script>
 
