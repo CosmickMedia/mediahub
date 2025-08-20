@@ -621,6 +621,14 @@ include __DIR__.'/header.php';
                 }
             });
 
+            // Ensure modals are direct children of body to avoid positioning issues
+            ['scheduleModal','eventModalCalendar','dayViewModal','scheduleSuccessModal','deleteConfirmModal'].forEach(function(id){
+                var el = document.getElementById(id);
+                if (el && el.parentNode !== document.body) {
+                    document.body.appendChild(el);
+                }
+            });
+
             // Store all events globally for day view
             window.allEvents = <?php echo $events_json; ?>;
             window.debugMode = <?php echo $debug_mode ? 'true' : 'false'; ?>;
@@ -956,7 +964,12 @@ include __DIR__.'/header.php';
             }
 
             function openScheduleModal(eventObj){
-                if(!scheduleModal) return;
+                if(!scheduleModalEl) return;
+                // Move modal to body to prevent positioning issues
+                if (scheduleModalEl.parentNode !== document.body) {
+                    document.body.appendChild(scheduleModalEl);
+                }
+                scheduleModal = bootstrap.Modal.getOrCreateInstance(scheduleModalEl);
                 var form = document.getElementById('scheduleForm');
                 form.reset();
 
@@ -1018,14 +1031,10 @@ include __DIR__.'/header.php';
                 }
                 scheduleModal.show();
                 setTimeout(function() {
-                    var modalEl = document.getElementById('scheduleModal');
-                    if (modalEl) {
-                        modalEl.style.zIndex = '10001';
-                    }
+                    scheduleModalEl.style.zIndex = '10001';
                     var backdrops = document.querySelectorAll('.modal-backdrop');
                     if (backdrops.length > 0) {
-                        var lastBackdrop = backdrops[backdrops.length - 1];
-                        lastBackdrop.style.zIndex = '10000';
+                        backdrops[backdrops.length - 1].style.zIndex = '10000';
                     }
                 }, 100);
             }
@@ -1254,7 +1263,11 @@ include __DIR__.'/header.php';
                 }
 
                 // Show modal using Bootstrap's method
-                var myModal = new bootstrap.Modal(document.getElementById('eventModalCalendar'), {
+                var eventModalEl = document.getElementById('eventModalCalendar');
+                if (eventModalEl.parentNode !== document.body) {
+                    document.body.appendChild(eventModalEl);
+                }
+                var myModal = new bootstrap.Modal(eventModalEl, {
                     backdrop: 'static',
                     keyboard: false
                 });
@@ -1262,7 +1275,7 @@ include __DIR__.'/header.php';
 
                 // Force z-index after showing
                 setTimeout(function() {
-                    document.getElementById('eventModalCalendar').style.zIndex = '9999';
+                    eventModalEl.style.zIndex = '9999';
                     // Handle multiple backdrops - get the last one which should be for this modal
                     var backdrops = document.querySelectorAll('.modal-backdrop');
                     if (backdrops.length > 0) {
@@ -1377,7 +1390,11 @@ include __DIR__.'/header.php';
                 bodyEl.innerHTML = html;
 
                 // Show the day view modal
-                var dayModal = new bootstrap.Modal(document.getElementById('dayViewModal'), {
+                var dayViewEl = document.getElementById('dayViewModal');
+                if (dayViewEl.parentNode !== document.body) {
+                    document.body.appendChild(dayViewEl);
+                }
+                var dayModal = new bootstrap.Modal(dayViewEl, {
                     backdrop: 'static',
                     keyboard: false
                 });
@@ -1385,7 +1402,7 @@ include __DIR__.'/header.php';
 
                 // Force z-index after showing (same fix as event modal)
                 setTimeout(function() {
-                    document.getElementById('dayViewModal').style.zIndex = '9999';
+                    dayViewEl.style.zIndex = '9999';
                     // Handle multiple backdrops - get the last one which should be for this modal
                     var backdrops = document.querySelectorAll('.modal-backdrop');
                     if (backdrops.length > 0) {
