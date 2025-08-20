@@ -297,6 +297,7 @@ $extra_head = <<<HTML
         margin: 10px !important;
         pointer-events: none;
         max-height: calc(100vh - 20px) !important;
+        max-height: calc(100dvh - 20px) !important;
         display: flex !important;
         align-items: center !important;
     }
@@ -321,6 +322,7 @@ $extra_head = <<<HTML
         border-radius: 0.3rem !important;
         outline: 0 !important;
         max-height: calc(100vh - 40px) !important;
+        max-height: calc(100dvh - 40px) !important;
         overflow: hidden !important;
     }
     
@@ -339,6 +341,7 @@ $extra_head = <<<HTML
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         max-height: calc(100vh - 180px) !important;
+        max-height: calc(100dvh - 180px) !important;
     }
     
     /* Modal footer - fixed */
@@ -432,6 +435,7 @@ $extra_head = <<<HTML
     .modal-dialog {
         margin: 1.75rem auto;
         max-height: calc(100vh - 3.5rem);
+        max-height: calc(100dvh - 3.5rem);
     }
 }
 
@@ -444,6 +448,7 @@ $extra_head = <<<HTML
     padding: 2rem;
     background: #f8f9fa;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .calendar-header {
@@ -1323,7 +1328,8 @@ include __DIR__.'/header.php';
                         const dialog = modal.querySelector('.modal-dialog');
                         if (dialog) {
                             dialog.style.margin = 'auto';
-                            dialog.style.maxHeight = 'calc(100vh - 20px)';
+                            const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+                            dialog.style.maxHeight = (viewportHeight - 20) + 'px';
                         }
                     }, 10);
                 });
