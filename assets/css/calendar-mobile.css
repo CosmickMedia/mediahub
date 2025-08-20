@@ -5,8 +5,6 @@
 @media (max-width: 768px) {
     /* Prevent page from scrolling when modal is open */
     body.modal-open {
-        position: fixed !important;
-        width: 100% !important;
         overflow: hidden !important;
     }
 
