@@ -10,7 +10,7 @@
                 </div>
                 <div class="footer-info">
                     <div class="footer-title">MediaHub Admin</div>
-                    <div class="footer-version">Version <?php echo $version; ?></div>
+                    <div class="footer-version">Version: <?php echo $version; ?></div>
                 </div>
             </div>
         </div>
