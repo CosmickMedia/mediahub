@@ -424,7 +424,6 @@
     
     /* Show icon inside event with proper sizing */
     .fc-daygrid-event::before {
-        content: '\F62E'; /* Default calendar icon */
         font-family: 'bootstrap-icons' !important;
         font-size: 18px !important;
         color: white !important;
