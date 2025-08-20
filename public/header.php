@@ -231,6 +231,24 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
 </nav>
 
 <script>
+    // Set header height CSS variable for responsive spacing
+    document.addEventListener('DOMContentLoaded', function() {
+        const navbar = document.getElementById('modernNavbar');
+        if (navbar) {
+            document.documentElement.style.setProperty('--header-height', navbar.offsetHeight + 'px');
+        }
+
+        // Simplified mobile modal scroll lock
+        document.querySelectorAll('.modal').forEach(function(modal) {
+            modal.addEventListener('show.bs.modal', function() {
+                document.body.style.overflow = 'hidden';
+            });
+            modal.addEventListener('hidden.bs.modal', function() {
+                document.body.style.overflow = '';
+            });
+        });
+    });
+
     // Header scroll effect
     window.addEventListener('scroll', function() {
         const navbar = document.getElementById('modernNavbar');
