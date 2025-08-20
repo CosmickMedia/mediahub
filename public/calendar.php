@@ -50,9 +50,9 @@ $debug_mode = get_setting('hootsuite_debug') === '1';
 $network_map = [];
 foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
     $network_map[strtolower($n['name'])] = [
-        'icon'  => $n['icon'],
-        'color' => $n['color'],
-        'name'  => $n['name']
+            'icon'  => $n['icon'],
+            'color' => $n['color'],
+            'name'  => $n['name']
     ];
 }
 
@@ -198,186 +198,242 @@ foreach ($posts as $p) {
         $class = 'social-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($network['name'] ?? ''));
     }
     $events[] = [
-        'id' => $p['post_id'] ?? null,
-        'title' => $network_name ?: 'Post',
+            'id' => $p['post_id'] ?? null,
+            'title' => $network_name ?: 'Post',
         // Convert datetime to ISO format for FullCalendar
-        'start' => $time ? str_replace(' ', 'T', $time) : null,
-        'backgroundColor' => $color,
-        'borderColor' => $color,
-        'classNames' => $class ? [$class] : ['social-default'],
-        'extendedProps' => [
-            'image' => $video ? '' : $img,
-            'video' => $video,
-            'media_urls' => $media_urls,
-            'icon'  => $icon,
-            'text'  => $p['text'] ?? '',
-            // Provide ISO datetime for display
-            'time'  => $time ? str_replace(' ', 'T', $time) : null,
-            'network' => $network_name,
-            'tags' => $tags,
-            'source' => $p['source'] ?? '',
-            'post_id' => $p['post_id'] ?? null,
-            'created_by_user_id' => $p['created_by_user_id'] ?? null,
-            'social_profile_id' => $p['social_profile_id'] ?? null,
-            'posted_by' => $user_name_map[$p['created_by_user_id'] ?? 0] ?? ''
-        ]
+            'start' => $time ? str_replace(' ', 'T', $time) : null,
+            'backgroundColor' => $color,
+            'borderColor' => $color,
+            'classNames' => $class ? [$class] : ['social-default'],
+            'extendedProps' => [
+                    'image' => $video ? '' : $img,
+                    'video' => $video,
+                    'media_urls' => $media_urls,
+                    'icon'  => $icon,
+                    'text'  => $p['text'] ?? '',
+                // Provide ISO datetime for display
+                    'time'  => $time ? str_replace(' ', 'T', $time) : null,
+                    'network' => $network_name,
+                    'tags' => $tags,
+                    'source' => $p['source'] ?? '',
+                    'post_id' => $p['post_id'] ?? null,
+                    'created_by_user_id' => $p['created_by_user_id'] ?? null,
+                    'social_profile_id' => $p['social_profile_id'] ?? null,
+                    'posted_by' => $user_name_map[$p['created_by_user_id'] ?? 0] ?? ''
+            ]
     ];
 }
 
 $events_json = json_encode($events);
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-<link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.5.5">
+<link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.5.6">
 <style>
-/* Modal fixes for proper positioning and z-index */
-.modal {
-    z-index: 1050 !important;
-}
-
-.modal-backdrop {
-    z-index: 1040 !important;
-}
-
-.modal.show {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-}
-
-.modal-dialog {
-    margin: 1.75rem auto;
-    max-height: calc(100vh - 3.5rem);
-}
-
-.modal-dialog-centered {
-    display: flex;
-    align-items: center;
-    min-height: calc(100vh - 3.5rem);
-}
-
-.modal-dialog-scrollable .modal-content {
-    max-height: calc(100vh - 3.5rem);
-    overflow: hidden;
-}
-
-.modal-dialog-scrollable .modal-body {
-    overflow-y: auto;
-}
-
-/* Mobile-specific modal fixes */
+/* CRITICAL MOBILE MODAL FIXES - Must be at the top */
 @media (max-width: 768px) {
-    /* Fix modal backdrop z-index */
-    .modal-backdrop {
-        z-index: 1040 !important;
+    /* Fix for body scroll lock when modal is open */
+    body.modal-open {
         position: fixed !important;
+        width: 100% !important;
+        overflow: hidden !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
     }
     
-    /* Fix modal z-index to be above backdrop */
-    .modal {
-        z-index: 1050 !important;
+    /* Create a wrapper for proper scrolling context */
+    .modal-open .calendar-container {
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
         right: 0 !important;
         bottom: 0 !important;
-        padding: 0 !important;
-        overflow-y: auto !important;
+        overflow: hidden !important;
     }
     
-    /* Position modal dialog properly */
+    /* Fix modal backdrop z-index and positioning */
+    .modal-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 1040 !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    /* Fix modal z-index to be above backdrop */
+    .modal {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 1050 !important;
+        display: none;
+        overflow: hidden !important;
+        outline: 0;
+    }
+    
+    /* When modal is shown */
     .modal.show {
-        display: block !important;
-    }
-    
-    .modal-dialog {
-        position: relative !important;
-        margin: 50px auto !important;
-        width: calc(100% - 20px) !important;
-        max-width: calc(100% - 20px) !important;
-        transform: none !important;
-    }
-    
-    .modal-dialog-centered {
-        min-height: auto !important;
-        display: block !important;
-        align-items: initial !important;
-    }
-    
-    .modal-content {
-        position: relative !important;
-        max-height: calc(100vh - 100px) !important;
-        height: auto !important;
-        margin: 0 auto !important;
-    }
-    
-    .modal-body {
-        max-height: calc(100vh - 200px) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
     }
     
+    /* Modal dialog proper positioning */
+    .modal-dialog {
+        position: relative !important;
+        width: calc(100% - 20px) !important;
+        max-width: calc(100% - 20px) !important;
+        margin: 10px !important;
+        pointer-events: none;
+        max-height: calc(100vh - 20px) !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    .modal-dialog-centered {
+        min-height: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        margin: auto !important;
+    }
+    
+    /* Modal content */
+    .modal-content {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        pointer-events: auto !important;
+        background-color: #fff !important;
+        background-clip: padding-box !important;
+        border: 1px solid rgba(0,0,0,.2) !important;
+        border-radius: 0.3rem !important;
+        outline: 0 !important;
+        max-height: calc(100vh - 40px) !important;
+        overflow: hidden !important;
+    }
+    
+    /* Modal header - fixed */
+    .modal-header {
+        flex-shrink: 0 !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
+    /* Modal body - scrollable */
+    .modal-body {
+        position: relative !important;
+        flex: 1 1 auto !important;
+        padding: 1rem !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-height: calc(100vh - 180px) !important;
+    }
+    
+    /* Modal footer - fixed */
+    .modal-footer {
+        flex-shrink: 0 !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
     /* Specific modal fixes */
-    #scheduleModal,
-    #eventModalCalendar,
-    #dayViewModal {
+    #scheduleModal .modal-dialog,
+    #eventModalCalendar .modal-dialog,
+    #dayViewModal .modal-dialog,
+    #scheduleSuccessModal .modal-dialog,
+    #deleteConfirmModal .modal-dialog {
+        transform: none !important;
+        transition: none !important;
+    }
+    
+    /* Force modals to be visible and properly stacked */
+    #scheduleModal.show,
+    #eventModalCalendar.show,
+    #dayViewModal.show,
+    #scheduleSuccessModal.show,
+    #deleteConfirmModal.show {
+        z-index: 1055 !important;
+    }
+    
+    /* Ensure proper stacking when multiple modals */
+    .modal-backdrop.show:nth-of-type(2) {
+        z-index: 1051 !important;
+    }
+    
+    .modal:nth-of-type(2) {
+        z-index: 1052 !important;
+    }
+    
+    /* Fix for scrollable modal dialog */
+    .modal-dialog-scrollable .modal-body {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Remove any transforms that might push content off-screen */
+    .modal.fade .modal-dialog {
+        transition: none !important;
+        transform: none !important;
+    }
+    
+    .modal.show .modal-dialog {
+        transform: none !important;
+    }
+    
+    /* Ensure close button is always visible and clickable */
+    .modal .btn-close {
+        position: absolute !important;
+        top: 1rem !important;
+        right: 1rem !important;
+        z-index: 10 !important;
+        padding: 0.5rem !important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        border-radius: 50% !important;
+    }
+    
+    /* Fix for iOS Safari */
+    @supports (-webkit-touch-callout: none) {
+        .modal {
+            -webkit-transform: translate3d(0, 0, 0);
+        }
+        
+        .modal-dialog {
+            -webkit-transform: translate3d(0, 0, 0);
+        }
+        
+        .modal-content {
+            -webkit-transform: translate3d(0, 0, 0);
+        }
+    }
+}
+
+/* Desktop Modal Styles */
+@media (min-width: 769px) {
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+    
+    .modal {
         z-index: 1050 !important;
     }
     
-    #scheduleModal .modal-dialog,
-    #eventModalCalendar .modal-dialog,
-    #dayViewModal .modal-dialog {
-        margin-top: 20px !important;
-        margin-bottom: 20px !important;
+    .modal-dialog {
+        margin: 1.75rem auto;
+        max-height: calc(100vh - 3.5rem);
     }
 }
-
-/* Schedule Modal specific styles */
-#scheduleModal .modal-dialog {
-    max-width: 800px;
-}
-
-#scheduleModal .modal-content {
-    max-height: calc(100vh - 3.5rem);
-    overflow: hidden;
-}
-
-#scheduleModal .modal-body {
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
-}
-
-#scheduleModal .modal-header { 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-    color: #fff; 
-    border: none;
-    flex-shrink: 0;
-}
-
-#scheduleModal .btn-close { 
-    opacity: 1;
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-/* Event Modal specific styles */
-#eventModalCalendar .modal-dialog,
-#dayViewModal .modal-dialog {
-    max-width: 1140px;
-}
-
-#eventModalCalendar .modal-content,
-#dayViewModal .modal-content {
-    max-height: calc(100vh - 3.5rem);
-    overflow: hidden;
-}
-
-#eventModalCalendar .modal-body,
-#dayViewModal .modal-body {
-    max-height: calc(100vh - 150px);
-    overflow-y: auto;
-}
-
 
 /* Calendar specific styles */
 :root {
@@ -779,6 +835,19 @@ $extra_head = <<<HTML
     opacity: 0.5;
 }
 
+/* Schedule Modal specific styles */
+#scheduleModal .modal-header { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    color: #fff; 
+    border: none;
+    flex-shrink: 0;
+}
+
+#scheduleModal .btn-close { 
+    opacity: 1;
+    filter: brightness(0) invert(1);
+}
+
 /* Mobile button text hiding */
 @media (max-width: 768px) {
     #schedulePostBtn span,
@@ -801,6 +870,27 @@ $extra_head = <<<HTML
     
     .view-selector {
         display: none;
+    }
+    
+    /* Mobile modal layout adjustments */
+    .modal-event-layout {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .modal-header {
+        padding: 1rem;
+    }
+    
+    .modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
     }
 }
 </style>
@@ -1194,6 +1284,87 @@ include __DIR__.'/header.php';
     <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.8.0/countUp.umd.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // CRITICAL: Fix for mobile modals
+            // Store original body padding to restore later
+            let originalBodyPadding = '';
+            let scrollPosition = 0;
+
+            // Override Bootstrap's modal show/hide behavior for mobile
+            if (window.innerWidth <= 768) {
+                // Listen for any modal being shown
+                document.addEventListener('show.bs.modal', function(event) {
+                    // Store current scroll position
+                    scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+                    // Store original body padding
+                    originalBodyPadding = document.body.style.paddingRight || '';
+
+                    // Prevent Bootstrap from adding padding-right
+                    setTimeout(() => {
+                        document.body.style.paddingRight = '';
+                    }, 0);
+
+                    // Ensure modal and backdrop have correct z-index
+                    const modal = event.target;
+                    const backdrop = document.querySelector('.modal-backdrop.show');
+
+                    if (backdrop) {
+                        backdrop.style.zIndex = '1040';
+                    }
+
+                    modal.style.zIndex = '1050';
+
+                    // Force modal to be visible and centered
+                    setTimeout(() => {
+                        modal.style.display = 'flex';
+                        modal.style.alignItems = 'center';
+                        modal.style.justifyContent = 'center';
+
+                        const dialog = modal.querySelector('.modal-dialog');
+                        if (dialog) {
+                            dialog.style.margin = 'auto';
+                            dialog.style.maxHeight = 'calc(100vh - 20px)';
+                        }
+                    }, 10);
+                });
+
+                // Listen for any modal being hidden
+                document.addEventListener('hidden.bs.modal', function(event) {
+                    // Restore body padding
+                    document.body.style.paddingRight = originalBodyPadding;
+
+                    // Restore scroll position
+                    window.scrollTo(0, scrollPosition);
+                });
+
+                // Fix for modal positioning issues
+                const fixModalPosition = (modalEl) => {
+                    if (!modalEl) return;
+
+                    const dialog = modalEl.querySelector('.modal-dialog');
+                    if (dialog) {
+                        // Remove any transforms that might push it off screen
+                        dialog.style.transform = 'none';
+                        dialog.style.transition = 'none';
+
+                        // Ensure it's centered
+                        modalEl.style.display = 'flex';
+                        modalEl.style.alignItems = 'center';
+                        modalEl.style.justifyContent = 'center';
+                    }
+                };
+
+                // Apply fix to all modals when they're shown
+                ['scheduleModal', 'eventModalCalendar', 'dayViewModal', 'scheduleSuccessModal', 'deleteConfirmModal'].forEach(modalId => {
+                    const modalEl = document.getElementById(modalId);
+                    if (modalEl) {
+                        modalEl.addEventListener('shown.bs.modal', function() {
+                            fixModalPosition(modalEl);
+                        });
+                    }
+                });
+            }
+
             // Animate counters
             const counters = document.querySelectorAll('.stat-number');
             counters.forEach(counter => {
@@ -1991,19 +2162,19 @@ include __DIR__.'/header.php';
                 const viewToggle = document.getElementById('viewToggleMobile');
                 const calendarWrapper = document.getElementById('calendarWrapper');
                 const listView = document.getElementById('listView');
-                
+
                 if (!viewToggle) return;
-                
+
                 // Toggle view buttons
                 const toggleButtons = viewToggle.querySelectorAll('.btn-toggle');
                 toggleButtons.forEach(btn => {
                     btn.addEventListener('click', function() {
                         const view = this.getAttribute('data-view');
-                        
+
                         // Update active state
                         toggleButtons.forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
-                        
+
                         // Show/hide views
                         if (view === 'list') {
                             calendarWrapper.style.display = 'none';
@@ -2018,32 +2189,32 @@ include __DIR__.'/header.php';
                     });
                 });
             }
-            
+
             function renderListView() {
                 const listView = document.getElementById('listView');
                 if (!listView || !window.allEvents) return;
-                
+
                 // Group events by date
                 const eventsByDate = {};
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                
+
                 window.allEvents.forEach(event => {
                     const eventDate = new Date(event.start);
                     const dateKey = eventDate.toISOString().split('T')[0];
-                    
+
                     if (!eventsByDate[dateKey]) {
                         eventsByDate[dateKey] = [];
                     }
                     eventsByDate[dateKey].push(event);
                 });
-                
+
                 // Sort dates
                 const sortedDates = Object.keys(eventsByDate).sort();
-                
+
                 // Build HTML
                 let html = '';
-                
+
                 if (sortedDates.length === 0) {
                     html = '<div class="list-empty-state">';
                     html += '<i class="bi bi-calendar-x"></i>';
@@ -2055,12 +2226,12 @@ include __DIR__.'/header.php';
                         const date = new Date(dateKey + 'T00:00:00');
                         const events = eventsByDate[dateKey];
                         const isToday = date.toDateString() === today.toDateString();
-                        
+
                         // Sort events by time
                         events.sort((a, b) => new Date(a.start) - new Date(b.start));
-                        
+
                         html += '<div class="list-date-group">';
-                        
+
                         // Date header
                         html += '<div class="list-date-header">';
                         html += '<div>';
@@ -2072,7 +2243,7 @@ include __DIR__.'/header.php';
                         }
                         html += '<span class="post-count">' + events.length + ' post' + (events.length > 1 ? 's' : '') + '</span>';
                         html += '</div>';
-                        
+
                         // Events
                         events.forEach(event => {
                             const time = new Date(event.start);
@@ -2081,41 +2252,41 @@ include __DIR__.'/header.php';
                             const ampm = hours >= 12 ? 'PM' : 'AM';
                             const displayHours = hours % 12 || 12;
                             const displayTime = displayHours + ':' + minutes.toString().padStart(2, '0');
-                            
+
                             // Get network info
                             const networkName = event.title;
                             const icon = event.extendedProps.icon || 'bi-share';
                             const color = event.backgroundColor || '#6c757d';
-                            
+
                             html += '<div class="list-event-item" style="--event-color: ' + color + '" onclick="showEventDetailsFromList(\'' + event.start + '\')">';
-                            
+
                             // Time
                             html += '<div class="list-event-time">';
                             html += '<span class="time-hour">' + displayTime + '</span>';
                             html += '<span class="time-period">' + ampm + '</span>';
                             html += '</div>';
-                            
+
                             // Content
                             html += '<div class="list-event-content">';
-                            
+
                             // Header
                             html += '<div class="list-event-header">';
                             html += '<span class="list-event-network" style="--event-color: ' + color + '; --event-color-bg: ' + color + '20;">';
                             html += '<i class="bi ' + icon + '"></i> ' + networkName;
                             html += '</span>';
                             html += '</div>';
-                            
+
                             // Text
                             if (event.extendedProps.text) {
                                 html += '<div class="list-event-text">' + event.extendedProps.text + '</div>';
                             }
-                            
+
                             // Media preview
                             if (event.extendedProps.media_urls && event.extendedProps.media_urls.length > 0) {
                                 html += '<div class="list-event-media">';
                                 const mediaCount = event.extendedProps.media_urls.length;
                                 const previewCount = Math.min(3, mediaCount);
-                                
+
                                 for (let i = 0; i < previewCount; i++) {
                                     const url = event.extendedProps.media_urls[i];
                                     if (/\.mp4(\?|$)/i.test(url)) {
@@ -2124,14 +2295,14 @@ include __DIR__.'/header.php';
                                         html += '<img src="' + url + '" alt="Media">';
                                     }
                                 }
-                                
+
                                 if (mediaCount > 3) {
                                     html += '<div class="media-count">+' + (mediaCount - 3) + '</div>';
                                 }
-                                
+
                                 html += '</div>';
                             }
-                            
+
                             // Tags
                             if (event.extendedProps.tags && event.extendedProps.tags.length > 0) {
                                 html += '<div class="list-event-tags">';
@@ -2140,18 +2311,18 @@ include __DIR__.'/header.php';
                                 });
                                 html += '</div>';
                             }
-                            
+
                             html += '</div>'; // list-event-content
                             html += '</div>'; // list-event-item
                         });
-                        
+
                         html += '</div>'; // list-date-group
                     });
                 }
-                
+
                 listView.innerHTML = html;
             }
-            
+
             // Show event details from list view
             window.showEventDetailsFromList = function(eventStart) {
                 const event = window.allEvents.find(e => e.start === eventStart);
@@ -2164,7 +2335,7 @@ include __DIR__.'/header.php';
                     showEventDetails(eventObj);
                 }
             };
-            
+
             // Initialize list view
             initializeListView();
         });
