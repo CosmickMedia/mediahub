@@ -229,11 +229,43 @@ $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.5.5">
 <style>
-#scheduleModal { z-index: 10000 !important; }
-#scheduleModal .modal-dialog,
-#scheduleModal .modal-content { z-index: 10001 !important; }
-#scheduleModal .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; }
-#scheduleModal .btn-close { opacity: 1; }
+/* Fix modal z-index and positioning */
+#scheduleModal { 
+    z-index: 999999 !important; 
+}
+.modal-backdrop { 
+    z-index: 999998 !important; 
+}
+#scheduleModal .modal-dialog {
+    z-index: 999999 !important;
+}
+#scheduleModal .modal-content { 
+    z-index: 999999 !important; 
+}
+#scheduleModal .modal-header { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    color: #fff; 
+    border: none; 
+}
+#scheduleModal .btn-close { 
+    opacity: 1; 
+}
+
+/* Mobile specific modal fixes */
+@media (max-width: 768px) {
+    #scheduleModal .modal-dialog {
+        margin-top: 60px !important;
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    #scheduleModal .modal-content {
+        border-radius: 16px 16px 0 0;
+        max-height: calc(100vh - 60px);
+    }
+}
 
 /* Calendar specific styles */
 :root {

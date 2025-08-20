@@ -25,24 +25,42 @@
     }
 }
 
-/* Prevent overscroll bounce on iOS */
-html {
-    position: fixed;
-    height: 100%;
-    overflow: hidden;
+/* Prevent overscroll bounce on iOS - Mobile only */
+@media (max-width: 768px) and (-webkit-touch-callout: none) {
+    html {
+        position: fixed;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    body {
+        height: 100%;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+    }
 }
 
-body {
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+/* Desktop should have normal scrolling */
+@media (min-width: 769px) {
+    html {
+        position: static;
+        height: auto;
+        overflow: visible;
+    }
+    
+    body {
+        height: auto;
+        overflow: visible;
+    }
 }
 
-/* Safe area padding for notched devices */
-.container, .navbar-modern, .footer {
-    padding-left: max(1rem, env(safe-area-inset-left));
-    padding-right: max(1rem, env(safe-area-inset-right));
+/* Safe area padding for notched devices - Mobile only */
+@media (max-width: 768px) {
+    .container, .navbar-modern, .footer {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
 }
 
 /* Mobile Navigation Improvements */

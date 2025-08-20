@@ -7,7 +7,7 @@
       <paths name="MediaHub">
         <serverdata>
           <mappings>
-            <mapping deploy="/public/www" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/www/cmuploader_653/public" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
