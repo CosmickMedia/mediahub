@@ -1,6 +1,6 @@
 /* Base Styles */
 body {
-    padding-top: 70px; /* Account for fixed header */
+    padding-top: var(--header-height, 70px); /* Account for fixed header */
 }
 
 .card {
