@@ -615,6 +615,7 @@ body {
 
 .modal-backdrop {
     z-index: 9990 !important;
+    display: none !important;
 }
 
 #eventModalCalendar {
@@ -2798,6 +2799,7 @@ body {
 
 .modal-backdrop {
     z-index: 9997 !important;
+    display: none !important;
 }
 
 .modal-backdrop.show ~ .modal-backdrop.show {
