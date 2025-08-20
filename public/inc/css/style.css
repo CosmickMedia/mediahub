@@ -2808,6 +2808,14 @@ body {
     z-index: 9998 !important;
 }
 
+/* Offset modals for fixed header on small screens */
+@media (max-width: 768px) {
+    .modal {
+        /* Use header height to keep modals fully visible */
+        --bs-modal-margin: calc(var(--header-height) + 0.5rem);
+    }
+}
+
 .modal.show ~ .modal.show {
     z-index: 10000 !important;
 }
