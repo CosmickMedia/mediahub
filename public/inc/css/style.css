@@ -3584,3 +3584,9 @@ textarea.form-control-modern {
         padding-right: 3rem;
     }
 }
+
+/* Footer version */
+.footer-version {
+    font-size: 0.6rem;
+    color: #6c757d;
+}
