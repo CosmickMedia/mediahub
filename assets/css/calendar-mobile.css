@@ -567,40 +567,7 @@
         opacity: 0.7;
     }
     
-    /* Modal adjustments - Fix z-index and top alignment */
-    #scheduleModal {
-        z-index: 999999 !important;
-    }
-    
-    #scheduleModal .modal-backdrop,
-    .modal-backdrop {
-        z-index: 999998 !important;
-    }
-    
-    #eventModalCalendar .modal-dialog,
-    #dayViewModal .modal-dialog,
-    #scheduleModal .modal-dialog {
-        margin: 0;
-        margin-top: 60px; /* Account for mobile header */
-        max-width: 100%;
-        width: 100%;
-        max-height: calc(100vh - 60px);
-    }
-    
-    #eventModalCalendar .modal-content,
-    #dayViewModal .modal-content,
-    #scheduleModal .modal-content {
-        max-height: calc(100vh - 60px);
-        border-radius: 16px 16px 0 0;
-        overflow: hidden;
-        margin: 0;
-    }
-    
-    .modal-body {
-        max-height: calc(100vh - 140px) !important;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+    /* Modal adjustments removed - now handled in calendar.php inline styles */
     
     .modal-event-layout {
         grid-template-columns: 1fr;

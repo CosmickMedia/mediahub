@@ -229,43 +229,155 @@ $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.5.5">
 <style>
-/* Fix modal z-index and positioning */
-#scheduleModal { 
-    z-index: 999999 !important; 
+/* Modal fixes for proper positioning and z-index */
+.modal {
+    z-index: 1050 !important;
 }
-.modal-backdrop { 
-    z-index: 999998 !important; 
+
+.modal-backdrop {
+    z-index: 1040 !important;
 }
+
+.modal.show {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-height: calc(100vh - 3.5rem);
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - 3.5rem);
+}
+
+.modal-dialog-scrollable .modal-content {
+    max-height: calc(100vh - 3.5rem);
+    overflow: hidden;
+}
+
+.modal-dialog-scrollable .modal-body {
+    overflow-y: auto;
+}
+
+/* Mobile-specific modal fixes */
+@media (max-width: 768px) {
+    /* Fix modal backdrop z-index */
+    .modal-backdrop {
+        z-index: 1040 !important;
+        position: fixed !important;
+    }
+    
+    /* Fix modal z-index to be above backdrop */
+    .modal {
+        z-index: 1050 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        padding: 0 !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Position modal dialog properly */
+    .modal.show {
+        display: block !important;
+    }
+    
+    .modal-dialog {
+        position: relative !important;
+        margin: 50px auto !important;
+        width: calc(100% - 20px) !important;
+        max-width: calc(100% - 20px) !important;
+        transform: none !important;
+    }
+    
+    .modal-dialog-centered {
+        min-height: auto !important;
+        display: block !important;
+        align-items: initial !important;
+    }
+    
+    .modal-content {
+        position: relative !important;
+        max-height: calc(100vh - 100px) !important;
+        height: auto !important;
+        margin: 0 auto !important;
+    }
+    
+    .modal-body {
+        max-height: calc(100vh - 200px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Specific modal fixes */
+    #scheduleModal,
+    #eventModalCalendar,
+    #dayViewModal {
+        z-index: 1050 !important;
+    }
+    
+    #scheduleModal .modal-dialog,
+    #eventModalCalendar .modal-dialog,
+    #dayViewModal .modal-dialog {
+        margin-top: 20px !important;
+        margin-bottom: 20px !important;
+    }
+}
+
+/* Schedule Modal specific styles */
 #scheduleModal .modal-dialog {
-    z-index: 999999 !important;
+    max-width: 800px;
 }
-#scheduleModal .modal-content { 
-    z-index: 999999 !important; 
+
+#scheduleModal .modal-content {
+    max-height: calc(100vh - 3.5rem);
+    overflow: hidden;
 }
+
+#scheduleModal .modal-body {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
 #scheduleModal .modal-header { 
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
     color: #fff; 
-    border: none; 
-}
-#scheduleModal .btn-close { 
-    opacity: 1; 
+    border: none;
+    flex-shrink: 0;
 }
 
-/* Mobile specific modal fixes */
-@media (max-width: 768px) {
-    #scheduleModal .modal-dialog {
-        margin-top: 60px !important;
-        margin-left: 0;
-        margin-right: 0;
-        max-width: 100%;
-        width: 100%;
-    }
-    
-    #scheduleModal .modal-content {
-        border-radius: 16px 16px 0 0;
-        max-height: calc(100vh - 60px);
-    }
+#scheduleModal .btn-close { 
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
 }
+
+/* Event Modal specific styles */
+#eventModalCalendar .modal-dialog,
+#dayViewModal .modal-dialog {
+    max-width: 1140px;
+}
+
+#eventModalCalendar .modal-content,
+#dayViewModal .modal-content {
+    max-height: calc(100vh - 3.5rem);
+    overflow: hidden;
+}
+
+#eventModalCalendar .modal-body,
+#dayViewModal .modal-body {
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+}
+
 
 /* Calendar specific styles */
 :root {
@@ -810,25 +922,25 @@ include __DIR__.'/header.php';
     </div>
 
     <!-- Event Modal - for individual events -->
-    <div class="modal fade" id="eventModalCalendar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" style="z-index: 9999 !important;">
-        <div class="modal-dialog modal-dialog-centered modal-xl" style="z-index: 9999 !important;">
-            <div class="modal-content" style="z-index: 9999 !important;">
-                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1.5rem; position: relative;">
+    <div class="modal fade" id="eventModalCalendar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
                     <div class="modal-title w-100" id="eventModalTitle"></div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background-color: white !important; color: black !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="eventModalBody" style="padding: 0; max-height: 70vh; overflow-y: auto;"></div>
+                <div class="modal-body" id="eventModalBody" style="padding: 0;"></div>
             </div>
         </div>
     </div>
 
     <!-- Day View Modal - for showing all events in a day -->
-    <div class="modal fade" id="dayViewModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" style="z-index: 9999 !important;">
-        <div class="modal-dialog modal-dialog-centered modal-xl" style="z-index: 9999 !important;">
-            <div class="modal-content" style="z-index: 9999 !important;">
-                <div class="modal-header day-view-header" style="position: relative;">
+    <div class="modal fade" id="dayViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header day-view-header">
                     <h5 class="modal-title" id="dayViewTitle"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background-color: white !important; color: black !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="dayViewBody">
                     <!-- Events will be loaded here -->
@@ -840,7 +952,7 @@ include __DIR__.'/header.php';
 <?php if ($allow_schedule): ?>
     <!-- Schedule Post Modal -->
     <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <form id="scheduleForm" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -1492,17 +1604,6 @@ include __DIR__.'/header.php';
                     document.getElementById('postAction').value = 'update';
                 }
                 scheduleModal.show();
-                setTimeout(function() {
-                    var modalEl = document.getElementById('scheduleModal');
-                    if (modalEl) {
-                        modalEl.style.zIndex = '10001';
-                    }
-                    var backdrops = document.querySelectorAll('.modal-backdrop');
-                    if (backdrops.length > 0) {
-                        var lastBackdrop = backdrops[backdrops.length - 1];
-                        lastBackdrop.style.zIndex = '10000';
-                    }
-                }, 100);
             }
 
             var scheduleForm = document.getElementById('scheduleForm');
@@ -1729,22 +1830,8 @@ include __DIR__.'/header.php';
                 }
 
                 // Show modal using Bootstrap's method
-                var myModal = new bootstrap.Modal(document.getElementById('eventModalCalendar'), {
-                    backdrop: 'static',
-                    keyboard: false
-                });
+                var myModal = new bootstrap.Modal(document.getElementById('eventModalCalendar'));
                 myModal.show();
-
-                // Force z-index after showing
-                setTimeout(function() {
-                    document.getElementById('eventModalCalendar').style.zIndex = '9999';
-                    // Handle multiple backdrops - get the last one which should be for this modal
-                    var backdrops = document.querySelectorAll('.modal-backdrop');
-                    if (backdrops.length > 0) {
-                        var lastBackdrop = backdrops[backdrops.length - 1];
-                        lastBackdrop.style.zIndex = '9990';
-                    }
-                }, 100);
             };
 
             // Function to show day view
@@ -1852,22 +1939,8 @@ include __DIR__.'/header.php';
                 bodyEl.innerHTML = html;
 
                 // Show the day view modal
-                var dayModal = new bootstrap.Modal(document.getElementById('dayViewModal'), {
-                    backdrop: 'static',
-                    keyboard: false
-                });
+                var dayModal = new bootstrap.Modal(document.getElementById('dayViewModal'));
                 dayModal.show();
-
-                // Force z-index after showing (same fix as event modal)
-                setTimeout(function() {
-                    document.getElementById('dayViewModal').style.zIndex = '9999';
-                    // Handle multiple backdrops - get the last one which should be for this modal
-                    var backdrops = document.querySelectorAll('.modal-backdrop');
-                    if (backdrops.length > 0) {
-                        var lastBackdrop = backdrops[backdrops.length - 1];
-                        lastBackdrop.style.zIndex = '9990';
-                    }
-                }, 100);
             };
 
             // Function to close day view and show event details
