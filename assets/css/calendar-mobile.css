@@ -44,12 +44,14 @@
         width: calc(100% - 20px) !important;
         max-width: calc(100% - 20px) !important;
         max-height: calc(100vh - 20px) !important;
+        max-height: calc(100dvh - 20px) !important;
         transform: none !important;
         -webkit-transform: none !important;
     }
 
     .modal-content {
         max-height: calc(100vh - 40px) !important;
+        max-height: calc(100dvh - 40px) !important;
         display: flex !important;
         flex-direction: column !important;
     }
@@ -63,6 +65,7 @@
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         max-height: calc(100vh - 160px) !important;
+        max-height: calc(100dvh - 160px) !important;
     }
 
     .modal-footer {
@@ -329,6 +332,7 @@
         padding: 0.75rem;
         background: #f8f9fa;
         min-height: calc(100vh - 60px);
+        min-height: calc(100dvh - 60px);
     }
 
     .calendar-header {
