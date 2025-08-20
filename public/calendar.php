@@ -233,21 +233,6 @@ $extra_head = <<<HTML
 @media (max-width: 768px) {
     /* Fix for body scroll lock when modal is open */
     body.modal-open {
-        position: fixed !important;
-        width: 100% !important;
-        overflow: hidden !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-    }
-    
-    /* Create a wrapper for proper scrolling context */
-    .modal-open .calendar-container {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
         overflow: hidden !important;
     }
     
