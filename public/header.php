@@ -307,6 +307,24 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
         // Poll every 3 seconds for near real-time notifications
         setInterval(checkNotifications, 3000);
     }
+
+    // Update CSS variable for header height
+    function updateHeaderHeight() {
+        const header = document.getElementById('modernNavbar');
+        if (header) {
+            document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
+        }
+    }
+    window.addEventListener('load', updateHeaderHeight);
+    window.addEventListener('resize', updateHeaderHeight);
+
+    // Simplified modal scroll lock for mobile
+    document.addEventListener('show.bs.modal', () => {
+        document.body.style.overflow = 'hidden';
+    });
+    document.addEventListener('hidden.bs.modal', () => {
+        document.body.style.overflow = '';
+    });
 </script>
 
 <div class="container-fluid">
