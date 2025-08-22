@@ -378,6 +378,8 @@
     .modal-body {
         padding: 1rem;
         padding-bottom: calc(var(--ios-safe-area-bottom) + 1rem);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .modal-footer {
