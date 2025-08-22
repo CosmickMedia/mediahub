@@ -2797,14 +2797,6 @@ body {
     z-index: 9998 !important;
 }
 
-.modal-backdrop {
-    z-index: 9997 !important;
-    display: none !important;
-}
-
-.modal-backdrop.show ~ .modal-backdrop.show {
-    z-index: 9999 !important;
-}
 
 .modal.show {
     z-index: 9998 !important;
