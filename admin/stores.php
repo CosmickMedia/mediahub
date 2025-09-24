@@ -23,6 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $profile_ids = implode(',', to_string_array($_POST['hootsuite_profile_ids']));
                 if ($profile_ids === '') $profile_ids = null;
             }
+            $campaign_id = $_POST['hootsuite_campaign_id'] ?? null;
+            if ($campaign_id === '') {
+                $campaign_id = null;
+            }
+
             $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids, hootsuite_custom_property_key, hootsuite_custom_property_value, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
@@ -30,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['email'],
                 $_POST['folder'],
                 $_POST['hootsuite_campaign_tag'] ?? null,
-                $_POST['hootsuite_campaign_id'] ?? null,
+                $campaign_id,
                 $profile_ids,
                 $_POST['hootsuite_custom_property_key'] ?? null,
                 $_POST['hootsuite_custom_property_value'] ?? null,
