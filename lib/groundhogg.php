@@ -504,6 +504,10 @@ function groundhogg_sync_store_contacts(int $store_id): array {
         ];
 
         [$success, $message] = groundhogg_send_contact($contact);
+        if ($success) {
+            $update = $pdo->prepare('UPDATE stores SET groundhogg_synced = 1 WHERE id = ?');
+            $update->execute([$store_id]);
+        }
         $results[] = [
             'email' => $store['admin_email'],
             'success' => $success,
@@ -536,6 +540,10 @@ function groundhogg_sync_store_contacts(int $store_id): array {
         ];
 
         [$success, $message] = groundhogg_send_contact($contact);
+        if ($success) {
+            $update = $pdo->prepare('UPDATE store_users SET groundhogg_synced = 1 WHERE id = ?');
+            $update->execute([$user['id']]);
+        }
         $results[] = [
             'email' => $user['email'],
             'success' => $success,

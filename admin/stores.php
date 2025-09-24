@@ -74,6 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
                 if ($ghSuccess) {
+                    $updateSync = $pdo->prepare('UPDATE stores SET groundhogg_synced = 1 WHERE id = ?');
+                    $updateSync->execute([$storeId]);
                     $success[] = $ghMessage;
                 } else {
                     $errors[] = 'Store created but Groundhogg sync failed: ' . $ghMessage;
