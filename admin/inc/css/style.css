@@ -2320,6 +2320,32 @@ body {
     margin-bottom: 2rem;
 }
 
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-toggle-add-store {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+    box-shadow: var(--card-shadow);
+}
+
+.btn-toggle-add-store:hover {
+    transform: translateY(-2px);
+    color: white;
+    box-shadow: var(--hover-shadow);
+}
+
 .store-name-link {
     color: #2c3e50;
     text-decoration: none;
@@ -2358,6 +2384,14 @@ body {
     border-radius: 20px;
     box-shadow: var(--card-shadow);
     overflow: hidden;
+}
+
+.add-store-card.collapsed {
+    display: none;
+}
+
+.add-store-card .card-body-modern {
+    padding: 1.5rem;
 }
 
 .btn-add-store {
