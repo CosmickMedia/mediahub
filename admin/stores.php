@@ -8,6 +8,7 @@ $pdo = get_pdo();
 
 $errors = [];
 $success = [];
+$addFormOpen = ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add']));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add'])) {
@@ -117,11 +118,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get stores sorted by name
-$stores = $pdo->query('SELECT s.*, COUNT(u.id) as upload_count,
-                       (SELECT COUNT(*) FROM store_messages m WHERE m.store_id = s.id) as chat_count
+$stores = $pdo->query('SELECT s.*,
+                              COALESCE(u.upload_count, 0) AS upload_count,
+                              COALESCE(m.chat_count, 0) AS chat_count
                        FROM stores s
-                       LEFT JOIN uploads u ON s.id = u.store_id
-                       GROUP BY s.id
+                       LEFT JOIN (
+                           SELECT store_id, COUNT(*) AS upload_count
+                           FROM uploads
+                           GROUP BY store_id
+                       ) u ON s.id = u.store_id
+                       LEFT JOIN (
+                           SELECT store_id, COUNT(*) AS chat_count
+                           FROM store_messages
+                           GROUP BY store_id
+                       ) m ON s.id = m.store_id
                        ORDER BY s.name ASC')->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate statistics
@@ -138,8 +148,22 @@ include __DIR__.'/header.php';
     <div class="animate__animated animate__fadeIn">
         <!-- Page Header -->
         <div class="page-header animate__animated animate__fadeInDown">
-            <h1 class="page-title">Store Management</h1>
-            <p class="page-subtitle">Manage all stores and their settings</p>
+            <div class="page-header-content">
+                <div>
+                    <h1 class="page-title">Store Management</h1>
+                    <p class="page-subtitle">Manage all stores and their settings</p>
+                </div>
+                <div class="page-actions">
+                    <button type="button"
+                            class="btn btn-toggle-add-store"
+                            id="toggleAddStore"
+                            aria-expanded="<?php echo $addFormOpen ? 'true' : 'false'; ?>"
+                            aria-controls="addStoreCard">
+                        <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>
+                        <span class="toggle-text">Add Store</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Alerts -->
@@ -198,8 +222,135 @@ include __DIR__.'/header.php';
             </div>
         </div>
 
+        <!-- Add New Store -->
+        <div id="addStoreCard" class="add-store-card animate__animated animate__fadeIn delay-40<?php echo $addFormOpen ? '' : ' collapsed'; ?>">
+            <div class="card-header-modern">
+                <h5 class="card-title-modern">
+                    <i class="bi bi-plus-circle"></i>
+                    Add New Store
+                </h5>
+            </div>
+            <div class="card-body-modern">
+                <form method="post">
+                    <div class="form-section">
+                        <h6 class="section-title">Basic Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label-modern">Store Name *</label>
+                                <input type="text" name="name" id="name" class="form-control form-control-modern" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="pin" class="form-label-modern">PIN (Access Code) *</label>
+                                <input type="text" name="pin" id="pin" class="form-control form-control-modern" required
+                                       pattern="[A-Za-z0-9]{4,}" title="At least 4 alphanumeric characters">
+                                <div class="form-text">Unique code for store access</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h6 class="section-title">Contact Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label-modern">First Name</label>
+                                <input type="text" name="first_name" id="first_name" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label-modern">Last Name</label>
+                                <input type="text" name="last_name" id="last_name" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label-modern">Admin Email</label>
+                                <input type="email" name="email" id="email" class="form-control form-control-modern">
+                                <div class="form-text">For notifications specific to this store</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label-modern">Phone</label>
+                                <input type="text" name="phone" id="phone" class="form-control form-control-modern">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h6 class="section-title">Location Details</h6>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="address" class="form-label-modern">Address</label>
+                                <input type="text" name="address" id="address" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="city" class="form-label-modern">City</label>
+                                <input type="text" name="city" id="city" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="state" class="form-label-modern">State</label>
+                                <input type="text" name="state" id="state" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="zip_code" class="form-label-modern">Zip Code</label>
+                                <input type="text" name="zip_code" id="zip_code" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="form-label-modern">Country</label>
+                                <input type="text" name="country" id="country" class="form-control form-control-modern">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h6 class="section-title">Integration Settings</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="folder" class="form-label-modern">Drive Folder ID</label>
+                                <input type="text" name="folder" id="folder" class="form-control form-control-modern">
+                                <div class="form-text">Leave blank to auto-create on first upload</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_campaign_tag" class="form-label-modern">Hootsuite Tag</label>
+                                <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag"
+                                       class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_campaign_id" class="form-label-modern">Hootsuite Campaign ID</label>
+                                <div class="input-group">
+                                    <input type="number" name="hootsuite_campaign_id" id="hootsuite_campaign_id" class="form-control form-control-modern" list="campaigns_list">
+                                    <button class="btn btn-outline-secondary" type="button" id="load_campaigns">Load</button>
+                                </div>
+                                <datalist id="campaigns_list"></datalist>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profiles</label>
+                                <select name="hootsuite_profile_ids[]" id="hootsuite_profile_ids" multiple
+                                        class="form-select form-select-modern"></select>
+                                <div class="form-text">Select one or more profiles</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_custom_property_key" class="form-label-modern">Hootsuite Custom Property Key</label>
+                                <input type="text" name="hootsuite_custom_property_key" id="hootsuite_custom_property_key" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_custom_property_value" class="form-label-modern">Hootsuite Custom Property Value</label>
+                                <input type="text" name="hootsuite_custom_property_value" id="hootsuite_custom_property_value" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>
+                                <input type="url" name="marketing_report_url" id="marketing_report_url"
+                                       class="form-control form-control-modern">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section text-end">
+                        <button class="btn btn-add-store" name="add" type="submit">
+                            <i class="bi bi-plus-circle me-2"></i>Add Store
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Stores Table -->
-        <div class="stores-card animate__animated animate__fadeIn delay-40">
+        <div class="stores-card animate__animated animate__fadeIn delay-50">
             <div class="card-header-modern">
                 <h5 class="card-title-modern">
                     <i class="bi bi-list-ul"></i>
@@ -211,7 +362,7 @@ include __DIR__.'/header.php';
                     <div class="empty-state">
                         <i class="bi bi-shop"></i>
                         <h4>No stores yet</h4>
-                        <p>Add your first store below to get started</p>
+                        <p>Use the Add Store button above to get started</p>
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -295,133 +446,34 @@ include __DIR__.'/header.php';
             </div>
         </div>
 
-        <!-- Add New Store -->
-        <div class="add-store-card animate__animated animate__fadeIn delay-50">
-            <div class="card-header-modern">
-                <h5 class="card-title-modern">
-                    <i class="bi bi-plus-circle"></i>
-                    Add New Store
-                </h5>
-            </div>
-            <form method="post">
-                <div class="form-section">
-                    <h6 class="section-title">Basic Information</h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="name" class="form-label-modern">Store Name *</label>
-                            <input type="text" name="name" id="name" class="form-control form-control-modern" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="pin" class="form-label-modern">PIN (Access Code) *</label>
-                            <input type="text" name="pin" id="pin" class="form-control form-control-modern" required
-                                   pattern="[A-Za-z0-9]{4,}" title="At least 4 alphanumeric characters">
-                            <div class="form-text">Unique code for store access</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h6 class="section-title">Contact Information</h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="first_name" class="form-label-modern">First Name</label>
-                            <input type="text" name="first_name" id="first_name" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="last_name" class="form-label-modern">Last Name</label>
-                            <input type="text" name="last_name" id="last_name" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="email" class="form-label-modern">Admin Email</label>
-                            <input type="email" name="email" id="email" class="form-control form-control-modern">
-                            <div class="form-text">For notifications specific to this store</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="phone" class="form-label-modern">Phone</label>
-                            <input type="text" name="phone" id="phone" class="form-control form-control-modern">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h6 class="section-title">Location Details</h6>
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <label for="address" class="form-label-modern">Address</label>
-                            <input type="text" name="address" id="address" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="city" class="form-label-modern">City</label>
-                            <input type="text" name="city" id="city" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="state" class="form-label-modern">State</label>
-                            <input type="text" name="state" id="state" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="zip_code" class="form-label-modern">Zip Code</label>
-                            <input type="text" name="zip_code" id="zip_code" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="country" class="form-label-modern">Country</label>
-                            <input type="text" name="country" id="country" class="form-control form-control-modern">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h6 class="section-title">Integration Settings</h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="folder" class="form-label-modern">Drive Folder ID</label>
-                            <input type="text" name="folder" id="folder" class="form-control form-control-modern">
-                            <div class="form-text">Leave blank to auto-create on first upload</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_campaign_tag" class="form-label-modern">Hootsuite Tag</label>
-                            <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag"
-                                   class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_campaign_id" class="form-label-modern">Hootsuite Campaign ID</label>
-                            <div class="input-group">
-                                <input type="number" name="hootsuite_campaign_id" id="hootsuite_campaign_id" class="form-control form-control-modern" list="campaigns_list">
-                                <button class="btn btn-outline-secondary" type="button" id="load_campaigns">Load</button>
-                            </div>
-                            <datalist id="campaigns_list"></datalist>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profiles</label>
-                            <select name="hootsuite_profile_ids[]" id="hootsuite_profile_ids" multiple
-                                    class="form-select form-select-modern"></select>
-                            <div class="form-text">Select one or more profiles</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_custom_property_key" class="form-label-modern">Hootsuite Custom Property Key</label>
-                            <input type="text" name="hootsuite_custom_property_key" id="hootsuite_custom_property_key" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_custom_property_value" class="form-label-modern">Hootsuite Custom Property Value</label>
-                            <input type="text" name="hootsuite_custom_property_value" id="hootsuite_custom_property_value" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-12">
-                            <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>
-                            <input type="url" name="marketing_report_url" id="marketing_report_url"
-                                   class="form-control form-control-modern">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section text-end">
-                    <button class="btn btn-add-store" name="add" type="submit">
-                        <i class="bi bi-plus-circle me-2"></i>Add Store
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <script>
+        const toggleButton = document.getElementById('toggleAddStore');
+        const addStoreCard = document.getElementById('addStoreCard');
+
+        if (toggleButton && addStoreCard) {
+            const icon = toggleButton.querySelector('i');
+            const label = toggleButton.querySelector('.toggle-text');
+
+            const setOpen = (shouldOpen) => {
+                addStoreCard.classList.toggle('collapsed', !shouldOpen);
+                toggleButton.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+                if (icon) {
+                    icon.className = 'bi ' + (shouldOpen ? 'bi-dash-lg' : 'bi-plus-lg') + ' me-2';
+                }
+                if (label) {
+                    label.textContent = shouldOpen ? 'Hide Add Store' : 'Add Store';
+                }
+            };
+
+            setOpen(!addStoreCard.classList.contains('collapsed'));
+
+            toggleButton.addEventListener('click', () => {
+                setOpen(addStoreCard.classList.contains('collapsed'));
+            });
+        }
+
         function loadCampaigns() {
             fetch('../hootsuite/hootsuite_campaigns.php')
                 .then(r => r.json())
