@@ -63,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $success[] = 'Store updated successfully';
 
-            // If email is set, sync with Groundhogg
-            if (!empty($_POST['email'])) {
+            // If email is set and contact has not been synced yet, sync with Groundhogg
+            if (!empty($_POST['email']) && empty($store['groundhogg_synced'])) {
                 $contact = [
                     'email'        => $_POST['email'],
                     'first_name'   => $_POST['first_name'] ?? '',
@@ -85,6 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
                 if ($ghSuccess) {
+                    $syncStmt = $pdo->prepare('UPDATE stores SET groundhogg_synced = 1 WHERE id = ?');
+                    $syncStmt->execute([$id]);
                     $success[] = $ghMessage;
                 } else {
                     $errors[] = 'Store updated but Groundhogg sync failed: ' . $ghMessage;
@@ -107,9 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$id, $email, $first ?: null, $last ?: null, $mobile ?: null, $optin]);
                 $insertId = $pdo->lastInsertId();
                 $success[] = 'User added';
-                $store_users[] = ['id' => $insertId, 'email' => $email, 'first_name' => $first, 'last_name' => $last, 'mobile_phone' => $mobile, 'opt_in_status' => $optin];
-
-                // Send to Groundhogg
+                // Send to Groundhogg only once when user is initially added
                 $contact = [
                     'email'        => $email,
                     'first_name'   => $first,
@@ -130,10 +130,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
                 if ($ghSuccess) {
+                    $syncUser = $pdo->prepare('UPDATE store_users SET groundhogg_synced = 1 WHERE id = ?');
+                    $syncUser->execute([$insertId]);
                     $success[] = 'User added and ' . $ghMessage;
                 } else {
                     $errors[] = 'User added but Groundhogg sync failed: ' . $ghMessage;
                 }
+
+                // Refresh user list to include latest sync status
+                $userStmt->execute([$id]);
+                $store_users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
                 $errors[] = 'User already exists for this store';
             }
