@@ -600,6 +600,7 @@ CREATE TABLE `stores` (
   `last_name` varchar(100) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
+  `groundhogg_synced` tinyint(1) NOT NULL DEFAULT 0,
   `city` varchar(100) DEFAULT NULL,
   `state` varchar(100) DEFAULT NULL,
   `zip_code` varchar(20) DEFAULT NULL,
@@ -771,6 +772,7 @@ CREATE TABLE `store_users` (
   `email` varchar(255) NOT NULL,
   `first_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) DEFAULT NULL,
+  `groundhogg_synced` tinyint(1) NOT NULL DEFAULT 0,
   `mobile_phone` varchar(50) DEFAULT NULL,
   `opt_in_status` enum('unconfirmed','confirmed','unsubscribed','subscribed_weekly','subscribed_monthly','bounced','spam','complained','blocked') DEFAULT 'confirmed',
   `created_at` timestamp NULL DEFAULT current_timestamp()

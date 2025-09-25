@@ -189,7 +189,14 @@ try {
 }
 
 try {
-    $pdo->exec("ALTER TABLE store_users ADD COLUMN mobile_phone VARCHAR(50) AFTER last_name");
+    $pdo->exec("ALTER TABLE store_users ADD COLUMN groundhogg_synced TINYINT(1) DEFAULT 0 AFTER last_name");
+    echo "✓ Added groundhogg_synced column to store_users table\n";
+} catch (PDOException $e) {
+    echo "• groundhogg_synced column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE store_users ADD COLUMN mobile_phone VARCHAR(50) AFTER groundhogg_synced");
     echo "✓ Added mobile_phone column to store_users table\n";
 } catch (PDOException $e) {
     echo "• mobile_phone column might already exist\n";
@@ -357,6 +364,13 @@ try {
     echo "✓ Added address column to stores table\n";
 } catch (PDOException $e) {
     echo "• address column might already exist\n";
+}
+
+try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN groundhogg_synced TINYINT(1) DEFAULT 0 AFTER address");
+    echo "✓ Added groundhogg_synced column to stores table\n";
+} catch (PDOException $e) {
+    echo "• groundhogg_synced column might already exist\n";
 }
 
 try {
