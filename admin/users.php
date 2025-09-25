@@ -201,12 +201,12 @@ include __DIR__.'/header.php';
                                     </td>
                                     <td class="actions-cell">
                                         <a href="edit_user.php?id=<?php echo $u['id']; ?>" class="btn btn-action btn-action-primary" title="Edit User">
-                                            <i class="bi bi-pencil-square"></i> Edit
+                                            <i class="bi bi-pencil-square"></i>
                                         </a>
                                         <form method="post" class="delete-user-form" onsubmit="return confirm('Delete this user? This cannot be undone.');">
                                             <input type="hidden" name="id" value="<?php echo $u['id']; ?>">
                                             <button class="btn btn-action btn-action-danger" name="delete" title="Delete User">
-                                                <i class="bi bi-trash"></i> Delete
+                                                <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
                                     </td>
