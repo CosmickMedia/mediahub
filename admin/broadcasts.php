@@ -171,8 +171,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-megaphone-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_broadcasts']; ?>">0</div>
-                <div class="stat-label">Total Broadcasts</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_broadcasts']; ?>">0</div>
+                    <div class="stat-label">Total Broadcasts</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -180,8 +182,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-globe"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['global_messages']; ?>">0</div>
-                <div class="stat-label">Global Messages</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['global_messages']; ?>">0</div>
+                    <div class="stat-label">Global Messages</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -189,8 +193,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-shop"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['store_messages']; ?>">0</div>
-                <div class="stat-label">Store Messages</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['store_messages']; ?>">0</div>
+                    <div class="stat-label">Store Messages</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -198,8 +204,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-calendar-week"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['this_week']; ?>">0</div>
-                <div class="stat-label">This Week</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['this_week']; ?>">0</div>
+                    <div class="stat-label">This Week</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -207,8 +215,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-calendar-month"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['this_month']; ?>">0</div>
-                <div class="stat-label">This Month</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['this_month']; ?>">0</div>
+                    <div class="stat-label">This Month</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -216,8 +226,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-activity"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['active_stores']; ?>">0</div>
-                <div class="stat-label">Active Stores</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['active_stores']; ?>">0</div>
+                    <div class="stat-label">Active Stores</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
         </div>

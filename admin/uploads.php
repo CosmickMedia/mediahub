@@ -251,8 +251,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-cloud-upload-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_uploads']; ?>">0</div>
-                <div class="stat-label">Total Uploads</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_uploads']; ?>">0</div>
+                    <div class="stat-label">Total Uploads</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -260,8 +262,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-calendar-week-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['week_uploads']; ?>">0</div>
-                <div class="stat-label">This Week</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['week_uploads']; ?>">0</div>
+                    <div class="stat-label">This Week</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -269,8 +273,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-calendar-check-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['today_uploads']; ?>">0</div>
-                <div class="stat-label">Today</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['today_uploads']; ?>">0</div>
+                    <div class="stat-label">Today</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -278,8 +284,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-image-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_images']; ?>">0</div>
-                <div class="stat-label">Images</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_images']; ?>">0</div>
+                    <div class="stat-label">Images</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -287,8 +295,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-camera-video-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_videos']; ?>">0</div>
-                <div class="stat-label">Videos</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_videos']; ?>">0</div>
+                    <div class="stat-label">Videos</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -296,8 +306,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-clock-history"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['pending_review']; ?>">0</div>
-                <div class="stat-label">Pending Review</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['pending_review']; ?>">0</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
         </div>

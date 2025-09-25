@@ -83,8 +83,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_messages']; ?>" data-stat="total">0</div>
-                <div class="stat-label">Total Messages</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_messages']; ?>" data-stat="total">0</div>
+                    <div class="stat-label">Total Messages</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -92,8 +94,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-person-badge-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['admin_messages']; ?>" data-stat="admin">0</div>
-                <div class="stat-label">From Admin</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['admin_messages']; ?>" data-stat="admin">0</div>
+                    <div class="stat-label">From Admin</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -101,8 +105,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-person-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['your_messages']; ?>" data-stat="store">0</div>
-                <div class="stat-label">Your Messages</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['your_messages']; ?>" data-stat="store">0</div>
+                    <div class="stat-label">Your Messages</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -110,8 +116,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-hand-thumbs-up-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['liked_messages']; ?>" data-stat="liked">0</div>
-                <div class="stat-label">Liked</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['liked_messages']; ?>" data-stat="liked">0</div>
+                    <div class="stat-label">Liked</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -119,8 +127,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-heart-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['loved_messages']; ?>" data-stat="loved">0</div>
-                <div class="stat-label">Loved</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['loved_messages']; ?>" data-stat="loved">0</div>
+                    <div class="stat-label">Loved</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -128,8 +138,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['recent_messages']; ?>" data-stat="recent">0</div>
-                <div class="stat-label">This Week</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['recent_messages']; ?>" data-stat="recent">0</div>
+                    <div class="stat-label">This Week</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
         </div>

@@ -613,8 +613,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-cloud-upload-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $upload_stats['total_uploads']; ?>">0</div>
-                <div class="stat-label">Total Uploads</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $upload_stats['total_uploads']; ?>">0</div>
+                    <div class="stat-label">Total Uploads</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -622,13 +624,15 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-calendar-week-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $upload_stats['week_uploads']; ?>">0</div>
-                <div class="stat-label">This Week</div>
-                <?php if ($upload_stats['week_uploads'] > 0): ?>
-                    <div class="stat-change positive">
-                        <i class="bi bi-arrow-up"></i> Active
-                    </div>
-                <?php endif; ?>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $upload_stats['week_uploads']; ?>">0</div>
+                    <div class="stat-label">This Week</div>
+                    <?php if ($upload_stats['week_uploads'] > 0): ?>
+                        <div class="stat-change positive">
+                            <i class="bi bi-arrow-up"></i> Active
+                        </div>
+                    <?php endif; ?>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -636,8 +640,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-image-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $upload_stats['total_images']; ?>">0</div>
-                <div class="stat-label">Images</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $upload_stats['total_images']; ?>">0</div>
+                    <div class="stat-label">Images</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -645,8 +651,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-camera-video-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $upload_stats['total_videos']; ?>">0</div>
-                <div class="stat-label">Videos</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $upload_stats['total_videos']; ?>">0</div>
+                    <div class="stat-label">Videos</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -654,8 +662,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-calendar-event-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $upcoming_posts; ?>">0</div>
-                <div class="stat-label">Scheduled Posts</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $upcoming_posts; ?>">0</div>
+                    <div class="stat-label">Scheduled Posts</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -663,13 +673,15 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $unread_count; ?>">0</div>
-                <div class="stat-label">Unread Messages</div>
-                <?php if ($unread_count > 0): ?>
-                    <div class="stat-change positive">
-                        <i class="bi bi-circle-fill"></i> New
-                    </div>
-                <?php endif; ?>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $unread_count; ?>">0</div>
+                    <div class="stat-label">Unread Messages</div>
+                    <?php if ($unread_count > 0): ?>
+                        <div class="stat-change positive">
+                            <i class="bi bi-circle-fill"></i> New
+                        </div>
+                    <?php endif; ?>
+                </div>
                 <div class="stat-bg"></div>
             </div>
         </div>

@@ -109,14 +109,28 @@ body {
     background: white;
     border-radius: 20px;
     padding: 1.5rem;
-    text-align: center;
     overflow: hidden;
     box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: left;
 }
 
 .stat-icon {
     font-size: 2rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card .stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
 }
 
 .stat-number {

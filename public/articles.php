@@ -382,8 +382,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-file-text-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_articles']; ?>">0</div>
-                <div class="stat-label">Total Articles</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_articles']; ?>">0</div>
+                    <div class="stat-label">Total Articles</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -391,8 +393,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['pending_articles']; ?>">0</div>
-                <div class="stat-label">Pending Review</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['pending_articles']; ?>">0</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -400,8 +404,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-check-circle-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['approved_articles']; ?>">0</div>
-                <div class="stat-label">Approved</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['approved_articles']; ?>">0</div>
+                    <div class="stat-label">Approved</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -409,8 +415,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-x-circle-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['rejected_articles']; ?>">0</div>
-                <div class="stat-label">Rejected</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['rejected_articles']; ?>">0</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -418,8 +426,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-file-earmark-text"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['draft_articles']; ?>">0</div>
-                <div class="stat-label">Drafts</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['draft_articles']; ?>">0</div>
+                    <div class="stat-label">Drafts</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
@@ -427,8 +437,10 @@ include __DIR__.'/header.php';
                 <div class="stat-icon">
                     <i class="bi bi-graph-up-arrow"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $approval_rate; ?>">0</div>
-                <div class="stat-label">Approval Rate %</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $approval_rate; ?>">0</div>
+                    <div class="stat-label">Approval Rate %</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
         </div>
