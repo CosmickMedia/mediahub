@@ -188,53 +188,63 @@ include __DIR__.'/header.php';
 
         <!-- Statistics Grid -->
         <div class="stats-grid">
-            <a href="stores.php" class="stat-card stores animate__animated animate__fadeInUp">
+            <a href="stores.php" class="stat-card stat-card-horizontal stores animate__animated animate__fadeInUp">
                 <div class="stat-icon">
                     <i class="bi bi-shop"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_stores']; ?>">0</div>
-                <div class="stat-label">Total Stores</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_stores']; ?>">0</div>
+                    <div class="stat-label">Total Stores</div>
+                </div>
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="uploads.php" class="stat-card uploads animate__animated animate__fadeInUp delay-10">
+            <a href="uploads.php" class="stat-card stat-card-horizontal uploads animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-cloud-upload"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_uploads']; ?>">0</div>
-                <div class="stat-label">Total Uploads</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_uploads']; ?>">0</div>
+                    <div class="stat-label">Total Uploads</div>
+                </div>
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="articles.php" class="stat-card articles animate__animated animate__fadeInUp delay-20">
+            <a href="articles.php" class="stat-card stat-card-horizontal articles animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-file-text"></i>
                 </div>
-                <div>
-                    <span class="stat-number" data-count="<?php echo $stats['total_articles']; ?>">0</span>
-                    <?php if ($stats['pending_articles'] > 0): ?>
-                        <span class="stat-extra">(<?php echo $stats['pending_articles']; ?> pending)</span>
-                    <?php endif; ?>
+                <div class="stat-content">
+                    <div class="stat-header">
+                        <div class="stat-number" data-count="<?php echo $stats['total_articles']; ?>">0</div>
+                        <?php if ($stats['pending_articles'] > 0): ?>
+                            <span class="stat-extra">(<?php echo $stats['pending_articles']; ?> pending)</span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="stat-label">Articles</div>
                 </div>
-                <div class="stat-label">Articles</div>
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="broadcasts.php" class="stat-card messages animate__animated animate__fadeInUp delay-30">
+            <a href="broadcasts.php" class="stat-card stat-card-horizontal messages animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['active_messages']; ?>">0</div>
-                <div class="stat-label">Active Messages</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['active_messages']; ?>">0</div>
+                    <div class="stat-label">Active Messages</div>
+                </div>
                 <div class="stat-bg"></div>
             </a>
 
-            <a href="stores.php" class="stat-card users animate__animated animate__fadeInUp delay-40">
+            <a href="stores.php" class="stat-card stat-card-horizontal users animate__animated animate__fadeInUp delay-40">
                 <div class="stat-icon">
                     <i class="bi bi-people"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['store_users']; ?>">0</div>
-                <div class="stat-label">Store Users</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['store_users']; ?>">0</div>
+                    <div class="stat-label">Store Users</div>
+                </div>
                 <div class="stat-bg"></div>
             </a>
         </div>
