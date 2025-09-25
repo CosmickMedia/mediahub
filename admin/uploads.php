@@ -247,57 +247,69 @@ include __DIR__.'/header.php';
 
         <!-- Statistics -->
         <div class="stats-grid">
-            <div class="stat-card primary animate__animated animate__fadeInUp active" data-filter="total">
+            <div class="stat-card stat-card-horizontal primary animate__animated animate__fadeInUp active" data-filter="total">
                 <div class="stat-icon">
                     <i class="bi bi-cloud-upload-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_uploads']; ?>">0</div>
-                <div class="stat-label">Total Uploads</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_uploads']; ?>">0</div>
+                    <div class="stat-label">Total Uploads</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card success animate__animated animate__fadeInUp delay-10" data-filter="week">
+            <div class="stat-card stat-card-horizontal success animate__animated animate__fadeInUp delay-10" data-filter="week">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-week-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['week_uploads']; ?>">0</div>
-                <div class="stat-label">This Week</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['week_uploads']; ?>">0</div>
+                    <div class="stat-label">This Week</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card warning animate__animated animate__fadeInUp delay-20" data-filter="today">
+            <div class="stat-card stat-card-horizontal warning animate__animated animate__fadeInUp delay-20" data-filter="today">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-check-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['today_uploads']; ?>">0</div>
-                <div class="stat-label">Today</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['today_uploads']; ?>">0</div>
+                    <div class="stat-label">Today</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card info animate__animated animate__fadeInUp delay-30" data-filter="images">
+            <div class="stat-card stat-card-horizontal info animate__animated animate__fadeInUp delay-30" data-filter="images">
                 <div class="stat-icon">
                     <i class="bi bi-image-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_images']; ?>">0</div>
-                <div class="stat-label">Images</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_images']; ?>">0</div>
+                    <div class="stat-label">Images</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card danger animate__animated animate__fadeInUp delay-40" data-filter="videos">
+            <div class="stat-card stat-card-horizontal danger animate__animated animate__fadeInUp delay-40" data-filter="videos">
                 <div class="stat-icon">
                     <i class="bi bi-camera-video-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_videos']; ?>">0</div>
-                <div class="stat-label">Videos</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_videos']; ?>">0</div>
+                    <div class="stat-label">Videos</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card secondary animate__animated animate__fadeInUp delay-50" data-filter="pending">
+            <div class="stat-card stat-card-horizontal secondary animate__animated animate__fadeInUp delay-50" data-filter="pending">
                 <div class="stat-icon">
                     <i class="bi bi-clock-history"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['pending_review']; ?>">0</div>
-                <div class="stat-label">Pending Review</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['pending_review']; ?>">0</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
         </div>

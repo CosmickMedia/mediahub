@@ -167,57 +167,69 @@ include __DIR__.'/header.php';
 
         <!-- Statistics -->
         <div class="stats-grid">
-            <div class="stat-card primary animate__animated animate__fadeInUp">
+            <div class="stat-card stat-card-horizontal primary animate__animated animate__fadeInUp">
                 <div class="stat-icon">
                     <i class="bi bi-megaphone-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['total_broadcasts']; ?>">0</div>
-                <div class="stat-label">Total Broadcasts</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['total_broadcasts']; ?>">0</div>
+                    <div class="stat-label">Total Broadcasts</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card success animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card stat-card-horizontal success animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-globe"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['global_messages']; ?>">0</div>
-                <div class="stat-label">Global Messages</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['global_messages']; ?>">0</div>
+                    <div class="stat-label">Global Messages</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card warning animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card stat-card-horizontal warning animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-shop"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['store_messages']; ?>">0</div>
-                <div class="stat-label">Store Messages</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['store_messages']; ?>">0</div>
+                    <div class="stat-label">Store Messages</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card info animate__animated animate__fadeInUp delay-30">
+            <div class="stat-card stat-card-horizontal info animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-week"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['this_week']; ?>">0</div>
-                <div class="stat-label">This Week</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['this_week']; ?>">0</div>
+                    <div class="stat-label">This Week</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card danger animate__animated animate__fadeInUp delay-40">
+            <div class="stat-card stat-card-horizontal danger animate__animated animate__fadeInUp delay-40">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-month"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['this_month']; ?>">0</div>
-                <div class="stat-label">This Month</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['this_month']; ?>">0</div>
+                    <div class="stat-label">This Month</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card secondary animate__animated animate__fadeInUp delay-50">
+            <div class="stat-card stat-card-horizontal secondary animate__animated animate__fadeInUp delay-50">
                 <div class="stat-icon">
                     <i class="bi bi-activity"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $stats['active_stores']; ?>">0</div>
-                <div class="stat-label">Active Stores</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $stats['active_stores']; ?>">0</div>
+                    <div class="stat-label">Active Stores</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
         </div>

@@ -110,30 +110,36 @@ include __DIR__.'/header.php';
 
         <!-- Statistics -->
         <div class="stats-grid">
-            <div class="stat-card primary animate__animated animate__fadeInUp">
+            <div class="stat-card stat-card-horizontal primary animate__animated animate__fadeInUp">
                 <div class="stat-icon">
                     <i class="bi bi-people-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $total_users; ?>">0</div>
-                <div class="stat-label">Total Users</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $total_users; ?>">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card success animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card stat-card-horizontal success animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-person-plus-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $recent_users; ?>">0</div>
-                <div class="stat-label">Recent (30 days)</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $recent_users; ?>">0</div>
+                    <div class="stat-label">Recent (30 days)</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card warning animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card stat-card-horizontal warning animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-person-check-fill"></i>
                 </div>
-                <div class="stat-number" data-count="<?php echo $active_users; ?>">0</div>
-                <div class="stat-label">Active Users</div>
+                <div class="stat-content">
+                    <div class="stat-number" data-count="<?php echo $active_users; ?>">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
                 <div class="stat-bg"></div>
             </div>
         </div>
