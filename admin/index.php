@@ -241,285 +241,281 @@ include __DIR__.'/header.php';
 
         <!-- Content Grid -->
         <div class="content-grid">
-            <div>
-                <!-- Recent Uploads -->
-                <div class="content-card mb-4 animate__animated animate__fadeIn delay-50">
-                    <div class="card-header-modern">
-                        <h5 class="card-title-modern">
-                            <i class="bi bi-clock-history"></i>
-                            Recent Uploads
-                        </h5>
-                    </div>
-                    <div class="card-body-modern">
-                        <?php if (empty($recent_uploads)): ?>
-                            <p class="text-muted text-center py-3">No recent uploads</p>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-modern table-sm">
-                                    <thead>
+            <!-- Recent Uploads -->
+            <div class="content-card mb-4 animate__animated animate__fadeIn delay-50">
+                <div class="card-header-modern">
+                    <h5 class="card-title-modern">
+                        <i class="bi bi-clock-history"></i>
+                        Recent Uploads
+                    </h5>
+                </div>
+                <div class="card-body-modern">
+                    <?php if (empty($recent_uploads)): ?>
+                        <p class="text-muted text-center py-3">No recent uploads</p>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-modern table-sm">
+                                <thead>
+                                <tr>
+                                    <th><i class="bi bi-image"></i></th>
+                                    <th>Date</th>
+                                    <th>Store</th>
+                                    <th>File</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($recent_uploads as $upload): ?>
                                     <tr>
-                                        <th><i class="bi bi-image"></i></th>
-                                        <th>Date</th>
-                                        <th>Store</th>
-                                        <th>File</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php foreach ($recent_uploads as $upload): ?>
-                                        <tr>
-                                            <td>
-                                                <?php $thumb = !empty($upload['thumb_path']) ? public_upload_url($upload['thumb_path']) : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
-                                                <img src="<?php echo htmlspecialchars($thumb); ?>"
-                                                     class="preview-img-sm"
-                                                     alt="<?php echo htmlspecialchars($upload['filename']); ?>"
-                                                     loading="lazy">
-                                            </td>
-                                            <td><?php echo format_ts($upload['created_at']); ?></td>
-                                            <td><?php echo htmlspecialchars($upload['store_name']); ?></td>
-                                            <td><?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?></td>
-                                            <td>
-                                                <?php if ($upload['status_name']): ?>
-                                                    <span class="badge" style="background-color: <?php echo htmlspecialchars($upload['status_color']); ?>;">
+                                        <td>
+                                            <?php $thumb = !empty($upload['thumb_path']) ? public_upload_url($upload['thumb_path']) : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
+                                            <img src="<?php echo htmlspecialchars($thumb); ?>"
+                                                 class="preview-img-sm"
+                                                 alt="<?php echo htmlspecialchars($upload['filename']); ?>"
+                                                 loading="lazy">
+                                        </td>
+                                        <td><?php echo format_ts($upload['created_at']); ?></td>
+                                        <td><?php echo htmlspecialchars($upload['store_name']); ?></td>
+                                        <td><?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?></td>
+                                        <td>
+                                            <?php if ($upload['status_name']): ?>
+                                                <span class="badge" style="background-color: <?php echo htmlspecialchars($upload['status_color']); ?>;">
                                                     <?php echo htmlspecialchars($upload['status_name']); ?>
                                                 </span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td class="actions-cell">
-                                                <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
-                                                   target="_blank" class="btn btn-action btn-action-primary" title="View">
-                                                    <i class="bi bi-search"></i>
-                                                </a>
-                                                <form class="d-inline delete-upload-form" data-id="<?php echo $upload['id']; ?>" onsubmit="return false;">
-                                                    <button type="submit" class="btn btn-action btn-action-danger" title="Delete">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="text-center mt-3">
-                                <a href="uploads.php" class="btn btn-modern btn-modern-primary">
-                                    <i class="bi bi-arrow-right"></i> View All Uploads
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Recent Articles -->
-                <?php if (!empty($recent_articles)): ?>
-                    <div class="content-card mb-4 animate__animated animate__fadeIn delay-60">
-                        <div class="card-header-modern">
-                            <h5 class="card-title-modern">
-                                <i class="bi bi-file-text"></i>
-                                Recent Articles
-                            </h5>
-                        </div>
-                        <div class="card-body-modern">
-                            <div class="table-responsive">
-                                <table class="table table-modern table-sm">
-                                    <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Store</th>
-                                        <th>Status</th>
-                                        <th>Date</th>
-                                        <th>Action</th>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
+                                               target="_blank" class="btn btn-action btn-action-primary" title="View">
+                                                <i class="bi bi-search"></i>
+                                            </a>
+                                            <form class="d-inline delete-upload-form" data-id="<?php echo $upload['id']; ?>" onsubmit="return false;">
+                                                <button type="submit" class="btn btn-action btn-action-danger" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php foreach ($recent_articles as $article): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars(substr($article['title'], 0, 40)) . '...'; ?></td>
-                                            <td><?php echo htmlspecialchars($article['store_name']); ?></td>
-                                            <td>
-                                                <?php
-                                                $statusClass = [
-                                                    'draft' => 'bg-secondary',
-                                                    'submitted' => 'bg-info',
-                                                    'approved' => 'bg-success',
-                                                    'rejected' => 'bg-danger'
-                                                ][$article['status']] ?? 'bg-secondary';
-                                                ?>
-                                                <span class="badge <?php echo $statusClass; ?>">
-                                                <?php echo ucfirst($article['status']); ?>
-                                            </span>
-                                            </td>
-                                            <td><?php echo format_ts($article['created_at']); ?></td>
-                                            <td>
-                                                <a href="articles.php" class="btn btn-action btn-action-primary" title="Review">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="text-center mt-3">
-                                <a href="articles.php" class="btn btn-modern btn-modern-primary">
-                                    <i class="bi bi-arrow-right"></i> View All Articles
-                                </a>
-                            </div>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-                <?php endif; ?>
+                        <div class="text-center mt-3">
+                            <a href="uploads.php" class="btn btn-modern btn-modern-primary">
+                                <i class="bi bi-arrow-right"></i> View All Uploads
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
 
-                <!-- Recent Broadcasts -->
-                <div class="content-card animate__animated animate__fadeIn delay-70">
+            <!-- Recent Articles -->
+            <?php if (!empty($recent_articles)): ?>
+                <div class="content-card mb-4 animate__animated animate__fadeIn delay-60">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
-                            <i class="bi bi-megaphone"></i>
-                            Recent Broadcast Messages
+                            <i class="bi bi-file-text"></i>
+                            Recent Articles
                         </h5>
                     </div>
                     <div class="card-body-modern">
-                        <?php if (empty($recent_broadcasts)): ?>
-                            <p class="text-muted text-center py-3">No recent messages</p>
-                        <?php else: ?>
-                            <ul class="activity-list">
-                                <?php foreach ($recent_broadcasts as $bm): ?>
-                                    <li class="activity-item">
-                                        <div class="activity-content">
-                                            <?php echo htmlspecialchars($bm['message']); ?>
-                                        </div>
-                                        <small class="activity-time"><?php echo format_ts($bm['created_at']); ?></small>
-                                    </li>
+                        <div class="table-responsive">
+                            <table class="table table-modern table-sm">
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Store</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($recent_articles as $article): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars(substr($article['title'], 0, 40)) . '...'; ?></td>
+                                        <td><?php echo htmlspecialchars($article['store_name']); ?></td>
+                                        <td>
+                                            <?php
+                                            $statusClass = [
+                                                'draft' => 'bg-secondary',
+                                                'submitted' => 'bg-info',
+                                                'approved' => 'bg-success',
+                                                'rejected' => 'bg-danger'
+                                            ][$article['status']] ?? 'bg-secondary';
+                                            ?>
+                                            <span class="badge <?php echo $statusClass; ?>">
+                                                <?php echo ucfirst($article['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo format_ts($article['created_at']); ?></td>
+                                        <td>
+                                            <a href="articles.php" class="btn btn-action btn-action-primary" title="Review">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
                                 <?php endforeach; ?>
-                            </ul>
-                        <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="articles.php" class="btn btn-modern btn-modern-primary">
+                                <i class="bi bi-arrow-right"></i> View All Articles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Recent Broadcasts -->
+            <div class="content-card animate__animated animate__fadeIn delay-70">
+                <div class="card-header-modern">
+                    <h5 class="card-title-modern">
+                        <i class="bi bi-megaphone"></i>
+                        Recent Broadcast Messages
+                    </h5>
+                </div>
+                <div class="card-body-modern">
+                    <?php if (empty($recent_broadcasts)): ?>
+                        <p class="text-muted text-center py-3">No recent messages</p>
+                    <?php else: ?>
+                        <ul class="activity-list">
+                            <?php foreach ($recent_broadcasts as $bm): ?>
+                                <li class="activity-item">
+                                    <div class="activity-content">
+                                        <?php echo htmlspecialchars($bm['message']); ?>
+                                    </div>
+                                    <small class="activity-time"><?php echo format_ts($bm['created_at']); ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="content-card mb-4 animate__animated animate__fadeIn delay-80">
+                <div class="card-header-modern">
+                    <h5 class="card-title-modern">
+                        <i class="bi bi-lightning-charge"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body-modern">
+                    <div class="quick-actions">
+                        <a href="stores.php" class="action-card">
+                            <div class="action-icon">
+                                <i class="bi bi-shop"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="action-title">Manage Stores</h6>
+                            </div>
+                        </a>
+                        <a href="uploads.php" class="action-card">
+                            <div class="action-icon">
+                                <i class="bi bi-cloud-upload"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="action-title">Review Uploads</h6>
+                            </div>
+                        </a>
+                        <a href="articles.php" class="action-card">
+                            <div class="action-icon">
+                                <i class="bi bi-file-text"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="action-title">
+                                    Review Articles
+                                    <?php if ($stats['pending_articles'] > 0): ?>
+                                        <span class="badge bg-danger"><?php echo $stats['pending_articles']; ?></span>
+                                    <?php endif; ?>
+                                </h6>
+                            </div>
+                        </a>
+                        <a href="broadcasts.php" class="action-card">
+                            <div class="action-icon">
+                                <i class="bi bi-chat-dots"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="action-title">Post Messages</h6>
+                            </div>
+                        </a>
+                        <a href="settings.php" class="action-card">
+                            <div class="action-icon">
+                                <i class="bi bi-gear"></i>
+                            </div>
+                            <div class="action-content">
+                                <h6 class="action-title">Settings</h6>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <div>
-                <!-- Quick Actions -->
-                <div class="content-card mb-4 animate__animated animate__fadeIn delay-80">
-                    <div class="card-header-modern">
-                        <h5 class="card-title-modern">
-                            <i class="bi bi-lightning-charge"></i>
-                            Quick Actions
-                        </h5>
-                    </div>
-                    <div class="card-body-modern">
-                        <div class="quick-actions">
-                            <a href="stores.php" class="action-card">
-                                <div class="action-icon">
-                                    <i class="bi bi-shop"></i>
-                                </div>
-                                <div class="action-content">
-                                    <h6 class="action-title">Manage Stores</h6>
-                                </div>
-                            </a>
-                            <a href="uploads.php" class="action-card">
-                                <div class="action-icon">
-                                    <i class="bi bi-cloud-upload"></i>
-                                </div>
-                                <div class="action-content">
-                                    <h6 class="action-title">Review Uploads</h6>
-                                </div>
-                            </a>
-                            <a href="articles.php" class="action-card">
-                                <div class="action-icon">
-                                    <i class="bi bi-file-text"></i>
-                                </div>
-                                <div class="action-content">
-                                    <h6 class="action-title">
-                                        Review Articles
-                                        <?php if ($stats['pending_articles'] > 0): ?>
-                                            <span class="badge bg-danger"><?php echo $stats['pending_articles']; ?></span>
-                                        <?php endif; ?>
-                                    </h6>
-                                </div>
-                            </a>
-                            <a href="broadcasts.php" class="action-card">
-                                <div class="action-icon">
-                                    <i class="bi bi-chat-dots"></i>
-                                </div>
-                                <div class="action-content">
-                                    <h6 class="action-title">Post Messages</h6>
-                                </div>
-                            </a>
-                            <a href="settings.php" class="action-card">
-                                <div class="action-icon">
-                                    <i class="bi bi-gear"></i>
-                                </div>
-                                <div class="action-content">
-                                    <h6 class="action-title">Settings</h6>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+            <!-- Quick Broadcast -->
+            <div class="content-card mb-4 animate__animated animate__fadeIn delay-90">
+                <div class="card-header-modern">
+                    <h5 class="card-title-modern">
+                        <i class="bi bi-send"></i>
+                        Quick Broadcast
+                    </h5>
                 </div>
-
-                <!-- Quick Broadcast -->
-                <div class="content-card mb-4 animate__animated animate__fadeIn delay-90">
-                    <div class="card-header-modern">
-                        <h5 class="card-title-modern">
-                            <i class="bi bi-send"></i>
-                            Quick Broadcast
-                        </h5>
-                    </div>
-                    <div class="card-body-modern">
-                        <?php foreach ($quick_errors as $e): ?>
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <?php echo htmlspecialchars($e); ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        <?php endforeach; ?>
-                        <?php foreach ($quick_success as $s): ?>
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <?php echo htmlspecialchars($s); ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        <?php endforeach; ?>
-                        <form method="post" class="broadcast-form">
-                            <div class="mb-3">
-                                <select name="quick_store_id" class="form-select">
-                                    <option value="all">All Stores</option>
-                                    <?php foreach ($stores as $s): ?>
-                                        <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <textarea name="quick_message" class="form-control" rows="3" placeholder="Enter your message..." required></textarea>
-                            </div>
-                            <button class="btn btn-send w-100" type="submit">
-                                <i class="bi bi-send"></i> Send Message
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- This Week Activity -->
-                <div class="content-card animate__animated animate__fadeIn delay-100">
-                    <div class="card-header-modern">
-                        <h5 class="card-title-modern">
-                            <i class="bi bi-graph-up"></i>
-                            This Week
-                        </h5>
-                    </div>
-                    <div class="card-body-modern">
-                        <p class="mb-2">
-                            <strong><?php echo $stats['uploads_week']; ?></strong> uploads
-                        </p>
-                        <div class="progress-modern">
-                            <?php
-                            $avg_per_day = $stats['uploads_week'] / 7;
-                            $progress = min(100, ($avg_per_day / 10) * 100); // Assuming 10 uploads/day is 100%
-                            ?>
-                            <div class="progress-bar" style="width: <?php echo $progress; ?>%"></div>
+                <div class="card-body-modern">
+                    <?php foreach ($quick_errors as $e): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <?php echo htmlspecialchars($e); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
-                        <small class="text-muted">
-                            Average: <?php echo number_format($avg_per_day, 1); ?> per day
-                        </small>
+                    <?php endforeach; ?>
+                    <?php foreach ($quick_success as $s): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?php echo htmlspecialchars($s); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endforeach; ?>
+                    <form method="post" class="broadcast-form">
+                        <div class="mb-3">
+                            <select name="quick_store_id" class="form-select">
+                                <option value="all">All Stores</option>
+                                <?php foreach ($stores as $s): ?>
+                                    <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="quick_message" class="form-control" rows="3" placeholder="Enter your message..." required></textarea>
+                        </div>
+                        <button class="btn btn-send w-100" type="submit">
+                            <i class="bi bi-send"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- This Week Activity -->
+            <div class="content-card animate__animated animate__fadeIn delay-100">
+                <div class="card-header-modern">
+                    <h5 class="card-title-modern">
+                        <i class="bi bi-graph-up"></i>
+                        This Week
+                    </h5>
+                </div>
+                <div class="card-body-modern">
+                    <p class="mb-2">
+                        <strong><?php echo $stats['uploads_week']; ?></strong> uploads
+                    </p>
+                    <div class="progress-modern">
+                        <?php
+                        $avg_per_day = $stats['uploads_week'] / 7;
+                        $progress = min(100, ($avg_per_day / 10) * 100); // Assuming 10 uploads/day is 100%
+                        ?>
+                        <div class="progress-bar" style="width: <?php echo $progress; ?>%"></div>
                     </div>
+                    <small class="text-muted">
+                        Average: <?php echo number_format($avg_per_day, 1); ?> per day
+                    </small>
                 </div>
             </div>
         </div>
