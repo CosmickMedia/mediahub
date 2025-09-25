@@ -199,11 +199,11 @@ include __DIR__.'/header.php';
                                         <div><?php echo date('M j, Y', strtotime($u['created_at'])); ?></div>
                                         <small class="text-muted"><?php echo date('g:i A', strtotime($u['created_at'])); ?></small>
                                     </td>
-                                    <td>
+                                    <td class="actions-cell">
                                         <a href="edit_user.php?id=<?php echo $u['id']; ?>" class="btn btn-action btn-action-primary" title="Edit User">
                                             <i class="bi bi-pencil-square"></i> Edit
                                         </a>
-                                        <form method="post" class="d-inline" onsubmit="return confirm('Delete this user? This cannot be undone.');">
+                                        <form method="post" class="delete-user-form" onsubmit="return confirm('Delete this user? This cannot be undone.');">
                                             <input type="hidden" name="id" value="<?php echo $u['id']; ?>">
                                             <button class="btn btn-action btn-action-danger" name="delete" title="Delete User">
                                                 <i class="bi bi-trash"></i> Delete
@@ -227,7 +227,7 @@ include __DIR__.'/header.php';
                     Add New Admin User
                 </h5>
             </div>
-            <form method="post">
+            <form method="post" class="card-body-modern add-user-form">
                 <div class="form-section">
                     <h6 class="section-title">Account Information</h6>
                     <div class="row g-3">

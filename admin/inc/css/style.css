@@ -2569,6 +2569,25 @@ body {
     margin-bottom: 2rem;
 }
 
+.users-card .actions-cell form {
+    margin: 0;
+}
+
+.users-card .actions-cell .btn-action {
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+}
+
+.users-card .actions-cell .btn-action-primary {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.users-card .actions-cell .btn-action-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+}
+
 .user-avatar {
     width: 40px;
     height: 40px;
@@ -2609,6 +2628,15 @@ body {
     border-radius: 20px;
     box-shadow: var(--card-shadow);
     overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.add-user-card .card-body-modern {
+    padding: 1.75rem;
+}
+
+.add-user-form {
+    margin: 0;
 }
 
 .ts-dropdown .option {
