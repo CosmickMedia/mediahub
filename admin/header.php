@@ -30,9 +30,20 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
     <link rel="stylesheet" href="/assets/css/common.css?v=<?php echo $version; ?>">
     <link rel="stylesheet" href="inc/css/style.css?v=<?php echo $version; ?>">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/assets/images/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/assets/images/favicon-16x16.png" sizes="16x16">
+    <!-- Favicons and App Icons -->
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/images/icon-512.png">
+
+    <!-- PWA and Mobile App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MediaHub Admin">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#667eea">
 
 </head>
 <body>
