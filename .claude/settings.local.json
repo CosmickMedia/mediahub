@@ -10,7 +10,10 @@
       "Bash(command -v:*)",
       "Read(//Applications/**)",
       "Bash(chmod:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "Bash(convert:*)",
+      "Bash(pip3 install:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
