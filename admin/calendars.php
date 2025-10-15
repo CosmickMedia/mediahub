@@ -989,21 +989,6 @@ include __DIR__.'/header.php';
             <?php endif; ?>
         </div>
 
-        <!-- Quick Store Navigation Pills -->
-        <?php if (!$selected_store_id && count($stores) > 1): ?>
-            <div class="store-pills">
-                <span class="quick-nav-label">Quick Navigation:</span>
-                <?php foreach (array_slice($stores, 0, 10) as $store): ?>
-                    <a href="?store_id=<?php echo $store['id']; ?>" class="store-pill">
-                        <?php echo htmlspecialchars($store['name']); ?>
-                    </a>
-                <?php endforeach; ?>
-                <?php if (count($stores) > 10): ?>
-                    <span class="store-pill store-pill-more">+<?php echo count($stores) - 10; ?> more</span>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-
         <!-- Calendar Header -->
         <div class="calendar-header">
             <div>

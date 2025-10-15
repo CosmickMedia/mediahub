@@ -21,7 +21,11 @@ a:hover { color: #1a252f; }
 .text-primary { color: #2c3e50 !important; }
 .clickable-card { cursor: pointer; transition: transform 0.2s; }
 .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-.navbar-logo { height: 35px; width: auto; }
+.navbar-logo {
+    height: 35px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
 #adminUserInfo a { color: #fff; }
 #notifyCount { display: none; top:-10px; }
 #messages { height: 65vh; overflow-y: auto; }
