@@ -208,47 +208,39 @@ include __DIR__.'/header.php';
 
         <!-- Statistics -->
         <div class="stats-grid">
-            <div class="stat-card stat-card-horizontal primary animate__animated animate__fadeInUp">
+            <div class="stat-card primary animate__animated animate__fadeInUp">
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $stats['total_conversations']; ?>">0</div>
-                    <div class="stat-label">Total Conversations</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $stats['total_conversations']; ?>">0</div>
+                <div class="stat-label">Total Conversations</div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card stat-card-horizontal warning animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card warning animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-envelope-fill"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $stats['unread_messages']; ?>">0</div>
-                    <div class="stat-label">Unread Messages</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $stats['unread_messages']; ?>">0</div>
+                <div class="stat-label">Unread Messages</div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card stat-card-horizontal success animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card success animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-check-fill"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $stats['today_messages']; ?>">0</div>
-                    <div class="stat-label">Today's Messages</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $stats['today_messages']; ?>">0</div>
+                <div class="stat-label">Today's Messages</div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card stat-card-horizontal info animate__animated animate__fadeInUp delay-30">
+            <div class="stat-card info animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-activity"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $stats['active_chats']; ?>">0</div>
-                    <div class="stat-label">Active Chats (24h)</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $stats['active_chats']; ?>">0</div>
+                <div class="stat-label">Active Chats (24h)</div>
                 <div class="stat-bg"></div>
             </div>
         </div>

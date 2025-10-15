@@ -2,7 +2,14 @@
   "permissions": {
     "allow": [
       "Bash(sips:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(php:*)",
+      "Bash(crontab:*)",
+      "Bash(/usr/bin/php:*)",
+      "Read(//usr/local/bin/**)",
+      "Bash(command -v:*)",
+      "Read(//Applications/**)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

@@ -110,36 +110,30 @@ include __DIR__.'/header.php';
 
         <!-- Statistics -->
         <div class="stats-grid">
-            <div class="stat-card stat-card-horizontal primary animate__animated animate__fadeInUp">
+            <div class="stat-card primary animate__animated animate__fadeInUp">
                 <div class="stat-icon">
                     <i class="bi bi-people-fill"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $total_users; ?>">0</div>
-                    <div class="stat-label">Total Users</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $total_users; ?>">0</div>
+                <div class="stat-label">Total Users</div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card stat-card-horizontal success animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card success animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-person-plus-fill"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $recent_users; ?>">0</div>
-                    <div class="stat-label">Recent (30 days)</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $recent_users; ?>">0</div>
+                <div class="stat-label">Recent (30 days)</div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card stat-card-horizontal warning animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card warning animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-person-check-fill"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $active_users; ?>">0</div>
-                    <div class="stat-label">Active Users</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $active_users; ?>">0</div>
+                <div class="stat-label">Active Users</div>
                 <div class="stat-bg"></div>
             </div>
         </div>
@@ -205,14 +199,14 @@ include __DIR__.'/header.php';
                                         <div><?php echo date('M j, Y', strtotime($u['created_at'])); ?></div>
                                         <small class="text-muted"><?php echo date('g:i A', strtotime($u['created_at'])); ?></small>
                                     </td>
-                                    <td class="actions-cell">
+                                    <td>
                                         <a href="edit_user.php?id=<?php echo $u['id']; ?>" class="btn btn-action btn-action-primary" title="Edit User">
-                                            <i class="bi bi-pencil-square"></i>
+                                            <i class="bi bi-pencil-square"></i> Edit
                                         </a>
-                                        <form method="post" class="delete-user-form" onsubmit="return confirm('Delete this user? This cannot be undone.');">
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Delete this user? This cannot be undone.');">
                                             <input type="hidden" name="id" value="<?php echo $u['id']; ?>">
                                             <button class="btn btn-action btn-action-danger" name="delete" title="Delete User">
-                                                <i class="bi bi-trash"></i>
+                                                <i class="bi bi-trash"></i> Delete
                                             </button>
                                         </form>
                                     </td>
@@ -233,7 +227,7 @@ include __DIR__.'/header.php';
                     Add New Admin User
                 </h5>
             </div>
-            <form method="post" class="card-body-modern add-user-form">
+            <form method="post">
                 <div class="form-section">
                     <h6 class="section-title">Account Information</h6>
                     <div class="row g-3">

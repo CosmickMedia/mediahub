@@ -192,47 +192,39 @@ include __DIR__.'/header.php';
 
         <!-- Statistics -->
         <div class="stats-grid">
-            <div class="stat-card stat-card-horizontal primary animate__animated animate__fadeInUp">
+            <div class="stat-card primary animate__animated animate__fadeInUp">
                 <div class="stat-icon">
                     <i class="bi bi-shop"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $total_stores; ?>">0</div>
-                    <div class="stat-label">Total Stores</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $total_stores; ?>">0</div>
+                <div class="stat-label">Total Stores</div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card stat-card-horizontal success animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card success animate__animated animate__fadeInUp delay-10">
                 <div class="stat-icon">
                     <i class="bi bi-cloud-upload"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $total_uploads; ?>">0</div>
-                    <div class="stat-label">Total Uploads</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $total_uploads; ?>">0</div>
+                <div class="stat-label">Total Uploads</div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card stat-card-horizontal warning animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card warning animate__animated animate__fadeInUp delay-20">
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $total_chats; ?>">0</div>
-                    <div class="stat-label">Total Chats</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $total_chats; ?>">0</div>
+                <div class="stat-label">Total Chats</div>
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card stat-card-horizontal info animate__animated animate__fadeInUp delay-30">
+            <div class="stat-card info animate__animated animate__fadeInUp delay-30">
                 <div class="stat-icon">
                     <i class="bi bi-activity"></i>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number" data-count="<?php echo $stores_with_uploads; ?>">0</div>
-                    <div class="stat-label">Active Stores</div>
-                </div>
+                <div class="stat-number" data-count="<?php echo $stores_with_uploads; ?>">0</div>
+                <div class="stat-label">Active Stores</div>
                 <div class="stat-bg"></div>
             </div>
         </div>

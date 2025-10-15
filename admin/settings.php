@@ -24,7 +24,7 @@ if (isset($_GET['hootsuite_token_saved'])) {
 // Fetch upload statuses
 $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 // Fetch social networks
-$networks = $pdo->query('SELECT id, name, icon, color FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+$networks = $pdo->query('SELECT id, name, icon, color, enabled FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle Service Account JSON upload
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'hootsuite_enabled'       => isset($_POST['hootsuite_enabled']) ? '1' : '0',
         'hootsuite_display_customer' => isset($_POST['hootsuite_display_customer']) ? '1' : '0',
         'hootsuite_update_interval'=> trim($_POST['hootsuite_update_interval'] ?? '24'),
-        'hootsuite_token_refresh_interval'=> trim($_POST['hootsuite_token_refresh_interval'] ?? '24'),
+        'hootsuite_token_refresh_interval'=> trim($_POST['hootsuite_token_refresh_interval'] ?? '1'),
         'hootsuite_client_id'     => trim($_POST['hootsuite_client_id'] ?? ''),
         'hootsuite_client_secret' => trim($_POST['hootsuite_client_secret'] ?? ''),
         'hootsuite_redirect_uri'  => trim($_POST['hootsuite_redirect_uri'] ?? ''),
@@ -110,11 +110,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $names = $_POST['network_name'];
         $icons = $_POST['network_icon'];
         $colors = $_POST['network_color'];
+        // Build an array of enabled network IDs from the checkbox values
+        $enabled_ids = array_map('intval', $_POST['network_enabled'] ?? []);
+
         foreach ($names as $i => $name) {
             $name = trim($name);
             $icon = trim($icons[$i] ?? '');
             $color = $colors[$i] ?? '#000000';
             $id = $ids[$i] ?? '';
+
+            // Check if this network's ID is in the enabled list
+            $enabled = in_array((int)$id, $enabled_ids) ? 1 : 0;
+
             if ($name === '' && $id) {
                 $stmt = $pdo->prepare('DELETE FROM social_networks WHERE id = ?');
                 $stmt->execute([$id]);
@@ -122,14 +129,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if ($name === '') { continue; }
             if ($id) {
-                $stmt = $pdo->prepare('UPDATE social_networks SET name=?, icon=?, color=? WHERE id=?');
-                $stmt->execute([$name, $icon, $color, $id]);
+                $stmt = $pdo->prepare('UPDATE social_networks SET name=?, icon=?, color=?, enabled=? WHERE id=?');
+                $stmt->execute([$name, $icon, $color, $enabled, $id]);
             } else {
-                $stmt = $pdo->prepare('INSERT INTO social_networks (name, icon, color) VALUES (?, ?, ?)');
-                $stmt->execute([$name, $icon, $color]);
+                // New networks default to enabled
+                $stmt = $pdo->prepare('INSERT INTO social_networks (name, icon, color, enabled) VALUES (?, ?, ?, ?)');
+                $stmt->execute([$name, $icon, $color, 1]);
             }
         }
-        $networks = $pdo->query('SELECT id, name, icon, color FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+        $networks = $pdo->query('SELECT id, name, icon, color, enabled FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
     }
 
     if (isset($_POST['delete_chats'])) {
@@ -299,12 +307,13 @@ if ($hootsuite_display_customer === false) {
     $hootsuite_display_customer = '1';
 }
 $hootsuite_update_interval = get_setting('hootsuite_update_interval') ?: '24';
-$hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '24';
+$hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '1';
 $hootsuite_client_id = get_setting('hootsuite_client_id') ?: '';
 $hootsuite_client_secret = get_setting('hootsuite_client_secret') ?: '';
 $hootsuite_redirect_uri = get_setting('hootsuite_redirect_uri') ?: '';
 $hootsuite_debug = get_setting('hootsuite_debug') ?: '0';
 $hootsuite_access_token = get_setting('hootsuite_access_token') ?: '';
+$hootsuite_token_last_refresh = get_setting('hootsuite_token_last_refresh');
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
 $groundhogg_public_key = get_setting('groundhogg_public_key');
@@ -450,6 +459,11 @@ include __DIR__.'/header.php';
                 <li class="nav-item" role="presentation">
                     <button class="nav-link<?php if($active_tab==='statuses') echo ' active'; ?>" id="statuses-tab" data-bs-toggle="tab" data-bs-target="#statuses" type="button" role="tab">
                         <i class="bi bi-tags"></i> Statuses
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link<?php if($active_tab==='networks') echo ' active'; ?>" id="networks-tab" data-bs-toggle="tab" data-bs-target="#networks" type="button" role="tab">
+                        <i class="bi bi-share"></i> Networks
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -806,6 +820,81 @@ include __DIR__.'/header.php';
                     </div>
                 </div>
 
+                <!-- Networks Tab -->
+                <div class="tab-pane fade<?php if($active_tab==='networks') echo ' show active'; ?>" id="networks" role="tabpanel">
+                    <div class="settings-card animate__animated animate__fadeIn delay-30">
+                        <div class="card-header-modern">
+                            <h5 class="card-title-modern">
+                                <i class="bi bi-share"></i>
+                                Social Network Management
+                            </h5>
+                        </div>
+                        <div class="card-body-modern">
+                            <div class="info-card">
+                                <div class="info-card-title">
+                                    <i class="bi bi-info-circle"></i> Network Visibility Control
+                                </div>
+                                <div class="info-card-content">
+                                    <p class="mb-2">Enable or disable social networks to control their visibility throughout the platform.</p>
+                                    <ul class="mb-0">
+                                        <li><strong>When Enabled:</strong> The network will appear in schedule post options, reports, widgets, and calendar views</li>
+                                        <li><strong>When Disabled:</strong> The network will be hidden from all platform interfaces but data will be preserved</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-modern" id="networkTable">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 80px;">Enabled</th>
+                                        <th>Network Name</th>
+                                        <th>Icon Class</th>
+                                        <th style="width: 100px;">Color</th>
+                                        <th style="width: 100px;">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($networks as $n): ?>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check form-switch">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="network_enabled[]"
+                                                        value="<?php echo $n['id']; ?>"
+                                                        class="form-check-input network-toggle"
+                                                        <?php echo ($n['enabled'] ?? 1) ? 'checked' : ''; ?>
+                                                        role="switch">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="hidden" name="network_id[]" value="<?php echo $n['id']; ?>">
+                                                <input type="text" name="network_name[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($n['name']); ?>">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="network_icon[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($n['icon']); ?>">
+                                            </td>
+                                            <td>
+                                                <input type="color" name="network_color[]" class="form-control form-control-color" value="<?php echo htmlspecialchars($n['color']); ?>">
+                                            </td>
+                                            <td>
+                                                <button type="button" class="remove-item-btn remove-network">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="add-item-btn" id="addNetwork">
+                                <i class="bi bi-plus-circle"></i> Add Network
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Calendar Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='calendar') echo ' show active'; ?>" id="calendar" role="tabpanel">
                     <div class="settings-card animate__animated animate__fadeIn delay-30">
@@ -974,60 +1063,25 @@ include __DIR__.'/header.php';
                                     <strong>Erase All</strong> removes all stored posts.
                                     <strong>Refresh Token</strong> uses the saved refresh token to obtain a new access token.
                                 </div>
+                                <?php if ($hootsuite_token_last_refresh): ?>
+                                    <div class="alert alert-info mt-3 mb-0" style="font-size: 0.875rem;">
+                                        <i class="bi bi-clock-history"></i>
+                                        <strong>Last Token Refresh:</strong>
+                                        <?php
+                                            $refresh_time = strtotime($hootsuite_token_last_refresh);
+                                            echo date('F j, Y \a\t g:i A', $refresh_time);
+                                            $time_diff = time() - $refresh_time;
+                                            if ($time_diff < 3600) {
+                                                echo ' (' . round($time_diff / 60) . ' minutes ago)';
+                                            } elseif ($time_diff < 86400) {
+                                                echo ' (' . round($time_diff / 3600) . ' hours ago)';
+                                            } else {
+                                                echo ' (' . round($time_diff / 86400) . ' days ago)';
+                                            }
+                                        ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="settings-card animate__animated animate__fadeIn delay-40">
-                        <div class="card-header-modern">
-                            <h5 class="card-title-modern">
-                                <i class="bi bi-share"></i>
-                                Social Networks
-                            </h5>
-                        </div>
-                        <div class="card-body-modern">
-                            <div class="info-card">
-                                <div class="info-card-title">
-                                    <i class="bi bi-info-circle"></i> Social Network Configuration
-                                </div>
-                                <div class="info-card-content">
-                                    Define social networks for content scheduling and publishing integrations.
-                                </div>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-modern" id="networkTable">
-                                    <thead>
-                                    <tr>
-                                        <th>Network Name</th>
-                                        <th>Icon Class</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php foreach ($networks as $n): ?>
-                                        <tr>
-                                            <td>
-                                                <input type="hidden" name="network_id[]" value="<?php echo $n['id']; ?>">
-                                                <input type="text" name="network_name[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($n['name']); ?>">
-                                            </td>
-                                            <td>
-                                                <input type="text" name="network_icon[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($n['icon']); ?>">
-                                                <input type="hidden" name="network_color[]" value="<?php echo htmlspecialchars($n['color']); ?>">
-                                            </td>
-                                            <td>
-                                                <button type="button" class="remove-item-btn remove-network">
-                                                    <i class="bi bi-trash"></i> Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <button type="button" class="add-item-btn" id="addNetwork">
-                                <i class="bi bi-plus-circle"></i> Add Network
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -1108,14 +1162,22 @@ include __DIR__.'/header.php';
             document.getElementById('addNetwork').addEventListener('click', function () {
                 const tbody = document.querySelector('#networkTable tbody');
                 const row = document.createElement('tr');
+                const rowIndex = tbody.querySelectorAll('tr').length;
                 row.innerHTML = `
+                <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" name="network_enabled[]" value="" class="form-check-input network-toggle" checked role="switch">
+                    </div>
+                </td>
                 <td>
                     <input type="hidden" name="network_id[]" value="">
                     <input type="text" name="network_name[]" class="form-control form-control-modern">
                 </td>
                 <td>
                     <input type="text" name="network_icon[]" class="form-control form-control-modern" value="">
-                    <input type="hidden" name="network_color[]" value="#000000">
+                </td>
+                <td>
+                    <input type="color" name="network_color[]" class="form-control form-control-color" value="#000000">
                 </td>
                 <td><button type="button" class="remove-item-btn remove-network"><i class="bi bi-trash"></i> Delete</button></td>
             `;
