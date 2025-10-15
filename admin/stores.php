@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $campaign_id = null;
             }
 
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids, hootsuite_custom_property_key, hootsuite_custom_property_value, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids, hootsuite_custom_property_key, hootsuite_custom_property_value, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url, dripley_override_tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -47,7 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['state'] ?? null,
                 $_POST['zip_code'] ?? null,
                 $_POST['country'] ?? null,
-                $_POST['marketing_report_url'] ?? null
+                $_POST['marketing_report_url'] ?? null,
+                !empty($_POST['dripley_override_tags']) ? trim($_POST['dripley_override_tags']) : null
             ]);
             $storeId = $pdo->lastInsertId();
             $success[] = 'Store added successfully';
@@ -68,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_role'    => 'Store Admin',
                     'lead_source'  => 'mediahub',
                     'opt_in_status'=> 'confirmed',
-                    'tags'         => groundhogg_get_default_tags(),
+                    'tags'         => groundhogg_get_default_tags((int)$storeId),
                     'store_id'     => (int)$storeId
                 ];
 
@@ -343,6 +344,21 @@ include __DIR__.'/header.php';
                                 <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>
                                 <input type="url" name="marketing_report_url" id="marketing_report_url"
                                        class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="dripley_override_tags" class="form-label-modern">
+                                    <i class="bi bi-tags"></i> Dripley Override Tags
+                                </label>
+                                <input type="text" name="dripley_override_tags" id="dripley_override_tags"
+                                       class="form-control form-control-modern"
+                                       placeholder="<?php
+                                       require_once __DIR__.'/../lib/settings.php';
+                                       $default_tags = get_setting('groundhogg_contact_tags');
+                                       echo htmlspecialchars($default_tags ?: 'media-hub, store-onboarding');
+                                       ?>">
+                                <div class="form-text">
+                                    Override default contact tags for this store. Leave blank to use system defaults. Separate tags with commas.
+                                </div>
                             </div>
                         </div>
                     </div>

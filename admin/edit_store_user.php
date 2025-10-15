@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
             'user_role'    => 'Store Admin',
             'lead_source'  => 'mediahub',
             'opt_in_status'=> $optin,
-            'tags'         => groundhogg_get_default_tags(),
+            'tags'         => groundhogg_get_default_tags((int)$store_id),
             'store_id'     => (int)$store_id
         ];
 

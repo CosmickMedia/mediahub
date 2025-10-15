@@ -9,7 +9,8 @@
       "Read(//usr/local/bin/**)",
       "Bash(command -v:*)",
       "Read(//Applications/**)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(mysql:*)"
     ],
     "deny": [],
     "ask": []

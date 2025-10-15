@@ -78,10 +78,28 @@ function groundhogg_log(string $message, ?int $store_id = null, string $action =
 
 /**
  * Get default tags for Groundhogg contacts from settings.
+ * If store_id is provided, checks for store-specific override tags first.
  *
+ * @param int|null $store_id Optional store ID to check for override tags
  * @return array
  */
-function groundhogg_get_default_tags(): array {
+function groundhogg_get_default_tags(?int $store_id = null): array {
+    // If store_id is provided, check for override tags
+    if ($store_id !== null) {
+        $pdo = get_pdo();
+        $stmt = $pdo->prepare('SELECT dripley_override_tags FROM stores WHERE id = ?');
+        $stmt->execute([$store_id]);
+        $override_tags = $stmt->fetchColumn();
+
+        if ($override_tags !== false && !empty(trim($override_tags))) {
+            $tags = array_filter(array_map('trim', explode(',', $override_tags)));
+            if (!empty($tags)) {
+                return $tags;
+            }
+        }
+    }
+
+    // Fall back to default tags from settings
     $settings = groundhogg_get_settings();
     $tags = array_filter(array_map('trim', explode(',', $settings['contact_tags'] ?? '')));
     if (empty($tags)) {
@@ -176,7 +194,9 @@ function groundhogg_build_contact_structure(array $contactData): array {
     if (!empty($contactData['tags']) && is_array($contactData['tags'])) {
         $data['tags'] = $contactData['tags'];
     } else {
-        $data['tags'] = groundhogg_get_default_tags();
+        // Pass store_id to get potential override tags
+        $store_id = !empty($contactData['store_id']) ? (int)$contactData['store_id'] : null;
+        $data['tags'] = groundhogg_get_default_tags($store_id);
     }
 
     return $data;
@@ -499,7 +519,7 @@ function groundhogg_sync_store_contacts(int $store_id): array {
             'user_role'    => 'Store Admin',
             'lead_source'  => 'mediahub',
             'opt_in_status'=> 'confirmed',
-            'tags'         => groundhogg_get_default_tags(),
+            'tags'         => groundhogg_get_default_tags($store_id),
             'store_id'     => $store_id
         ];
 
@@ -535,7 +555,7 @@ function groundhogg_sync_store_contacts(int $store_id): array {
             'user_role'    => 'Store Admin',
             'lead_source'  => 'mediahub',
             'opt_in_status'=> $user['opt_in_status'] ?? 'confirmed',
-            'tags'         => groundhogg_get_default_tags(),
+            'tags'         => groundhogg_get_default_tags($store_id),
             'store_id'     => $store_id
         ];
 

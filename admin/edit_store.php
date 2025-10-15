@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $campaign_id = $_POST['hootsuite_campaign_id'] ?? null;
             if ($campaign_id === '') $campaign_id = null;
-            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_campaign_id=?, hootsuite_profile_ids=?, hootsuite_custom_property_key=?, hootsuite_custom_property_value=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_campaign_id=?, hootsuite_profile_ids=?, hootsuite_custom_property_key=?, hootsuite_custom_property_value=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=?, dripley_override_tags=? WHERE id=?');
             $update->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -59,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['zip_code'] ?? null,
                 $_POST['country'] ?? null,
                 $_POST['marketing_report_url'] ?? null,
+                !empty($_POST['dripley_override_tags']) ? trim($_POST['dripley_override_tags']) : null,
                 $id
             ]);
             $success[] = 'Store updated successfully';
@@ -79,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_role'    => 'Store Admin',
                     'lead_source'  => 'mediahub',
                     'opt_in_status'=> 'confirmed',
-                    'tags'         => groundhogg_get_default_tags(),
+                    'tags'         => groundhogg_get_default_tags((int)$id),
                     'store_id'     => (int)$id
                 ];
 
@@ -124,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_role'    => 'Store Admin',
                     'lead_source'  => 'mediahub',
                     'opt_in_status'=> 'confirmed',
-                    'tags'         => groundhogg_get_default_tags(),
+                    'tags'         => groundhogg_get_default_tags((int)$id),
                     'store_id'     => (int)$id
                 ];
 
@@ -395,6 +396,22 @@ include __DIR__.'/header.php';
                             <input type="url" name="marketing_report_url" id="marketing_report_url"
                                    class="form-control form-control-modern"
                                    value="<?php echo htmlspecialchars($store['marketing_report_url']); ?>">
+                        </div>
+                        <div class="col-md-12">
+                            <label for="dripley_override_tags" class="form-label-modern">
+                                <i class="bi bi-tags"></i> Dripley Override Tags
+                            </label>
+                            <input type="text" name="dripley_override_tags" id="dripley_override_tags"
+                                   class="form-control form-control-modern"
+                                   placeholder="<?php
+                                   require_once __DIR__.'/../lib/settings.php';
+                                   $default_tags = get_setting('groundhogg_contact_tags');
+                                   echo htmlspecialchars($default_tags ?: 'media-hub, store-onboarding');
+                                   ?>"
+                                   value="<?php echo htmlspecialchars($store['dripley_override_tags'] ?? ''); ?>">
+                            <div class="form-text">
+                                Override default contact tags for this store. Leave blank to use system defaults. Separate tags with commas.
+                            </div>
                         </div>
                     </div>
                 </div>
