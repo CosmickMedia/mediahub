@@ -53,9 +53,25 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
 
     <!-- Android Chrome Meta Tags -->
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="MediaHub Admin">
     <meta name="theme-color" content="#2c3e50">
     <meta name="msapplication-TileColor" content="#2c3e50">
     <meta name="msapplication-TileImage" content="/icon-192.png">
+
+    <!-- Service Worker Registration for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/admin/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 
 </head>
 <body>

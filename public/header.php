@@ -20,14 +20,15 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="MediaHub">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="MediaHub">
     <meta name="format-detection" content="telephone=no">
     <meta name="theme-color" content="#667eea">
-    <title>MediaHub Cosmick Media</title>
+    <title>MediaHub</title>
     <meta name="robots" content="noindex, nofollow">
     <!-- Bootstrap CSS from CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -61,6 +62,21 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
     <!-- Additional Meta Tags for Windows Tiles -->
     <meta name="msapplication-TileColor" content="#667eea">
     <meta name="msapplication-TileImage" content="/icon-192.png">
+
+    <!-- Service Worker Registration for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/public/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 
 </head>
 <body>

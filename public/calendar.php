@@ -1306,7 +1306,17 @@ include __DIR__.'/header.php';
 
                 if(event.extendedProps.created_by_user_id && window.currentUserId && parseInt(event.extendedProps.created_by_user_id) === parseInt(window.currentUserId)){
                     document.getElementById('editEventBtn').addEventListener('click', function(){
-                        openScheduleModal(event);
+                        // Close the event modal before opening the edit modal to prevent stacking
+                        var eventModal = bootstrap.Modal.getInstance(document.getElementById('eventModalCalendar'));
+                        if (eventModal) {
+                            eventModal.hide();
+                            // Wait for the modal to fully close before opening the edit modal
+                            setTimeout(function() {
+                                openScheduleModal(event);
+                            }, 300);
+                        } else {
+                            openScheduleModal(event);
+                        }
                     });
                     document.getElementById('deleteEventBtn').addEventListener('click', function(){
                         deleteScheduledPost(event);
