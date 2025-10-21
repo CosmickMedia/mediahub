@@ -77,8 +77,11 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
  */
 function compressImageIfNeeded($filePath, $mimeType) {
     $originalSize = filesize($filePath);
-    $targetSize = 100 * 1024; // 100KB optimal
-    $maxSize = 800 * 1024; // 800KB max (safety margin under 1MB)
+
+    // Get compression settings from admin settings
+    $targetSize = (int)(get_setting('hootsuite_target_file_size') ?: 100) * 1024; // Default 100KB
+    $maxSize = (int)(get_setting('hootsuite_max_file_size') ?: 800) * 1024; // Default 800KB
+    $initialQuality = (int)(get_setting('hootsuite_compression_quality') ?: 85); // Default 85
 
     // Only compress if needed
     if ($originalSize <= $targetSize) {
@@ -120,7 +123,7 @@ function compressImageIfNeeded($filePath, $mimeType) {
     error_log("Original dimensions: {$width}x{$height}");
 
     // Try compression with quality reduction first
-    $quality = 85;
+    $quality = $initialQuality; // Use admin setting
     $tempPath = $filePath . '.compressed.jpg';
     $compressed = false;
 
@@ -356,15 +359,219 @@ function profileSupportsMedia($pdo, $profileId) {
     $stmt->execute([$profileId]);
     $network = strtolower($stmt->fetchColumn() ?: '');
 
-    // Networks that commonly have media issues via API
+    // Check if platform has auto-cropping enabled
+    $platformSettings = getPlatformImageSettings($pdo, $network);
+
+    // If auto-cropping is enabled for this platform, media is supported
+    if ($platformSettings && !empty($platformSettings['enabled'])) {
+        error_log("Profile $profileId is $network - auto-crop enabled, media supported");
+        return true;
+    }
+
+    // Networks that commonly have media issues via API (when auto-crop is disabled)
     $restrictedNetworks = ['instagram', 'pinterest'];
 
     if (in_array($network, $restrictedNetworks)) {
-        error_log("Profile $profileId is $network - may have media restrictions");
-        return false; // Conservative approach - skip media for these networks
+        error_log("Profile $profileId is $network - auto-crop disabled, skipping media");
+        return false; // Conservative approach - skip media for these networks without auto-crop
     }
 
     return true;
+}
+
+/**
+ * Get platform-specific image settings (from database or defaults)
+ */
+function getPlatformImageSettings($pdo, $network) {
+    $network = strtolower(trim($network));
+
+    // Try to get custom settings from database first
+    $stmt = $pdo->prepare('SELECT * FROM social_network_image_settings WHERE LOWER(network_name) = ?');
+    $stmt->execute([$network]);
+
+    if ($settings = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        return $settings;
+    }
+
+    // Return hardcoded defaults if table doesn't exist or no custom settings
+    return getDefaultPlatformSettings($network);
+}
+
+/**
+ * Get default platform image settings
+ */
+function getDefaultPlatformSettings($network) {
+    $defaults = [
+        'instagram' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1:1',
+            'target_width' => 1080,
+            'target_height' => 1080,
+            'min_width' => 320,
+            'max_file_size_kb' => 5120
+        ],
+        'facebook' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1.91:1',
+            'target_width' => 1200,
+            'target_height' => 630,
+            'min_width' => 200,
+            'max_file_size_kb' => 10240
+        ],
+        'linkedin' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1.91:1',
+            'target_width' => 1200,
+            'target_height' => 627,
+            'min_width' => 200,
+            'max_file_size_kb' => 10240
+        ],
+        'x' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1:1',
+            'target_width' => 1080,
+            'target_height' => 1080,
+            'min_width' => 200,
+            'max_file_size_kb' => 5120
+        ],
+        'twitter' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1:1',
+            'target_width' => 1080,
+            'target_height' => 1080,
+            'min_width' => 200,
+            'max_file_size_kb' => 5120
+        ],
+        'threads' => [
+            'enabled' => 1,
+            'aspect_ratio' => '9:16',
+            'target_width' => 1080,
+            'target_height' => 1920,
+            'min_width' => 320,
+            'max_file_size_kb' => 10240
+        ],
+        'pinterest' => [
+            'enabled' => 1,
+            'aspect_ratio' => '2:3',
+            'target_width' => 1000,
+            'target_height' => 1500,
+            'min_width' => 200,
+            'max_file_size_kb' => 20480
+        ]
+    ];
+
+    return $defaults[$network] ?? [
+        'enabled' => 1,
+        'aspect_ratio' => '1:1',
+        'target_width' => 1080,
+        'target_height' => 1080,
+        'min_width' => 200,
+        'max_file_size_kb' => 5120
+    ];
+}
+
+/**
+ * Crop and resize image to specific aspect ratio from center
+ * Returns path to cropped image or false on error
+ */
+function cropImageToAspectRatio($sourcePath, $targetWidth, $targetHeight, $outputPath = null) {
+    if (!file_exists($sourcePath)) {
+        error_log("Source image not found: $sourcePath");
+        return false;
+    }
+
+    // Get source image info
+    $imageInfo = @getimagesize($sourcePath);
+    if (!$imageInfo) {
+        error_log("Could not get image info for: $sourcePath");
+        return false;
+    }
+
+    list($srcWidth, $srcHeight, $imageType) = $imageInfo;
+    error_log("Source image: {$srcWidth}x{$srcHeight}, Target: {$targetWidth}x{$targetHeight}");
+
+    // Load source image based on type
+    $srcImage = null;
+    switch ($imageType) {
+        case IMAGETYPE_JPEG:
+            $srcImage = @imagecreatefromjpeg($sourcePath);
+            break;
+        case IMAGETYPE_PNG:
+            $srcImage = @imagecreatefrompng($sourcePath);
+            break;
+        case IMAGETYPE_GIF:
+            $srcImage = @imagecreatefromgif($sourcePath);
+            break;
+        default:
+            error_log("Unsupported image type: $imageType");
+            return false;
+    }
+
+    if (!$srcImage) {
+        error_log("Failed to create image resource from: $sourcePath");
+        return false;
+    }
+
+    // Calculate target aspect ratio
+    $targetRatio = $targetWidth / $targetHeight;
+    $srcRatio = $srcWidth / $srcHeight;
+
+    // Calculate crop dimensions (crop from center)
+    if ($srcRatio > $targetRatio) {
+        // Source is wider - crop width
+        $cropHeight = $srcHeight;
+        $cropWidth = (int)($srcHeight * $targetRatio);
+        $cropX = (int)(($srcWidth - $cropWidth) / 2);
+        $cropY = 0;
+    } else {
+        // Source is taller - crop height
+        $cropWidth = $srcWidth;
+        $cropHeight = (int)($srcWidth / $targetRatio);
+        $cropX = 0;
+        $cropY = (int)(($srcHeight - $cropHeight) / 2);
+    }
+
+    error_log("Crop area: {$cropWidth}x{$cropHeight} from ({$cropX},{$cropY})");
+
+    // Create destination image
+    $dstImage = imagecreatetruecolor($targetWidth, $targetHeight);
+
+    // Preserve transparency for PNG
+    if ($imageType == IMAGETYPE_PNG) {
+        imagealphablending($dstImage, false);
+        imagesavealpha($dstImage, true);
+        $transparent = imagecolorallocatealpha($dstImage, 255, 255, 255, 127);
+        imagefilledrectangle($dstImage, 0, 0, $targetWidth, $targetHeight, $transparent);
+    }
+
+    // Copy and resize
+    imagecopyresampled(
+        $dstImage, $srcImage,
+        0, 0, $cropX, $cropY,
+        $targetWidth, $targetHeight,
+        $cropWidth, $cropHeight
+    );
+
+    // Generate output path if not provided
+    if (!$outputPath) {
+        $pathInfo = pathinfo($sourcePath);
+        $outputPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_cropped_' . $targetWidth . 'x' . $targetHeight . '.jpg';
+    }
+
+    // Save as JPEG for best compression
+    $success = imagejpeg($dstImage, $outputPath, 90);
+
+    // Clean up
+    imagedestroy($srcImage);
+    imagedestroy($dstImage);
+
+    if ($success) {
+        error_log("Cropped image saved to: $outputPath");
+        return $outputPath;
+    } else {
+        error_log("Failed to save cropped image to: $outputPath");
+        return false;
+    }
 }
 
 if ($action === 'create' || $action === 'update') {
@@ -667,6 +874,11 @@ if ($action === 'create' || $action === 'update') {
         foreach ($profile_ids as $profile_id) {
             error_log("Creating post for profile: $profile_id");
 
+            // Get network name for this profile
+            $profStmt = $pdo->prepare('SELECT network FROM hootsuite_profiles WHERE id=?');
+            $profStmt->execute([$profile_id]);
+            $networkName = strtolower($profStmt->fetchColumn() ?: '');
+
             // Check if this profile supports media
             $supportsMedia = profileSupportsMedia($pdo, $profile_id);
 
@@ -681,15 +893,53 @@ if ($action === 'create' || $action === 'update') {
                 $uploadPath = $mediaFile['path'];
                 $uploadMime = $mediaFile['mime'];
                 $wasCompressed = false;
+                $wasCropped = false;
+                $croppedPath = null;
+
+                // Get platform-specific image settings
+                $platformSettings = getPlatformImageSettings($pdo, $networkName);
+
+                // Apply platform-specific cropping if enabled (only for images)
+                if (strpos($uploadMime, 'image/') === 0 && $platformSettings && !empty($platformSettings['enabled'])) {
+                    $targetWidth = $platformSettings['target_width'] ?? 1080;
+                    $targetHeight = $platformSettings['target_height'] ?? 1080;
+
+                    error_log("Platform $networkName requires {$targetWidth}x{$targetHeight} (aspect ratio: {$platformSettings['aspect_ratio']})");
+
+                    // Generate platform-specific crop
+                    $pathInfo = pathinfo($mediaFile['path']);
+                    $croppedFilename = time() . '_' . $networkName . '_' . $pathInfo['filename'] . '.jpg';
+                    $croppedPath = $uploadDir . $croppedFilename;
+
+                    $cropResult = cropImageToAspectRatio(
+                        $mediaFile['path'],
+                        $targetWidth,
+                        $targetHeight,
+                        $croppedPath
+                    );
+
+                    if ($cropResult && file_exists($croppedPath)) {
+                        $uploadPath = $croppedPath;
+                        $uploadMime = 'image/jpeg';
+                        $wasCropped = true;
+                        error_log("Generated platform-specific crop for $networkName: $croppedPath");
+                    } else {
+                        error_log("Failed to crop image for $networkName, using original");
+                    }
+                }
 
                 // Compress image if needed (only for images)
                 if (strpos($uploadMime, 'image/') === 0) {
-                    $compressionResult = compressImageIfNeeded($mediaFile['path'], $mediaFile['mime']);
+                    $compressionResult = compressImageIfNeeded($uploadPath, $uploadMime);
 
                     if ($compressionResult && $compressionResult !== false) {
                         list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
 
                         if ($wasCompressed) {
+                            // If we created a crop, clean it up before using compressed version
+                            if ($wasCropped && $uploadPath !== $mediaFile['path'] && file_exists($uploadPath)) {
+                                @unlink($uploadPath);
+                            }
                             $uploadPath = $compressedPath;
                             $uploadMime = 'image/jpeg';
                             error_log("Image compressed for profile $profile_id");
@@ -704,8 +954,10 @@ if ($action === 'create' || $action === 'update') {
                     $uploadMime
                 );
 
-                // Clean up compressed file if created
+                // Clean up temporary files
                 if ($wasCompressed && file_exists($uploadPath)) {
+                    @unlink($uploadPath);
+                } else if ($wasCropped && $uploadPath !== $mediaFile['path'] && file_exists($uploadPath)) {
                     @unlink($uploadPath);
                 }
 
