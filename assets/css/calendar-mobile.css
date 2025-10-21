@@ -1,5 +1,35 @@
 /* Mobile Calendar Enhancements */
-/* Version 1.5.7 - Simplified Mobile Modals */
+/* Version 1.6.2 - Fixed modal background/border display with proper flexbox layout */
+
+/* CRITICAL FIX: Override Bootstrap's overflow: hidden on modal-dialog-scrollable */
+/* This rule applies to ALL screen sizes */
+#scheduleModal.modal .modal-dialog-scrollable {
+    display: flex !important;
+}
+
+#scheduleModal.modal .modal-dialog-scrollable .modal-content {
+    overflow: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+#scheduleModal.modal .modal-header {
+    flex-shrink: 0 !important;
+}
+
+#scheduleModal.modal .modal-dialog-scrollable .modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+}
+
+#scheduleModal.modal .modal-footer {
+    flex-shrink: 0 !important;
+}
 
 @media (max-width: 768px) {
     body.modal-open {
@@ -603,6 +633,35 @@
     .profiles-selector {
         max-height: 200px;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Fix schedule modal sizing on mobile */
+    #scheduleModal.modal .modal-dialog.modal-dialog-scrollable {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+        max-height: calc(100vh - 1rem) !important;
+        max-height: calc(100dvh - 1rem) !important;
+    }
+
+    #scheduleModal.modal .modal-dialog-scrollable .modal-content {
+        max-height: calc(100vh - 1rem) !important;
+        max-height: calc(100dvh - 1rem) !important;
+        border-radius: 12px !important;
+    }
+
+    #scheduleModal.modal .modal-header {
+        padding: 1rem !important;
+        padding-top: max(1rem, env(safe-area-inset-top)) !important;
+    }
+
+    #scheduleModal.modal .modal-body {
+        padding: 1rem !important;
+    }
+
+    #scheduleModal.modal .modal-footer {
+        padding: 1rem !important;
+        padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
     }
 
     /* Quick actions for mobile */
@@ -634,6 +693,22 @@
 }
 
 /* Smaller mobile devices */
+@media (max-width: 576px) {
+    /* Full screen modal on small devices */
+    #scheduleModal.modal .modal-dialog.modal-dialog-scrollable {
+        margin: 0 !important;
+        max-width: 100% !important;
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
+    }
+
+    #scheduleModal.modal .modal-dialog-scrollable .modal-content {
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+    }
+}
+
 @media (max-width: 375px) {
     .analytics-dashboard {
         grid-template-columns: 1fr;

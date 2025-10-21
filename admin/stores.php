@@ -148,6 +148,11 @@ $total_uploads = array_sum(array_column($stores, 'upload_count'));
 $total_chats = array_sum(array_column($stores, 'chat_count'));
 $stores_with_uploads = count(array_filter($stores, function($s) { return $s['upload_count'] > 0; }));
 
+// Detect stores without profiles for warning banner
+$stores_without_profiles = array_filter($stores, function($s) {
+    return empty($s['hootsuite_profile_ids']) || trim($s['hootsuite_profile_ids']) === '';
+});
+
 $active = 'stores';
 include __DIR__.'/header.php';
 ?>
@@ -190,6 +195,42 @@ include __DIR__.'/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endforeach; ?>
+
+        <!-- Warning for stores without profiles -->
+        <?php if (!empty($stores_without_profiles)): ?>
+            <div class="alert alert-warning alert-dismissible fade show animate__animated animate__fadeIn" role="alert" style="border-left: 4px solid #ff9800;">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem; flex-shrink: 0;"></i>
+                    <div style="flex-grow: 1;">
+                        <h5 class="alert-heading mb-2">
+                            <strong>Profile Configuration Required</strong>
+                        </h5>
+                        <p class="mb-2">
+                            The following <?php echo count($stores_without_profiles); ?> store<?php echo count($stores_without_profiles) > 1 ? 's have' : ' has'; ?> no social media profiles attached.
+                            Stores need at least one Hootsuite profile to enable post scheduling on their calendar.
+                        </p>
+                        <div class="mb-2" style="max-height: 200px; overflow-y: auto;">
+                            <ul class="mb-0" style="column-count: <?php echo count($stores_without_profiles) > 6 ? '2' : '1'; ?>; column-gap: 2rem;">
+                                <?php foreach ($stores_without_profiles as $store): ?>
+                                    <li class="mb-1">
+                                        <strong><?php echo htmlspecialchars($store['name']); ?></strong>
+                                        <a href="edit_store.php?id=<?php echo $store['id']; ?>" class="alert-link ms-2">
+                                            <i class="bi bi-arrow-right-circle"></i> Configure Profiles
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                        <hr style="margin: 0.75rem 0;">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            Click "Configure Profiles" next to each store to add Hootsuite profiles, or use the edit button in the table below.
+                        </small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="flex-shrink: 0;"></button>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- Statistics -->
         <div class="stats-grid">
@@ -397,6 +438,7 @@ include __DIR__.'/header.php';
                                 <th>Admin Email</th>
                                 <th>Drive Folder</th>
                                 <th>Campaign ID</th>
+                                <th>Profiles</th>
                                 <th>Chats</th>
                                 <th>Uploads</th>
                                 <th>Actions</th>
@@ -435,6 +477,19 @@ include __DIR__.'/header.php';
                                     </td>
                                     <td>
                                         <?php echo htmlspecialchars($s['hootsuite_campaign_id'] ?? ''); ?>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($s['hootsuite_profile_ids']) && trim($s['hootsuite_profile_ids']) !== ''):
+                                            $profile_count = count(array_filter(explode(',', $s['hootsuite_profile_ids'])));
+                                        ?>
+                                            <span class="badge bg-success" title="<?php echo $profile_count; ?> profile<?php echo $profile_count > 1 ? 's' : ''; ?> configured">
+                                                <i class="bi bi-check-circle"></i> <?php echo $profile_count; ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning text-dark" title="No profiles configured">
+                                                <i class="bi bi-exclamation-triangle"></i> None
+                                            </span>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <span class="badge bg-info"><?php echo $s['chat_count']; ?></span>

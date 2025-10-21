@@ -71,6 +71,118 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 }
 
 /**
+ * Compress image if needed to ensure fast Hootsuite processing
+ * Target: <100KB for optimal speed (2-4 sec), max 1MB
+ * Returns: [compressed_path, new_size, was_compressed] or false on error
+ */
+function compressImageIfNeeded($filePath, $mimeType) {
+    $originalSize = filesize($filePath);
+    $targetSize = 100 * 1024; // 100KB optimal
+    $maxSize = 800 * 1024; // 800KB max (safety margin under 1MB)
+
+    // Only compress if needed
+    if ($originalSize <= $targetSize) {
+        error_log("Image is small enough ($originalSize bytes), no compression needed");
+        return [$filePath, $originalSize, false];
+    }
+
+    error_log("Image needs compression: $originalSize bytes → target $targetSize bytes");
+
+    // Check if GD is available
+    if (!function_exists('imagecreatefromjpeg')) {
+        error_log("GD library not available, cannot compress images");
+        return false;
+    }
+
+    // Load image based on type
+    $image = null;
+    $imageType = null;
+
+    if ($mimeType === 'image/jpeg' || $mimeType === 'image/jpg') {
+        $image = @imagecreatefromjpeg($filePath);
+        $imageType = 'jpeg';
+    } elseif ($mimeType === 'image/png') {
+        $image = @imagecreatefrompng($filePath);
+        $imageType = 'png';
+    } else {
+        error_log("Unsupported image type for compression: $mimeType");
+        return false;
+    }
+
+    if (!$image) {
+        error_log("Failed to load image for compression");
+        return false;
+    }
+
+    // Get original dimensions
+    $width = imagesx($image);
+    $height = imagesy($image);
+    error_log("Original dimensions: {$width}x{$height}");
+
+    // Try compression with quality reduction first
+    $quality = 85;
+    $tempPath = $filePath . '.compressed.jpg';
+    $compressed = false;
+
+    while ($quality >= 50 && !$compressed) {
+        // Convert to JPEG for better compression
+        imagejpeg($image, $tempPath, $quality);
+        $newSize = filesize($tempPath);
+
+        error_log("Compression attempt: quality=$quality, size=$newSize bytes");
+
+        if ($newSize <= $maxSize) {
+            $compressed = true;
+            error_log("SUCCESS: Compressed to $newSize bytes at quality $quality");
+        } else {
+            $quality -= 10;
+        }
+    }
+
+    // If quality reduction isn't enough, try resizing
+    if (!$compressed) {
+        error_log("Quality reduction not enough, trying resize...");
+
+        // Calculate new dimensions (reduce by 20% each iteration)
+        $scale = 0.8;
+        while ($scale >= 0.3 && !$compressed) {
+            $newWidth = (int)($width * $scale);
+            $newHeight = (int)($height * $scale);
+
+            $resized = imagecreatetruecolor($newWidth, $newHeight);
+            imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+            imagejpeg($resized, $tempPath, 75);
+            $newSize = filesize($tempPath);
+
+            error_log("Resize attempt: {$newWidth}x{$newHeight}, size=$newSize bytes");
+
+            if ($newSize <= $maxSize) {
+                $compressed = true;
+                error_log("SUCCESS: Resized to {$newWidth}x{$newHeight}, $newSize bytes");
+            }
+
+            imagedestroy($resized);
+            $scale -= 0.1;
+        }
+    }
+
+    imagedestroy($image);
+
+    if (!$compressed) {
+        error_log("Failed to compress image under $maxSize bytes");
+        @unlink($tempPath);
+        return false;
+    }
+
+    $finalSize = filesize($tempPath);
+    $reduction = round((1 - $finalSize / $originalSize) * 100);
+    error_log("Image compressed: $originalSize → $finalSize bytes ($reduction% reduction)");
+
+    return [$tempPath, $finalSize, true];
+}
+
+/**
  * Upload media to Hootsuite using their 3-step process
  * Step 1: Request upload URL (POST /v1/media)
  * Step 2: Upload to S3
@@ -145,19 +257,25 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
 
     error_log("S3 upload successful");
 
-    // Step 3: CRITICAL - Poll until media is READY (has downloadUrl)
-    $maxAttempts = 15;  // Up to 30 seconds (15 attempts x 2 seconds)
+    // Step 3: CRITICAL - Must wait for READY state
+    // Media attached in QUEUED state will silently fail (post created but no media)
+    // Based on Hootsuite support findings:
+    // - Files <100KB: Process to READY in 2-4 seconds
+    // - Files >1MB: Can take 30+ seconds or get stuck indefinitely
+
+    $maxAttempts = 20;  // Up to 60 seconds with exponential backoff
     $attempt = 0;
     $mediaReady = false;
 
-    error_log("Polling for media to be ready (waiting for downloadUrl)...");
+    error_log("Polling for media READY state (file size: $fileSize bytes)...");
 
     while ($attempt < $maxAttempts && !$mediaReady) {
         $attempt++;
 
-        // Wait 2 seconds between polls
+        // Exponential backoff: 1s, 2s, 3s, 3s, 3s...
         if ($attempt > 1) {
-            sleep(2);
+            $waitTime = min($attempt, 3);
+            sleep($waitTime);
         }
 
         $ch = curl_init('https://platform.hootsuite.com/v1/media/' . urlencode($mediaId));
@@ -175,35 +293,28 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
 
         if ($verifyCode === 200) {
             $verifyData = json_decode($verifyResponse, true);
-
-            // Log the full response to understand what we're getting
-            error_log("Attempt $attempt response: " . json_encode($verifyData));
-
-            // Check multiple possible fields
-            $downloadUrl = $verifyData['data']['downloadUrl'] ?? null;
             $state = $verifyData['data']['state'] ?? null;
 
-            if (!empty($downloadUrl)) {
-                error_log("Media READY on attempt $attempt! Download URL: " . substr($downloadUrl, 0, 100) . "...");
+            error_log("Attempt $attempt: Media state = $state");
+
+            if ($state === 'READY') {
+                error_log("SUCCESS: Media is READY after $attempt attempts!");
                 $mediaReady = true;
                 break;
-            } else if ($state === 'READY') {
-                error_log("Media state is READY on attempt $attempt (but no downloadUrl yet)");
-                $mediaReady = true;  // Try accepting READY state even without downloadUrl
-                break;
-            } else {
-                error_log("Attempt $attempt: Media still processing (downloadUrl: " . ($downloadUrl ?: 'null') . ", state: " . ($state ?: 'not provided') . ")");
+            } else if ($state === 'FAILED' || $state === 'ERROR') {
+                error_log("FAILED: Media processing failed (state: $state)");
+                return null;
             }
+            // Continue polling if QUEUED or PROCESSING
         } else {
-            error_log("Attempt $attempt: Failed to check status (code $verifyCode)");
+            error_log("Attempt $attempt: Failed to check status (HTTP $verifyCode)");
         }
     }
 
     if (!$mediaReady) {
-        error_log("WARNING: Media may not be ready after $maxAttempts attempts (30 seconds)");
-        error_log("Proceeding anyway, but image may not attach properly");
-    } else {
-        error_log("Media confirmed ready - safe to attach to post");
+        error_log("TIMEOUT: Media did not reach READY state after $maxAttempts attempts");
+        error_log("File size was $fileSize bytes - large files may need manual upload");
+        return null;  // Return null to post without media
     }
 
     return $mediaId;
@@ -364,20 +475,56 @@ if ($action === 'create' || $action === 'update') {
         // If it fails with media, then try without media
         $hasMedia = !empty($localMediaPaths);
         $mediaPayload = [];
+        $mediaTimedOut = false;
 
         if ($hasMedia) {
-            // Upload all media files
+            // Upload all media files (with automatic compression)
             foreach ($localMediaPaths as $mediaFile) {
+                $uploadPath = $mediaFile['path'];
+                $uploadMime = $mediaFile['mime'];
+                $wasCompressed = false;
+                $compressionInfo = '';
+
+                // Compress image if needed (only for images)
+                if (strpos($uploadMime, 'image/') === 0) {
+                    $compressionResult = compressImageIfNeeded($mediaFile['path'], $mediaFile['mime']);
+
+                    if ($compressionResult && $compressionResult !== false) {
+                        list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
+
+                        if ($wasCompressed) {
+                            $uploadPath = $compressedPath;
+                            $uploadMime = 'image/jpeg'; // Always JPEG after compression
+                            $originalSize = filesize($mediaFile['path']);
+                            $reduction = round((1 - $compressedSize / $originalSize) * 100);
+                            $compressionInfo = "Compressed: " . round($originalSize/1024) . "KB → " . round($compressedSize/1024) . "KB ($reduction% reduction)";
+                            error_log($compressionInfo);
+                        }
+                    } elseif ($compressionResult === false) {
+                        error_log("Compression failed for: " . $mediaFile['name'] . " - file may be too large");
+                        $mediaTimedOut = true;
+                        continue; // Skip this file
+                    }
+                }
+
                 $mediaId = uploadMediaToHootsuite(
                     $token,
-                    $mediaFile['path'],
+                    $uploadPath,
                     $mediaFile['name'],
-                    $mediaFile['mime']
+                    $uploadMime
                 );
+
+                // Clean up compressed file if created
+                if ($wasCompressed && file_exists($uploadPath)) {
+                    @unlink($uploadPath);
+                }
 
                 if ($mediaId) {
                     $mediaPayload[] = ['id' => $mediaId];
                     error_log("Media upload complete with ID: $mediaId");
+                } else {
+                    error_log("Media upload failed/timed out for: " . $mediaFile['name']);
+                    $mediaTimedOut = true;
                 }
             }
         }
@@ -500,7 +647,14 @@ if ($action === 'create' || $action === 'update') {
                     ];
             }
 
-            echo json_encode(['success' => true, 'events' => $events]);
+            $result = ['success' => true, 'events' => $events];
+
+            // Warn user if media timed out even after compression attempt
+            if ($mediaTimedOut && empty($mediaPayload)) {
+                $result['warning'] = 'Post created successfully, but the media could not be uploaded. The file may be too large or in an unsupported format. Try using a smaller image (<1MB) or manually add media in Hootsuite.';
+            }
+
+            echo json_encode($result);
             exit;
         }
 
@@ -524,12 +678,36 @@ if ($action === 'create' || $action === 'update') {
             if ($hasMedia && $supportsMedia) {
                 // Only try media if profile supports it
                 $mediaFile = $localMediaPaths[0];
+                $uploadPath = $mediaFile['path'];
+                $uploadMime = $mediaFile['mime'];
+                $wasCompressed = false;
+
+                // Compress image if needed (only for images)
+                if (strpos($uploadMime, 'image/') === 0) {
+                    $compressionResult = compressImageIfNeeded($mediaFile['path'], $mediaFile['mime']);
+
+                    if ($compressionResult && $compressionResult !== false) {
+                        list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
+
+                        if ($wasCompressed) {
+                            $uploadPath = $compressedPath;
+                            $uploadMime = 'image/jpeg';
+                            error_log("Image compressed for profile $profile_id");
+                        }
+                    }
+                }
+
                 $mediaId = uploadMediaToHootsuite(
                     $token,
-                    $mediaFile['path'],
+                    $uploadPath,
                     $mediaFile['name'],
-                    $mediaFile['mime']
+                    $uploadMime
                 );
+
+                // Clean up compressed file if created
+                if ($wasCompressed && file_exists($uploadPath)) {
+                    @unlink($uploadPath);
+                }
 
                 if ($mediaId) {
                     $profileMediaPayload[] = ['id' => $mediaId];
@@ -794,16 +972,40 @@ if ($action === 'create' || $action === 'update') {
     // This section remains unchanged
     $profile_id = $profile_ids[0];
 
-    // Upload media for update if needed
+    // Upload media for update if needed (with compression)
     $mediaPayload = [];
     if (!empty($localMediaPaths)) {
         $mediaFile = $localMediaPaths[0];
+        $uploadPath = $mediaFile['path'];
+        $uploadMime = $mediaFile['mime'];
+        $wasCompressed = false;
+
+        // Compress image if needed (only for images)
+        if (str_starts_with($uploadMime, 'image/')) {
+            $compressionResult = compressImageIfNeeded($mediaFile['path'], $mediaFile['mime']);
+
+            if ($compressionResult && $compressionResult !== false) {
+                list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
+
+                if ($wasCompressed) {
+                    $uploadPath = $compressedPath;
+                    $uploadMime = 'image/jpeg';
+                    error_log("Image compressed for update");
+                }
+            }
+        }
+
         $mediaId = uploadMediaToHootsuite(
             $token,
-            $mediaFile['path'],
+            $uploadPath,
             $mediaFile['name'],
-            $mediaFile['mime']
+            $uploadMime
         );
+
+        // Clean up compressed file if created
+        if ($wasCompressed && file_exists($uploadPath)) {
+            @unlink($uploadPath);
+        }
 
         if ($mediaId) {
             $mediaPayload[] = ['id' => $mediaId];
@@ -820,10 +1022,12 @@ if ($action === 'create' || $action === 'update') {
         'scheduledSendTime' => $utc_time
     ];
     if ($tagsArr) $payload['tags'] = $tagsArr;
-    // Add media if present - use mediaIds format for update
+
+    // IMPORTANT: Use 'media' format, NOT 'mediaIds'
+    // 'mediaIds' is documented but silently ignored by Hootsuite API
+    // Correct format: media: [{"id": "..."}]
     if ($mediaPayload && !empty($mediaPayload[0]['id'])) {
-        $mediaIds = array_map(function($m) { return $m['id']; }, $mediaPayload);
-        $payload['mediaIds'] = $mediaIds;
+        $payload['media'] = $mediaPayload;  // Use media array with objects, not mediaIds
     }
 
     $url = 'https://platform.hootsuite.com/v1/messages/' . urlencode($post_id);

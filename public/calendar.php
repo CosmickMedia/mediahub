@@ -47,6 +47,11 @@ foreach ($res as $prof) {
 $posts = calendar_get_posts($store_id);
 $debug_mode = get_setting('hootsuite_debug') === '1';
 
+// Check display settings for better error messaging
+$calendar_display_enabled = get_setting('calendar_display_customer') === '1';
+$hootsuite_display_enabled = get_setting('hootsuite_display_customer') === '1';
+$no_display_settings = !$calendar_display_enabled && !$hootsuite_display_enabled;
+
 $network_map = [];
 foreach ($pdo->query('SELECT name, icon, color FROM social_networks WHERE enabled = 1') as $n) {
     $network_map[strtolower($n['name'])] = [
@@ -235,7 +240,7 @@ foreach ($posts as $p) {
 $events_json = json_encode($events);
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-<link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.5.7">
+<link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.6.2">
 HTML;
 
 include __DIR__.'/header.php';
@@ -263,6 +268,10 @@ include __DIR__.'/header.php';
                     <button id="schedulePostBtn" class="btn btn-modern-primary">
                         <i class="bi bi-plus-circle"></i> <span class="btn-text">Schedule Post</span>
                     </button>
+                <?php else: ?>
+                    <button class="btn btn-modern-secondary" disabled title="No social media profiles configured for this store">
+                        <i class="bi bi-plus-circle"></i> <span class="btn-text">Schedule Post</span>
+                    </button>
                 <?php endif; ?>
 
                 <a href="index.php" class="btn btn-modern-primary">
@@ -271,11 +280,39 @@ include __DIR__.'/header.php';
             </div>
         </div>
 
+        <?php if (!empty($posts) && !$allow_schedule): ?>
+            <div class="alert alert-info animate__animated animate__fadeIn" style="margin-bottom: 20px;">
+                <i class="bi bi-info-circle"></i>
+                <strong>Post Scheduling Unavailable</strong>
+                <p class="mb-0">Social media profiles are not configured for this store. You can view scheduled posts, but cannot create new ones. <strong>Admin:</strong> <a href="/admin/edit_store.php?id=<?php echo $store_id; ?>" class="alert-link">Configure profiles</a> to enable post scheduling.</p>
+            </div>
+        <?php endif; ?>
+
         <?php if (empty($posts)): ?>
             <div class="empty-state">
                 <i class="bi bi-calendar-x"></i>
                 <h3>No Scheduled Posts</h3>
-                <p>Start scheduling your social media content to see it appear here.</p>
+                <?php if ($no_display_settings): ?>
+                    <div class="alert alert-warning mt-3" style="max-width: 600px; margin: 0 auto;">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Calendar Display Settings Required</strong>
+                        <p class="mb-2 mt-2">The calendar is currently not configured to display any posts. To see scheduled posts, an administrator needs to enable at least one of these options:</p>
+                        <ul class="text-start mb-2">
+                            <li><strong>Calendar Import</strong> - Shows posts imported from Google Sheets</li>
+                            <li><strong>Hootsuite Integration</strong> - Shows posts created via Hootsuite API</li>
+                        </ul>
+                        <p class="mb-0"><i class="bi bi-gear"></i> <strong>Admin:</strong> Go to <a href="/admin/settings.php" class="alert-link">Settings</a> and check "Display on customer calendar" under the Calendar Import or Hootsuite Integration sections.</p>
+                    </div>
+                <?php else: ?>
+                    <p>Start scheduling your social media content to see it appear here.</p>
+                    <?php if (!$allow_schedule): ?>
+                        <div class="alert alert-info mt-3" style="max-width: 600px; margin: 0 auto;">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Ready to schedule posts?</strong>
+                            <p class="mb-0">An administrator needs to configure social media profiles for this store to enable post scheduling. Go to <a href="/admin/edit_store.php?id=<?php echo $store_id; ?>" class="alert-link">Store Settings</a> to add Hootsuite profiles.</p>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
         <?php else: ?>
             <!-- Analytics Dashboard -->
@@ -645,9 +682,11 @@ include __DIR__.'/header.php';
             window.debugMode = <?php echo $debug_mode ? 'true' : 'false'; ?>;
             window.currentUserId = <?php echo $current_user_id ? (int)$current_user_id : 'null'; ?>;
 
-            // Initialize calendar
+            // Initialize calendar only if element exists
             var calEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calEl, {
+            var calendar;
+            if (calEl) {
+                calendar = new FullCalendar.Calendar(calEl, {
                 initialView: 'dayGridMonth',
                 headerToolbar: {
                     left: 'prev,next today',
@@ -753,7 +792,8 @@ include __DIR__.'/header.php';
                 }
             });
 
-            calendar.render();
+                calendar.render();
+            }
 
             // Function to update combined scheduled time
             function updateScheduledTime() {
@@ -1081,6 +1121,16 @@ include __DIR__.'/header.php';
                                 // Show success modal if it exists
                                 var successModalEl = document.getElementById('scheduleSuccessModal');
                                 if(successModalEl) {
+                                    // Update message if there's a warning about media timeout
+                                    var successMsg = document.getElementById('successMessage');
+                                    if(res.warning && successMsg) {
+                                        successMsg.textContent = res.warning;
+                                        successMsg.className = 'text-warning';
+                                    } else if(successMsg) {
+                                        successMsg.textContent = 'Your post has been scheduled and will be published automatically.';
+                                        successMsg.className = 'text-muted';
+                                    }
+
                                     var successModal = new bootstrap.Modal(successModalEl);
                                     successModal.show();
 
@@ -1094,7 +1144,7 @@ include __DIR__.'/header.php';
                                     window.location.href = window.location.href + '?t=' + Date.now();
                                 }
 
-                                if(res.events){
+                                if(calendar && res.events){
                                     res.events.forEach(function(ev){
                                         if(ev.id){
                                             var ex = calendar.getEventById(ev.id);
@@ -1102,7 +1152,7 @@ include __DIR__.'/header.php';
                                         }
                                         calendar.addEvent(ev);
                                     });
-                                } else if(res.event){
+                                } else if(calendar && res.event){
                                     if(res.event.id){
                                         var ex = calendar.getEventById(res.event.id);
                                         if(ex) ex.remove();
@@ -1155,8 +1205,10 @@ include __DIR__.'/header.php';
                         .then(r => r.json())
                         .then(function(res) {
                             if (res.success) {
-                                var ev = calendar.getEventById(eventObj.extendedProps.post_id);
-                                if (ev) ev.remove();
+                                if (calendar) {
+                                    var ev = calendar.getEventById(eventObj.extendedProps.post_id);
+                                    if (ev) ev.remove();
+                                }
 
                                 // Close both modals
                                 bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal')).hide();
@@ -1402,7 +1454,7 @@ include __DIR__.'/header.php';
 
             // Custom view selector functionality
             const viewSelector = document.getElementById('viewSelector');
-            if (viewSelector) {
+            if (viewSelector && calendar) {
                 // Hide the default view buttons
                 const toolbar = document.querySelector('.fc-toolbar-chunk:last-child');
                 if (toolbar) {
@@ -1410,7 +1462,9 @@ include __DIR__.'/header.php';
                 }
 
                 viewSelector.addEventListener('change', function() {
-                    calendar.changeView(this.value);
+                    if (calendar) {
+                        calendar.changeView(this.value);
+                    }
                 });
             }
 

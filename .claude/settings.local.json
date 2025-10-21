@@ -13,7 +13,9 @@
       "Bash(mysql:*)",
       "Bash(convert:*)",
       "Bash(pip3 install:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Read(//usr/bin/**)",
+      "Read(//usr/**)"
     ],
     "deny": [],
     "ask": []
