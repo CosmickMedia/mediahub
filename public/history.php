@@ -29,13 +29,18 @@ $upload_token = $_SESSION['upload_token'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
     $tokenValid = isset($_POST['upload_token']) && hash_equals($_SESSION['upload_token'], $_POST['upload_token']);
     if ($tokenValid) {
-        unset($_SESSION['upload_token']);
+        // Regenerate token for next upload immediately after consuming
+        $_SESSION['upload_token'] = bin2hex(random_bytes(16));
+        $upload_token = $_SESSION['upload_token'];
+
         try {
             $storeFolderId = get_or_create_store_folder($store_id);
             $totalFiles = count($_FILES['files']['name']);
+            $customMessage = $_POST['custom_message'] ?? '';
             $cols = $pdo->query("SHOW COLUMNS FROM uploads")->fetchAll(PDO::FETCH_COLUMN);
             $hasLocalPath = in_array('local_path', $cols, true);
             $hasThumbPath = in_array('thumb_path', $cols, true);
+            $hasCustomMessage = in_array('custom_message', $cols, true);
             $uploadCount = 0;
             $uploadedFiles = [];
             for ($i = 0; $i < $totalFiles; $i++) {
@@ -56,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
                 $mime = finfo_file($finfo, $tmp);
                 finfo_close($finfo);
-                if (strpos($mime, 'image/') !== 0) {
-                    $errors[] = "$name is not an image";
+                if (!preg_match('/^(image|video)\//', $mime)) {
+                    $errors[] = "$name is not an image or video";
                     continue;
                 }
 
@@ -82,9 +87,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
 
                     $driveId = drive_upload($localPath, $mime, $name, $storeFolderId);
 
-                    $fields = ['store_id', 'filename', 'created_at', 'ip', 'mime', 'size', 'drive_id'];
-                    $placeholders = '?, ?, NOW(), ?, ?, ?, ?';
-                    $values = [$store_id, $name, $_SERVER['REMOTE_ADDR'], $mime, $size, $driveId];
+                    // Get description
+                    $description = $_POST['descriptions'][$i] ?? '';
+
+                    $fields = ['store_id', 'filename', 'description'];
+                    $placeholders = '?, ?, ?';
+                    $values = [$store_id, $name, $description];
+
+                    if ($hasCustomMessage) {
+                        $fields[] = 'custom_message';
+                        $placeholders .= ', ?';
+                        $values[] = $customMessage;
+                    }
+
+                    $fields[] = 'created_at';
+                    $placeholders .= ', NOW()';
+
+                    $fields[] = 'ip';
+                    $placeholders .= ', ?';
+                    $values[] = $_SERVER['REMOTE_ADDR'];
+
+                    $fields[] = 'mime';
+                    $placeholders .= ', ?';
+                    $values[] = $mime;
+
+                    $fields[] = 'size';
+                    $placeholders .= ', ?';
+                    $values[] = $size;
+
+                    $fields[] = 'drive_id';
+                    $placeholders .= ', ?';
+                    $values[] = $driveId;
 
                     if ($hasLocalPath) {
                         $fields[] = 'local_path';
@@ -131,6 +164,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                     $message = "$uploadCount new file(s) uploaded from store: $store_name\n\n";
                     $message .= "Files uploaded:\n";
                     foreach ($uploadedFiles as $f) { $message .= "- $f\n"; }
+                    if ($customMessage) {
+                        $message .= "\nCustomer Message:\n$customMessage\n";
+                    }
                     foreach ($emailList as $email) {
                         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                             mail($email, $adminSubject, $message, $headers);
@@ -156,6 +192,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
         }
     } else {
         $errors[] = 'Invalid upload token';
+        // Regenerate token even on failure so form can be resubmitted
+        $_SESSION['upload_token'] = bin2hex(random_bytes(16));
+        $upload_token = $_SESSION['upload_token'];
     }
 }
 
@@ -315,24 +354,21 @@ function create_local_thumbnail(string $src, string $dest, string $mime): bool {
 include __DIR__.'/header.php';
 ?>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-
-
-    <div class="history-container animate__animated animate__fadeIn">
+    <div class="history-container">
         <!-- Header Section -->
         <div class="history-header">
             <div>
-                <h2 class="history-title">Upload History</h2>
+                <h2 class="history-title">Media Library</h2>
                 <p class="history-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
             </div>
             <a href="index.php" class="btn btn-modern-primary">
-                <i class="bi bi-arrow-left"></i> Back to Upload
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
             </a>
         </div>
 
         <div class="text-end mb-3">
             <button class="btn btn-modern-secondary" type="button" id="toggleQuickUpload">
-                <i class="bi bi-plus-circle"></i> Add Images
+                <i class="bi bi-plus-circle"></i> Add Media
             </button>
         </div>
 
@@ -349,25 +385,48 @@ include __DIR__.'/header.php';
                             <i class="bi bi-camera"></i> Use Camera
                         </button>
                     </div>
-                    <input class="d-none" type="file" name="files[]" id="quickFiles" multiple accept="image/*">
-                    <input type="file" id="quickCamera" accept="image/*" capture="camera" class="d-none">
-                    <div id="quickFileList"></div>
+                    <input class="d-none" type="file" name="files[]" id="quickFiles" multiple accept="image/*,video/*">
+                    <input type="file" id="quickCamera" accept="image/*,video/*" capture="camera" class="d-none">
                 </div>
+
+                <div id="quickFileList"></div>
+
+                <div class="mb-3 mt-3">
+                    <label for="quick_custom_message" class="form-label fw-semibold">
+                        <i class="bi bi-chat-text"></i> Message (Optional)
+                    </label>
+                    <textarea class="form-control" name="custom_message" id="quick_custom_message" rows="2"
+                              placeholder="Add any special instructions or information about these files..."></textarea>
+                </div>
+
                 <input type="hidden" name="upload_token" value="<?php echo htmlspecialchars($upload_token); ?>">
-                <button type="submit" class="btn-modern btn-modern-primary mt-2">Upload</button>
+                <button type="submit" class="btn-modern btn-modern-primary mt-2" id="quickUploadBtn">Upload</button>
             </form>
         </div>
 
         <?php if (isset($success)): ?>
-            <div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($success); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($errors) && !empty($errors)): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Upload failed:</strong>
+                <ul class="mb-0 mt-2">
+                    <?php foreach ($errors as $error): ?>
+                        <li><?php echo htmlspecialchars($error); ?></li>
+                    <?php endforeach; ?>
+                </ul>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
         <!-- Statistics Dashboard -->
         <div class="stats-dashboard">
-            <div class="stat-card total-files animate__animated animate__fadeInUp">
+            <div class="stat-card total-files">
                 <div class="stat-icon">
                     <i class="bi bi-folder-fill"></i>
                 </div>
@@ -376,7 +435,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card total-size animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card total-size">
                 <div class="stat-icon">
                     <i class="bi bi-hdd-fill"></i>
                 </div>
@@ -385,7 +444,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card images animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card images">
                 <div class="stat-icon">
                     <i class="bi bi-image-fill"></i>
                 </div>
@@ -394,7 +453,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card videos animate__animated animate__fadeInUp delay-30">
+            <div class="stat-card videos">
                 <div class="stat-icon">
                     <i class="bi bi-camera-video-fill"></i>
                 </div>
@@ -403,7 +462,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card recent animate__animated animate__fadeInUp delay-40">
+            <div class="stat-card recent">
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
@@ -414,7 +473,7 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Filters Section -->
-        <div class="filters-section animate__animated animate__fadeIn delay-50">
+        <div class="filters-section">
             <div class="filters-row">
                 <div class="filter-group">
                     <span class="filter-label">Type:</span>
@@ -451,7 +510,7 @@ include __DIR__.'/header.php';
         </div>
 
         <?php if (empty($uploads)): ?>
-            <div class="empty-state animate__animated animate__fadeIn">
+            <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <h3>No uploads found</h3>
                 <p>
@@ -472,7 +531,7 @@ include __DIR__.'/header.php';
                     $isVideo = strpos($upload['mime'], 'video') !== false;
                     $fileExtension = pathinfo($upload['filename'], PATHINFO_EXTENSION);
                     ?>
-                    <div class="upload-card animate__animated animate__fadeInUp" style="animation-delay: <?php echo min($index * 0.05, 0.5); ?>s">
+                    <div class="upload-card" data-filename="<?php echo htmlspecialchars(strtolower($upload['filename'])); ?>" data-description="<?php echo htmlspecialchars(strtolower($upload['description'] ?? '')); ?>">
                         <div class="upload-media" onclick="showPreview('<?php echo $upload['id']; ?>', '<?php echo $isVideo ? 'video' : 'image'; ?>', '<?php echo $upload['local_path'] ?? ''; ?>')">
                             <?php if ($isVideo): ?>
                                 <img src="<?php echo htmlspecialchars($upload['thumb_path'] ?: 'thumbnail.php?id=' . $upload['id'] . '&size=medium'); ?>"
@@ -525,18 +584,20 @@ include __DIR__.'/header.php';
                             <div class="history-actions">
                                 <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
                                    target="_blank"
-                                   class="history-btn history-btn-primary">
-                                    <i class="bi bi-eye"></i> View
+                                   class="action-icon-btn"
+                                   title="View">
+                                    <i class="bi bi-eye"></i>
                                 </a>
                                 <a href="https://drive.google.com/uc?export=download&id=<?php echo $upload['drive_id']; ?>"
                                    target="_blank"
-                                   class="history-btn history-btn-success">
-                                    <i class="bi bi-download"></i> Download
+                                   class="action-icon-btn"
+                                   title="Download">
+                                    <i class="bi bi-download"></i>
                                 </a>
-                                <form method="post" class="flex-1" onsubmit="return confirmDelete('<?php echo htmlspecialchars($upload['filename']); ?>')">
+                                <form method="post" style="display: inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($upload['filename']); ?>')">
                                     <input type="hidden" name="delete_id" value="<?php echo $upload['id']; ?>">
-                                    <button type="submit" class="history-btn history-btn-danger w-100">
-                                        <i class="bi bi-trash"></i> Delete
+                                    <button type="submit" class="action-icon-btn" title="Delete">
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>
@@ -630,39 +691,33 @@ include __DIR__.'/header.php';
                 }
             });
 
-            // Search functionality
+            // Client-side search filtering (no page refresh)
             const searchInput = document.getElementById('searchInput');
-            let searchTimeout;
+            const uploadCards = document.querySelectorAll('.upload-card');
 
             searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    updateFilters();
-                }, 500);
+                const searchTerm = this.value.toLowerCase().trim();
+
+                uploadCards.forEach(card => {
+                    const filename = card.getAttribute('data-filename') || '';
+                    const description = card.getAttribute('data-description') || '';
+
+                    if (filename.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
             });
 
             // Sort functionality
             const sortSelect = document.getElementById('sortSelect');
-            sortSelect.addEventListener('change', updateFilters);
-
-            function updateFilters() {
+            sortSelect.addEventListener('change', function() {
                 const params = new URLSearchParams(window.location.search);
-
-                // Update search
-                if (searchInput.value) {
-                    params.set('search', searchInput.value);
-                } else {
-                    params.delete('search');
-                }
-
-                // Update sort
                 params.set('sort', sortSelect.value);
-
-                // Reset to page 1 when filters change
                 params.set('page', '1');
-
                 window.location.search = params.toString();
-            }
+            });
 
             const toggleBtn = document.getElementById('toggleQuickUpload');
             const quickSection = document.getElementById('quickUpload');
@@ -680,23 +735,75 @@ include __DIR__.'/header.php';
                 });
             }
 
-            function updateQuickList(files) {
+            let quickAllFiles = [];
+
+            function updateQuickList() {
                 quickList.innerHTML = '';
-                Array.from(files).forEach(f => {
-                    const div = document.createElement('div');
-                    div.textContent = f.name;
-                    quickList.appendChild(div);
+
+                if (quickAllFiles.length === 0) {
+                    return;
+                }
+
+                quickAllFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+
+                    const isVideo = file.type.startsWith('video/');
+                    const iconClass = isVideo ? 'bi-camera-video-fill' : 'bi-image-fill';
+
+                    fileItem.innerHTML = `
+                        <div class="file-icon">
+                            <i class="bi ${iconClass}"></i>
+                        </div>
+                        <div class="file-info">
+                            <p class="file-name">${file.name}</p>
+                            <p class="file-size">${formatFileSize(file.size)}</p>
+                        </div>
+                        <div class="file-description">
+                            <input type="text" name="descriptions[${index}]" class="form-control form-control-sm"
+                                   placeholder="Optional description">
+                        </div>
+                        <i class="bi bi-x-circle-fill file-remove" onclick="removeQuickFile(${index})"></i>
+                    `;
+
+                    quickList.appendChild(fileItem);
                 });
             }
 
-            if (quickFiles) {
-                quickFiles.addEventListener('change', () => updateQuickList(quickFiles.files));
+            function updateQuickMainFileInput() {
+                const dt = new DataTransfer();
+                quickAllFiles.forEach(file => dt.items.add(file));
+                quickFiles.files = dt.files;
             }
+
+            window.removeQuickFile = function(index) {
+                quickAllFiles.splice(index, 1);
+                updateQuickList();
+                updateQuickMainFileInput();
+            };
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            if (quickFiles) {
+                quickFiles.addEventListener('change', function() {
+                    quickAllFiles = Array.from(this.files);
+                    updateQuickList();
+                });
+            }
+
             if (quickCamera) {
-                quickCamera.addEventListener('change', () => {
-                    if (quickCamera.files.length > 0) {
-                        updateQuickList(quickCamera.files);
-                        quickFiles.files = quickCamera.files;
+                quickCamera.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        quickAllFiles.push(this.files[0]);
+                        updateQuickList();
+                        updateQuickMainFileInput();
+                        this.value = '';
                     }
                 });
             }

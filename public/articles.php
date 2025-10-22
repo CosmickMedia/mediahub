@@ -35,6 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
     $category = $_POST['category'] ?? 'blog';
     $tags = trim($_POST['tags'] ?? '');
 
+    // Debug logging
+    error_log("Article submission - Category received: " . $category);
+    error_log("POST data: " . print_r($_POST, true));
+
     if (empty($title)) {
         $errors[] = 'Article title is required';
     }
@@ -158,6 +162,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
             $sql = 'INSERT INTO articles (' . implode(',', $fields) . ') VALUES (' . $placeholders . ')';
             $stmt = $pdo->prepare($sql);
             $stmt->execute($values);
+
+            // Debug: Log what was inserted
+            error_log("Article inserted - SQL: " . $sql);
+            error_log("Article inserted - Fields: " . implode(',', $fields));
+            error_log("Article inserted - Values: " . print_r($values, true));
 
             $success[] = 'Article submitted successfully!';
 
@@ -344,13 +353,12 @@ function create_local_thumbnail(string $src, string $dest, string $mime): bool {
 
 // Add versioned additional styles before including header
 $version = trim(file_get_contents(__DIR__.'/../VERSION'));
-$extra_head = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">'
-        . '<link rel="stylesheet" href="inc/css/articles.css?v=' . $version . '">';
+$extra_head = '<link rel="stylesheet" href="inc/css/articles.css?v=' . $version . '">';
 
 include __DIR__.'/header.php';
 ?>
 
-    <div class="articles-container animate__animated animate__fadeIn">
+    <div class="articles-container">
         <!-- Header Section -->
         <div class="articles-header">
             <div>
@@ -363,14 +371,14 @@ include __DIR__.'/header.php';
         </div>
 
         <?php foreach ($errors as $e): ?>
-            <div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="bi bi-exclamation-circle"></i> <?php echo htmlspecialchars($e); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endforeach; ?>
 
         <?php foreach ($success as $s): ?>
-            <div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($s); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -378,7 +386,7 @@ include __DIR__.'/header.php';
 
         <!-- Statistics Dashboard -->
         <div class="stats-dashboard">
-            <div class="stat-card primary animate__animated animate__fadeInUp">
+            <div class="stat-card primary">
                 <div class="stat-icon">
                     <i class="bi bi-file-text-fill"></i>
                 </div>
@@ -387,7 +395,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card warning animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card warning">
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
@@ -396,7 +404,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card success animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card success">
                 <div class="stat-icon">
                     <i class="bi bi-check-circle-fill"></i>
                 </div>
@@ -405,7 +413,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card danger animate__animated animate__fadeInUp delay-30">
+            <div class="stat-card danger">
                 <div class="stat-icon">
                     <i class="bi bi-x-circle-fill"></i>
                 </div>
@@ -414,7 +422,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card secondary animate__animated animate__fadeInUp delay-40">
+            <div class="stat-card secondary">
                 <div class="stat-icon">
                     <i class="bi bi-file-earmark-text"></i>
                 </div>
@@ -423,7 +431,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card info animate__animated animate__fadeInUp delay-50">
+            <div class="stat-card info">
                 <div class="stat-icon">
                     <i class="bi bi-graph-up-arrow"></i>
                 </div>
@@ -434,10 +442,10 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Tabs -->
-        <div class="tab-navigation animate__animated animate__fadeIn delay-60">
+        <div class="tab-navigation">
             <a class="tab-btn <?php echo $tab === 'submit' ? 'active' : ''; ?>" href="?tab=submit">
                 <i class="bi bi-pencil-square"></i>
-                <span>Submit Article</span>
+                <span>Articles</span>
             </a>
             <a class="tab-btn <?php echo $tab === 'history' ? 'active' : ''; ?>" href="?tab=history">
                 <i class="bi bi-clock-history"></i>
@@ -450,7 +458,7 @@ include __DIR__.'/header.php';
 
         <?php if ($tab === 'submit'): ?>
             <!-- Submit Article Tab -->
-            <div class="form-container animate__animated animate__fadeIn delay-70">
+            <div class="form-container">
                 <div class="form-header">
                     <h3 class="section-title">
                         <i class="bi bi-pencil-square"></i>
@@ -606,7 +614,7 @@ include __DIR__.'/header.php';
         <?php else: ?>
             <!-- Article History Tab -->
             <?php if (empty($articles)): ?>
-                <div class="empty-state animate__animated animate__fadeIn">
+                <div class="empty-state">
                     <i class="bi bi-file-text"></i>
                     <h3>No articles found</h3>
                     <p>
@@ -622,7 +630,7 @@ include __DIR__.'/header.php';
                 </div>
             <?php else: ?>
                 <!-- Filters Section -->
-                <div class="filters-section animate__animated animate__fadeIn delay-70">
+                <div class="filters-section">
                     <div class="filters-row">
                         <div class="filter-group">
                             <span class="filter-label">Status:</span>
@@ -691,8 +699,7 @@ include __DIR__.'/header.php';
                                 'story' => 'bi-book'
                         ];
                         ?>
-                        <div class="article-card animate__animated animate__fadeInUp"
-                             style="animation-delay: <?php echo min($index * 0.05, 0.5); ?>s">
+                        <div class="article-card">
                             <div class="article-header">
                             <span class="article-category">
                                 <i class="bi <?php echo $categoryIcons[$category] ?? 'bi-file-text'; ?>"></i>
@@ -734,13 +741,15 @@ include __DIR__.'/header.php';
                                 </div>
                                 <div class="article-actions">
                                     <button class="action-btn primary"
-                                            onclick="viewArticle(<?php echo $article['id']; ?>)">
-                                        <i class="bi bi-eye"></i> View
+                                            onclick="viewArticle(<?php echo $article['id']; ?>)"
+                                            title="View Article">
+                                        <i class="bi bi-search"></i>
                                     </button>
                                     <?php if ($article['status'] === 'draft'): ?>
                                         <a href="?tab=submit&edit=<?php echo $article['id']; ?>"
-                                           class="action-btn secondary">
-                                            <i class="bi bi-pencil"></i> Edit
+                                           class="action-btn secondary"
+                                           title="Edit Draft">
+                                            <i class="bi bi-pencil"></i>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -1110,10 +1119,22 @@ include __DIR__.'/header.php';
             }
         }
 
+        // Debug category selection
+        const categoryInputs = document.querySelectorAll('input[name="category"]');
+        categoryInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                console.log('Category selected:', this.value);
+            });
+        });
+
         // Form submission
         const articleForm = document.getElementById('articleForm');
         if (articleForm) {
             articleForm.addEventListener('submit', function(e) {
+                // Log the selected category before submit
+                const selectedCategory = document.querySelector('input[name="category"]:checked');
+                console.log('Submitting with category:', selectedCategory ? selectedCategory.value : 'none');
+
                 const contentField = document.getElementById('content');
                 const contentValue = editor ? editor.getData().trim() : contentField.value.trim();
                 if (!contentValue) {

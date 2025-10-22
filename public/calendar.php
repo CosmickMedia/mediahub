@@ -247,9 +247,8 @@ include __DIR__.'/header.php';
 ?>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
-    <div class="calendar-container animate__animated animate__fadeIn">
+    <div class="calendar-container">
         <!-- Header Section -->
         <div class="calendar-header">
             <div>
@@ -281,7 +280,7 @@ include __DIR__.'/header.php';
         </div>
 
         <?php if (!empty($posts) && !$allow_schedule): ?>
-            <div class="alert alert-info animate__animated animate__fadeIn" style="margin-bottom: 20px;">
+            <div class="alert alert-info" style="margin-bottom: 20px;">
                 <i class="bi bi-info-circle"></i>
                 <strong>Post Scheduling Unavailable</strong>
                 <p class="mb-0">Social media profiles are not configured for this store. You can view scheduled posts, but cannot create new ones. <strong>Admin:</strong> <a href="/admin/edit_store.php?id=<?php echo $store_id; ?>" class="alert-link">Configure profiles</a> to enable post scheduling.</p>
@@ -317,7 +316,7 @@ include __DIR__.'/header.php';
         <?php else: ?>
             <!-- Analytics Dashboard -->
             <div class="analytics-dashboard">
-                <div class="stat-card total-posts animate__animated animate__fadeInUp">
+                <div class="stat-card total-posts">
                     <div class="stat-icon">
                         <i class="bi bi-grid-3x3-gap-fill"></i>
                     </div>
@@ -328,7 +327,7 @@ include __DIR__.'/header.php';
                     <div class="stat-bg"></div>
                 </div>
 
-                <div class="stat-card upcoming-posts animate__animated animate__fadeInUp delay-10">
+                <div class="stat-card upcoming-posts">
                     <div class="stat-icon">
                         <i class="bi bi-clock-history"></i>
                     </div>
@@ -353,7 +352,7 @@ include __DIR__.'/header.php';
                             $display_name = 'X (formerly Twitter)';
                         }
                         ?>
-                        <div class="stat-card network-stat animate__animated animate__fadeInUp" style="animation-delay: <?php echo (array_search($network, array_keys($network_counts)) + 2) * 0.1; ?>s">
+                        <div class="stat-card network-stat">
                             <div class="stat-icon" style="color: <?php echo $net_info['color']; ?>">
                                 <i class="bi <?php echo !empty($net_info['icon']) ? $net_info['icon'] : 'bi-share'; ?>"></i>
                             </div>
@@ -379,7 +378,7 @@ include __DIR__.'/header.php';
             </div>
 
             <!-- Calendar -->
-            <div class="calendar-wrapper animate__animated animate__fadeIn delay-30" id="calendarWrapper">
+            <div class="calendar-wrapper" id="calendarWrapper">
                 <div id="calendar"></div>
             </div>
 

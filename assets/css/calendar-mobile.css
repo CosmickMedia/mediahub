@@ -328,13 +328,30 @@
         display: none;
     }
 
-    /* Analytics dashboard mobile - ensure 2 columns */
+    /* Analytics dashboard mobile - horizontal scrolling */
     .analytics-dashboard {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.5rem;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 1rem;
         margin-bottom: 1rem;
-        padding: 0 0.25rem;
+        padding: 0 0.25rem 0.5rem 0.25rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .analytics-dashboard::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .analytics-dashboard::-webkit-scrollbar-thumb {
+        background: rgba(102, 126, 234, 0.3);
+        border-radius: 3px;
+    }
+
+    .analytics-dashboard .stat-card {
+        min-width: 150px;
+        flex-shrink: 0;
     }
 
     .stat-card {
@@ -710,26 +727,25 @@
 }
 
 @media (max-width: 375px) {
-    .analytics-dashboard {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
+    .analytics-dashboard .stat-card {
+        min-width: 140px;
     }
 
     .stat-card {
-        display: flex;
-        align-items: center;
         padding: 0.75rem;
         min-height: auto;
     }
 
     .stat-icon {
-        font-size: 1.75rem;
-        margin-right: 1rem;
-        margin-bottom: 0;
+        font-size: 1.25rem;
     }
 
-    .stat-content {
-        flex: 1;
+    .stat-number {
+        font-size: 1rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
     }
 
     .list-event-time {
@@ -760,8 +776,8 @@
 
 /* Landscape orientation */
 @media (max-width: 768px) and (orientation: landscape) {
-    .analytics-dashboard {
-        grid-template-columns: repeat(4, 1fr);
+    .analytics-dashboard .stat-card {
+        min-width: 120px;
     }
 
     .fc-toolbar {

@@ -1,11 +1,16 @@
 // MediaHub Public Service Worker
-const CACHE_NAME = 'mediahub-public-v2';
+const CACHE_NAME = 'mediahub-public-v3';
 const urlsToCache = [
   '/public/index.php',
   '/assets/css/common.css',
   '/assets/images/mediahub-logo.png',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-192-maskable.png',
+  '/icon-512.png',
+  '/icon-512-maskable.png',
+  '/apple-touch-icon.png',
+  '/favicon-16x16.png',
+  '/favicon-32x32.png'
 ];
 
 // Install event - cache essential resources

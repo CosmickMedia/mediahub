@@ -104,8 +104,8 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 </li>
                 <li class="nav-item-modern">
                     <a class="nav-link-modern <?php echo $current_page == 'history.php' ? 'active' : ''; ?>" href="history.php">
-                        <i class="bi bi-clock-history"></i>
-                        <span>History</span>
+                        <i class="bi bi-collection-play"></i>
+                        <span>Media</span>
                     </a>
                 </li>
                 <li class="nav-item-modern">
@@ -220,8 +220,8 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                     </li>
                     <li class="mobile-menu-item">
                         <a class="mobile-menu-link <?php echo $current_page == 'history.php' ? 'active' : ''; ?>" href="history.php">
-                            <i class="bi bi-clock-history"></i>
-                            History
+                            <i class="bi bi-collection-play"></i>
+                            Media
                         </a>
                     </li>
                     <li class="mobile-menu-item">

@@ -574,7 +574,57 @@ function cropImageToAspectRatio($sourcePath, $targetWidth, $targetHeight, $outpu
     }
 }
 
-if ($action === 'create' || $action === 'update') {
+if ($action === 'update') {
+    // Hootsuite API does not support editing scheduled posts via PUT/PATCH
+    // We must delete and recreate the post with updated content
+    $post_id = $_POST['post_id'] ?? '';
+
+    if ($post_id === '') {
+        echo json_encode(['success' => false, 'error' => 'Missing post id']);
+        exit;
+    }
+
+    // Fetch existing post data BEFORE deleting (to preserve media if not uploading new files)
+    $stmt = $pdo->prepare('SELECT created_by_user_id, media_urls FROM hootsuite_posts WHERE post_id=? AND store_id=?');
+    $stmt->execute([$post_id, $store_id]);
+    $existingPost = $stmt->fetch(PDO::FETCH_ASSOC);
+    $owner = $existingPost['created_by_user_id'] ?? null;
+    $existingMediaUrls = $existingPost['media_urls'] ?? null;
+
+    if (!$is_admin_action && $owner && $owner != $user_id) {
+        echo json_encode(['success' => false, 'error' => 'Not authorized to update this post']);
+        exit;
+    }
+
+    // Store existing media URLs for use if no new media is uploaded
+    $_SESSION['existing_media_urls_for_update'] = $existingMediaUrls;
+    error_log("Preserved existing media URLs: " . ($existingMediaUrls ?: 'none'));
+
+    // Delete the existing post from Hootsuite
+    error_log("Deleting existing post $post_id before recreating with updates");
+    $ch = curl_init('https://platform.hootsuite.com/v1/messages/' . urlencode($post_id));
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER => ["Authorization: Bearer $token"],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => 'DELETE'
+    ]);
+    $deleteResponse = curl_exec($ch);
+    $deleteCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    // Log the delete attempt (don't fail if delete fails - post might already be sent/deleted)
+    error_log("Delete attempt for post $post_id: HTTP $deleteCode - Response: $deleteResponse");
+
+    // Delete from database
+    $stmt = $pdo->prepare('DELETE FROM hootsuite_posts WHERE post_id=? AND store_id=?');
+    $stmt->execute([$post_id, $store_id]);
+
+    // Now change action to 'create' to recreate the post with updated content
+    $action = 'create';
+    error_log("Post deleted, now recreating with updated content");
+}
+
+if ($action === 'create') {
     $text = trim($_POST['text'] ?? '');
     $scheduled = $_POST['scheduled_time'] ?? '';
     $profile_ids = $_POST['profile_ids'] ?? ($_POST['profile_id'] ?? []);
@@ -609,6 +659,8 @@ if ($action === 'create' || $action === 'update') {
     $mediaUrls = [];
 
     if (!empty($_FILES['media'])) {
+        // New media uploaded - clear any existing media from update
+        unset($_SESSION['existing_media_urls_for_update']);
         // Check if it's a single file or multiple files
         $isSingleFile = !is_array($_FILES['media']['name']);
 
@@ -672,6 +724,41 @@ if ($action === 'create' || $action === 'update') {
                 }
             }
         }
+    }
+
+    // If this was an update and no new media was uploaded, use existing media from the original post
+    if (empty($localMediaPaths) && !empty($_SESSION['existing_media_urls_for_update'])) {
+        error_log("No new media uploaded, using existing media from original post");
+
+        // Decode the existing media URLs
+        $existingUrls = json_decode($_SESSION['existing_media_urls_for_update'], true);
+        if (is_array($existingUrls)) {
+            foreach ($existingUrls as $url) {
+                // Convert URL to file path
+                $localPath = __DIR__ . str_replace('/public', '', $url);
+
+                if (file_exists($localPath)) {
+                    error_log("Found existing media file: $localPath");
+
+                    // Get file info
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                    $mimeType = finfo_file($finfo, $localPath);
+                    finfo_close($finfo);
+
+                    $localMediaPaths[] = [
+                        'path' => $localPath,
+                        'name' => basename($localPath),
+                        'mime' => $mimeType
+                    ];
+                    $mediaUrls[] = $url;
+                } else {
+                    error_log("WARNING: Existing media file not found: $localPath");
+                }
+            }
+        }
+
+        // Clear the session variable after use
+        unset($_SESSION['existing_media_urls_for_update']);
     }
 
     if ($action === 'create') {
@@ -860,6 +947,9 @@ if ($action === 'create' || $action === 'update') {
             if ($mediaTimedOut && empty($mediaPayload)) {
                 $result['warning'] = 'Post created successfully, but the media could not be uploaded. The file may be too large or in an unsupported format. Try using a smaller image (<1MB) or manually add media in Hootsuite.';
             }
+
+            // Clean up session variable
+            unset($_SESSION['existing_media_urls_for_update']);
 
             echo json_encode($result);
             exit;
@@ -1209,175 +1299,22 @@ if ($action === 'create' || $action === 'update') {
         }
 
         if (empty($events)) {
+            // Clean up session variable
+            unset($_SESSION['existing_media_urls_for_update']);
             echo json_encode(['success' => false, 'error' => 'Failed to create posts for all profiles']);
         } else {
             $result = ['success' => true, 'events' => $events];
             if (!empty($failedProfiles)) {
                 $result['warnings'] = 'Some profiles failed: ' . implode(', ', $failedProfiles);
             }
+            // Clean up session variable
+            unset($_SESSION['existing_media_urls_for_update']);
             echo json_encode($result);
         }
         exit;
     }
-
-    // Update existing post (single profile) - keeping this part the same
-    // This section remains unchanged
-    $profile_id = $profile_ids[0];
-
-    // Upload media for update if needed (with compression)
-    $mediaPayload = [];
-    if (!empty($localMediaPaths)) {
-        $mediaFile = $localMediaPaths[0];
-        $uploadPath = $mediaFile['path'];
-        $uploadMime = $mediaFile['mime'];
-        $wasCompressed = false;
-
-        // Compress image if needed (only for images)
-        if (str_starts_with($uploadMime, 'image/')) {
-            $compressionResult = compressImageIfNeeded($mediaFile['path'], $mediaFile['mime']);
-
-            if ($compressionResult && $compressionResult !== false) {
-                list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
-
-                if ($wasCompressed) {
-                    $uploadPath = $compressedPath;
-                    $uploadMime = 'image/jpeg';
-                    error_log("Image compressed for update");
-                }
-            }
-        }
-
-        $mediaId = uploadMediaToHootsuite(
-            $token,
-            $uploadPath,
-            $mediaFile['name'],
-            $uploadMime
-        );
-
-        // Clean up compressed file if created
-        if ($wasCompressed && file_exists($uploadPath)) {
-            @unlink($uploadPath);
-        }
-
-        if ($mediaId) {
-            $mediaPayload[] = ['id' => $mediaId];
-            error_log("Media upload complete for update with ID: $mediaId");
-        }
-    }
-
-    // Format date in UTC with Z suffix
-    $utc_time = gmdate('Y-m-d\TH:i:s\Z', $ts);
-
-    $payload = [
-        'text' => $text,
-        'socialProfileIds' => [$profile_id],
-        'scheduledSendTime' => $utc_time
-    ];
-    if ($tagsArr) $payload['tags'] = $tagsArr;
-
-    // IMPORTANT: Use 'media' format, NOT 'mediaIds'
-    // 'mediaIds' is documented but silently ignored by Hootsuite API
-    // Correct format: media: [{"id": "..."}]
-    if ($mediaPayload && !empty($mediaPayload[0]['id'])) {
-        $payload['media'] = $mediaPayload;  // Use media array with objects, not mediaIds
-    }
-
-    $url = 'https://platform.hootsuite.com/v1/messages/' . urlencode($post_id);
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer $token",
-            'Content-Type: application/json',
-            'Accept: application/json'
-        ],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CUSTOMREQUEST => 'PUT',
-        CURLOPT_POSTFIELDS => json_encode($payload)
-    ]);
-    $response = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $err = curl_error($ch);
-    curl_close($ch);
-
-    if ($err || $code >= 400) {
-        error_log("Update error (code $code): $response");
-        $responseData = json_decode($response, true);
-        $errorMsg = $responseData['errors'][0]['message'] ?? 'Failed to update post';
-        echo json_encode(['success' => false, 'error' => $errorMsg]);
-        exit;
-    }
-
-    $data = json_decode($response, true);
-    $postId = $data['data']['id'] ?? $data['id'] ?? $post_id;
-    $state = $data['data']['state'] ?? $data['state'] ?? 'SCHEDULED';
-    $scheduledSendTime = $data['data']['scheduledSendTime'] ?? $data['scheduledSendTime'] ?? date('c', $ts);
-    $scheduledSendTime = date('Y-m-d H:i:s', strtotime($scheduledSendTime));
-
-    $color = '#0d6efd';
-    $icon = 'bi-share';
-    $networkName = '';
-    $profStmt = $pdo->prepare('SELECT network FROM hootsuite_profiles WHERE id=?');
-    $profStmt->execute([$profile_id]);
-    if ($netKey = strtolower($profStmt->fetchColumn() ?: '')) {
-        $netStmt = $pdo->prepare('SELECT name, icon, color FROM social_networks WHERE LOWER(name)=?');
-        $netStmt->execute([$netKey]);
-        if ($n = $netStmt->fetch()) {
-            $networkName = $n['name'] ?? '';
-            $color = $n['color'] ?? $color;
-            $icon = $n['icon'] ?? $icon;
-        }
-    }
-
-    // Check ownership before updating
-    $stmt = $pdo->prepare('SELECT created_by_user_id FROM hootsuite_posts WHERE post_id=? AND store_id=?');
-    $stmt->execute([$post_id, $store_id]);
-    $owner = $stmt->fetchColumn();
-    if ($owner && $owner != $user_id) {
-        echo json_encode(['success' => false, 'error' => 'Not authorized to update this post']);
-        exit;
-    }
-
-    $stmt = $pdo->prepare('UPDATE hootsuite_posts SET text=?, scheduled_send_time=?, raw_json=?, state=?, social_profile_id=?, tags=?, media=?, created_by_user_id=?, media_urls=? WHERE post_id=? AND store_id=?');
-    $stmt->execute([
-        $text,
-        $scheduledSendTime,
-        $response,
-        $state,
-        $profile_id,
-        json_encode($tagsArr),
-        json_encode($mediaPayload),
-        $user_id,
-        json_encode($mediaUrls),
-        $post_id,
-        $store_id
-    ]);
-
-    $event = [
-        'id' => $postId,
-        'title' => $networkName ?: 'Post',
-        'start' => str_replace(' ', 'T', $scheduledSendTime),
-        'backgroundColor' => $color,
-        'borderColor' => $color,
-        'classNames' => ['social-' . ($networkName ? preg_replace('/[^a-z0-9]+/','-', strtolower($networkName)) : 'default')],
-        'extendedProps' => [
-            'text' => $text,
-            'time' => str_replace(' ', 'T', $scheduledSendTime),
-            'tags' => $tagsArr,
-            'source' => 'API',
-            'post_id' => $postId,
-            'created_by_user_id' => $user_id,
-            'social_profile_id' => $profile_id,
-            'media_urls' => $mediaUrls,
-            'posted_by' => $user_name,
-            'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-            'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-            'icon' => $icon,
-            'network' => $networkName
-        ]
-    ];
-
-    echo json_encode(['success' => true, 'event' => $event]);
-    exit;
+    // The 'update' action now uses delete-and-recreate (see lines 577-619)
+    // and falls through to the 'create' logic above, so no separate update code is needed
 }
 
 if ($action === 'delete') {

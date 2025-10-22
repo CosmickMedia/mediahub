@@ -16,7 +16,9 @@
       "Bash(curl:*)",
       "Read(//usr/bin/**)",
       "Read(//usr/**)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "WebFetch(domain:developer.hootsuite.com)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

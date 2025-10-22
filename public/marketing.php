@@ -25,10 +25,7 @@ $store_name = $store['name'];
 include __DIR__.'/header.php';
 ?>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-
-
-    <div class="marketing-container animate__animated animate__fadeIn">
+    <div class="marketing-container">
         <!-- Header Section -->
         <div class="marketing-header">
             <div>
@@ -42,7 +39,7 @@ include __DIR__.'/header.php';
 
         <?php if ($url): ?>
             <!-- Report Container -->
-            <div class="report-container animate__animated animate__fadeIn delay-30" id="reportContainer">
+            <div class="report-container" id="reportContainer">
                 <div class="report-header">
                     <div class="report-icon">
                         <i class="bi bi-graph-up-arrow"></i>
@@ -68,8 +65,6 @@ include __DIR__.'/header.php';
                     <!-- Loading Overlay -->
                     <div class="loading-overlay" id="loadingOverlay">
                         <div class="loading-spinner"></div>
-                        <div class="loading-text">Loading Marketing Report</div>
-                        <div class="loading-subtext">Please wait while we fetch your analytics...</div>
                     </div>
 
                     <!-- Error State (hidden by default) -->
@@ -96,7 +91,7 @@ include __DIR__.'/header.php';
 
         <?php else: ?>
             <!-- No Report State -->
-            <div class="report-container animate__animated animate__fadeIn delay-30">
+            <div class="report-container">
                 <div class="no-report-state">
                     <i class="bi bi-graph-up"></i>
                     <h3>Marketing Report Not Set Up</h3>
@@ -118,10 +113,8 @@ include __DIR__.'/header.php';
             const loadingOverlay = document.getElementById('loadingOverlay');
             const errorState = document.getElementById('errorState');
 
-            setTimeout(() => {
-                loadingOverlay.classList.add('hidden');
-                errorState.style.display = 'none';
-            }, 1000); // Give it a moment to actually load content
+            loadingOverlay.classList.add('hidden');
+            errorState.style.display = 'none';
         }
 
         // Handle iframe error
