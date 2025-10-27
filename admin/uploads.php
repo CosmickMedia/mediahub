@@ -167,26 +167,23 @@ function render_upload_row($upload, $statuses) {
             <small class="text-muted"><?php echo date('g:i A', strtotime($upload['created_at'])); ?></small>
         </td>
         <td>
-            <?php if ($upload['status_name']): ?>
-                <span class="status-badge" style="background-color: <?php echo htmlspecialchars($upload['status_color']); ?>;">
-                    <?php echo htmlspecialchars($upload['status_name']); ?>
-                </span>
-            <?php else: ?>
-                <form method="post" class="d-inline">
-                    <input type="hidden" name="upload_id" value="<?php echo $upload['id']; ?>">
-                    <select name="status_id" class="status-select" onchange="this.form.submit()">
-                        <option value="">Set Status</option>
-                        <?php foreach ($statuses as $status): ?>
-                            <option value="<?php echo $status['id']; ?>"><?php echo htmlspecialchars($status['name']); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <input type="hidden" name="update_status" value="1">
-                </form>
-            <?php endif; ?>
+            <form method="post" class="d-inline">
+                <input type="hidden" name="upload_id" value="<?php echo $upload['id']; ?>">
+                <select name="status_id" class="status-select-modern" onchange="this.form.submit()">
+                    <option value="">No Status</option>
+                    <?php foreach ($statuses as $status): ?>
+                        <option value="<?php echo $status['id']; ?>"
+                                <?php echo $upload['status_id'] == $status['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($status['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <input type="hidden" name="update_status" value="1">
+            </form>
         </td>
         <td class="actions-cell">
             <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view" target="_blank" class="btn btn-action btn-action-primary" title="View in Drive"><i class="bi bi-eye"></i></a>
-            <a href="https://drive.google.com/uc?export=download&id=<?php echo $upload['drive_id']; ?>" class="btn btn-action btn-action-success" title="Download"><i class="bi bi-download"></i></a>
+            <a href="<?php echo htmlspecialchars(public_upload_url($upload['local_path'])); ?>" download class="btn btn-action btn-action-success" title="Download"><i class="bi bi-download"></i></a>
             <form method="post" class="d-inline" onsubmit="return confirm('Delete this upload?');">
                 <input type="hidden" name="delete_id" value="<?php echo $upload['id']; ?>">
                 <button type="submit" class="btn btn-action btn-action-danger" title="Delete"><i class="bi bi-trash"></i></button>
@@ -443,31 +440,27 @@ include __DIR__.'/header.php';
                                     <small class="text-muted"><?php echo date('g:i A', strtotime($upload['created_at'])); ?></small>
                                 </td>
                                 <td>
-                                    <?php if ($upload['status_name']): ?>
-                                        <span class="status-badge" style="background-color: <?php echo htmlspecialchars($upload['status_color']); ?>;">
-                                        <?php echo htmlspecialchars($upload['status_name']); ?>
-                                    </span>
-                                    <?php else: ?>
-                                        <form method="post" class="d-inline">
-                                            <input type="hidden" name="upload_id" value="<?php echo $upload['id']; ?>">
-                                            <select name="status_id" class="status-select" onchange="this.form.submit()">
-                                                <option value="">Set Status</option>
-                                                <?php foreach ($statuses as $status): ?>
-                                                    <option value="<?php echo $status['id']; ?>">
-                                                        <?php echo htmlspecialchars($status['name']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <input type="hidden" name="update_status" value="1">
-                                        </form>
-                                    <?php endif; ?>
+                                    <form method="post" class="d-inline">
+                                        <input type="hidden" name="upload_id" value="<?php echo $upload['id']; ?>">
+                                        <select name="status_id" class="status-select-modern" onchange="this.form.submit()">
+                                            <option value="">No Status</option>
+                                            <?php foreach ($statuses as $status): ?>
+                                                <option value="<?php echo $status['id']; ?>"
+                                                        <?php echo $upload['status_id'] == $status['id'] ? 'selected' : ''; ?>>
+                                                    <?php echo htmlspecialchars($status['name']); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <input type="hidden" name="update_status" value="1">
+                                    </form>
                                 </td>
                                 <td class="actions-cell">
                                     <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
                                        target="_blank" class="btn btn-action btn-action-primary" title="View in Drive">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="https://drive.google.com/uc?export=download&id=<?php echo $upload['drive_id']; ?>"
+                                    <a href="<?php echo htmlspecialchars(public_upload_url($upload['local_path'])); ?>"
+                                       download
                                        class="btn btn-action btn-action-success" title="Download">
                                         <i class="bi bi-download"></i>
                                     </a>

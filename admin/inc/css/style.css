@@ -43,6 +43,43 @@ a:hover { color: #1a252f; }
 .article-excerpt { max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .status-badge { font-size: 0.875rem; font-weight: 500; }
 
+/* Modern status dropdown styling */
+.status-select-modern {
+    padding: 8px 32px 8px 12px;
+    border: 1.5px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    transition: all 0.2s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    color: #333;
+    min-width: 150px;
+}
+
+.status-select-modern:hover {
+    border-color: #2196f3;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.1);
+}
+
+.status-select-modern:focus {
+    outline: none;
+    border-color: #2196f3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+}
+
+.status-select-modern option {
+    padding: 10px;
+    font-weight: 500;
+}
+
 /* Settings tab font color */
 .nav-tabs .nav-link {
     color: #2c3e50;

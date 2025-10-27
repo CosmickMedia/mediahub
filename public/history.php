@@ -25,6 +25,13 @@ if (empty($_SESSION['upload_token'])) {
 }
 $upload_token = $_SESSION['upload_token'];
 
+// Handle token refresh requests (AJAX endpoint)
+if (isset($_GET['refresh_token']) && $_GET['refresh_token'] === '1') {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true, 'token' => $_SESSION['upload_token']]);
+    exit;
+}
+
 // Handle quick image upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
     $tokenValid = isset($_POST['upload_token']) && hash_equals($_SESSION['upload_token'], $_POST['upload_token']);
@@ -54,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                     $errors[] = "Error uploading $name: " . getUploadErrorMessage($err);
                     continue;
                 }
-                if ($size > 20 * 1024 * 1024) {
-                    $errors[] = "$name is too large (max 20MB)";
+                if ($size > 200 * 1024 * 1024) {
+                    $errors[] = "$name is too large (max 200MB)";
                     continue;
                 }
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -240,7 +247,11 @@ $sort_by = $_GET['sort'] ?? 'date_desc';
 
 // Pagination
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$per_page = 12; // Changed to 12 for grid layout
+$per_page = isset($_GET['per_page']) ? max(1, intval($_GET['per_page'])) : 50;
+// Validate per_page is one of the allowed values
+if (!in_array($per_page, [25, 50, 100, 200])) {
+    $per_page = 50;
+}
 $offset = ($page - 1) * $per_page;
 
 // Build query with filters
@@ -328,6 +339,26 @@ function getUploadErrorMessage($code) {
 
 function create_local_thumbnail(string $src, string $dest, string $mime): bool {
     $max = 400;
+
+    // Handle HEIC/HEIF conversion using macOS sips (only if exec() is available)
+    if (in_array($mime, ['image/heic', 'image/heif', 'image/x-heic', 'image/x-heif']) ||
+        preg_match('/\.(heic|heif)$/i', $src)) {
+        if (function_exists('exec')) {
+            $tempJpg = $src . '.temp.jpg';
+            $cmd = '/usr/bin/sips -s format jpeg ' . escapeshellarg($src) . ' --out ' . escapeshellarg($tempJpg) . ' 2>/dev/null';
+            @exec($cmd, $output, $returnCode);
+            if ($returnCode === 0 && file_exists($tempJpg)) {
+                $src = $tempJpg;
+                $mime = 'image/jpeg';
+                // Register cleanup function for temp file
+                register_shutdown_function(function() use ($tempJpg) {
+                    if (file_exists($tempJpg)) @unlink($tempJpg);
+                });
+            }
+        }
+        // If exec() not available or conversion failed, continue with original file
+    }
+
     if (strpos($mime, 'image/') === 0) {
         $img = @imagecreatefromstring(file_get_contents($src));
         if (!$img) return false;
@@ -344,8 +375,11 @@ function create_local_thumbnail(string $src, string $dest, string $mime): bool {
         return true;
     }
     if (strpos($mime, 'video/') === 0) {
-        $cmd = 'ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
-        exec($cmd);
+        // Only attempt ffmpeg thumbnail if exec() is available
+        if (function_exists('exec')) {
+            $cmd = '/opt/homebrew/bin/ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
+            @exec($cmd);
+        }
         return file_exists($dest);
     }
     return false;
@@ -385,8 +419,15 @@ include __DIR__.'/header.php';
                             <i class="bi bi-camera"></i> Use Camera
                         </button>
                     </div>
-                    <input class="d-none" type="file" name="files[]" id="quickFiles" multiple accept="image/*,video/*">
-                    <input type="file" id="quickCamera" accept="image/*,video/*" capture="camera" class="d-none">
+
+                    <div style="margin-top: 15px; padding: 12px 15px; background-color: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px; font-size: 14px; line-height: 1.6;">
+                        <i class="bi bi-info-circle" style="color: #2196f3; margin-right: 8px;"></i>
+                        <strong>iPhone Users:</strong> For best compatibility, change your camera settings to "Most Compatible" format and turn off ProRes.
+                        <a href="javascript:void(0)" onclick="showIphoneTutorial()" style="color: #1976d2; text-decoration: underline; font-weight: 500; cursor: pointer;">Click here to watch how</a>
+                    </div>
+
+                    <input class="d-none" type="file" name="files[]" id="quickFiles" multiple accept="image/*,image/heic,image/heif,video/*,video/quicktime,video/mp4">
+                    <input type="file" id="quickCamera" accept="image/*,image/heic,image/heif,video/*,video/quicktime,video/mp4" capture="camera" class="d-none">
                 </div>
 
                 <div id="quickFileList"></div>
@@ -506,6 +547,16 @@ include __DIR__.'/header.php';
                         <option value="size_asc" <?php echo $sort_by === 'size_asc' ? 'selected' : ''; ?>>Smallest First</option>
                     </select>
                 </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Per Page:</span>
+                    <select class="sort-select" id="perPageSelect">
+                        <option value="25" <?php echo $per_page === 25 ? 'selected' : ''; ?>>25</option>
+                        <option value="50" <?php echo $per_page === 50 ? 'selected' : ''; ?>>50</option>
+                        <option value="100" <?php echo $per_page === 100 ? 'selected' : ''; ?>>100</option>
+                        <option value="200" <?php echo $per_page === 200 ? 'selected' : ''; ?>>200</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -614,6 +665,7 @@ include __DIR__.'/header.php';
                     if ($filter_type !== 'all') $query_params['type'] = $filter_type;
                     if ($search_query) $query_params['search'] = $search_query;
                     if ($sort_by !== 'date_desc') $query_params['sort'] = $sort_by;
+                    if ($per_page !== 50) $query_params['per_page'] = $per_page;
 
                     function build_page_url($page, $params) {
                         $params['page'] = $page;
@@ -719,6 +771,15 @@ include __DIR__.'/header.php';
                 window.location.search = params.toString();
             });
 
+            // Per page functionality
+            const perPageSelect = document.getElementById('perPageSelect');
+            perPageSelect.addEventListener('change', function() {
+                const params = new URLSearchParams(window.location.search);
+                params.set('per_page', perPageSelect.value);
+                params.set('page', '1');
+                window.location.search = params.toString();
+            });
+
             const toggleBtn = document.getElementById('toggleQuickUpload');
             const quickSection = document.getElementById('quickUpload');
             const quickFiles = document.getElementById('quickFiles');
@@ -820,8 +881,25 @@ include __DIR__.'/header.php';
             const content = document.getElementById('previewContent');
 
             if (type === 'video') {
-                // For videos, just open in Google Drive
-                window.open(`https://drive.google.com/file/d/${uploadId}/view`, '_blank');
+                // Play video locally in modal
+                modal.style.display = 'flex';
+                if (localPath) {
+                    content.innerHTML = `
+                        <video controls autoplay style="max-width: 90vw; max-height: 90vh; border-radius: 8px;">
+                            <source src="/public/${localPath}" type="video/mp4">
+                            <source src="/public/${localPath}" type="video/quicktime">
+                            <source src="/public/${localPath}" type="video/x-msvideo">
+                            Your browser does not support the video tag.
+                        </video>
+                    `;
+                } else {
+                    // Fallback to Drive if no local path
+                    content.innerHTML = `<div class="text-white">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Video not available locally.
+                        <a href="https://drive.google.com/file/d/${uploadId}/view" target="_blank" style="color: #4fc3f7; text-decoration: underline;">View on Google Drive</a>
+                    </div>`;
+                }
                 return;
             }
 
@@ -858,6 +936,62 @@ include __DIR__.'/header.php';
                 closePreview();
             }
         });
+
+        // Auto-refresh upload token every 20 minutes to prevent session expiry
+        setInterval(function() {
+            fetch('?refresh_token=1')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.token) {
+                        const tokenInput = document.querySelector('input[name="upload_token"]');
+                        if (tokenInput) {
+                            tokenInput.value = data.token;
+                            console.log('Upload token refreshed');
+                        }
+                    }
+                })
+                .catch(err => console.error('Token refresh failed:', err));
+        }, 20 * 60 * 1000); // 20 minutes
+
+        // iPhone Tutorial Modal Functions
+        function showIphoneTutorial() {
+            const modal = document.getElementById('iphoneTutorialModal');
+            const iframe = document.getElementById('iphoneTutorialVideo');
+
+            // Set YouTube embed URL with autoplay
+            iframe.src = 'https://www.youtube.com/embed/yIXz84MiyDg?autoplay=1&rel=0';
+            modal.style.display = 'flex';
+        }
+
+        function closeIphoneTutorial(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('iphoneTutorialModal');
+            const iframe = document.getElementById('iphoneTutorialVideo');
+
+            // Stop video by clearing src
+            iframe.src = '';
+            modal.style.display = 'none';
+        }
     </script>
+
+    <!-- iPhone Tutorial Video Modal -->
+    <div id="iphoneTutorialModal" class="preview-modal" onclick="closeIphoneTutorial(event)">
+        <div class="preview-close" onclick="closeIphoneTutorial(event)">
+            <i class="bi bi-x-lg"></i>
+        </div>
+        <div class="preview-content" onclick="event.stopPropagation();" style="max-width: 500px;">
+            <div style="width: 100%; aspect-ratio: 9/16; max-height: 80vh;">
+                <iframe id="iphoneTutorialVideo"
+                        width="100%"
+                        height="100%"
+                        src=""
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        style="border-radius: 8px; background: #000;">
+                </iframe>
+            </div>
+        </div>
+    </div>
 
 <?php include __DIR__.'/footer.php'; ?>

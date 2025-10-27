@@ -80,8 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
                         $errors[] = "Error uploading $originalName: " . getUploadErrorMessage($fileError);
                         continue;
                     }
-                    if ($fileSize > 20 * 1024 * 1024) {
-                        $errors[] = "$originalName is too large (max 20MB)";
+                    if ($fileSize > 200 * 1024 * 1024) {
+                        $errors[] = "$originalName is too large (max 200MB)";
                         continue;
                     }
 
@@ -328,6 +328,26 @@ function getUploadErrorMessage($code) {
 
 function create_local_thumbnail(string $src, string $dest, string $mime): bool {
     $max = 400;
+
+    // Handle HEIC/HEIF conversion using macOS sips (only if exec() is available)
+    if (in_array($mime, ['image/heic', 'image/heif', 'image/x-heic', 'image/x-heif']) ||
+        preg_match('/\.(heic|heif)$/i', $src)) {
+        if (function_exists('exec')) {
+            $tempJpg = $src . '.temp.jpg';
+            $cmd = '/usr/bin/sips -s format jpeg ' . escapeshellarg($src) . ' --out ' . escapeshellarg($tempJpg) . ' 2>/dev/null';
+            @exec($cmd, $output, $returnCode);
+            if ($returnCode === 0 && file_exists($tempJpg)) {
+                $src = $tempJpg;
+                $mime = 'image/jpeg';
+                // Register cleanup function for temp file
+                register_shutdown_function(function() use ($tempJpg) {
+                    if (file_exists($tempJpg)) @unlink($tempJpg);
+                });
+            }
+        }
+        // If exec() not available or conversion failed, continue with original file
+    }
+
     if (strpos($mime, 'image/') === 0) {
         $img = @imagecreatefromstring(file_get_contents($src));
         if (!$img) return false;
@@ -344,8 +364,11 @@ function create_local_thumbnail(string $src, string $dest, string $mime): bool {
         return true;
     }
     if (strpos($mime, 'video/') === 0) {
-        $cmd = 'ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
-        exec($cmd);
+        // Only attempt ffmpeg thumbnail if exec() is available
+        if (function_exists('exec')) {
+            $cmd = '/opt/homebrew/bin/ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
+            @exec($cmd);
+        }
         return file_exists($dest);
     }
     return false;
@@ -568,7 +591,7 @@ include __DIR__.'/header.php';
                             <div class="upload-area small" id="articleImageArea">
                                 <i class="bi bi-cloud-upload upload-icon"></i>
                                 <p class="upload-text">Drag & drop images or click to browse</p>
-                                <p class="upload-subtext">PNG, JPG up to 20MB</p>
+                                <p class="upload-subtext">PNG, JPG up to 200MB</p>
                                 <div class="file-buttons">
                                     <button type="button" class="btn-modern btn-modern-primary" onclick="document.getElementById('articleImages').click();">
                                         <i class="bi bi-folder2-open"></i> Browse Files
@@ -577,8 +600,8 @@ include __DIR__.'/header.php';
                                         <i class="bi bi-camera"></i> Use Camera
                                     </button>
                                 </div>
-                                <input class="d-none" type="file" name="article_images[]" id="articleImages" multiple accept="image/*">
-                                <input type="file" id="articleCamera" accept="image/*" capture="camera" class="d-none">
+                                <input class="d-none" type="file" name="article_images[]" id="articleImages" multiple accept="image/*,image/heic,image/heif">
+                                <input type="file" id="articleCamera" accept="image/*,image/heic,image/heif" capture="camera" class="d-none">
                             </div>
                             <div id="articleFileList" class="file-list"></div>
                         </div>

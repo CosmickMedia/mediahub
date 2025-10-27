@@ -191,6 +191,13 @@ if (empty($_SESSION['upload_token'])) {
 }
 $upload_token = $_SESSION['upload_token'];
 
+// Handle token refresh requests (AJAX endpoint)
+if (isset($_GET['refresh_token']) && $_GET['refresh_token'] === '1') {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true, 'token' => $_SESSION['upload_token']]);
+    exit;
+}
+
 // Get store messages - handle missing columns gracefully
 $messages = [];
 $replies = [];
@@ -347,9 +354,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                 continue;
             }
 
-            // Check file size (20MB limit)
-            if ($fileSize > 20 * 1024 * 1024) {
-                $errors[] = "$originalName is too large (max 20MB)";
+            // Check file size (200MB limit)
+            if ($fileSize > 200 * 1024 * 1024) {
+                $errors[] = "$originalName is too large (max 200MB)";
                 continue;
             }
 
@@ -555,6 +562,26 @@ function getUploadErrorMessage($code) {
 
 function create_local_thumbnail(string $src, string $dest, string $mime): bool {
     $max = 400;
+
+    // Handle HEIC/HEIF conversion using macOS sips (only if exec() is available)
+    if (in_array($mime, ['image/heic', 'image/heif', 'image/x-heic', 'image/x-heif']) ||
+        preg_match('/\.(heic|heif)$/i', $src)) {
+        if (function_exists('exec')) {
+            $tempJpg = $src . '.temp.jpg';
+            $cmd = '/usr/bin/sips -s format jpeg ' . escapeshellarg($src) . ' --out ' . escapeshellarg($tempJpg) . ' 2>/dev/null';
+            @exec($cmd, $output, $returnCode);
+            if ($returnCode === 0 && file_exists($tempJpg)) {
+                $src = $tempJpg;
+                $mime = 'image/jpeg';
+                // Register cleanup function for temp file
+                register_shutdown_function(function() use ($tempJpg) {
+                    if (file_exists($tempJpg)) @unlink($tempJpg);
+                });
+            }
+        }
+        // If exec() not available or conversion failed, continue with original file
+    }
+
     if (strpos($mime, 'image/') === 0) {
         $img = @imagecreatefromstring(file_get_contents($src));
         if (!$img) return false;
@@ -571,8 +598,11 @@ function create_local_thumbnail(string $src, string $dest, string $mime): bool {
         return true;
     }
     if (strpos($mime, 'video/') === 0) {
-        $cmd = 'ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
-        exec($cmd);
+        // Only attempt ffmpeg thumbnail if exec() is available
+        if (function_exists('exec')) {
+            $cmd = '/opt/homebrew/bin/ffmpeg -y -i ' . escapeshellarg($src) . ' -ss 00:00:01 -frames:v 1 -vf scale=' . $max . ':-1 ' . escapeshellarg($dest) . ' 2>/dev/null';
+            @exec($cmd);
+        }
         return file_exists($dest);
     }
     return false;
@@ -730,7 +760,7 @@ include __DIR__.'/header.php';
                     <div class="upload-area" id="uploadArea">
                         <i class="bi bi-cloud-upload upload-icon"></i>
                         <p class="upload-text">Drag & drop files here or click to browse</p>
-                        <p class="upload-subtext">Supports images and videos up to 20MB</p>
+                        <p class="upload-subtext">Supports images and videos up to 200MB</p>
 
                         <div class="file-buttons">
                             <button type="button" class="btn-modern btn-modern-primary" onclick="document.getElementById('files').click();">
@@ -741,8 +771,14 @@ include __DIR__.'/header.php';
                             </button>
                         </div>
 
-                        <input class="d-none" type="file" name="files[]" id="files" multiple accept="image/*,video/*">
-                        <input type="file" id="cameraInput" accept="image/*,video/*" capture="camera" class="d-none">
+                        <div style="margin-top: 15px; padding: 12px 15px; background-color: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px; font-size: 14px; line-height: 1.6;">
+                            <i class="bi bi-info-circle" style="color: #2196f3; margin-right: 8px;"></i>
+                            <strong>iPhone Users:</strong> For best compatibility, change your camera settings to "Most Compatible" format and turn off ProRes.
+                            <a href="javascript:void(0)" onclick="showIphoneTutorial()" style="color: #1976d2; text-decoration: underline; font-weight: 500; cursor: pointer;">Click here to watch how</a>
+                        </div>
+
+                        <input class="d-none" type="file" name="files[]" id="files" multiple accept="image/*,image/heic,image/heif,video/*,video/quicktime,video/mp4">
+                        <input type="file" id="cameraInput" accept="image/*,image/heic,image/heif,video/*,video/quicktime,video/mp4" capture="camera" class="d-none">
                     </div>
 
                     <div id="fileList"></div>
@@ -903,20 +939,29 @@ include __DIR__.'/header.php';
 
                         <div class="activity-timeline">
                             <?php foreach ($recent_uploads as $upload): ?>
+                                <?php
+                                $isVideo = strpos($upload['mime'], 'video') !== false;
+                                $viewUrl = !empty($upload['local_path']) ? '/public/' . $upload['local_path'] : 'https://drive.google.com/file/d/' . $upload['id'] . '/view';
+                                ?>
                                 <div class="activity-item">
                                     <div class="activity-dot"></div>
                                     <div class="activity-content">
                                         <div class="activity-header">
                                     <span class="activity-title">
-                                        <?php echo strpos($upload['mime'], 'video') !== false ?
+                                        <?php echo $isVideo ?
                                             '<i class="bi bi-camera-video"></i> Video' :
                                             '<i class="bi bi-image"></i> Image'; ?> uploaded
                                     </span>
                                             <span class="activity-time"><?php echo format_ts($upload['created_at']); ?></span>
                                         </div>
                                         <div class="activity-details">
-                                            <?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?>
-                                            (<?php echo number_format($upload['size'] / 1024 / 1024, 1); ?> MB)
+                                            <a href="<?php echo htmlspecialchars($viewUrl); ?>"
+                                               <?php echo $isVideo ? 'target="_blank"' : 'target="_blank"'; ?>
+                                               style="color: inherit; text-decoration: none;">
+                                                <?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?>
+                                                (<?php echo number_format($upload['size'] / 1024 / 1024, 1); ?> MB)
+                                                <i class="bi bi-box-arrow-up-right" style="font-size: 0.8em; opacity: 0.6;"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -1130,7 +1175,63 @@ include __DIR__.'/header.php';
                 const i = Math.floor(Math.log(bytes) / Math.log(k));
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
+
+            // Auto-refresh upload token every 20 minutes to prevent session expiry
+            setInterval(function() {
+                fetch('?refresh_token=1')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success && data.token) {
+                            const tokenInput = document.querySelector('input[name="upload_token"]');
+                            if (tokenInput) {
+                                tokenInput.value = data.token;
+                                console.log('Upload token refreshed');
+                            }
+                        }
+                    })
+                    .catch(err => console.error('Token refresh failed:', err));
+            }, 20 * 60 * 1000); // 20 minutes
         });
+
+        // iPhone Tutorial Modal Functions
+        function showIphoneTutorial() {
+            const modal = document.getElementById('iphoneTutorialModal');
+            const iframe = document.getElementById('iphoneTutorialVideo');
+
+            // Set YouTube embed URL with autoplay
+            iframe.src = 'https://www.youtube.com/embed/yIXz84MiyDg?autoplay=1&rel=0';
+            modal.style.display = 'flex';
+        }
+
+        function closeIphoneTutorial(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('iphoneTutorialModal');
+            const iframe = document.getElementById('iphoneTutorialVideo');
+
+            // Stop video by clearing src
+            iframe.src = '';
+            modal.style.display = 'none';
+        }
     </script>
+
+    <!-- iPhone Tutorial Video Modal -->
+    <div id="iphoneTutorialModal" class="preview-modal" onclick="closeIphoneTutorial(event)">
+        <div class="preview-close" onclick="closeIphoneTutorial(event)">
+            <i class="bi bi-x-lg"></i>
+        </div>
+        <div class="preview-content" onclick="event.stopPropagation();" style="max-width: 500px;">
+            <div style="width: 100%; aspect-ratio: 9/16; max-height: 80vh;">
+                <iframe id="iphoneTutorialVideo"
+                        width="100%"
+                        height="100%"
+                        src=""
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        style="border-radius: 8px; background: #000;">
+                </iframe>
+            </div>
+        </div>
+    </div>
 
 <?php include __DIR__.'/footer.php'; ?>

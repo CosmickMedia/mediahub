@@ -16,7 +16,7 @@ function ensure_session() {
         $rememberCookie = $isAdmin ? 'cm_admin_remember' : 'cm_public_remember';
         session_name($sessionName);
 
-        $lifetime = isset($_COOKIE[$rememberCookie]) ? 60 * 60 * 24 * 30 : 0;
+        $lifetime = isset($_COOKIE[$rememberCookie]) ? 60 * 60 * 24 * 30 : 60 * 60 * 8; // 30 days with remember, 8 hours without
         if ($lifetime > 0) {
             ini_set('session.gc_maxlifetime', (string)$lifetime);
         }
