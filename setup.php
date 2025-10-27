@@ -27,6 +27,7 @@ $queries = [
         last_name VARCHAR(100),
         phone VARCHAR(50),
         address VARCHAR(255),
+        groundhogg_synced TINYINT(1) NOT NULL DEFAULT 0,
         marketing_report_url VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
@@ -49,6 +50,7 @@ $queries = [
         email VARCHAR(255) NOT NULL,
         first_name VARCHAR(100),
         last_name VARCHAR(100),
+        groundhogg_synced TINYINT(1) NOT NULL DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY store_email_unique (store_id, email),
         FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
@@ -305,6 +307,13 @@ try {
 }
 
 try {
+    $pdo->exec("ALTER TABLE stores ADD COLUMN groundhogg_synced TINYINT(1) DEFAULT 0 AFTER address");
+    echo "✓ Added groundhogg_synced column to stores table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
     $pdo->exec("ALTER TABLE stores ADD COLUMN marketing_report_url VARCHAR(255) AFTER address");
     echo "✓ Added marketing_report_url column to stores table\n";
 } catch (PDOException $e) {
@@ -322,6 +331,13 @@ try {
 try {
     $pdo->exec("ALTER TABLE store_users ADD COLUMN last_name VARCHAR(100) AFTER first_name");
     echo "✓ Added last_name column to store_users table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE store_users ADD COLUMN groundhogg_synced TINYINT(1) DEFAULT 0 AFTER last_name");
+    echo "✓ Added groundhogg_synced column to store_users table\n";
 } catch (PDOException $e) {
     // Column might already exist
 }

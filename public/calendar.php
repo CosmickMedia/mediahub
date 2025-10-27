@@ -47,12 +47,17 @@ foreach ($res as $prof) {
 $posts = calendar_get_posts($store_id);
 $debug_mode = get_setting('hootsuite_debug') === '1';
 
+// Check display settings for better error messaging
+$calendar_display_enabled = get_setting('calendar_display_customer') === '1';
+$hootsuite_display_enabled = get_setting('hootsuite_display_customer') === '1';
+$no_display_settings = !$calendar_display_enabled && !$hootsuite_display_enabled;
+
 $network_map = [];
-foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
+foreach ($pdo->query('SELECT name, icon, color FROM social_networks WHERE enabled = 1') as $n) {
     $network_map[strtolower($n['name'])] = [
-        'icon'  => $n['icon'],
-        'color' => $n['color'],
-        'name'  => $n['name']
+            'icon'  => $n['icon'],
+            'color' => $n['color'],
+            'name'  => $n['name']
     ];
 }
 
@@ -61,7 +66,15 @@ $stmt->execute([$store_id]);
 $store_profile_ids = array_filter(array_map('trim', explode(',', (string)$stmt->fetchColumn())));
 if ($store_profile_ids) {
     $placeholders = implode(',', array_fill(0, count($store_profile_ids), '?'));
-    $stmt = $pdo->prepare("SELECT id, username, network FROM hootsuite_profiles WHERE id IN ($placeholders) ORDER BY network, username");
+    // Join with social_networks to filter by enabled status
+    $stmt = $pdo->prepare("
+        SELECT hp.id, hp.username, hp.network
+        FROM hootsuite_profiles hp
+        LEFT JOIN social_networks sn ON LOWER(sn.name) = LOWER(hp.network)
+        WHERE hp.id IN ($placeholders)
+        AND (sn.enabled = 1 OR sn.enabled IS NULL)
+        ORDER BY hp.network, hp.username
+    ");
     $stmt->execute($store_profile_ids);
     $profiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
@@ -198,51 +211,44 @@ foreach ($posts as $p) {
         $class = 'social-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($network['name'] ?? ''));
     }
     $events[] = [
-        'id' => $p['post_id'] ?? null,
-        'title' => $network_name ?: 'Post',
+            'id' => $p['post_id'] ?? null,
+            'title' => $network_name ?: 'Post',
         // Convert datetime to ISO format for FullCalendar
-        'start' => $time ? str_replace(' ', 'T', $time) : null,
-        'backgroundColor' => $color,
-        'borderColor' => $color,
-        'classNames' => $class ? [$class] : ['social-default'],
-        'extendedProps' => [
-            'image' => $video ? '' : $img,
-            'video' => $video,
-            'media_urls' => $media_urls,
-            'icon'  => $icon,
-            'text'  => $p['text'] ?? '',
-            // Provide ISO datetime for display
-            'time'  => $time ? str_replace(' ', 'T', $time) : null,
-            'network' => $network_name,
-            'tags' => $tags,
-            'source' => $p['source'] ?? '',
-            'post_id' => $p['post_id'] ?? null,
-            'created_by_user_id' => $p['created_by_user_id'] ?? null,
-            'social_profile_id' => $p['social_profile_id'] ?? null,
-            'posted_by' => $user_name_map[$p['created_by_user_id'] ?? 0] ?? ''
-        ]
+            'start' => $time ? str_replace(' ', 'T', $time) : null,
+            'backgroundColor' => $color,
+            'borderColor' => $color,
+            'classNames' => $class ? [$class] : ['social-default'],
+            'extendedProps' => [
+                    'image' => $video ? '' : $img,
+                    'video' => $video,
+                    'media_urls' => $media_urls,
+                    'icon'  => $icon,
+                    'text'  => $p['text'] ?? '',
+                // Provide ISO datetime for display
+                    'time'  => $time ? str_replace(' ', 'T', $time) : null,
+                    'network' => $network_name,
+                    'tags' => $tags,
+                    'source' => $p['source'] ?? '',
+                    'post_id' => $p['post_id'] ?? null,
+                    'created_by_user_id' => $p['created_by_user_id'] ?? null,
+                    'social_profile_id' => $p['social_profile_id'] ?? null,
+                    'posted_by' => $user_name_map[$p['created_by_user_id'] ?? 0] ?? ''
+            ]
     ];
 }
 
 $events_json = json_encode($events);
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-<style>
-#scheduleModal { z-index: 10000 !important; }
-#scheduleModal .modal-dialog,
-#scheduleModal .modal-content { z-index: 10001 !important; }
-#scheduleModal .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; }
-#scheduleModal .btn-close { opacity: 1; }
-</style>
+<link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.6.2">
 HTML;
 
 include __DIR__.'/header.php';
 ?>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
-    <div class="calendar-container animate__animated animate__fadeIn">
+    <div class="calendar-container">
         <!-- Header Section -->
         <div class="calendar-header">
             <div>
@@ -259,26 +265,58 @@ include __DIR__.'/header.php';
 
                 <?php if ($allow_schedule): ?>
                     <button id="schedulePostBtn" class="btn btn-modern-primary">
-                        <i class="bi bi-plus-circle"></i> Schedule Post
+                        <i class="bi bi-plus-circle"></i> <span class="btn-text">Schedule Post</span>
+                    </button>
+                <?php else: ?>
+                    <button class="btn btn-modern-secondary" disabled title="No social media profiles configured for this store">
+                        <i class="bi bi-plus-circle"></i> <span class="btn-text">Schedule Post</span>
                     </button>
                 <?php endif; ?>
 
                 <a href="index.php" class="btn btn-modern-primary">
-                    <i class="bi bi-arrow-left"></i> Back to Upload
+                    <i class="bi bi-arrow-left"></i> <span class="btn-text">Back to Upload</span>
                 </a>
             </div>
         </div>
+
+        <?php if (!empty($posts) && !$allow_schedule): ?>
+            <div class="alert alert-info" style="margin-bottom: 20px;">
+                <i class="bi bi-info-circle"></i>
+                <strong>Post Scheduling Unavailable</strong>
+                <p class="mb-0">Social media profiles are not configured for this store. You can view scheduled posts, but cannot create new ones. <strong>Admin:</strong> <a href="/admin/edit_store.php?id=<?php echo $store_id; ?>" class="alert-link">Configure profiles</a> to enable post scheduling.</p>
+            </div>
+        <?php endif; ?>
 
         <?php if (empty($posts)): ?>
             <div class="empty-state">
                 <i class="bi bi-calendar-x"></i>
                 <h3>No Scheduled Posts</h3>
-                <p>Start scheduling your social media content to see it appear here.</p>
+                <?php if ($no_display_settings): ?>
+                    <div class="alert alert-warning mt-3" style="max-width: 600px; margin: 0 auto;">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Calendar Display Settings Required</strong>
+                        <p class="mb-2 mt-2">The calendar is currently not configured to display any posts. To see scheduled posts, an administrator needs to enable at least one of these options:</p>
+                        <ul class="text-start mb-2">
+                            <li><strong>Calendar Import</strong> - Shows posts imported from Google Sheets</li>
+                            <li><strong>Hootsuite Integration</strong> - Shows posts created via Hootsuite API</li>
+                        </ul>
+                        <p class="mb-0"><i class="bi bi-gear"></i> <strong>Admin:</strong> Go to <a href="/admin/settings.php" class="alert-link">Settings</a> and check "Display on customer calendar" under the Calendar Import or Hootsuite Integration sections.</p>
+                    </div>
+                <?php else: ?>
+                    <p>Start scheduling your social media content to see it appear here.</p>
+                    <?php if (!$allow_schedule): ?>
+                        <div class="alert alert-info mt-3" style="max-width: 600px; margin: 0 auto;">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Ready to schedule posts?</strong>
+                            <p class="mb-0">An administrator needs to configure social media profiles for this store to enable post scheduling. Go to <a href="/admin/edit_store.php?id=<?php echo $store_id; ?>" class="alert-link">Store Settings</a> to add Hootsuite profiles.</p>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
         <?php else: ?>
             <!-- Analytics Dashboard -->
             <div class="analytics-dashboard">
-                <div class="stat-card total-posts animate__animated animate__fadeInUp">
+                <div class="stat-card total-posts">
                     <div class="stat-icon">
                         <i class="bi bi-grid-3x3-gap-fill"></i>
                     </div>
@@ -289,7 +327,7 @@ include __DIR__.'/header.php';
                     <div class="stat-bg"></div>
                 </div>
 
-                <div class="stat-card upcoming-posts animate__animated animate__fadeInUp delay-10">
+                <div class="stat-card upcoming-posts">
                     <div class="stat-icon">
                         <i class="bi bi-clock-history"></i>
                     </div>
@@ -314,7 +352,7 @@ include __DIR__.'/header.php';
                             $display_name = 'X (formerly Twitter)';
                         }
                         ?>
-                        <div class="stat-card network-stat animate__animated animate__fadeInUp" style="animation-delay: <?php echo (array_search($network, array_keys($network_counts)) + 2) * 0.1; ?>s">
+                        <div class="stat-card network-stat">
                             <div class="stat-icon" style="color: <?php echo $net_info['color']; ?>">
                                 <i class="bi <?php echo !empty($net_info['icon']) ? $net_info['icon'] : 'bi-share'; ?>"></i>
                             </div>
@@ -327,33 +365,50 @@ include __DIR__.'/header.php';
                     <?php endif; endforeach; ?>
             </div>
 
+            <!-- Mobile View Toggle -->
+            <div class="view-toggle-mobile" id="viewToggleMobile">
+                <button class="btn-toggle active" data-view="calendar">
+                    <i class="bi bi-calendar3"></i>
+                    Calendar
+                </button>
+                <button class="btn-toggle" data-view="list">
+                    <i class="bi bi-list-ul"></i>
+                    List
+                </button>
+            </div>
+
             <!-- Calendar -->
-            <div class="calendar-wrapper animate__animated animate__fadeIn delay-30">
+            <div class="calendar-wrapper" id="calendarWrapper">
                 <div id="calendar"></div>
+            </div>
+
+            <!-- List View -->
+            <div class="calendar-list-view" id="listView">
+                <!-- List items will be dynamically added here -->
             </div>
         <?php endif; ?>
     </div>
 
     <!-- Event Modal - for individual events -->
-    <div class="modal fade" id="eventModalCalendar" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" style="z-index: 9999 !important;">
-        <div class="modal-dialog modal-dialog-centered modal-xl" style="z-index: 9999 !important;">
-            <div class="modal-content" style="z-index: 9999 !important;">
-                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1.5rem; position: relative;">
+    <div class="modal fade" id="eventModalCalendar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
                     <div class="modal-title w-100" id="eventModalTitle"></div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background-color: white !important; color: black !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="eventModalBody" style="padding: 0; max-height: 70vh; overflow-y: auto;"></div>
+                <div class="modal-body" id="eventModalBody" style="padding: 0;"></div>
             </div>
         </div>
     </div>
 
     <!-- Day View Modal - for showing all events in a day -->
-    <div class="modal fade" id="dayViewModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true" style="z-index: 9999 !important;">
-        <div class="modal-dialog modal-dialog-centered modal-xl" style="z-index: 9999 !important;">
-            <div class="modal-content" style="z-index: 9999 !important;">
-                <div class="modal-header day-view-header" style="position: relative;">
+    <div class="modal fade" id="dayViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header day-view-header">
                     <h5 class="modal-title" id="dayViewTitle"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute !important; top: 1rem !important; right: 1rem !important; z-index: 99999 !important; background-color: white !important; color: black !important; opacity: 1 !important; border-radius: 50% !important; width: 2rem !important; height: 2rem !important;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="dayViewBody">
                     <!-- Events will be loaded here -->
@@ -365,7 +420,7 @@ include __DIR__.'/header.php';
 <?php if ($allow_schedule): ?>
     <!-- Schedule Post Modal -->
     <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <form id="scheduleForm" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -621,22 +676,16 @@ include __DIR__.'/header.php';
                 }
             });
 
-            // Ensure modals are direct children of body to avoid positioning issues
-            ['scheduleModal','eventModalCalendar','dayViewModal','scheduleSuccessModal','deleteConfirmModal'].forEach(function(id){
-                var el = document.getElementById(id);
-                if (el && el.parentNode !== document.body) {
-                    document.body.appendChild(el);
-                }
-            });
-
             // Store all events globally for day view
             window.allEvents = <?php echo $events_json; ?>;
             window.debugMode = <?php echo $debug_mode ? 'true' : 'false'; ?>;
             window.currentUserId = <?php echo $current_user_id ? (int)$current_user_id : 'null'; ?>;
 
-            // Initialize calendar
+            // Initialize calendar only if element exists
             var calEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calEl, {
+            var calendar;
+            if (calEl) {
+                calendar = new FullCalendar.Calendar(calEl, {
                 initialView: 'dayGridMonth',
                 headerToolbar: {
                     left: 'prev,next today',
@@ -742,7 +791,8 @@ include __DIR__.'/header.php';
                 }
             });
 
-            calendar.render();
+                calendar.render();
+            }
 
             // Function to update combined scheduled time
             function updateScheduledTime() {
@@ -964,12 +1014,7 @@ include __DIR__.'/header.php';
             }
 
             function openScheduleModal(eventObj){
-                if(!scheduleModalEl) return;
-                // Move modal to body to prevent positioning issues
-                if (scheduleModalEl.parentNode !== document.body) {
-                    document.body.appendChild(scheduleModalEl);
-                }
-                scheduleModal = bootstrap.Modal.getOrCreateInstance(scheduleModalEl);
+                if(!scheduleModal) return;
                 var form = document.getElementById('scheduleForm');
                 form.reset();
 
@@ -1030,13 +1075,6 @@ include __DIR__.'/header.php';
                     document.getElementById('postAction').value = 'update';
                 }
                 scheduleModal.show();
-                setTimeout(function() {
-                    scheduleModalEl.style.zIndex = '10001';
-                    var backdrops = document.querySelectorAll('.modal-backdrop');
-                    if (backdrops.length > 0) {
-                        backdrops[backdrops.length - 1].style.zIndex = '10000';
-                    }
-                }, 100);
             }
 
             var scheduleForm = document.getElementById('scheduleForm');
@@ -1082,6 +1120,16 @@ include __DIR__.'/header.php';
                                 // Show success modal if it exists
                                 var successModalEl = document.getElementById('scheduleSuccessModal');
                                 if(successModalEl) {
+                                    // Update message if there's a warning about media timeout
+                                    var successMsg = document.getElementById('successMessage');
+                                    if(res.warning && successMsg) {
+                                        successMsg.textContent = res.warning;
+                                        successMsg.className = 'text-warning';
+                                    } else if(successMsg) {
+                                        successMsg.textContent = 'Your post has been scheduled and will be published automatically.';
+                                        successMsg.className = 'text-muted';
+                                    }
+
                                     var successModal = new bootstrap.Modal(successModalEl);
                                     successModal.show();
 
@@ -1095,7 +1143,7 @@ include __DIR__.'/header.php';
                                     window.location.href = window.location.href + '?t=' + Date.now();
                                 }
 
-                                if(res.events){
+                                if(calendar && res.events){
                                     res.events.forEach(function(ev){
                                         if(ev.id){
                                             var ex = calendar.getEventById(ev.id);
@@ -1103,7 +1151,7 @@ include __DIR__.'/header.php';
                                         }
                                         calendar.addEvent(ev);
                                     });
-                                } else if(res.event){
+                                } else if(calendar && res.event){
                                     if(res.event.id){
                                         var ex = calendar.getEventById(res.event.id);
                                         if(ex) ex.remove();
@@ -1156,8 +1204,10 @@ include __DIR__.'/header.php';
                         .then(r => r.json())
                         .then(function(res) {
                             if (res.success) {
-                                var ev = calendar.getEventById(eventObj.extendedProps.post_id);
-                                if (ev) ev.remove();
+                                if (calendar) {
+                                    var ev = calendar.getEventById(eventObj.extendedProps.post_id);
+                                    if (ev) ev.remove();
+                                }
 
                                 // Close both modals
                                 bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal')).hide();
@@ -1255,7 +1305,17 @@ include __DIR__.'/header.php';
 
                 if(event.extendedProps.created_by_user_id && window.currentUserId && parseInt(event.extendedProps.created_by_user_id) === parseInt(window.currentUserId)){
                     document.getElementById('editEventBtn').addEventListener('click', function(){
-                        openScheduleModal(event);
+                        // Close the event modal before opening the edit modal to prevent stacking
+                        var eventModal = bootstrap.Modal.getInstance(document.getElementById('eventModalCalendar'));
+                        if (eventModal) {
+                            eventModal.hide();
+                            // Wait for the modal to fully close before opening the edit modal
+                            setTimeout(function() {
+                                openScheduleModal(event);
+                            }, 300);
+                        } else {
+                            openScheduleModal(event);
+                        }
                     });
                     document.getElementById('deleteEventBtn').addEventListener('click', function(){
                         deleteScheduledPost(event);
@@ -1263,26 +1323,8 @@ include __DIR__.'/header.php';
                 }
 
                 // Show modal using Bootstrap's method
-                var eventModalEl = document.getElementById('eventModalCalendar');
-                if (eventModalEl.parentNode !== document.body) {
-                    document.body.appendChild(eventModalEl);
-                }
-                var myModal = new bootstrap.Modal(eventModalEl, {
-                    backdrop: 'static',
-                    keyboard: false
-                });
+                var myModal = new bootstrap.Modal(document.getElementById('eventModalCalendar'));
                 myModal.show();
-
-                // Force z-index after showing
-                setTimeout(function() {
-                    eventModalEl.style.zIndex = '9999';
-                    // Handle multiple backdrops - get the last one which should be for this modal
-                    var backdrops = document.querySelectorAll('.modal-backdrop');
-                    if (backdrops.length > 0) {
-                        var lastBackdrop = backdrops[backdrops.length - 1];
-                        lastBackdrop.style.zIndex = '9990';
-                    }
-                }, 100);
             };
 
             // Function to show day view
@@ -1390,26 +1432,8 @@ include __DIR__.'/header.php';
                 bodyEl.innerHTML = html;
 
                 // Show the day view modal
-                var dayViewEl = document.getElementById('dayViewModal');
-                if (dayViewEl.parentNode !== document.body) {
-                    document.body.appendChild(dayViewEl);
-                }
-                var dayModal = new bootstrap.Modal(dayViewEl, {
-                    backdrop: 'static',
-                    keyboard: false
-                });
+                var dayModal = new bootstrap.Modal(document.getElementById('dayViewModal'));
                 dayModal.show();
-
-                // Force z-index after showing (same fix as event modal)
-                setTimeout(function() {
-                    dayViewEl.style.zIndex = '9999';
-                    // Handle multiple backdrops - get the last one which should be for this modal
-                    var backdrops = document.querySelectorAll('.modal-backdrop');
-                    if (backdrops.length > 0) {
-                        var lastBackdrop = backdrops[backdrops.length - 1];
-                        lastBackdrop.style.zIndex = '9990';
-                    }
-                }, 100);
             };
 
             // Function to close day view and show event details
@@ -1439,7 +1463,7 @@ include __DIR__.'/header.php';
 
             // Custom view selector functionality
             const viewSelector = document.getElementById('viewSelector');
-            if (viewSelector) {
+            if (viewSelector && calendar) {
                 // Hide the default view buttons
                 const toolbar = document.querySelector('.fc-toolbar-chunk:last-child');
                 if (toolbar) {
@@ -1447,13 +1471,197 @@ include __DIR__.'/header.php';
                 }
 
                 viewSelector.addEventListener('change', function() {
-                    calendar.changeView(this.value);
+                    if (calendar) {
+                        calendar.changeView(this.value);
+                    }
                 });
             }
 
             // Make selected files accessible globally for modal
             window.selectedFiles = [];
             window.displayMediaPreviews = displayMediaPreviews;
+
+            // List View Functionality
+            function initializeListView() {
+                const viewToggle = document.getElementById('viewToggleMobile');
+                const calendarWrapper = document.getElementById('calendarWrapper');
+                const listView = document.getElementById('listView');
+
+                if (!viewToggle) return;
+
+                // Toggle view buttons
+                const toggleButtons = viewToggle.querySelectorAll('.btn-toggle');
+                toggleButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const view = this.getAttribute('data-view');
+
+                        // Update active state
+                        toggleButtons.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // Show/hide views
+                        if (view === 'list') {
+                            calendarWrapper.style.display = 'none';
+                            listView.style.display = 'block';
+                            listView.classList.add('active');
+                            renderListView();
+                        } else {
+                            calendarWrapper.style.display = 'block';
+                            listView.style.display = 'none';
+                            listView.classList.remove('active');
+                        }
+                    });
+                });
+            }
+
+            function renderListView() {
+                const listView = document.getElementById('listView');
+                if (!listView || !window.allEvents) return;
+
+                // Group events by date
+                const eventsByDate = {};
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                window.allEvents.forEach(event => {
+                    const eventDate = new Date(event.start);
+                    const dateKey = eventDate.toISOString().split('T')[0];
+
+                    if (!eventsByDate[dateKey]) {
+                        eventsByDate[dateKey] = [];
+                    }
+                    eventsByDate[dateKey].push(event);
+                });
+
+                // Sort dates
+                const sortedDates = Object.keys(eventsByDate).sort();
+
+                // Build HTML
+                let html = '';
+
+                if (sortedDates.length === 0) {
+                    html = '<div class="list-empty-state">';
+                    html += '<i class="bi bi-calendar-x"></i>';
+                    html += '<h4>No Scheduled Posts</h4>';
+                    html += '<p>Start scheduling your social media content to see it appear here.</p>';
+                    html += '</div>';
+                } else {
+                    sortedDates.forEach(dateKey => {
+                        const date = new Date(dateKey + 'T00:00:00');
+                        const events = eventsByDate[dateKey];
+                        const isToday = date.toDateString() === today.toDateString();
+
+                        // Sort events by time
+                        events.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+                        html += '<div class="list-date-group">';
+
+                        // Date header
+                        html += '<div class="list-date-header">';
+                        html += '<div>';
+                        html += '<h3>' + date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }) + '</h3>';
+                        html += '<div class="date-full">' + date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</div>';
+                        html += '</div>';
+                        if (isToday) {
+                            html += '<span class="list-today-badge">Today</span>';
+                        }
+                        html += '<span class="post-count">' + events.length + ' post' + (events.length > 1 ? 's' : '') + '</span>';
+                        html += '</div>';
+
+                        // Events
+                        events.forEach(event => {
+                            const time = new Date(event.start);
+                            const hours = time.getHours();
+                            const minutes = time.getMinutes();
+                            const ampm = hours >= 12 ? 'PM' : 'AM';
+                            const displayHours = hours % 12 || 12;
+                            const displayTime = displayHours + ':' + minutes.toString().padStart(2, '0');
+
+                            // Get network info
+                            const networkName = event.title;
+                            const icon = event.extendedProps.icon || 'bi-share';
+                            const color = event.backgroundColor || '#6c757d';
+
+                            html += '<div class="list-event-item" style="--event-color: ' + color + '" onclick="showEventDetailsFromList(\'' + event.start + '\')">';
+
+                            // Time
+                            html += '<div class="list-event-time">';
+                            html += '<span class="time-hour">' + displayTime + '</span>';
+                            html += '<span class="time-period">' + ampm + '</span>';
+                            html += '</div>';
+
+                            // Content
+                            html += '<div class="list-event-content">';
+
+                            // Header
+                            html += '<div class="list-event-header">';
+                            html += '<span class="list-event-network" style="--event-color: ' + color + '; --event-color-bg: ' + color + '20;">';
+                            html += '<i class="bi ' + icon + '"></i> ' + networkName;
+                            html += '</span>';
+                            html += '</div>';
+
+                            // Text
+                            if (event.extendedProps.text) {
+                                html += '<div class="list-event-text">' + event.extendedProps.text + '</div>';
+                            }
+
+                            // Media preview
+                            if (event.extendedProps.media_urls && event.extendedProps.media_urls.length > 0) {
+                                html += '<div class="list-event-media">';
+                                const mediaCount = event.extendedProps.media_urls.length;
+                                const previewCount = Math.min(3, mediaCount);
+
+                                for (let i = 0; i < previewCount; i++) {
+                                    const url = event.extendedProps.media_urls[i];
+                                    if (/\.mp4(\?|$)/i.test(url)) {
+                                        html += '<div class="media-preview video-preview"><i class="bi bi-play-circle-fill"></i></div>';
+                                    } else {
+                                        html += '<img src="' + url + '" alt="Media">';
+                                    }
+                                }
+
+                                if (mediaCount > 3) {
+                                    html += '<div class="media-count">+' + (mediaCount - 3) + '</div>';
+                                }
+
+                                html += '</div>';
+                            }
+
+                            // Tags
+                            if (event.extendedProps.tags && event.extendedProps.tags.length > 0) {
+                                html += '<div class="list-event-tags">';
+                                event.extendedProps.tags.forEach(tag => {
+                                    html += '<span class="list-event-tag">#' + tag + '</span>';
+                                });
+                                html += '</div>';
+                            }
+
+                            html += '</div>'; // list-event-content
+                            html += '</div>'; // list-event-item
+                        });
+
+                        html += '</div>'; // list-date-group
+                    });
+                }
+
+                listView.innerHTML = html;
+            }
+
+            // Show event details from list view
+            window.showEventDetailsFromList = function(eventStart) {
+                const event = window.allEvents.find(e => e.start === eventStart);
+                if (event) {
+                    const eventObj = {
+                        title: event.title,
+                        backgroundColor: event.backgroundColor,
+                        extendedProps: event.extendedProps
+                    };
+                    showEventDetails(eventObj);
+                }
+            };
+
+            // Initialize list view
+            initializeListView();
         });
     </script>
 

@@ -41,7 +41,7 @@ include __DIR__.'/login_header.php';
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
         <div class="text-center mb-4">
-            <img src="/assets/images/mediahub-admin-logo.png" alt="MediaHub Admin" class="login-logo">
+            <img src="/assets/images/mediahub-admin-logo.png" alt="MediaHub Admin" style="height: 120px; width: auto; filter: brightness(0) invert(1);">
         </div>
         <div class="card shadow">
             <div class="card-body">
@@ -58,7 +58,7 @@ include __DIR__.'/login_header.php';
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" value="1" id="remember" name="remember">
-                        <label class="form-check-label" for="remember">Remember me</label>
+                        <label class="form-check-label" for="remember" style="margin-left: 0.25rem;">Remember me</label>
                     </div>
                     <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
                 </form>

@@ -5,7 +5,7 @@
       <webServer id="098f632b-0c3b-42e9-bf5d-1bb5c8a03d5f" name="CM Uploader" url="http://cmuploader.kinsta.cloud/">
         <fileTransfer rootFolder="/www/cmuploader_653/public" accessType="SFTP" host="35.196.5.93" port="54409" sshConfigId="740c849b-8b9c-4f75-860b-83b6fe297648" sshConfig="cmuploader@35.196.5.93:54409 password">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" isUseRsync="true" />
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>

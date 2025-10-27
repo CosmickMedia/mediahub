@@ -24,7 +24,7 @@ if (isset($_GET['hootsuite_token_saved'])) {
 // Fetch upload statuses
 $statuses = $pdo->query('SELECT id, name, color FROM upload_statuses ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 // Fetch social networks
-$networks = $pdo->query('SELECT id, name, icon, color FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+$networks = $pdo->query('SELECT id, name, icon, color, enabled FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle Service Account JSON upload
@@ -67,11 +67,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'hootsuite_enabled'       => isset($_POST['hootsuite_enabled']) ? '1' : '0',
         'hootsuite_display_customer' => isset($_POST['hootsuite_display_customer']) ? '1' : '0',
         'hootsuite_update_interval'=> trim($_POST['hootsuite_update_interval'] ?? '24'),
-        'hootsuite_token_refresh_interval'=> trim($_POST['hootsuite_token_refresh_interval'] ?? '24'),
+        'hootsuite_token_refresh_interval'=> trim($_POST['hootsuite_token_refresh_interval'] ?? '1'),
         'hootsuite_client_id'     => trim($_POST['hootsuite_client_id'] ?? ''),
         'hootsuite_client_secret' => trim($_POST['hootsuite_client_secret'] ?? ''),
         'hootsuite_redirect_uri'  => trim($_POST['hootsuite_redirect_uri'] ?? ''),
-        'hootsuite_debug'         => isset($_POST['hootsuite_debug']) ? '1' : '0'
+        'hootsuite_debug'         => isset($_POST['hootsuite_debug']) ? '1' : '0',
+        // Hootsuite image processing settings
+        'hootsuite_image_compression_enabled' => isset($_POST['hootsuite_image_compression_enabled']) ? '1' : '0',
+        'hootsuite_compression_quality' => trim($_POST['hootsuite_compression_quality'] ?? '85'),
+        'hootsuite_target_file_size' => trim($_POST['hootsuite_target_file_size'] ?? '100'),
+        'hootsuite_max_file_size' => trim($_POST['hootsuite_max_file_size'] ?? '800'),
+        'hootsuite_convert_to_jpeg' => isset($_POST['hootsuite_convert_to_jpeg']) ? '1' : '0',
+        'hootsuite_upload_timeout' => trim($_POST['hootsuite_upload_timeout'] ?? '60'),
+        'hootsuite_polling_interval' => trim($_POST['hootsuite_polling_interval'] ?? '3'),
+        'hootsuite_max_polling_attempts' => trim($_POST['hootsuite_max_polling_attempts'] ?? '20'),
+        'hootsuite_media_failure_behavior' => trim($_POST['hootsuite_media_failure_behavior'] ?? 'post_without_media'),
+        'hootsuite_store_originals' => isset($_POST['hootsuite_store_originals']) ? '1' : '0',
+        'hootsuite_media_logging' => isset($_POST['hootsuite_media_logging']) ? '1' : '0',
+        'hootsuite_test_mode' => isset($_POST['hootsuite_test_mode']) ? '1' : '0'
     ];
 
     foreach ($settings as $name => $value) {
@@ -110,11 +123,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $names = $_POST['network_name'];
         $icons = $_POST['network_icon'];
         $colors = $_POST['network_color'];
+        // Build an array of enabled network IDs from the checkbox values
+        $enabled_ids = array_map('intval', $_POST['network_enabled'] ?? []);
+
         foreach ($names as $i => $name) {
             $name = trim($name);
             $icon = trim($icons[$i] ?? '');
             $color = $colors[$i] ?? '#000000';
             $id = $ids[$i] ?? '';
+
+            // Check if this network's ID is in the enabled list
+            $enabled = in_array((int)$id, $enabled_ids) ? 1 : 0;
+
             if ($name === '' && $id) {
                 $stmt = $pdo->prepare('DELETE FROM social_networks WHERE id = ?');
                 $stmt->execute([$id]);
@@ -122,14 +142,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if ($name === '') { continue; }
             if ($id) {
-                $stmt = $pdo->prepare('UPDATE social_networks SET name=?, icon=?, color=? WHERE id=?');
-                $stmt->execute([$name, $icon, $color, $id]);
+                $stmt = $pdo->prepare('UPDATE social_networks SET name=?, icon=?, color=?, enabled=? WHERE id=?');
+                $stmt->execute([$name, $icon, $color, $enabled, $id]);
             } else {
-                $stmt = $pdo->prepare('INSERT INTO social_networks (name, icon, color) VALUES (?, ?, ?)');
-                $stmt->execute([$name, $icon, $color]);
+                // New networks default to enabled
+                $stmt = $pdo->prepare('INSERT INTO social_networks (name, icon, color, enabled) VALUES (?, ?, ?, ?)');
+                $stmt->execute([$name, $icon, $color, 1]);
             }
         }
-        $networks = $pdo->query('SELECT id, name, icon, color FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+        $networks = $pdo->query('SELECT id, name, icon, color, enabled FROM social_networks ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Save platform image settings
+    if (isset($_POST['platform_network_name'])) {
+        $platformNames = $_POST['platform_network_name'];
+        $platformEnabled = $_POST['platform_enabled'] ?? [];
+        $platformAspectRatios = $_POST['platform_aspect_ratio'];
+        $platformWidths = $_POST['platform_width'];
+        $platformHeights = $_POST['platform_height'];
+        $platformMaxSizes = $_POST['platform_max_size'];
+
+        foreach ($platformNames as $i => $networkName) {
+            $networkName = strtolower(trim($networkName));
+            if ($networkName === '') continue;
+
+            $enabled = in_array($networkName, $platformEnabled) ? 1 : 0;
+            $aspectRatio = trim($platformAspectRatios[$i] ?? '1:1');
+            $width = (int)($platformWidths[$i] ?? 1080);
+            $height = (int)($platformHeights[$i] ?? 1080);
+            $maxSize = (int)($platformMaxSizes[$i] ?? 5120);
+
+            // Upsert platform settings
+            $stmt = $pdo->prepare('
+                INSERT INTO social_network_image_settings
+                (network_name, enabled, aspect_ratio, target_width, target_height, max_file_size_kb)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                enabled = VALUES(enabled),
+                aspect_ratio = VALUES(aspect_ratio),
+                target_width = VALUES(target_width),
+                target_height = VALUES(target_height),
+                max_file_size_kb = VALUES(max_file_size_kb)
+            ');
+            $stmt->execute([$networkName, $enabled, $aspectRatio, $width, $height, $maxSize]);
+        }
     }
 
     if (isset($_POST['delete_chats'])) {
@@ -299,12 +355,13 @@ if ($hootsuite_display_customer === false) {
     $hootsuite_display_customer = '1';
 }
 $hootsuite_update_interval = get_setting('hootsuite_update_interval') ?: '24';
-$hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '24';
+$hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '1';
 $hootsuite_client_id = get_setting('hootsuite_client_id') ?: '';
 $hootsuite_client_secret = get_setting('hootsuite_client_secret') ?: '';
 $hootsuite_redirect_uri = get_setting('hootsuite_redirect_uri') ?: '';
 $hootsuite_debug = get_setting('hootsuite_debug') ?: '0';
 $hootsuite_access_token = get_setting('hootsuite_access_token') ?: '';
+$hootsuite_token_last_refresh = get_setting('hootsuite_token_last_refresh');
 $groundhogg_site_url = get_setting('groundhogg_site_url');
 $groundhogg_username = get_setting('groundhogg_username');
 $groundhogg_public_key = get_setting('groundhogg_public_key');
@@ -312,6 +369,29 @@ $groundhogg_token = get_setting('groundhogg_token');
 $groundhogg_secret_key = get_setting('groundhogg_secret_key');
 $groundhogg_debug = get_setting('groundhogg_debug');
 $groundhogg_contact_tags = get_setting('groundhogg_contact_tags');
+
+// Get Hootsuite image processing settings
+$hootsuite_image_compression_enabled = get_setting('hootsuite_image_compression_enabled') ?: '1';
+$hootsuite_compression_quality = get_setting('hootsuite_compression_quality') ?: '85';
+$hootsuite_target_file_size = get_setting('hootsuite_target_file_size') ?: '100';
+$hootsuite_max_file_size = get_setting('hootsuite_max_file_size') ?: '800';
+$hootsuite_convert_to_jpeg = get_setting('hootsuite_convert_to_jpeg') ?: '1';
+$hootsuite_upload_timeout = get_setting('hootsuite_upload_timeout') ?: '60';
+$hootsuite_polling_interval = get_setting('hootsuite_polling_interval') ?: '3';
+$hootsuite_max_polling_attempts = get_setting('hootsuite_max_polling_attempts') ?: '20';
+$hootsuite_media_failure_behavior = get_setting('hootsuite_media_failure_behavior') ?: 'post_without_media';
+$hootsuite_store_originals = get_setting('hootsuite_store_originals') ?: '1';
+$hootsuite_media_logging = get_setting('hootsuite_media_logging') ?: '0';
+$hootsuite_test_mode = get_setting('hootsuite_test_mode') ?: '0';
+
+// Get platform image settings
+$platformSettings = [];
+try {
+    $platformSettings = $pdo->query('SELECT * FROM social_network_image_settings ORDER BY network_name')->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    // Table might not exist yet - that's ok, we'll use defaults
+    error_log("Could not load platform image settings: " . $e->getMessage());
+}
 
 // Get product version
 $product_version = trim(file_get_contents(__DIR__.'/../VERSION'));
@@ -450,6 +530,11 @@ include __DIR__.'/header.php';
                 <li class="nav-item" role="presentation">
                     <button class="nav-link<?php if($active_tab==='statuses') echo ' active'; ?>" id="statuses-tab" data-bs-toggle="tab" data-bs-target="#statuses" type="button" role="tab">
                         <i class="bi bi-tags"></i> Statuses
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link<?php if($active_tab==='networks') echo ' active'; ?>" id="networks-tab" data-bs-toggle="tab" data-bs-target="#networks" type="button" role="tab">
+                        <i class="bi bi-share"></i> Networks
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -806,6 +891,81 @@ include __DIR__.'/header.php';
                     </div>
                 </div>
 
+                <!-- Networks Tab -->
+                <div class="tab-pane fade<?php if($active_tab==='networks') echo ' show active'; ?>" id="networks" role="tabpanel">
+                    <div class="settings-card animate__animated animate__fadeIn delay-30">
+                        <div class="card-header-modern">
+                            <h5 class="card-title-modern">
+                                <i class="bi bi-share"></i>
+                                Social Network Management
+                            </h5>
+                        </div>
+                        <div class="card-body-modern">
+                            <div class="info-card">
+                                <div class="info-card-title">
+                                    <i class="bi bi-info-circle"></i> Network Visibility Control
+                                </div>
+                                <div class="info-card-content">
+                                    <p class="mb-2">Enable or disable social networks to control their visibility throughout the platform.</p>
+                                    <ul class="mb-0">
+                                        <li><strong>When Enabled:</strong> The network will appear in schedule post options, reports, widgets, and calendar views</li>
+                                        <li><strong>When Disabled:</strong> The network will be hidden from all platform interfaces but data will be preserved</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-modern" id="networkTable">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 80px;">Enabled</th>
+                                        <th>Network Name</th>
+                                        <th>Icon Class</th>
+                                        <th style="width: 100px;">Color</th>
+                                        <th style="width: 100px;">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($networks as $n): ?>
+                                        <tr>
+                                            <td>
+                                                <div class="form-check form-switch">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="network_enabled[]"
+                                                        value="<?php echo $n['id']; ?>"
+                                                        class="form-check-input network-toggle"
+                                                        <?php echo ($n['enabled'] ?? 1) ? 'checked' : ''; ?>
+                                                        role="switch">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="hidden" name="network_id[]" value="<?php echo $n['id']; ?>">
+                                                <input type="text" name="network_name[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($n['name']); ?>">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="network_icon[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($n['icon']); ?>">
+                                            </td>
+                                            <td>
+                                                <input type="color" name="network_color[]" class="form-control form-control-color" value="<?php echo htmlspecialchars($n['color']); ?>">
+                                            </td>
+                                            <td>
+                                                <button type="button" class="remove-item-btn remove-network">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="add-item-btn" id="addNetwork">
+                                <i class="bi bi-plus-circle"></i> Add Network
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Calendar Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='calendar') echo ' show active'; ?>" id="calendar" role="tabpanel">
                     <div class="settings-card animate__animated animate__fadeIn delay-30">
@@ -974,60 +1134,222 @@ include __DIR__.'/header.php';
                                     <strong>Erase All</strong> removes all stored posts.
                                     <strong>Refresh Token</strong> uses the saved refresh token to obtain a new access token.
                                 </div>
+                                <?php if ($hootsuite_token_last_refresh): ?>
+                                    <div class="alert alert-info mt-3 mb-0" style="font-size: 0.875rem;">
+                                        <i class="bi bi-clock-history"></i>
+                                        <strong>Last Token Refresh:</strong>
+                                        <?php
+                                            $refresh_time = strtotime($hootsuite_token_last_refresh);
+                                            echo date('F j, Y \a\t g:i A', $refresh_time);
+                                            $time_diff = time() - $refresh_time;
+                                            if ($time_diff < 3600) {
+                                                echo ' (' . round($time_diff / 60) . ' minutes ago)';
+                                            } elseif ($time_diff < 86400) {
+                                                echo ' (' . round($time_diff / 3600) . ' hours ago)';
+                                            } else {
+                                                echo ' (' . round($time_diff / 86400) . ' days ago)';
+                                            }
+                                        ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
 
-                    <div class="settings-card animate__animated animate__fadeIn delay-40">
+                    <!-- Platform Image Requirements -->
+                    <div class="settings-card animate__animated animate__fadeIn delay-50">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
-                                <i class="bi bi-share"></i>
-                                Social Networks
+                                <i class="bi bi-aspect-ratio"></i>
+                                Platform Image Requirements
                             </h5>
                         </div>
                         <div class="card-body-modern">
                             <div class="info-card">
                                 <div class="info-card-title">
-                                    <i class="bi bi-info-circle"></i> Social Network Configuration
+                                    <i class="bi bi-info-circle"></i> Auto-Crop Settings
                                 </div>
                                 <div class="info-card-content">
-                                    Define social networks for content scheduling and publishing integrations.
+                                    Configure platform-specific image cropping and sizing. When enabled, uploaded images will be automatically cropped to match each platform's optimal aspect ratio.
                                 </div>
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-modern" id="networkTable">
+                                <table class="table table-modern" id="platformImageTable">
                                     <thead>
                                     <tr>
-                                        <th>Network Name</th>
-                                        <th>Icon Class</th>
-                                        <th>Actions</th>
+                                        <th style="width: 80px;">Enabled</th>
+                                        <th>Platform</th>
+                                        <th style="width: 120px;">Aspect Ratio</th>
+                                        <th style="width: 150px;">Target Size (px)</th>
+                                        <th style="width: 120px;">Max Size (MB)</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <?php foreach ($networks as $n): ?>
+                                    <?php
+                                    // If no platform settings exist, show defaults
+                                    if (empty($platformSettings)) {
+                                        $defaultPlatforms = [
+                                            ['network_name' => 'instagram', 'enabled' => 1, 'aspect_ratio' => '1:1', 'target_width' => 1080, 'target_height' => 1080, 'max_file_size_kb' => 5120],
+                                            ['network_name' => 'facebook', 'enabled' => 1, 'aspect_ratio' => '1.91:1', 'target_width' => 1200, 'target_height' => 630, 'max_file_size_kb' => 10240],
+                                            ['network_name' => 'linkedin', 'enabled' => 1, 'aspect_ratio' => '1.91:1', 'target_width' => 1200, 'target_height' => 627, 'max_file_size_kb' => 10240],
+                                            ['network_name' => 'x', 'enabled' => 1, 'aspect_ratio' => '1:1', 'target_width' => 1080, 'target_height' => 1080, 'max_file_size_kb' => 5120],
+                                            ['network_name' => 'threads', 'enabled' => 1, 'aspect_ratio' => '9:16', 'target_width' => 1080, 'target_height' => 1920, 'max_file_size_kb' => 10240],
+                                        ];
+                                        $platformSettings = $defaultPlatforms;
+                                    }
+
+                                    foreach ($platformSettings as $platform):
+                                        $maxSizeMB = round($platform['max_file_size_kb'] / 1024, 1);
+                                        ?>
                                         <tr>
                                             <td>
-                                                <input type="hidden" name="network_id[]" value="<?php echo $n['id']; ?>">
-                                                <input type="text" name="network_name[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($n['name']); ?>">
+                                                <div class="form-check form-switch">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="platform_enabled[]"
+                                                        value="<?php echo htmlspecialchars($platform['network_name']); ?>"
+                                                        class="form-check-input"
+                                                        <?php echo ($platform['enabled'] ?? 1) ? 'checked' : ''; ?>
+                                                        role="switch">
+                                                </div>
                                             </td>
                                             <td>
-                                                <input type="text" name="network_icon[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($n['icon']); ?>">
-                                                <input type="hidden" name="network_color[]" value="<?php echo htmlspecialchars($n['color']); ?>">
+                                                <input type="hidden" name="platform_network_name[]" value="<?php echo htmlspecialchars($platform['network_name']); ?>">
+                                                <strong><?php echo htmlspecialchars(ucfirst($platform['network_name'])); ?></strong>
                                             </td>
                                             <td>
-                                                <button type="button" class="remove-item-btn remove-network">
-                                                    <i class="bi bi-trash"></i> Delete
-                                                </button>
+                                                <input type="text" name="platform_aspect_ratio[]" class="form-control form-control-modern form-control-sm" value="<?php echo htmlspecialchars($platform['aspect_ratio']); ?>" placeholder="1:1">
+                                            </td>
+                                            <td>
+                                                <div class="input-group input-group-sm">
+                                                    <input type="number" name="platform_width[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($platform['target_width']); ?>" placeholder="Width" style="width: 70px;">
+                                                    <span class="input-group-text">×</span>
+                                                    <input type="number" name="platform_height[]" class="form-control form-control-modern" value="<?php echo htmlspecialchars($platform['target_height']); ?>" placeholder="Height" style="width: 70px;">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="platform_max_size[]" class="form-control form-control-modern form-control-sm" value="<?php echo htmlspecialchars($platform['max_file_size_kb']); ?>" placeholder="KB" step="128">
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             </div>
-                            <button type="button" class="add-item-btn" id="addNetwork">
-                                <i class="bi bi-plus-circle"></i> Add Network
-                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Image Processing Settings -->
+                    <div class="settings-card animate__animated animate__fadeIn delay-60">
+                        <div class="card-header-modern">
+                            <h5 class="card-title-modern">
+                                <i class="bi bi-file-earmark-zip"></i>
+                                Image Processing Settings
+                            </h5>
+                        </div>
+                        <div class="card-body-modern">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <div class="form-check-modern mb-3">
+                                        <input type="checkbox" name="hootsuite_image_compression_enabled" id="hootsuite_image_compression_enabled" class="form-check-input" value="1" <?php if ($hootsuite_image_compression_enabled === '1') echo 'checked'; ?>>
+                                        <label for="hootsuite_image_compression_enabled" class="form-check-label">
+                                            <strong>Enable Automatic Image Compression</strong>
+                                        </label>
+                                        <div class="form-text-modern">Compress images before uploading to Hootsuite for faster processing</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="hootsuite_compression_quality" class="form-label-modern">
+                                        <i class="bi bi-sliders"></i> Compression Quality
+                                    </label>
+                                    <input type="range" name="hootsuite_compression_quality" id="hootsuite_compression_quality" class="form-range" min="50" max="100" value="<?php echo htmlspecialchars($hootsuite_compression_quality); ?>" oninput="this.nextElementSibling.value = this.value">
+                                    <output class="form-text-modern"><?php echo htmlspecialchars($hootsuite_compression_quality); ?></output>
+                                    <div class="form-text-modern">Lower = smaller files but lower quality (50-100)</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="hootsuite_target_file_size" class="form-label-modern">
+                                        <i class="bi bi-bullseye"></i> Target File Size (KB)
+                                    </label>
+                                    <input type="number" name="hootsuite_target_file_size" id="hootsuite_target_file_size" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_target_file_size); ?>">
+                                    <div class="form-text-modern">Optimal: 100KB for 2-4 sec processing</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="hootsuite_max_file_size" class="form-label-modern">
+                                        <i class="bi bi-file-earmark-arrow-up"></i> Max File Size (KB)
+                                    </label>
+                                    <input type="number" name="hootsuite_max_file_size" id="hootsuite_max_file_size" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_max_file_size); ?>">
+                                    <div class="form-text-modern">Safety margin under 1MB limit</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="hootsuite_upload_timeout" class="form-label-modern">
+                                        <i class="bi bi-stopwatch"></i> Upload Timeout (seconds)
+                                    </label>
+                                    <input type="number" name="hootsuite_upload_timeout" id="hootsuite_upload_timeout" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_upload_timeout); ?>">
+                                    <div class="form-text-modern">Max time to wait for media processing</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="hootsuite_polling_interval" class="form-label-modern">
+                                        <i class="bi bi-arrow-repeat"></i> Polling Interval (seconds)
+                                    </label>
+                                    <input type="number" name="hootsuite_polling_interval" id="hootsuite_polling_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_polling_interval); ?>">
+                                    <div class="form-text-modern">How often to check if media is READY</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="hootsuite_max_polling_attempts" class="form-label-modern">
+                                        <i class="bi bi-repeat"></i> Max Polling Attempts
+                                    </label>
+                                    <input type="number" name="hootsuite_max_polling_attempts" id="hootsuite_max_polling_attempts" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_max_polling_attempts); ?>">
+                                    <div class="form-text-modern">Maximum retries before timeout</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="hootsuite_media_failure_behavior" class="form-label-modern">
+                                        <i class="bi bi-exclamation-triangle"></i> On Media Upload Failure
+                                    </label>
+                                    <select name="hootsuite_media_failure_behavior" id="hootsuite_media_failure_behavior" class="form-select form-control-modern">
+                                        <option value="post_without_media" <?php if ($hootsuite_media_failure_behavior === 'post_without_media') echo 'selected'; ?>>Post without media</option>
+                                        <option value="fail_post" <?php if ($hootsuite_media_failure_behavior === 'fail_post') echo 'selected'; ?>>Fail entire post</option>
+                                        <option value="skip_platform" <?php if ($hootsuite_media_failure_behavior === 'skip_platform') echo 'selected'; ?>>Skip this platform only</option>
+                                    </select>
+                                    <div class="form-text-modern">What to do when media upload fails</div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-check-modern">
+                                        <input type="checkbox" name="hootsuite_store_originals" id="hootsuite_store_originals" class="form-check-input" value="1" <?php if ($hootsuite_store_originals === '1') echo 'checked'; ?>>
+                                        <label for="hootsuite_store_originals" class="form-check-label">
+                                            <strong>Store Original Images</strong>
+                                        </label>
+                                        <div class="form-text-modern">Keep original uploads for reference alongside cropped versions</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-check-modern">
+                                        <input type="checkbox" name="hootsuite_media_logging" id="hootsuite_media_logging" class="form-check-input" value="1" <?php if ($hootsuite_media_logging === '1') echo 'checked'; ?>>
+                                        <label for="hootsuite_media_logging" class="form-check-label">
+                                            <strong>Enable Media Upload Logging</strong>
+                                        </label>
+                                        <div class="form-text-modern">Log detailed media upload steps to debug log for troubleshooting</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-check-modern">
+                                        <input type="checkbox" name="hootsuite_test_mode" id="hootsuite_test_mode" class="form-check-input" value="1" <?php if ($hootsuite_test_mode === '1') echo 'checked'; ?>>
+                                        <label for="hootsuite_test_mode" class="form-check-label">
+                                            <strong>Test Mode (Dry Run)</strong>
+                                        </label>
+                                        <div class="form-text-modern">Generate crops but don't actually upload to Hootsuite - for testing</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1108,14 +1430,22 @@ include __DIR__.'/header.php';
             document.getElementById('addNetwork').addEventListener('click', function () {
                 const tbody = document.querySelector('#networkTable tbody');
                 const row = document.createElement('tr');
+                const rowIndex = tbody.querySelectorAll('tr').length;
                 row.innerHTML = `
+                <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" name="network_enabled[]" value="" class="form-check-input network-toggle" checked role="switch">
+                    </div>
+                </td>
                 <td>
                     <input type="hidden" name="network_id[]" value="">
                     <input type="text" name="network_name[]" class="form-control form-control-modern">
                 </td>
                 <td>
                     <input type="text" name="network_icon[]" class="form-control form-control-modern" value="">
-                    <input type="hidden" name="network_color[]" value="#000000">
+                </td>
+                <td>
+                    <input type="color" name="network_color[]" class="form-control form-control-color" value="#000000">
                 </td>
                 <td><button type="button" class="remove-item-btn remove-network"><i class="bi bi-trash"></i> Delete</button></td>
             `;

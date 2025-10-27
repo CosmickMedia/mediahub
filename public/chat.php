@@ -62,10 +62,7 @@ $store_name = $store_stmt->fetchColumn();
 include __DIR__.'/header.php';
 ?>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-
-
-    <div class="messages-container animate__animated animate__fadeIn">
+    <div class="messages-container">
         <!-- Header Section -->
         <div class="messages-header">
             <div>
@@ -79,7 +76,7 @@ include __DIR__.'/header.php';
 
         <!-- Statistics Dashboard -->
         <div class="chat-stats">
-            <div class="stat-card total-messages animate__animated animate__fadeInUp">
+            <div class="stat-card total-messages">
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
@@ -88,7 +85,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card admin-messages animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card admin-messages">
                 <div class="stat-icon">
                     <i class="bi bi-person-badge-fill"></i>
                 </div>
@@ -97,7 +94,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card your-messages animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card your-messages">
                 <div class="stat-icon">
                     <i class="bi bi-person-fill"></i>
                 </div>
@@ -106,7 +103,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card liked animate__animated animate__fadeInUp delay-30">
+            <div class="stat-card liked">
                 <div class="stat-icon">
                     <i class="bi bi-hand-thumbs-up-fill"></i>
                 </div>
@@ -115,7 +112,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card loved animate__animated animate__fadeInUp delay-40">
+            <div class="stat-card loved">
                 <div class="stat-icon">
                     <i class="bi bi-heart-fill"></i>
                 </div>
@@ -124,7 +121,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card recent animate__animated animate__fadeInUp delay-50">
+            <div class="stat-card recent">
                 <div class="stat-icon">
                     <i class="bi bi-clock-fill"></i>
                 </div>
@@ -135,7 +132,7 @@ include __DIR__.'/header.php';
         </div>
 
         <!-- Chat Container -->
-        <div class="chat-wrapper animate__animated animate__fadeIn delay-60">
+        <div class="chat-wrapper">
             <div class="chat-header">
                 <div class="chat-avatar">
                     <i class="bi bi-building"></i>

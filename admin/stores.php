@@ -8,6 +8,7 @@ $pdo = get_pdo();
 
 $errors = [];
 $success = [];
+$addFormOpen = ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add']));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add'])) {
@@ -22,14 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $profile_ids = implode(',', to_string_array($_POST['hootsuite_profile_ids']));
                 if ($profile_ids === '') $profile_ids = null;
             }
-            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids, hootsuite_custom_property_key, hootsuite_custom_property_value, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $campaign_id = $_POST['hootsuite_campaign_id'] ?? null;
+            if ($campaign_id === '') {
+                $campaign_id = null;
+            }
+
+            $stmt = $pdo->prepare('INSERT INTO stores (name, pin, admin_email, drive_folder, hootsuite_campaign_tag, hootsuite_campaign_id, hootsuite_profile_ids, hootsuite_custom_property_key, hootsuite_custom_property_value, first_name, last_name, phone, address, city, state, zip_code, country, marketing_report_url, dripley_override_tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->execute([
                 $_POST['name'],
                 $_POST['pin'],
                 $_POST['email'],
                 $_POST['folder'],
                 $_POST['hootsuite_campaign_tag'] ?? null,
-                $_POST['hootsuite_campaign_id'] ?? null,
+                $campaign_id,
                 $profile_ids,
                 $_POST['hootsuite_custom_property_key'] ?? null,
                 $_POST['hootsuite_custom_property_value'] ?? null,
@@ -41,7 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['state'] ?? null,
                 $_POST['zip_code'] ?? null,
                 $_POST['country'] ?? null,
-                $_POST['marketing_report_url'] ?? null
+                $_POST['marketing_report_url'] ?? null,
+                !empty($_POST['dripley_override_tags']) ? trim($_POST['dripley_override_tags']) : null
             ]);
             $storeId = $pdo->lastInsertId();
             $success[] = 'Store added successfully';
@@ -62,12 +69,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_role'    => 'Store Admin',
                     'lead_source'  => 'mediahub',
                     'opt_in_status'=> 'confirmed',
-                    'tags'         => groundhogg_get_default_tags(),
+                    'tags'         => groundhogg_get_default_tags((int)$storeId),
                     'store_id'     => (int)$storeId
                 ];
 
                 [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
                 if ($ghSuccess) {
+                    $updateSync = $pdo->prepare('UPDATE stores SET groundhogg_synced = 1 WHERE id = ?');
+                    $updateSync->execute([$storeId]);
                     $success[] = $ghMessage;
                 } else {
                     $errors[] = 'Store created but Groundhogg sync failed: ' . $ghMessage;
@@ -117,11 +126,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get stores sorted by name
-$stores = $pdo->query('SELECT s.*, COUNT(u.id) as upload_count,
-                       (SELECT COUNT(*) FROM store_messages m WHERE m.store_id = s.id) as chat_count
+$stores = $pdo->query('SELECT s.*,
+                              COALESCE(u.upload_count, 0) AS upload_count,
+                              COALESCE(m.chat_count, 0) AS chat_count
                        FROM stores s
-                       LEFT JOIN uploads u ON s.id = u.store_id
-                       GROUP BY s.id
+                       LEFT JOIN (
+                           SELECT store_id, COUNT(*) AS upload_count
+                           FROM uploads
+                           GROUP BY store_id
+                       ) u ON s.id = u.store_id
+                       LEFT JOIN (
+                           SELECT store_id, COUNT(*) AS chat_count
+                           FROM store_messages
+                           GROUP BY store_id
+                       ) m ON s.id = m.store_id
                        ORDER BY s.name ASC')->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate statistics
@@ -129,6 +147,11 @@ $total_stores = count($stores);
 $total_uploads = array_sum(array_column($stores, 'upload_count'));
 $total_chats = array_sum(array_column($stores, 'chat_count'));
 $stores_with_uploads = count(array_filter($stores, function($s) { return $s['upload_count'] > 0; }));
+
+// Detect stores without profiles for warning banner
+$stores_without_profiles = array_filter($stores, function($s) {
+    return empty($s['hootsuite_profile_ids']) || trim($s['hootsuite_profile_ids']) === '';
+});
 
 $active = 'stores';
 include __DIR__.'/header.php';
@@ -138,8 +161,22 @@ include __DIR__.'/header.php';
     <div class="animate__animated animate__fadeIn">
         <!-- Page Header -->
         <div class="page-header animate__animated animate__fadeInDown">
-            <h1 class="page-title">Store Management</h1>
-            <p class="page-subtitle">Manage all stores and their settings</p>
+            <div class="page-header-content">
+                <div>
+                    <h1 class="page-title">Store Management</h1>
+                    <p class="page-subtitle">Manage all stores and their settings</p>
+                </div>
+                <div class="page-actions">
+                    <button type="button"
+                            class="btn btn-toggle-add-store"
+                            id="toggleAddStore"
+                            aria-expanded="<?php echo $addFormOpen ? 'true' : 'false'; ?>"
+                            aria-controls="addStoreCard">
+                        <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>
+                        <span class="toggle-text">Add Store</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Alerts -->
@@ -158,6 +195,42 @@ include __DIR__.'/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endforeach; ?>
+
+        <!-- Warning for stores without profiles -->
+        <?php if (!empty($stores_without_profiles)): ?>
+            <div class="alert alert-warning alert-dismissible fade show animate__animated animate__fadeIn" role="alert" style="border-left: 4px solid #ff9800;">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem; flex-shrink: 0;"></i>
+                    <div style="flex-grow: 1;">
+                        <h5 class="alert-heading mb-2">
+                            <strong>Profile Configuration Required</strong>
+                        </h5>
+                        <p class="mb-2">
+                            The following <?php echo count($stores_without_profiles); ?> store<?php echo count($stores_without_profiles) > 1 ? 's have' : ' has'; ?> no social media profiles attached.
+                            Stores need at least one Hootsuite profile to enable post scheduling on their calendar.
+                        </p>
+                        <div class="mb-2" style="max-height: 200px; overflow-y: auto;">
+                            <ul class="mb-0" style="column-count: <?php echo count($stores_without_profiles) > 6 ? '2' : '1'; ?>; column-gap: 2rem;">
+                                <?php foreach ($stores_without_profiles as $store): ?>
+                                    <li class="mb-1">
+                                        <strong><?php echo htmlspecialchars($store['name']); ?></strong>
+                                        <a href="edit_store.php?id=<?php echo $store['id']; ?>" class="alert-link ms-2">
+                                            <i class="bi bi-arrow-right-circle"></i> Configure Profiles
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                        <hr style="margin: 0.75rem 0;">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            Click "Configure Profiles" next to each store to add Hootsuite profiles, or use the edit button in the table below.
+                        </small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="flex-shrink: 0;"></button>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- Statistics -->
         <div class="stats-grid">
@@ -198,8 +271,150 @@ include __DIR__.'/header.php';
             </div>
         </div>
 
+        <!-- Add New Store -->
+        <div id="addStoreCard" class="add-store-card animate__animated animate__fadeIn delay-40<?php echo $addFormOpen ? '' : ' collapsed'; ?>">
+            <div class="card-header-modern">
+                <h5 class="card-title-modern">
+                    <i class="bi bi-plus-circle"></i>
+                    Add New Store
+                </h5>
+            </div>
+            <div class="card-body-modern">
+                <form method="post">
+                    <div class="form-section">
+                        <h6 class="section-title">Basic Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label-modern">Store Name *</label>
+                                <input type="text" name="name" id="name" class="form-control form-control-modern" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="pin" class="form-label-modern">PIN (Access Code) *</label>
+                                <input type="text" name="pin" id="pin" class="form-control form-control-modern" required
+                                       pattern="[A-Za-z0-9]{4,}" title="At least 4 alphanumeric characters">
+                                <div class="form-text">Unique code for store access</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h6 class="section-title">Contact Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label-modern">First Name</label>
+                                <input type="text" name="first_name" id="first_name" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label-modern">Last Name</label>
+                                <input type="text" name="last_name" id="last_name" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label-modern">Admin Email</label>
+                                <input type="email" name="email" id="email" class="form-control form-control-modern">
+                                <div class="form-text">For notifications specific to this store</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label-modern">Phone</label>
+                                <input type="text" name="phone" id="phone" class="form-control form-control-modern">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h6 class="section-title">Location Details</h6>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="address" class="form-label-modern">Address</label>
+                                <input type="text" name="address" id="address" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="city" class="form-label-modern">City</label>
+                                <input type="text" name="city" id="city" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="state" class="form-label-modern">State</label>
+                                <input type="text" name="state" id="state" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="zip_code" class="form-label-modern">Zip Code</label>
+                                <input type="text" name="zip_code" id="zip_code" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="form-label-modern">Country</label>
+                                <input type="text" name="country" id="country" class="form-control form-control-modern">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h6 class="section-title">Integration Settings</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="folder" class="form-label-modern">Drive Folder ID</label>
+                                <input type="text" name="folder" id="folder" class="form-control form-control-modern">
+                                <div class="form-text">Leave blank to auto-create on first upload</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_campaign_tag" class="form-label-modern">Hootsuite Tag</label>
+                                <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag"
+                                       class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_campaign_id" class="form-label-modern">Hootsuite Campaign ID</label>
+                                <div class="input-group">
+                                    <input type="number" name="hootsuite_campaign_id" id="hootsuite_campaign_id" class="form-control form-control-modern" list="campaigns_list">
+                                    <button class="btn btn-outline-secondary" type="button" id="load_campaigns">Load</button>
+                                </div>
+                                <datalist id="campaigns_list"></datalist>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profiles</label>
+                                <select name="hootsuite_profile_ids[]" id="hootsuite_profile_ids" multiple
+                                        class="form-select form-select-modern"></select>
+                                <div class="form-text">Select one or more profiles</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_custom_property_key" class="form-label-modern">Hootsuite Custom Property Key</label>
+                                <input type="text" name="hootsuite_custom_property_key" id="hootsuite_custom_property_key" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hootsuite_custom_property_value" class="form-label-modern">Hootsuite Custom Property Value</label>
+                                <input type="text" name="hootsuite_custom_property_value" id="hootsuite_custom_property_value" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>
+                                <input type="url" name="marketing_report_url" id="marketing_report_url"
+                                       class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="dripley_override_tags" class="form-label-modern">
+                                    <i class="bi bi-tags"></i> Dripley Override Tags
+                                </label>
+                                <input type="text" name="dripley_override_tags" id="dripley_override_tags"
+                                       class="form-control form-control-modern"
+                                       placeholder="<?php
+                                       require_once __DIR__.'/../lib/settings.php';
+                                       $default_tags = get_setting('groundhogg_contact_tags');
+                                       echo htmlspecialchars($default_tags ?: 'media-hub, store-onboarding');
+                                       ?>">
+                                <div class="form-text">
+                                    Override default contact tags for this store. Leave blank to use system defaults. Separate tags with commas.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section text-end">
+                        <button class="btn btn-add-store" name="add" type="submit">
+                            <i class="bi bi-plus-circle me-2"></i>Add Store
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Stores Table -->
-        <div class="stores-card animate__animated animate__fadeIn delay-40">
+        <div class="stores-card animate__animated animate__fadeIn delay-50">
             <div class="card-header-modern">
                 <h5 class="card-title-modern">
                     <i class="bi bi-list-ul"></i>
@@ -211,7 +426,7 @@ include __DIR__.'/header.php';
                     <div class="empty-state">
                         <i class="bi bi-shop"></i>
                         <h4>No stores yet</h4>
-                        <p>Add your first store below to get started</p>
+                        <p>Use the Add Store button above to get started</p>
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -223,6 +438,7 @@ include __DIR__.'/header.php';
                                 <th>Admin Email</th>
                                 <th>Drive Folder</th>
                                 <th>Campaign ID</th>
+                                <th>Profiles</th>
                                 <th>Chats</th>
                                 <th>Uploads</th>
                                 <th>Actions</th>
@@ -263,6 +479,19 @@ include __DIR__.'/header.php';
                                         <?php echo htmlspecialchars($s['hootsuite_campaign_id'] ?? ''); ?>
                                     </td>
                                     <td>
+                                        <?php if (!empty($s['hootsuite_profile_ids']) && trim($s['hootsuite_profile_ids']) !== ''):
+                                            $profile_count = count(array_filter(explode(',', $s['hootsuite_profile_ids'])));
+                                        ?>
+                                            <span class="badge bg-success" title="<?php echo $profile_count; ?> profile<?php echo $profile_count > 1 ? 's' : ''; ?> configured">
+                                                <i class="bi bi-check-circle"></i> <?php echo $profile_count; ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning text-dark" title="No profiles configured">
+                                                <i class="bi bi-exclamation-triangle"></i> None
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
                                         <span class="badge bg-info"><?php echo $s['chat_count']; ?></span>
                                     </td>
                                     <td>
@@ -295,133 +524,34 @@ include __DIR__.'/header.php';
             </div>
         </div>
 
-        <!-- Add New Store -->
-        <div class="add-store-card animate__animated animate__fadeIn delay-50">
-            <div class="card-header-modern">
-                <h5 class="card-title-modern">
-                    <i class="bi bi-plus-circle"></i>
-                    Add New Store
-                </h5>
-            </div>
-            <form method="post">
-                <div class="form-section">
-                    <h6 class="section-title">Basic Information</h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="name" class="form-label-modern">Store Name *</label>
-                            <input type="text" name="name" id="name" class="form-control form-control-modern" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="pin" class="form-label-modern">PIN (Access Code) *</label>
-                            <input type="text" name="pin" id="pin" class="form-control form-control-modern" required
-                                   pattern="[A-Za-z0-9]{4,}" title="At least 4 alphanumeric characters">
-                            <div class="form-text">Unique code for store access</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h6 class="section-title">Contact Information</h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="first_name" class="form-label-modern">First Name</label>
-                            <input type="text" name="first_name" id="first_name" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="last_name" class="form-label-modern">Last Name</label>
-                            <input type="text" name="last_name" id="last_name" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="email" class="form-label-modern">Admin Email</label>
-                            <input type="email" name="email" id="email" class="form-control form-control-modern">
-                            <div class="form-text">For notifications specific to this store</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="phone" class="form-label-modern">Phone</label>
-                            <input type="text" name="phone" id="phone" class="form-control form-control-modern">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h6 class="section-title">Location Details</h6>
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <label for="address" class="form-label-modern">Address</label>
-                            <input type="text" name="address" id="address" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="city" class="form-label-modern">City</label>
-                            <input type="text" name="city" id="city" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="state" class="form-label-modern">State</label>
-                            <input type="text" name="state" id="state" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="zip_code" class="form-label-modern">Zip Code</label>
-                            <input type="text" name="zip_code" id="zip_code" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="country" class="form-label-modern">Country</label>
-                            <input type="text" name="country" id="country" class="form-control form-control-modern">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h6 class="section-title">Integration Settings</h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="folder" class="form-label-modern">Drive Folder ID</label>
-                            <input type="text" name="folder" id="folder" class="form-control form-control-modern">
-                            <div class="form-text">Leave blank to auto-create on first upload</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_campaign_tag" class="form-label-modern">Hootsuite Tag</label>
-                            <input type="text" name="hootsuite_campaign_tag" id="hootsuite_campaign_tag"
-                                   class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_campaign_id" class="form-label-modern">Hootsuite Campaign ID</label>
-                            <div class="input-group">
-                                <input type="number" name="hootsuite_campaign_id" id="hootsuite_campaign_id" class="form-control form-control-modern" list="campaigns_list">
-                                <button class="btn btn-outline-secondary" type="button" id="load_campaigns">Load</button>
-                            </div>
-                            <datalist id="campaigns_list"></datalist>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profiles</label>
-                            <select name="hootsuite_profile_ids[]" id="hootsuite_profile_ids" multiple
-                                    class="form-select form-select-modern"></select>
-                            <div class="form-text">Select one or more profiles</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_custom_property_key" class="form-label-modern">Hootsuite Custom Property Key</label>
-                            <input type="text" name="hootsuite_custom_property_key" id="hootsuite_custom_property_key" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="hootsuite_custom_property_value" class="form-label-modern">Hootsuite Custom Property Value</label>
-                            <input type="text" name="hootsuite_custom_property_value" id="hootsuite_custom_property_value" class="form-control form-control-modern">
-                        </div>
-                        <div class="col-md-12">
-                            <label for="marketing_report_url" class="form-label-modern">Marketing Report URL</label>
-                            <input type="url" name="marketing_report_url" id="marketing_report_url"
-                                   class="form-control form-control-modern">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section text-end">
-                    <button class="btn btn-add-store" name="add" type="submit">
-                        <i class="bi bi-plus-circle me-2"></i>Add Store
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <script>
+        const toggleButton = document.getElementById('toggleAddStore');
+        const addStoreCard = document.getElementById('addStoreCard');
+
+        if (toggleButton && addStoreCard) {
+            const icon = toggleButton.querySelector('i');
+            const label = toggleButton.querySelector('.toggle-text');
+
+            const setOpen = (shouldOpen) => {
+                addStoreCard.classList.toggle('collapsed', !shouldOpen);
+                toggleButton.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+                if (icon) {
+                    icon.className = 'bi ' + (shouldOpen ? 'bi-dash-lg' : 'bi-plus-lg') + ' me-2';
+                }
+                if (label) {
+                    label.textContent = shouldOpen ? 'Hide Add Store' : 'Add Store';
+                }
+            };
+
+            setOpen(!addStoreCard.classList.contains('collapsed'));
+
+            toggleButton.addEventListener('click', () => {
+                setOpen(addStoreCard.classList.contains('collapsed'));
+            });
+        }
+
         function loadCampaigns() {
             fetch('../hootsuite/hootsuite_campaigns.php')
                 .then(r => r.json())

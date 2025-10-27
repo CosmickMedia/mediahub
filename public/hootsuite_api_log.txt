@@ -1,0 +1,446 @@
+2025-10-21 13:35:29 - All Profiles: 139926615 - Code: 400
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-29T16:00:00Z",
+    "tags": [
+        "test",
+        "testing"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2UzYzAxMGRkLWU5YjEtNDZkNS04NWFhLWU0YWIwYjg2NmUyNy5wbmc="
+        }
+    ]
+}
+Response received:
+{"errors":[{"code":5000,"message":"Unknown error occurred","id":"5629c5c4-aea4-11f0-aa9f-96ab3eac5f89","resource":null}]}
+----------------------------------------
+2025-10-21 13:41:23 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-29T16:00:00Z",
+    "tags": [
+        "test",
+        "testing"
+    ]
+}
+Response received:
+{"data":[{"id":"13042983292","state":"SCHEDULED","text":"test","scheduledSendTime":"2025-10-29T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["test","testing"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 13:45:03 - All Profiles: 139926615 - Code: 400
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-23T16:00:00Z",
+    "tags": [
+        "test",
+        "testing"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzA5YWY5YzlkLWM0ODktNDA1OC04M2M0LTZjZTI4ZDAwZjY4ZC5wbmc="
+        }
+    ]
+}
+Response received:
+{"errors":[{"code":5000,"message":"Unknown error occurred","id":"ac250142-aea5-11f0-a889-8acd6e8e12e4","resource":null}]}
+----------------------------------------
+2025-10-21 13:45:05 - Profile: 139926615 - Code: 400
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-23T16:00:00Z",
+    "tags": [
+        "test",
+        "testing"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzAxZWM1NThiLTIyM2EtNGNhYi1iMWY0LWVhMTE0ZmFlODYxNC5wbmc="
+        }
+    ]
+}
+Response received:
+{"errors":[{"code":5000,"message":"Unknown error occurred","id":"adde0a7b-aea5-11f0-b853-de1062f5a6da","resource":null}]}
+----------------------------------------
+2025-10-21 13:45:07 - Profile: 139926615 (RETRY WITHOUT MEDIA) - Code: 200
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-23T16:00:00Z",
+    "tags": [
+        "test",
+        "testing"
+    ]
+}
+Response received:
+{"data":[{"id":"13042984592","state":"SCHEDULED","text":"test","scheduledSendTime":"2025-10-23T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["test","testing"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 13:56:56 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-24T16:00:00Z",
+    "tags": [
+        "testing"
+    ]
+}
+Response received:
+{"data":[{"id":"13042988502","state":"SCHEDULED","text":"test","scheduledSendTime":"2025-10-24T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["testing"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 14:09:45 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "Testing 2:08",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-23T16:00:00Z",
+    "tags": [
+        "testing"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzkzMzZkMzM0LWU5NzYtNDAzMy04MDZiLTRiYWQyMDFkZDRlYS5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13042992880","state":"SCHEDULED","text":"Testing 2:08","scheduledSendTime":"2025-10-23T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_9336d334-e976-4033-806b-4bad201dd4ea.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761071985&Signature=5IOA240wLICRGlcXeVFnVkKE8AA%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_9336d334-e976-4033-806b-4bad201dd4ea-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761071985&Signature=Mn4%2BXISnxApeY2M2wDxFxk%2BTrXk%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzkzMzZkMzM0LWU5NzYtNDAzMy04MDZiLTRiYWQyMDFkZDRlYS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzkzMzZkMzM0LWU5NzYtNDAzMy04MDZiLTRiYWQyMDFkZDRlYS10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["testing"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 14:15:12 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "This is a test 2:14",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-30T16:00:00Z",
+    "tags": [
+        "test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2ZlOTM3ZTczLTIzZWQtNDMyNC1hZTJkLTllZDc5YmEzOGVjOC5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13042994679","state":"SCHEDULED","text":"This is a test 2:14","scheduledSendTime":"2025-10-30T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_fe937e73-23ed-4324-ae2d-9ed79ba38ec8.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761072312&Signature=iUufJGp3tFukttfCaS8WhfkMkZk%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_fe937e73-23ed-4324-ae2d-9ed79ba38ec8-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761072312&Signature=wJm5OPf4YE%2FzFeX2FKgqyCSI0F8%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2ZlOTM3ZTczLTIzZWQtNDMyNC1hZTJkLTllZDc5YmEzOGVjOC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2ZlOTM3ZTczLTIzZWQtNDMyNC1hZTJkLTllZDc5YmEzOGVjOC10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 14:18:02 - All Profiles: 139926615,139926616 - Code: 400
+Payload sent:
+{
+    "text": "multiple sources 2:17",
+    "socialProfileIds": [
+        "139926615",
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "Multiple"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzU2YmJkZDQ3LWRmMmEtNGViZi04ZmYwLWFmZGMxNjA5ZDBkMy5qcGc="
+        }
+    ]
+}
+Response received:
+{"errors":[{"code":5000,"message":"Unknown error occurred","id":"47c63cf5-aeaa-11f0-9263-3af9f919840f","resource":null}]}
+----------------------------------------
+2025-10-21 14:18:05 - Profile: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "multiple sources 2:17",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "Multiple"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzlmZTEwZjAyLTZlZjItNGM5OS1hNzBmLTE0NDE4ZGZkNzczMi5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13042995567","state":"SCHEDULED","text":"multiple sources 2:17","scheduledSendTime":"2025-10-31T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_9fe10f02-6ef2-4c99-a70f-14418dfd7732.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761072485&Signature=qDVZLzRoZs7x1Uu9Vp6sHjw4o2U%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_9fe10f02-6ef2-4c99-a70f-14418dfd7732-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761072485&Signature=pKBrPIl0DyH8q7Zhg7SMAC%2Fq0f0%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzlmZTEwZjAyLTZlZjItNGM5OS1hNzBmLTE0NDE4ZGZkNzczMi5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzlmZTEwZjAyLTZlZjItNGM5OS1hNzBmLTE0NDE4ZGZkNzczMi10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["Multiple"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 14:18:05 - Profile: 139926616 - Code: 400
+Payload sent:
+{
+    "text": "multiple sources 2:17",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "Multiple"
+    ]
+}
+Response received:
+{"errors":[{"code":5000,"message":"Unknown error occurred","id":"49eb46ef-aeaa-11f0-80b0-fa6c97f29931","resource":null}]}
+----------------------------------------
+2025-10-21 14:19:23 - All Profiles: 139926616 - Code: 400
+Payload sent:
+{
+    "text": "test instagram",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzU3ZjdkOTMzLWFjYjEtNDJlOC04YTgwLWQ4NmRjOTk0Y2U0MS5qcGc="
+        }
+    ]
+}
+Response received:
+{"errors":[{"code":5000,"message":"Unknown error occurred","id":"784f4dde-aeaa-11f0-8504-52a33643d238","resource":null}]}
+----------------------------------------
+2025-10-21 14:19:23 - Profile: 139926616 - Code: 400
+Payload sent:
+{
+    "text": "test instagram",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "test"
+    ]
+}
+Response received:
+{"errors":[{"code":5000,"message":"Unknown error occurred","id":"7872efbe-aeaa-11f0-a889-8acd6e8e12e4","resource":null}]}
+----------------------------------------
+2025-10-21 14:21:36 - All Profiles: 139926616 - Code: 200
+Payload sent:
+{
+    "text": "SQAURE INSTAGRAM",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-28T16:00:00Z",
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzM2MzZjZGNhLThmNDgtNDA0NC04MjViLWY1ZmE4M2NjZjE0OS5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13042996718","state":"SCHEDULED","text":"SQAURE INSTAGRAM","scheduledSendTime":"2025-10-28T16:00:00Z","socialProfile":{"id":"139926616"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_3636cdca-8f48-4044-825b-f5fa83ccf149.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761072696&Signature=JAAeHLiJ8xxpqe4sfgMvZ3sGsh8%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_3636cdca-8f48-4044-825b-f5fa83ccf149-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761072696&Signature=eAGjs88NfPOwx1YHoZjuAyV7tGg%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzM2MzZjZGNhLThmNDgtNDA0NC04MjViLWY1ZmE4M2NjZjE0OS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzM2MzZjZGNhLThmNDgtNDA0NC04MjViLWY1ZmE4M2NjZjE0OS10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 15:01:17 - All Profiles: 139926616 - Code: 401
+Payload sent:
+{
+    "text": "instagram",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-22T16:00:00Z",
+    "tags": [
+        "test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"token_expired"}
+----------------------------------------
+2025-10-21 15:01:18 - Profile: 139926616 - Code: 401
+Payload sent:
+{
+    "text": "instagram",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-22T16:00:00Z",
+    "tags": [
+        "test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"token_expired"}
+----------------------------------------
+2025-10-21 15:05:41 - All Profiles: 139926616 - Code: 401
+Payload sent:
+{
+    "text": "INSTA",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-22T16:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"token_expired"}
+----------------------------------------
+2025-10-21 15:05:41 - Profile: 139926616 - Code: 401
+Payload sent:
+{
+    "text": "INSTA",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-22T16:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"token_expired"}
+----------------------------------------
+2025-10-21 15:09:54 - All Profiles: 139926616 - Code: 200
+Payload sent:
+{
+    "text": "INSTA",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-22T16:00:00Z",
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzEyYTgyZmYxLThjZTYtNGRhNy05ZTA1LTk0NGM0NDVhMTllZi5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13043013211","state":"SCHEDULED","text":"INSTA","scheduledSendTime":"2025-10-22T16:00:00Z","socialProfile":{"id":"139926616"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_12a82ff1-8ce6-4da7-9e05-944c445a19ef.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761075594&Signature=HECgzJmZeWXMrwAp8ON8m7WxBe8%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_12a82ff1-8ce6-4da7-9e05-944c445a19ef-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761075594&Signature=qT4WlimIaU88YrcndEhT8T25Els%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzEyYTgyZmYxLThjZTYtNGRhNy05ZTA1LTk0NGM0NDVhMTllZi5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzEyYTgyZmYxLThjZTYtNGRhNy05ZTA1LTk0NGM0NDVhMTllZi10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 15:10:52 - All Profiles: 139926615,139926616 - Code: 400
+Payload sent:
+{
+    "text": "test high image",
+    "socialProfileIds": [
+        "139926615",
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-26T16:00:00Z",
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2JlNzQxNTY2LTg3YTItNGZmOC1iYzM2LTdmZTcyOGVmNWU5ZC5qcGc="
+        }
+    ]
+}
+Response received:
+{"errors":[{"code":5000,"message":"Unknown error occurred","id":"a96a1144-aeb1-11f0-ab67-2a9fbec486bf","resource":null}]}
+----------------------------------------
+2025-10-21 15:10:55 - Profile: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "test high image",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-26T16:00:00Z",
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2VlZGY2YmU0LTU1OWMtNGJmMS05OTQ0LThkMTViZWFhODI0Yy5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13043013492","state":"SCHEDULED","text":"test high image","scheduledSendTime":"2025-10-26T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_eedf6be4-559c-4bf1-9944-8d15beaa824c.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761075655&Signature=cEmJz0g%2FgePMeF%2FXETXqsq0OPHQ%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_eedf6be4-559c-4bf1-9944-8d15beaa824c-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761075655&Signature=Y20wnFk9IExyloj%2BYwVJAGO2Slo%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2VlZGY2YmU0LTU1OWMtNGJmMS05OTQ0LThkMTViZWFhODI0Yy5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2VlZGY2YmU0LTU1OWMtNGJmMS05OTQ0LThkMTViZWFhODI0Yy10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 15:10:58 - Profile: 139926616 - Code: 200
+Payload sent:
+{
+    "text": "test high image",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-10-26T16:00:00Z",
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2NlYWM0ZDQ3LTYwNjgtNDc3Zi1hOGU4LTFiMjMyYTM1ODQxOC5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13043013510","state":"SCHEDULED","text":"test high image","scheduledSendTime":"2025-10-26T16:00:00Z","socialProfile":{"id":"139926616"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_ceac4d47-6068-477f-a8e8-1b232a358418.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761075658&Signature=SzF5RfiiieM1cIRoIqeStzlmHmI%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_ceac4d47-6068-477f-a8e8-1b232a358418-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761075658&Signature=Gicpl4xxub8H8%2FmcizupLI0anhE%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2NlYWM0ZDQ3LTYwNjgtNDc3Zi1hOGU4LTFiMjMyYTM1ODQxOC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2NlYWM0ZDQ3LTYwNjgtNDc3Zi1hOGU4LTFiMjMyYTM1ODQxOC10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 17:38:44 - All Profiles: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "multiple sources 2:18",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "Multiple"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"token_expired"}
+----------------------------------------
+2025-10-21 17:38:44 - Profile: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "multiple sources 2:18",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "Multiple"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"token_expired"}
+----------------------------------------
+2025-10-21 17:39:11 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "multiple sources 2:18",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "Multiple"
+    ]
+}
+Response received:
+{"data":[{"id":"13043055606","state":"SCHEDULED","text":"multiple sources 2:18","scheduledSendTime":"2025-10-31T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["Multiple"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-10-21 17:43:22 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "multiple sources 2:18",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-10-31T16:00:00Z",
+    "tags": [
+        "Multiple"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzhiMjVhMzdkLTY1NmEtNGUxMi1iZTc3LTYwY2M0NWU2MTEwNC5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13043056363","state":"SCHEDULED","text":"multiple sources 2:18","scheduledSendTime":"2025-10-31T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_8b25a37d-656a-4e12-be77-60cc45e61104.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761084802&Signature=vc7ixGjVHsKbc597b2F4v4vDZsI%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_8b25a37d-656a-4e12-be77-60cc45e61104-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761084802&Signature=4dLFQYKcmHLlhpasrC5kKB4ozLI%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzhiMjVhMzdkLTY1NmEtNGUxMi1iZTc3LTYwY2M0NWU2MTEwNC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzhiMjVhMzdkLTY1NmEtNGUxMi1iZTc3LTYwY2M0NWU2MTEwNC10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["Multiple"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------

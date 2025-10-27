@@ -31,9 +31,9 @@ foreach ($res as $prof) {
     }
 }
 
-// Prepare network map
+// Prepare network map (only enabled networks)
 $network_map = [];
-foreach ($pdo->query('SELECT name, icon, color FROM social_networks') as $n) {
+foreach ($pdo->query('SELECT name, icon, color FROM social_networks WHERE enabled = 1') as $n) {
     $network_map[strtolower($n['name'])] = [
         'icon'  => $n['icon'],
         'color' => $n['color'],
@@ -64,11 +64,19 @@ if ($selected_store_id) {
     }
     unset($post);
 
-    // Get profiles for selected store
+    // Get profiles for selected store (filtered by enabled networks)
     $store_profile_ids = array_filter(array_map('trim', explode(',', (string)$current_store['hootsuite_profile_ids'])));
     if ($store_profile_ids) {
         $placeholders = implode(',', array_fill(0, count($store_profile_ids), '?'));
-        $stmt = $pdo->prepare("SELECT id, username, network FROM hootsuite_profiles WHERE id IN ($placeholders) ORDER BY network, username");
+        // Join with social_networks to filter by enabled status
+        $stmt = $pdo->prepare("
+            SELECT hp.id, hp.username, hp.network
+            FROM hootsuite_profiles hp
+            LEFT JOIN social_networks sn ON LOWER(sn.name) = LOWER(hp.network)
+            WHERE hp.id IN ($placeholders)
+            AND (sn.enabled = 1 OR sn.enabled IS NULL)
+            ORDER BY hp.network, hp.username
+        ");
         $stmt->execute($store_profile_ids);
         $profiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } else {
@@ -980,21 +988,6 @@ include __DIR__.'/header.php';
                 </div>
             <?php endif; ?>
         </div>
-
-        <!-- Quick Store Navigation Pills -->
-        <?php if (!$selected_store_id && count($stores) > 1): ?>
-            <div class="store-pills">
-                <span class="quick-nav-label">Quick Navigation:</span>
-                <?php foreach (array_slice($stores, 0, 10) as $store): ?>
-                    <a href="?store_id=<?php echo $store['id']; ?>" class="store-pill">
-                        <?php echo htmlspecialchars($store['name']); ?>
-                    </a>
-                <?php endforeach; ?>
-                <?php if (count($stores) > 10): ?>
-                    <span class="store-pill store-pill-more">+<?php echo count($stores) - 10; ?> more</span>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
 
         <!-- Calendar Header -->
         <div class="calendar-header">

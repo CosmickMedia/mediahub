@@ -20,8 +20,15 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MediaHub Cosmick Media</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MediaHub">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="MediaHub">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#667eea">
+    <title>MediaHub</title>
     <meta name="robots" content="noindex, nofollow">
     <!-- Bootstrap CSS from CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -33,7 +40,43 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/common.css?v=<?php echo $version; ?>">
     <link rel="stylesheet" href="inc/css/style.css?v=<?php echo $version; ?>">
+    <link rel="stylesheet" href="/assets/css/mobile-optimizations.css?v=<?php echo $version; ?>">
     <?php if(isset($extra_head)) echo $extra_head; ?>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
+    <!-- Apple Touch Icons for iOS -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- Android Chrome Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/public/manifest.json">
+
+    <!-- Additional Meta Tags for Windows Tiles -->
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-TileImage" content="/icon-192.png">
+
+    <!-- Service Worker Registration for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/public/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 
 </head>
 <body>
@@ -61,8 +104,8 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 </li>
                 <li class="nav-item-modern">
                     <a class="nav-link-modern <?php echo $current_page == 'history.php' ? 'active' : ''; ?>" href="history.php">
-                        <i class="bi bi-clock-history"></i>
-                        <span>History</span>
+                        <i class="bi bi-collection-play"></i>
+                        <span>Media</span>
                     </a>
                 </li>
                 <li class="nav-item-modern">
@@ -177,8 +220,8 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                     </li>
                     <li class="mobile-menu-item">
                         <a class="mobile-menu-link <?php echo $current_page == 'history.php' ? 'active' : ''; ?>" href="history.php">
-                            <i class="bi bi-clock-history"></i>
-                            History
+                            <i class="bi bi-collection-play"></i>
+                            Media
                         </a>
                     </li>
                     <li class="mobile-menu-item">
@@ -231,24 +274,6 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
 </nav>
 
 <script>
-    // Set header height CSS variable for responsive spacing
-    document.addEventListener('DOMContentLoaded', function() {
-        const navbar = document.getElementById('modernNavbar');
-        if (navbar) {
-            document.documentElement.style.setProperty('--header-height', navbar.offsetHeight + 'px');
-        }
-
-        // Simplified mobile modal scroll lock
-        document.querySelectorAll('.modal').forEach(function(modal) {
-            modal.addEventListener('show.bs.modal', function() {
-                document.body.style.overflow = 'hidden';
-            });
-            modal.addEventListener('hidden.bs.modal', function() {
-                document.body.style.overflow = '';
-            });
-        });
-    });
-
     // Header scroll effect
     window.addEventListener('scroll', function() {
         const navbar = document.getElementById('modernNavbar');
@@ -318,6 +343,24 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
         // Poll every 3 seconds for near real-time notifications
         setInterval(checkNotifications, 3000);
     }
+
+    // Update CSS variable for header height
+    function updateHeaderHeight() {
+        const header = document.getElementById('modernNavbar');
+        if (header) {
+            document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
+        }
+    }
+    window.addEventListener('load', updateHeaderHeight);
+    window.addEventListener('resize', updateHeaderHeight);
+
+    // Simplified modal scroll lock for mobile
+    document.addEventListener('show.bs.modal', () => {
+        document.body.style.overflow = 'hidden';
+    });
+    document.addEventListener('hidden.bs.modal', () => {
+        document.body.style.overflow = '';
+    });
 </script>
 
 <div class="container-fluid">

@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $campaign_id = $_POST['hootsuite_campaign_id'] ?? null;
             if ($campaign_id === '') $campaign_id = null;
-            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_campaign_id=?, hootsuite_profile_ids=?, hootsuite_custom_property_key=?, hootsuite_custom_property_value=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=? WHERE id=?');
+            $update = $pdo->prepare('UPDATE stores SET name=?, pin=?, admin_email=?, drive_folder=?, hootsuite_token=?, hootsuite_campaign_tag=?, hootsuite_campaign_id=?, hootsuite_profile_ids=?, hootsuite_custom_property_key=?, hootsuite_custom_property_value=?, first_name=?, last_name=?, phone=?, address=?, city=?, state=?, zip_code=?, country=?, marketing_report_url=?, dripley_override_tags=? WHERE id=?');
             $update->execute([
                 $_POST['name'],
                 $_POST['pin'],
@@ -59,12 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['zip_code'] ?? null,
                 $_POST['country'] ?? null,
                 $_POST['marketing_report_url'] ?? null,
+                !empty($_POST['dripley_override_tags']) ? trim($_POST['dripley_override_tags']) : null,
                 $id
             ]);
             $success[] = 'Store updated successfully';
 
-            // If email is set, sync with Groundhogg
-            if (!empty($_POST['email'])) {
+            // If email is set and contact has not been synced yet, sync with Groundhogg
+            if (!empty($_POST['email']) && empty($store['groundhogg_synced'])) {
                 $contact = [
                     'email'        => $_POST['email'],
                     'first_name'   => $_POST['first_name'] ?? '',
@@ -79,12 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_role'    => 'Store Admin',
                     'lead_source'  => 'mediahub',
                     'opt_in_status'=> 'confirmed',
-                    'tags'         => groundhogg_get_default_tags(),
+                    'tags'         => groundhogg_get_default_tags((int)$id),
                     'store_id'     => (int)$id
                 ];
 
                 [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
                 if ($ghSuccess) {
+                    $syncStmt = $pdo->prepare('UPDATE stores SET groundhogg_synced = 1 WHERE id = ?');
+                    $syncStmt->execute([$id]);
                     $success[] = $ghMessage;
                 } else {
                     $errors[] = 'Store updated but Groundhogg sync failed: ' . $ghMessage;
@@ -107,9 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$id, $email, $first ?: null, $last ?: null, $mobile ?: null, $optin]);
                 $insertId = $pdo->lastInsertId();
                 $success[] = 'User added';
-                $store_users[] = ['id' => $insertId, 'email' => $email, 'first_name' => $first, 'last_name' => $last, 'mobile_phone' => $mobile, 'opt_in_status' => $optin];
-
-                // Send to Groundhogg
+                // Send to Groundhogg only once when user is initially added
                 $contact = [
                     'email'        => $email,
                     'first_name'   => $first,
@@ -124,16 +125,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_role'    => 'Store Admin',
                     'lead_source'  => 'mediahub',
                     'opt_in_status'=> 'confirmed',
-                    'tags'         => groundhogg_get_default_tags(),
+                    'tags'         => groundhogg_get_default_tags((int)$id),
                     'store_id'     => (int)$id
                 ];
 
                 [$ghSuccess, $ghMessage] = groundhogg_send_contact($contact);
                 if ($ghSuccess) {
+                    $syncUser = $pdo->prepare('UPDATE store_users SET groundhogg_synced = 1 WHERE id = ?');
+                    $syncUser->execute([$insertId]);
                     $success[] = 'User added and ' . $ghMessage;
                 } else {
                     $errors[] = 'User added but Groundhogg sync failed: ' . $ghMessage;
                 }
+
+                // Refresh user list to include latest sync status
+                $userStmt->execute([$id]);
+                $store_users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
                 $errors[] = 'User already exists for this store';
             }
@@ -389,6 +396,22 @@ include __DIR__.'/header.php';
                             <input type="url" name="marketing_report_url" id="marketing_report_url"
                                    class="form-control form-control-modern"
                                    value="<?php echo htmlspecialchars($store['marketing_report_url']); ?>">
+                        </div>
+                        <div class="col-md-12">
+                            <label for="dripley_override_tags" class="form-label-modern">
+                                <i class="bi bi-tags"></i> Dripley Override Tags
+                            </label>
+                            <input type="text" name="dripley_override_tags" id="dripley_override_tags"
+                                   class="form-control form-control-modern"
+                                   placeholder="<?php
+                                   require_once __DIR__.'/../lib/settings.php';
+                                   $default_tags = get_setting('groundhogg_contact_tags');
+                                   echo htmlspecialchars($default_tags ?: 'media-hub, store-onboarding');
+                                   ?>"
+                                   value="<?php echo htmlspecialchars($store['dripley_override_tags'] ?? ''); ?>">
+                            <div class="form-text">
+                                Override default contact tags for this store. Leave blank to use system defaults. Separate tags with commas.
+                            </div>
                         </div>
                     </div>
                 </div>

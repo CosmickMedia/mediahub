@@ -66,8 +66,15 @@ if (!$isLoggedIn) {
     <html lang="en">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>MediaHub Cosmick Media</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="MediaHub">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="application-name" content="MediaHub">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="theme-color" content="#667eea">
+        <title>MediaHub CosmicSk</title>
         <meta name="robots" content="noindex, nofollow">
         <!-- Bootstrap CSS from CDN -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -77,6 +84,41 @@ if (!$isLoggedIn) {
         <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="/assets/css/common.css">
         <link rel="stylesheet" href="inc/css/style.css">
+
+        <!-- Favicons -->
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
+        <!-- Apple Touch Icons for iOS -->
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+        <!-- Android Chrome Icons -->
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="/public/manifest.json">
+
+        <!-- Additional Meta Tags for Windows Tiles -->
+        <meta name="msapplication-TileColor" content="#667eea">
+        <meta name="msapplication-TileImage" content="/icon-192.png">
+
+        <!-- Service Worker Registration for PWA -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/public/service-worker.js')
+                        .then(registration => {
+                            console.log('Service Worker registered successfully:', registration.scope);
+                        })
+                        .catch(error => {
+                            console.log('Service Worker registration failed:', error);
+                        });
+                });
+            }
+        </script>
     </head>
     <body class="login-page">
     <div class="container">
@@ -102,7 +144,7 @@ if (!$isLoggedIn) {
                             </div>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" value="1" id="remember" name="remember">
-                                <label class="form-check-label" for="remember">Remember me</label>
+                                <label class="form-check-label" for="remember" style="margin-left: 0.25rem;">Remember me</label>
                             </div>
                             <button class="btn btn-login btn-lg w-100" type="submit">Login</button>
                         </form>
@@ -262,7 +304,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
     if (!$tokenValid) {
         $errors[] = 'Invalid or duplicate submission detected.';
     } else {
-        unset($_SESSION['upload_token']);
+        // Regenerate token for next upload immediately after consuming
+        $_SESSION['upload_token'] = bin2hex(random_bytes(16));
+        $upload_token = $_SESSION['upload_token'];
+
         try {
         // Get or create store folder
         $storeFolderId = get_or_create_store_folder($store_id);
@@ -537,12 +582,9 @@ function create_local_thumbnail(string $src, string $dest, string $mime): bool {
 include __DIR__.'/header.php';
 ?>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-
-
-    <div class="dashboard-container animate__animated animate__fadeIn">
+    <div class="dashboard-container">
         <!-- Welcome Section -->
-        <div class="welcome-section animate__animated animate__fadeInDown">
+        <div class="welcome-section">
             <h1 class="welcome-title">Welcome back, <?php echo htmlspecialchars($your_name ?: $store_name); ?>!</h1>
             <p class="welcome-subtitle">Your MediaHub Dashboard</p>
             <p class="welcome-time"><?php echo date('l, F j, Y'); ?></p>
@@ -550,7 +592,7 @@ include __DIR__.'/header.php';
 
         <!-- Alerts -->
         <?php if (!empty($latest_broadcast)): ?>
-            <div class="alert alert-dismissible fade show alert-modern alert-broadcast animate__animated animate__fadeIn" id="broadcastAlert" data-id="<?php echo $latest_broadcast['id']; ?>">
+            <div class="alert alert-dismissible fade show alert-modern alert-broadcast" id="broadcastAlert" data-id="<?php echo $latest_broadcast['id']; ?>">
                 <div class="alert-icon">
                     <i class="bi bi-megaphone-fill"></i>
                 </div>
@@ -563,7 +605,7 @@ include __DIR__.'/header.php';
         <?php endif; ?>
 
         <?php if (!empty($latest_chat)): ?>
-            <div class="alert alert-dismissible fade show alert-modern alert-info animate__animated animate__fadeIn" id="chatAlert" data-id="<?php echo $latest_chat['id']; ?>">
+            <div class="alert alert-dismissible fade show alert-modern alert-info" id="chatAlert" data-id="<?php echo $latest_chat['id']; ?>">
                 <div class="alert-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
@@ -575,7 +617,7 @@ include __DIR__.'/header.php';
         <?php endif; ?>
 
         <?php if (!empty($replies)): ?>
-            <div class="alert alert-dismissible fade show alert-modern alert-warning animate__animated animate__fadeIn" id="replyAlert" data-id="<?php echo $last_reply_id; ?>">
+            <div class="alert alert-dismissible fade show alert-modern alert-warning" id="replyAlert" data-id="<?php echo $last_reply_id; ?>">
                 <div class="alert-icon">
                     <i class="bi bi-reply-fill"></i>
                 </div>
@@ -594,14 +636,14 @@ include __DIR__.'/header.php';
         <?php endif; ?>
 
         <?php foreach ($errors as $e): ?>
-            <div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="bi bi-exclamation-circle"></i> <?php echo htmlspecialchars($e); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endforeach; ?>
 
         <?php foreach ($success as $s): ?>
-            <div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($s); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -609,7 +651,7 @@ include __DIR__.'/header.php';
 
         <!-- Statistics Grid -->
         <div class="stats-grid">
-            <div class="stat-card primary animate__animated animate__fadeInUp">
+            <div class="stat-card primary">
                 <div class="stat-icon">
                     <i class="bi bi-cloud-upload-fill"></i>
                 </div>
@@ -618,7 +660,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card success animate__animated animate__fadeInUp delay-10">
+            <div class="stat-card success">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-week-fill"></i>
                 </div>
@@ -632,7 +674,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card warning animate__animated animate__fadeInUp delay-20">
+            <div class="stat-card warning">
                 <div class="stat-icon">
                     <i class="bi bi-image-fill"></i>
                 </div>
@@ -641,7 +683,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card info animate__animated animate__fadeInUp delay-30">
+            <div class="stat-card info">
                 <div class="stat-icon">
                     <i class="bi bi-camera-video-fill"></i>
                 </div>
@@ -650,7 +692,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card danger animate__animated animate__fadeInUp delay-40">
+            <div class="stat-card danger">
                 <div class="stat-icon">
                     <i class="bi bi-calendar-event-fill"></i>
                 </div>
@@ -659,7 +701,7 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card secondary animate__animated animate__fadeInUp delay-50">
+            <div class="stat-card secondary">
                 <div class="stat-icon">
                     <i class="bi bi-chat-dots-fill"></i>
                 </div>
@@ -678,7 +720,7 @@ include __DIR__.'/header.php';
         <div class="content-grid">
             <div class="left-column">
             <!-- Upload Section -->
-            <div class="upload-section animate__animated animate__fadeIn delay-60">
+            <div class="upload-section">
                 <h3 class="section-title">
                     <i class="bi bi-cloud-arrow-up-fill"></i>
                     Upload Content
@@ -733,7 +775,7 @@ include __DIR__.'/header.php';
             </div>
 
             <?php if (!empty($recent_chats)): ?>
-                <div class="chat-section animate__animated animate__fadeIn delay-90">
+                <div class="chat-section">
                     <div class="chat-header">
                         <h3 class="section-title m-0 text-white">
                             <i class="bi bi-chat-dots-fill"></i>
@@ -772,7 +814,7 @@ include __DIR__.'/header.php';
             <!-- Right Sidebar -->
             <div>
                 <!-- Quick Actions -->
-                <div class="quick-actions animate__animated animate__fadeIn delay-70">
+                <div class="quick-actions">
                     <h3 class="section-title">
                         <i class="bi bi-lightning-charge-fill"></i>
                         Quick Actions
@@ -797,10 +839,10 @@ include __DIR__.'/header.php';
 
                         <a href="history.php" class="action-card history">
                             <div class="action-icon">
-                                <i class="bi bi-clock-history"></i>
+                                <i class="bi bi-collection-play"></i>
                             </div>
                             <div class="action-content">
-                                <h5 class="action-title">Upload History</h5>
+                                <h5 class="action-title">Media Library</h5>
                                 <p class="action-desc">View all your uploads</p>
                             </div>
                             <i class="bi bi-chevron-right action-arrow"></i>
@@ -853,7 +895,7 @@ include __DIR__.'/header.php';
 
                 <!-- Recent Activity -->
                 <?php if (!empty($recent_uploads)): ?>
-                    <div class="activity-section mt-3 animate__animated animate__fadeIn delay-80">
+                    <div class="activity-section mt-3">
                         <h3 class="section-title">
                             <i class="bi bi-activity"></i>
                             Recent Activity
@@ -1030,7 +1072,7 @@ include __DIR__.'/header.php';
 
                 allFiles.forEach((file, index) => {
                     const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item animate__animated animate__fadeIn';
+                    fileItem.className = 'file-item';
 
                     const isVideo = file.type.startsWith('video/');
                     const iconClass = isVideo ? 'bi-camera-video-fill' : 'bi-image-fill';

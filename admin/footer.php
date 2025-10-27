@@ -1,62 +1,5 @@
 </div>
 
-<!-- Modern Footer -->
-<footer class="modern-footer">
-    <div class="footer-content">
-        <div class="footer-section">
-            <div class="footer-brand">
-                <div class="footer-logo">
-                    <i class="bi bi-speedometer2"></i>
-                </div>
-                <div class="footer-info">
-                    <div class="footer-title">MediaHub Admin</div>
-                    <div class="footer-version">Version <?php echo $version; ?></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-section">
-            <div class="footer-stats">
-                <div class="footer-stat">
-                    <i class="bi bi-clock"></i>
-                    <span>Uptime: <span id="uptimeDisplay">Loading...</span></span>
-                </div>
-                <div class="footer-stat">
-                    <i class="bi bi-activity"></i>
-                    <span>Status: <span class="status-indicator online">Online</span></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-section">
-            <div class="footer-links">
-                <a href="https://github.com/cosmickmedia" target="_blank" title="GitHub">
-                    <i class="bi bi-github"></i>
-                </a>
-                <a href="#" onclick="showShortcuts()" title="Keyboard Shortcuts">
-                    <i class="bi bi-keyboard"></i>
-                </a>
-                <a href="#" onclick="showSystemInfo()" title="System Information">
-                    <i class="bi bi-info-circle"></i>
-                </a>
-                <a href="#" onclick="exportLogs()" title="Export Logs">
-                    <i class="bi bi-download"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="footer-copyright">
-        <div class="copyright-text">
-            © <?php echo date('Y'); ?> Cosmick Media. All rights reserved.
-        </div>
-        <div class="footer-time">
-            <i class="bi bi-clock"></i>
-            <span id="currentTime"></span>
-        </div>
-    </div>
-</footer>
-
 <!-- System Information Modal -->
 <div class="modal fade" id="systemInfoModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -208,10 +151,6 @@
             }
         }, 500);
 
-        // Update current time
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 1000);
-
         // Initialize scroll effects
         initScrollEffects();
 
@@ -331,14 +270,7 @@
         });
     }
 
-    // Update current time
-    function updateCurrentTime() {
-        const timeElement = document.getElementById('currentTime');
-        if (timeElement) {
-            const now = new Date();
-            timeElement.textContent = now.toLocaleTimeString();
-        }
-    }
+    // Update current time (removed - footer no longer displayed)
 
     // Show system info modal
     function showSystemInfo() {
@@ -525,22 +457,6 @@
 
     // Load theme on page load
     loadSavedTheme();
-
-    // Show uptime (simulated)
-    const uptimeDisplay = document.getElementById('uptimeDisplay');
-    if (uptimeDisplay) {
-        const startTime = Date.now() - (Math.random() * 86400000); // Random uptime up to 24 hours
-
-        function updateUptime() {
-            const uptime = Date.now() - startTime;
-            const hours = Math.floor(uptime / 3600000);
-            const minutes = Math.floor((uptime % 3600000) / 60000);
-            uptimeDisplay.textContent = `${hours}h ${minutes}m`;
-        }
-
-        updateUptime();
-        setInterval(updateUptime, 60000); // Update every minute
-    }
 
     // Performance monitoring
     if ('performance' in window) {

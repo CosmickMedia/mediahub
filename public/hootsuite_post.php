@@ -71,6 +71,121 @@ if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 }
 
 /**
+ * Compress image if needed to ensure fast Hootsuite processing
+ * Target: <100KB for optimal speed (2-4 sec), max 1MB
+ * Returns: [compressed_path, new_size, was_compressed] or false on error
+ */
+function compressImageIfNeeded($filePath, $mimeType) {
+    $originalSize = filesize($filePath);
+
+    // Get compression settings from admin settings
+    $targetSize = (int)(get_setting('hootsuite_target_file_size') ?: 100) * 1024; // Default 100KB
+    $maxSize = (int)(get_setting('hootsuite_max_file_size') ?: 800) * 1024; // Default 800KB
+    $initialQuality = (int)(get_setting('hootsuite_compression_quality') ?: 85); // Default 85
+
+    // Only compress if needed
+    if ($originalSize <= $targetSize) {
+        error_log("Image is small enough ($originalSize bytes), no compression needed");
+        return [$filePath, $originalSize, false];
+    }
+
+    error_log("Image needs compression: $originalSize bytes → target $targetSize bytes");
+
+    // Check if GD is available
+    if (!function_exists('imagecreatefromjpeg')) {
+        error_log("GD library not available, cannot compress images");
+        return false;
+    }
+
+    // Load image based on type
+    $image = null;
+    $imageType = null;
+
+    if ($mimeType === 'image/jpeg' || $mimeType === 'image/jpg') {
+        $image = @imagecreatefromjpeg($filePath);
+        $imageType = 'jpeg';
+    } elseif ($mimeType === 'image/png') {
+        $image = @imagecreatefrompng($filePath);
+        $imageType = 'png';
+    } else {
+        error_log("Unsupported image type for compression: $mimeType");
+        return false;
+    }
+
+    if (!$image) {
+        error_log("Failed to load image for compression");
+        return false;
+    }
+
+    // Get original dimensions
+    $width = imagesx($image);
+    $height = imagesy($image);
+    error_log("Original dimensions: {$width}x{$height}");
+
+    // Try compression with quality reduction first
+    $quality = $initialQuality; // Use admin setting
+    $tempPath = $filePath . '.compressed.jpg';
+    $compressed = false;
+
+    while ($quality >= 50 && !$compressed) {
+        // Convert to JPEG for better compression
+        imagejpeg($image, $tempPath, $quality);
+        $newSize = filesize($tempPath);
+
+        error_log("Compression attempt: quality=$quality, size=$newSize bytes");
+
+        if ($newSize <= $maxSize) {
+            $compressed = true;
+            error_log("SUCCESS: Compressed to $newSize bytes at quality $quality");
+        } else {
+            $quality -= 10;
+        }
+    }
+
+    // If quality reduction isn't enough, try resizing
+    if (!$compressed) {
+        error_log("Quality reduction not enough, trying resize...");
+
+        // Calculate new dimensions (reduce by 20% each iteration)
+        $scale = 0.8;
+        while ($scale >= 0.3 && !$compressed) {
+            $newWidth = (int)($width * $scale);
+            $newHeight = (int)($height * $scale);
+
+            $resized = imagecreatetruecolor($newWidth, $newHeight);
+            imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+            imagejpeg($resized, $tempPath, 75);
+            $newSize = filesize($tempPath);
+
+            error_log("Resize attempt: {$newWidth}x{$newHeight}, size=$newSize bytes");
+
+            if ($newSize <= $maxSize) {
+                $compressed = true;
+                error_log("SUCCESS: Resized to {$newWidth}x{$newHeight}, $newSize bytes");
+            }
+
+            imagedestroy($resized);
+            $scale -= 0.1;
+        }
+    }
+
+    imagedestroy($image);
+
+    if (!$compressed) {
+        error_log("Failed to compress image under $maxSize bytes");
+        @unlink($tempPath);
+        return false;
+    }
+
+    $finalSize = filesize($tempPath);
+    $reduction = round((1 - $finalSize / $originalSize) * 100);
+    error_log("Image compressed: $originalSize → $finalSize bytes ($reduction% reduction)");
+
+    return [$tempPath, $finalSize, true];
+}
+
+/**
  * Upload media to Hootsuite using their 3-step process
  * Step 1: Request upload URL (POST /v1/media)
  * Step 2: Upload to S3
@@ -145,19 +260,25 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
 
     error_log("S3 upload successful");
 
-    // Step 3: CRITICAL - Poll until media is READY (has downloadUrl)
-    $maxAttempts = 15;  // Up to 30 seconds (15 attempts x 2 seconds)
+    // Step 3: CRITICAL - Must wait for READY state
+    // Media attached in QUEUED state will silently fail (post created but no media)
+    // Based on Hootsuite support findings:
+    // - Files <100KB: Process to READY in 2-4 seconds
+    // - Files >1MB: Can take 30+ seconds or get stuck indefinitely
+
+    $maxAttempts = 20;  // Up to 60 seconds with exponential backoff
     $attempt = 0;
     $mediaReady = false;
 
-    error_log("Polling for media to be ready (waiting for downloadUrl)...");
+    error_log("Polling for media READY state (file size: $fileSize bytes)...");
 
     while ($attempt < $maxAttempts && !$mediaReady) {
         $attempt++;
 
-        // Wait 2 seconds between polls
+        // Exponential backoff: 1s, 2s, 3s, 3s, 3s...
         if ($attempt > 1) {
-            sleep(2);
+            $waitTime = min($attempt, 3);
+            sleep($waitTime);
         }
 
         $ch = curl_init('https://platform.hootsuite.com/v1/media/' . urlencode($mediaId));
@@ -175,35 +296,28 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
 
         if ($verifyCode === 200) {
             $verifyData = json_decode($verifyResponse, true);
-
-            // Log the full response to understand what we're getting
-            error_log("Attempt $attempt response: " . json_encode($verifyData));
-
-            // Check multiple possible fields
-            $downloadUrl = $verifyData['data']['downloadUrl'] ?? null;
             $state = $verifyData['data']['state'] ?? null;
 
-            if (!empty($downloadUrl)) {
-                error_log("Media READY on attempt $attempt! Download URL: " . substr($downloadUrl, 0, 100) . "...");
+            error_log("Attempt $attempt: Media state = $state");
+
+            if ($state === 'READY') {
+                error_log("SUCCESS: Media is READY after $attempt attempts!");
                 $mediaReady = true;
                 break;
-            } else if ($state === 'READY') {
-                error_log("Media state is READY on attempt $attempt (but no downloadUrl yet)");
-                $mediaReady = true;  // Try accepting READY state even without downloadUrl
-                break;
-            } else {
-                error_log("Attempt $attempt: Media still processing (downloadUrl: " . ($downloadUrl ?: 'null') . ", state: " . ($state ?: 'not provided') . ")");
+            } else if ($state === 'FAILED' || $state === 'ERROR') {
+                error_log("FAILED: Media processing failed (state: $state)");
+                return null;
             }
+            // Continue polling if QUEUED or PROCESSING
         } else {
-            error_log("Attempt $attempt: Failed to check status (code $verifyCode)");
+            error_log("Attempt $attempt: Failed to check status (HTTP $verifyCode)");
         }
     }
 
     if (!$mediaReady) {
-        error_log("WARNING: Media may not be ready after $maxAttempts attempts (30 seconds)");
-        error_log("Proceeding anyway, but image may not attach properly");
-    } else {
-        error_log("Media confirmed ready - safe to attach to post");
+        error_log("TIMEOUT: Media did not reach READY state after $maxAttempts attempts");
+        error_log("File size was $fileSize bytes - large files may need manual upload");
+        return null;  // Return null to post without media
     }
 
     return $mediaId;
@@ -245,18 +359,272 @@ function profileSupportsMedia($pdo, $profileId) {
     $stmt->execute([$profileId]);
     $network = strtolower($stmt->fetchColumn() ?: '');
 
-    // Networks that commonly have media issues via API
+    // Check if platform has auto-cropping enabled
+    $platformSettings = getPlatformImageSettings($pdo, $network);
+
+    // If auto-cropping is enabled for this platform, media is supported
+    if ($platformSettings && !empty($platformSettings['enabled'])) {
+        error_log("Profile $profileId is $network - auto-crop enabled, media supported");
+        return true;
+    }
+
+    // Networks that commonly have media issues via API (when auto-crop is disabled)
     $restrictedNetworks = ['instagram', 'pinterest'];
 
     if (in_array($network, $restrictedNetworks)) {
-        error_log("Profile $profileId is $network - may have media restrictions");
-        return false; // Conservative approach - skip media for these networks
+        error_log("Profile $profileId is $network - auto-crop disabled, skipping media");
+        return false; // Conservative approach - skip media for these networks without auto-crop
     }
 
     return true;
 }
 
-if ($action === 'create' || $action === 'update') {
+/**
+ * Get platform-specific image settings (from database or defaults)
+ */
+function getPlatformImageSettings($pdo, $network) {
+    $network = strtolower(trim($network));
+
+    // Try to get custom settings from database first
+    $stmt = $pdo->prepare('SELECT * FROM social_network_image_settings WHERE LOWER(network_name) = ?');
+    $stmt->execute([$network]);
+
+    if ($settings = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        return $settings;
+    }
+
+    // Return hardcoded defaults if table doesn't exist or no custom settings
+    return getDefaultPlatformSettings($network);
+}
+
+/**
+ * Get default platform image settings
+ */
+function getDefaultPlatformSettings($network) {
+    $defaults = [
+        'instagram' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1:1',
+            'target_width' => 1080,
+            'target_height' => 1080,
+            'min_width' => 320,
+            'max_file_size_kb' => 5120
+        ],
+        'facebook' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1.91:1',
+            'target_width' => 1200,
+            'target_height' => 630,
+            'min_width' => 200,
+            'max_file_size_kb' => 10240
+        ],
+        'linkedin' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1.91:1',
+            'target_width' => 1200,
+            'target_height' => 627,
+            'min_width' => 200,
+            'max_file_size_kb' => 10240
+        ],
+        'x' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1:1',
+            'target_width' => 1080,
+            'target_height' => 1080,
+            'min_width' => 200,
+            'max_file_size_kb' => 5120
+        ],
+        'twitter' => [
+            'enabled' => 1,
+            'aspect_ratio' => '1:1',
+            'target_width' => 1080,
+            'target_height' => 1080,
+            'min_width' => 200,
+            'max_file_size_kb' => 5120
+        ],
+        'threads' => [
+            'enabled' => 1,
+            'aspect_ratio' => '9:16',
+            'target_width' => 1080,
+            'target_height' => 1920,
+            'min_width' => 320,
+            'max_file_size_kb' => 10240
+        ],
+        'pinterest' => [
+            'enabled' => 1,
+            'aspect_ratio' => '2:3',
+            'target_width' => 1000,
+            'target_height' => 1500,
+            'min_width' => 200,
+            'max_file_size_kb' => 20480
+        ]
+    ];
+
+    return $defaults[$network] ?? [
+        'enabled' => 1,
+        'aspect_ratio' => '1:1',
+        'target_width' => 1080,
+        'target_height' => 1080,
+        'min_width' => 200,
+        'max_file_size_kb' => 5120
+    ];
+}
+
+/**
+ * Crop and resize image to specific aspect ratio from center
+ * Returns path to cropped image or false on error
+ */
+function cropImageToAspectRatio($sourcePath, $targetWidth, $targetHeight, $outputPath = null) {
+    if (!file_exists($sourcePath)) {
+        error_log("Source image not found: $sourcePath");
+        return false;
+    }
+
+    // Get source image info
+    $imageInfo = @getimagesize($sourcePath);
+    if (!$imageInfo) {
+        error_log("Could not get image info for: $sourcePath");
+        return false;
+    }
+
+    list($srcWidth, $srcHeight, $imageType) = $imageInfo;
+    error_log("Source image: {$srcWidth}x{$srcHeight}, Target: {$targetWidth}x{$targetHeight}");
+
+    // Load source image based on type
+    $srcImage = null;
+    switch ($imageType) {
+        case IMAGETYPE_JPEG:
+            $srcImage = @imagecreatefromjpeg($sourcePath);
+            break;
+        case IMAGETYPE_PNG:
+            $srcImage = @imagecreatefrompng($sourcePath);
+            break;
+        case IMAGETYPE_GIF:
+            $srcImage = @imagecreatefromgif($sourcePath);
+            break;
+        default:
+            error_log("Unsupported image type: $imageType");
+            return false;
+    }
+
+    if (!$srcImage) {
+        error_log("Failed to create image resource from: $sourcePath");
+        return false;
+    }
+
+    // Calculate target aspect ratio
+    $targetRatio = $targetWidth / $targetHeight;
+    $srcRatio = $srcWidth / $srcHeight;
+
+    // Calculate crop dimensions (crop from center)
+    if ($srcRatio > $targetRatio) {
+        // Source is wider - crop width
+        $cropHeight = $srcHeight;
+        $cropWidth = (int)($srcHeight * $targetRatio);
+        $cropX = (int)(($srcWidth - $cropWidth) / 2);
+        $cropY = 0;
+    } else {
+        // Source is taller - crop height
+        $cropWidth = $srcWidth;
+        $cropHeight = (int)($srcWidth / $targetRatio);
+        $cropX = 0;
+        $cropY = (int)(($srcHeight - $cropHeight) / 2);
+    }
+
+    error_log("Crop area: {$cropWidth}x{$cropHeight} from ({$cropX},{$cropY})");
+
+    // Create destination image
+    $dstImage = imagecreatetruecolor($targetWidth, $targetHeight);
+
+    // Preserve transparency for PNG
+    if ($imageType == IMAGETYPE_PNG) {
+        imagealphablending($dstImage, false);
+        imagesavealpha($dstImage, true);
+        $transparent = imagecolorallocatealpha($dstImage, 255, 255, 255, 127);
+        imagefilledrectangle($dstImage, 0, 0, $targetWidth, $targetHeight, $transparent);
+    }
+
+    // Copy and resize
+    imagecopyresampled(
+        $dstImage, $srcImage,
+        0, 0, $cropX, $cropY,
+        $targetWidth, $targetHeight,
+        $cropWidth, $cropHeight
+    );
+
+    // Generate output path if not provided
+    if (!$outputPath) {
+        $pathInfo = pathinfo($sourcePath);
+        $outputPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_cropped_' . $targetWidth . 'x' . $targetHeight . '.jpg';
+    }
+
+    // Save as JPEG for best compression
+    $success = imagejpeg($dstImage, $outputPath, 90);
+
+    // Clean up
+    imagedestroy($srcImage);
+    imagedestroy($dstImage);
+
+    if ($success) {
+        error_log("Cropped image saved to: $outputPath");
+        return $outputPath;
+    } else {
+        error_log("Failed to save cropped image to: $outputPath");
+        return false;
+    }
+}
+
+if ($action === 'update') {
+    // Hootsuite API does not support editing scheduled posts via PUT/PATCH
+    // We must delete and recreate the post with updated content
+    $post_id = $_POST['post_id'] ?? '';
+
+    if ($post_id === '') {
+        echo json_encode(['success' => false, 'error' => 'Missing post id']);
+        exit;
+    }
+
+    // Fetch existing post data BEFORE deleting (to preserve media if not uploading new files)
+    $stmt = $pdo->prepare('SELECT created_by_user_id, media_urls FROM hootsuite_posts WHERE post_id=? AND store_id=?');
+    $stmt->execute([$post_id, $store_id]);
+    $existingPost = $stmt->fetch(PDO::FETCH_ASSOC);
+    $owner = $existingPost['created_by_user_id'] ?? null;
+    $existingMediaUrls = $existingPost['media_urls'] ?? null;
+
+    if (!$is_admin_action && $owner && $owner != $user_id) {
+        echo json_encode(['success' => false, 'error' => 'Not authorized to update this post']);
+        exit;
+    }
+
+    // Store existing media URLs for use if no new media is uploaded
+    $_SESSION['existing_media_urls_for_update'] = $existingMediaUrls;
+    error_log("Preserved existing media URLs: " . ($existingMediaUrls ?: 'none'));
+
+    // Delete the existing post from Hootsuite
+    error_log("Deleting existing post $post_id before recreating with updates");
+    $ch = curl_init('https://platform.hootsuite.com/v1/messages/' . urlencode($post_id));
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER => ["Authorization: Bearer $token"],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => 'DELETE'
+    ]);
+    $deleteResponse = curl_exec($ch);
+    $deleteCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    // Log the delete attempt (don't fail if delete fails - post might already be sent/deleted)
+    error_log("Delete attempt for post $post_id: HTTP $deleteCode - Response: $deleteResponse");
+
+    // Delete from database
+    $stmt = $pdo->prepare('DELETE FROM hootsuite_posts WHERE post_id=? AND store_id=?');
+    $stmt->execute([$post_id, $store_id]);
+
+    // Now change action to 'create' to recreate the post with updated content
+    $action = 'create';
+    error_log("Post deleted, now recreating with updated content");
+}
+
+if ($action === 'create') {
     $text = trim($_POST['text'] ?? '');
     $scheduled = $_POST['scheduled_time'] ?? '';
     $profile_ids = $_POST['profile_ids'] ?? ($_POST['profile_id'] ?? []);
@@ -291,6 +659,8 @@ if ($action === 'create' || $action === 'update') {
     $mediaUrls = [];
 
     if (!empty($_FILES['media'])) {
+        // New media uploaded - clear any existing media from update
+        unset($_SESSION['existing_media_urls_for_update']);
         // Check if it's a single file or multiple files
         $isSingleFile = !is_array($_FILES['media']['name']);
 
@@ -356,6 +726,41 @@ if ($action === 'create' || $action === 'update') {
         }
     }
 
+    // If this was an update and no new media was uploaded, use existing media from the original post
+    if (empty($localMediaPaths) && !empty($_SESSION['existing_media_urls_for_update'])) {
+        error_log("No new media uploaded, using existing media from original post");
+
+        // Decode the existing media URLs
+        $existingUrls = json_decode($_SESSION['existing_media_urls_for_update'], true);
+        if (is_array($existingUrls)) {
+            foreach ($existingUrls as $url) {
+                // Convert URL to file path
+                $localPath = __DIR__ . str_replace('/public', '', $url);
+
+                if (file_exists($localPath)) {
+                    error_log("Found existing media file: $localPath");
+
+                    // Get file info
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                    $mimeType = finfo_file($finfo, $localPath);
+                    finfo_close($finfo);
+
+                    $localMediaPaths[] = [
+                        'path' => $localPath,
+                        'name' => basename($localPath),
+                        'mime' => $mimeType
+                    ];
+                    $mediaUrls[] = $url;
+                } else {
+                    error_log("WARNING: Existing media file not found: $localPath");
+                }
+            }
+        }
+
+        // Clear the session variable after use
+        unset($_SESSION['existing_media_urls_for_update']);
+    }
+
     if ($action === 'create') {
         $events = [];
         $utc_time = gmdate('Y-m-d\TH:i:s\Z', $ts);
@@ -364,20 +769,56 @@ if ($action === 'create' || $action === 'update') {
         // If it fails with media, then try without media
         $hasMedia = !empty($localMediaPaths);
         $mediaPayload = [];
+        $mediaTimedOut = false;
 
         if ($hasMedia) {
-            // Upload all media files
+            // Upload all media files (with automatic compression)
             foreach ($localMediaPaths as $mediaFile) {
+                $uploadPath = $mediaFile['path'];
+                $uploadMime = $mediaFile['mime'];
+                $wasCompressed = false;
+                $compressionInfo = '';
+
+                // Compress image if needed (only for images)
+                if (strpos($uploadMime, 'image/') === 0) {
+                    $compressionResult = compressImageIfNeeded($mediaFile['path'], $mediaFile['mime']);
+
+                    if ($compressionResult && $compressionResult !== false) {
+                        list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
+
+                        if ($wasCompressed) {
+                            $uploadPath = $compressedPath;
+                            $uploadMime = 'image/jpeg'; // Always JPEG after compression
+                            $originalSize = filesize($mediaFile['path']);
+                            $reduction = round((1 - $compressedSize / $originalSize) * 100);
+                            $compressionInfo = "Compressed: " . round($originalSize/1024) . "KB → " . round($compressedSize/1024) . "KB ($reduction% reduction)";
+                            error_log($compressionInfo);
+                        }
+                    } elseif ($compressionResult === false) {
+                        error_log("Compression failed for: " . $mediaFile['name'] . " - file may be too large");
+                        $mediaTimedOut = true;
+                        continue; // Skip this file
+                    }
+                }
+
                 $mediaId = uploadMediaToHootsuite(
                     $token,
-                    $mediaFile['path'],
+                    $uploadPath,
                     $mediaFile['name'],
-                    $mediaFile['mime']
+                    $uploadMime
                 );
+
+                // Clean up compressed file if created
+                if ($wasCompressed && file_exists($uploadPath)) {
+                    @unlink($uploadPath);
+                }
 
                 if ($mediaId) {
                     $mediaPayload[] = ['id' => $mediaId];
                     error_log("Media upload complete with ID: $mediaId");
+                } else {
+                    error_log("Media upload failed/timed out for: " . $mediaFile['name']);
+                    $mediaTimedOut = true;
                 }
             }
         }
@@ -500,7 +941,17 @@ if ($action === 'create' || $action === 'update') {
                     ];
             }
 
-            echo json_encode(['success' => true, 'events' => $events]);
+            $result = ['success' => true, 'events' => $events];
+
+            // Warn user if media timed out even after compression attempt
+            if ($mediaTimedOut && empty($mediaPayload)) {
+                $result['warning'] = 'Post created successfully, but the media could not be uploaded. The file may be too large or in an unsupported format. Try using a smaller image (<1MB) or manually add media in Hootsuite.';
+            }
+
+            // Clean up session variable
+            unset($_SESSION['existing_media_urls_for_update']);
+
+            echo json_encode($result);
             exit;
         }
 
@@ -513,6 +964,11 @@ if ($action === 'create' || $action === 'update') {
         foreach ($profile_ids as $profile_id) {
             error_log("Creating post for profile: $profile_id");
 
+            // Get network name for this profile
+            $profStmt = $pdo->prepare('SELECT network FROM hootsuite_profiles WHERE id=?');
+            $profStmt->execute([$profile_id]);
+            $networkName = strtolower($profStmt->fetchColumn() ?: '');
+
             // Check if this profile supports media
             $supportsMedia = profileSupportsMedia($pdo, $profile_id);
 
@@ -524,12 +980,76 @@ if ($action === 'create' || $action === 'update') {
             if ($hasMedia && $supportsMedia) {
                 // Only try media if profile supports it
                 $mediaFile = $localMediaPaths[0];
+                $uploadPath = $mediaFile['path'];
+                $uploadMime = $mediaFile['mime'];
+                $wasCompressed = false;
+                $wasCropped = false;
+                $croppedPath = null;
+
+                // Get platform-specific image settings
+                $platformSettings = getPlatformImageSettings($pdo, $networkName);
+
+                // Apply platform-specific cropping if enabled (only for images)
+                if (strpos($uploadMime, 'image/') === 0 && $platformSettings && !empty($platformSettings['enabled'])) {
+                    $targetWidth = $platformSettings['target_width'] ?? 1080;
+                    $targetHeight = $platformSettings['target_height'] ?? 1080;
+
+                    error_log("Platform $networkName requires {$targetWidth}x{$targetHeight} (aspect ratio: {$platformSettings['aspect_ratio']})");
+
+                    // Generate platform-specific crop
+                    $pathInfo = pathinfo($mediaFile['path']);
+                    $croppedFilename = time() . '_' . $networkName . '_' . $pathInfo['filename'] . '.jpg';
+                    $croppedPath = $uploadDir . $croppedFilename;
+
+                    $cropResult = cropImageToAspectRatio(
+                        $mediaFile['path'],
+                        $targetWidth,
+                        $targetHeight,
+                        $croppedPath
+                    );
+
+                    if ($cropResult && file_exists($croppedPath)) {
+                        $uploadPath = $croppedPath;
+                        $uploadMime = 'image/jpeg';
+                        $wasCropped = true;
+                        error_log("Generated platform-specific crop for $networkName: $croppedPath");
+                    } else {
+                        error_log("Failed to crop image for $networkName, using original");
+                    }
+                }
+
+                // Compress image if needed (only for images)
+                if (strpos($uploadMime, 'image/') === 0) {
+                    $compressionResult = compressImageIfNeeded($uploadPath, $uploadMime);
+
+                    if ($compressionResult && $compressionResult !== false) {
+                        list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
+
+                        if ($wasCompressed) {
+                            // If we created a crop, clean it up before using compressed version
+                            if ($wasCropped && $uploadPath !== $mediaFile['path'] && file_exists($uploadPath)) {
+                                @unlink($uploadPath);
+                            }
+                            $uploadPath = $compressedPath;
+                            $uploadMime = 'image/jpeg';
+                            error_log("Image compressed for profile $profile_id");
+                        }
+                    }
+                }
+
                 $mediaId = uploadMediaToHootsuite(
                     $token,
-                    $mediaFile['path'],
+                    $uploadPath,
                     $mediaFile['name'],
-                    $mediaFile['mime']
+                    $uploadMime
                 );
+
+                // Clean up temporary files
+                if ($wasCompressed && file_exists($uploadPath)) {
+                    @unlink($uploadPath);
+                } else if ($wasCropped && $uploadPath !== $mediaFile['path'] && file_exists($uploadPath)) {
+                    @unlink($uploadPath);
+                }
 
                 if ($mediaId) {
                     $profileMediaPayload[] = ['id' => $mediaId];
@@ -779,149 +1299,22 @@ if ($action === 'create' || $action === 'update') {
         }
 
         if (empty($events)) {
+            // Clean up session variable
+            unset($_SESSION['existing_media_urls_for_update']);
             echo json_encode(['success' => false, 'error' => 'Failed to create posts for all profiles']);
         } else {
             $result = ['success' => true, 'events' => $events];
             if (!empty($failedProfiles)) {
                 $result['warnings'] = 'Some profiles failed: ' . implode(', ', $failedProfiles);
             }
+            // Clean up session variable
+            unset($_SESSION['existing_media_urls_for_update']);
             echo json_encode($result);
         }
         exit;
     }
-
-    // Update existing post (single profile) - keeping this part the same
-    // This section remains unchanged
-    $profile_id = $profile_ids[0];
-
-    // Upload media for update if needed
-    $mediaPayload = [];
-    if (!empty($localMediaPaths)) {
-        $mediaFile = $localMediaPaths[0];
-        $mediaId = uploadMediaToHootsuite(
-            $token,
-            $mediaFile['path'],
-            $mediaFile['name'],
-            $mediaFile['mime']
-        );
-
-        if ($mediaId) {
-            $mediaPayload[] = ['id' => $mediaId];
-            error_log("Media upload complete for update with ID: $mediaId");
-        }
-    }
-
-    // Format date in UTC with Z suffix
-    $utc_time = gmdate('Y-m-d\TH:i:s\Z', $ts);
-
-    $payload = [
-        'text' => $text,
-        'socialProfileIds' => [$profile_id],
-        'scheduledSendTime' => $utc_time
-    ];
-    if ($tagsArr) $payload['tags'] = $tagsArr;
-    // Add media if present - use mediaIds format for update
-    if ($mediaPayload && !empty($mediaPayload[0]['id'])) {
-        $mediaIds = array_map(function($m) { return $m['id']; }, $mediaPayload);
-        $payload['mediaIds'] = $mediaIds;
-    }
-
-    $url = 'https://platform.hootsuite.com/v1/messages/' . urlencode($post_id);
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer $token",
-            'Content-Type: application/json',
-            'Accept: application/json'
-        ],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CUSTOMREQUEST => 'PUT',
-        CURLOPT_POSTFIELDS => json_encode($payload)
-    ]);
-    $response = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $err = curl_error($ch);
-    curl_close($ch);
-
-    if ($err || $code >= 400) {
-        error_log("Update error (code $code): $response");
-        $responseData = json_decode($response, true);
-        $errorMsg = $responseData['errors'][0]['message'] ?? 'Failed to update post';
-        echo json_encode(['success' => false, 'error' => $errorMsg]);
-        exit;
-    }
-
-    $data = json_decode($response, true);
-    $postId = $data['data']['id'] ?? $data['id'] ?? $post_id;
-    $state = $data['data']['state'] ?? $data['state'] ?? 'SCHEDULED';
-    $scheduledSendTime = $data['data']['scheduledSendTime'] ?? $data['scheduledSendTime'] ?? date('c', $ts);
-    $scheduledSendTime = date('Y-m-d H:i:s', strtotime($scheduledSendTime));
-
-    $color = '#0d6efd';
-    $icon = 'bi-share';
-    $networkName = '';
-    $profStmt = $pdo->prepare('SELECT network FROM hootsuite_profiles WHERE id=?');
-    $profStmt->execute([$profile_id]);
-    if ($netKey = strtolower($profStmt->fetchColumn() ?: '')) {
-        $netStmt = $pdo->prepare('SELECT name, icon, color FROM social_networks WHERE LOWER(name)=?');
-        $netStmt->execute([$netKey]);
-        if ($n = $netStmt->fetch()) {
-            $networkName = $n['name'] ?? '';
-            $color = $n['color'] ?? $color;
-            $icon = $n['icon'] ?? $icon;
-        }
-    }
-
-    // Check ownership before updating
-    $stmt = $pdo->prepare('SELECT created_by_user_id FROM hootsuite_posts WHERE post_id=? AND store_id=?');
-    $stmt->execute([$post_id, $store_id]);
-    $owner = $stmt->fetchColumn();
-    if ($owner && $owner != $user_id) {
-        echo json_encode(['success' => false, 'error' => 'Not authorized to update this post']);
-        exit;
-    }
-
-    $stmt = $pdo->prepare('UPDATE hootsuite_posts SET text=?, scheduled_send_time=?, raw_json=?, state=?, social_profile_id=?, tags=?, media=?, created_by_user_id=?, media_urls=? WHERE post_id=? AND store_id=?');
-    $stmt->execute([
-        $text,
-        $scheduledSendTime,
-        $response,
-        $state,
-        $profile_id,
-        json_encode($tagsArr),
-        json_encode($mediaPayload),
-        $user_id,
-        json_encode($mediaUrls),
-        $post_id,
-        $store_id
-    ]);
-
-    $event = [
-        'id' => $postId,
-        'title' => $networkName ?: 'Post',
-        'start' => str_replace(' ', 'T', $scheduledSendTime),
-        'backgroundColor' => $color,
-        'borderColor' => $color,
-        'classNames' => ['social-' . ($networkName ? preg_replace('/[^a-z0-9]+/','-', strtolower($networkName)) : 'default')],
-        'extendedProps' => [
-            'text' => $text,
-            'time' => str_replace(' ', 'T', $scheduledSendTime),
-            'tags' => $tagsArr,
-            'source' => 'API',
-            'post_id' => $postId,
-            'created_by_user_id' => $user_id,
-            'social_profile_id' => $profile_id,
-            'media_urls' => $mediaUrls,
-            'posted_by' => $user_name,
-            'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-            'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-            'icon' => $icon,
-            'network' => $networkName
-        ]
-    ];
-
-    echo json_encode(['success' => true, 'event' => $event]);
-    exit;
+    // The 'update' action now uses delete-and-recreate (see lines 577-619)
+    // and falls through to the 'create' logic above, so no separate update code is needed
 }
 
 if ($action === 'delete') {

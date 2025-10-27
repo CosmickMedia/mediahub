@@ -30,9 +30,48 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
     <link rel="stylesheet" href="/assets/css/common.css?v=<?php echo $version; ?>">
     <link rel="stylesheet" href="inc/css/style.css?v=<?php echo $version; ?>">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/assets/images/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/assets/images/favicon-16x16.png" sizes="16x16">
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+
+    <!-- Apple Touch Icons for iOS -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- Android Chrome Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/admin/manifest.json">
+
+    <!-- iOS Safari Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MediaHub Admin">
+
+    <!-- Android Chrome Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="MediaHub Admin">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="msapplication-TileColor" content="#2c3e50">
+    <meta name="msapplication-TileImage" content="/icon-192.png">
+
+    <!-- Service Worker Registration for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/admin/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 
 </head>
 <body>
