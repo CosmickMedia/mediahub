@@ -6,11 +6,19 @@ $rows = [];
 try {
     $stmt = $pdo->query('SELECT id, username, type FROM hootsuite_profiles ORDER BY username');
     foreach ($stmt as $p) {
+        $id = $p['id'] ?? '';
         $username = $p['username'] ?? '';
         $type = $p['type'] ?? '';
-        $label = trim($username) !== '' ? $username . ' (' . $type . ')' : $type;
+
+        // Build label with ID for easy cross-reference in Hootsuite
+        if (trim($username) !== '') {
+            $label = $username . ' (' . $type . ') - ID: ' . $id;
+        } else {
+            $label = $type . ' - ID: ' . $id;
+        }
+
         $rows[] = [
-            'id' => $p['id'],
+            'id' => $id,
             'name' => $label
         ];
     }

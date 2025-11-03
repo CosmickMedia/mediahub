@@ -288,32 +288,29 @@ include __DIR__.'/header.php';
         <?php endif; ?>
 
         <?php if (empty($posts)): ?>
-            <div class="empty-state">
-                <i class="bi bi-calendar-x"></i>
-                <h3>No Scheduled Posts</h3>
-                <?php if ($no_display_settings): ?>
-                    <div class="alert alert-warning mt-3" style="max-width: 600px; margin: 0 auto;">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <strong>Calendar Display Settings Required</strong>
-                        <p class="mb-2 mt-2">The calendar is currently not configured to display any posts. To see scheduled posts, an administrator needs to enable at least one of these options:</p>
-                        <ul class="text-start mb-2">
-                            <li><strong>Calendar Import</strong> - Shows posts imported from Google Sheets</li>
-                            <li><strong>Hootsuite Integration</strong> - Shows posts created via Hootsuite API</li>
-                        </ul>
-                        <p class="mb-0"><i class="bi bi-gear"></i> <strong>Admin:</strong> Go to <a href="/admin/settings.php" class="alert-link">Settings</a> and check "Display on customer calendar" under the Calendar Import or Hootsuite Integration sections.</p>
-                    </div>
-                <?php else: ?>
-                    <p>Start scheduling your social media content to see it appear here.</p>
+            <?php if ($no_display_settings): ?>
+                <div class="alert alert-warning" style="margin-bottom: 20px;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Calendar Display Settings Required</strong>
+                    <p class="mb-2 mt-2">The calendar is currently not configured to display any posts. To see scheduled posts, an administrator needs to enable at least one of these options:</p>
+                    <ul class="text-start mb-2">
+                        <li><strong>Calendar Import</strong> - Shows posts imported from Google Sheets</li>
+                        <li><strong>Hootsuite Integration</strong> - Shows posts created via Hootsuite API</li>
+                    </ul>
+                    <p class="mb-0"><i class="bi bi-gear"></i> <strong>Admin:</strong> Go to <a href="/admin/settings.php" class="alert-link">Settings</a> and check "Display on customer calendar" under the Calendar Import or Hootsuite Integration sections.</p>
+                </div>
+            <?php else: ?>
+                <div class="alert alert-info" style="margin-bottom: 20px;">
+                    <i class="bi bi-calendar-check"></i>
+                    <strong>No Scheduled Posts</strong>
+                    <p class="mb-0">You don't have any scheduled posts yet. Use the calendar below to browse through months, or start scheduling your social media content!</p>
                     <?php if (!$allow_schedule): ?>
-                        <div class="alert alert-info mt-3" style="max-width: 600px; margin: 0 auto;">
-                            <i class="bi bi-info-circle"></i>
-                            <strong>Ready to schedule posts?</strong>
-                            <p class="mb-0">An administrator needs to configure social media profiles for this store to enable post scheduling. Go to <a href="/admin/edit_store.php?id=<?php echo $store_id; ?>" class="alert-link">Store Settings</a> to add Hootsuite profiles.</p>
-                        </div>
+                        <hr style="margin: 10px 0;">
+                        <p class="mb-0"><small><i class="bi bi-info-circle"></i> An administrator needs to configure social media profiles for this store to enable post scheduling. Go to <a href="/admin/edit_store.php?id=<?php echo $store_id; ?>" class="alert-link">Store Settings</a> to add social media profiles.</small></p>
                     <?php endif; ?>
-                <?php endif; ?>
-            </div>
-        <?php else: ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
             <!-- Analytics Dashboard -->
             <div class="analytics-dashboard">
                 <div class="stat-card total-posts">
@@ -386,7 +383,6 @@ include __DIR__.'/header.php';
             <div class="calendar-list-view" id="listView">
                 <!-- List items will be dynamically added here -->
             </div>
-        <?php endif; ?>
     </div>
 
     <!-- Event Modal - for individual events -->

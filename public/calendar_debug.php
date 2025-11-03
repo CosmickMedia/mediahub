@@ -90,7 +90,7 @@ try {
         echo "</table>";
     } else {
         echo "<p class='bad'>⚠ No profile IDs configured for this store.</p>";
-        echo "<p><strong>Fix:</strong> Go to <a href='/admin/edit_store.php?id=$store_id' target='_blank'>Store Settings</a> and select Hootsuite profiles.</p>";
+        echo "<p><strong>Fix:</strong> Go to <a href='/admin/edit_store.php?id=$store_id' target='_blank'>Store Settings</a> and select social media profiles.</p>";
     }
 
     // Check social networks status
@@ -190,7 +190,7 @@ try {
 
     if (!$calendar_ok && !$hootsuite_ok) {
         echo "<p class='bad'>⚠ <strong>Both display settings are disabled!</strong> The calendar will show \"No Scheduled Posts\" even if posts exist.</p>";
-        echo "<p><strong>Fix:</strong> Go to <a href='/admin/settings.php' target='_blank'>Settings</a> and enable \"Display on customer calendar\" under Calendar Import or Hootsuite Integration.</p>";
+        echo "<p><strong>Fix:</strong> Go to <a href='/admin/settings.php' target='_blank'>Settings</a> and enable \"Display on customer calendar\" under Calendar Import or Social Media Integration.</p>";
     } else {
         echo "<p class='good'>✓ At least one display setting is enabled - posts should be visible if they exist.</p>";
     }
@@ -201,7 +201,7 @@ try {
 
     $issues = [];
     if (count($store_profile_ids) === 0) {
-        $issues[] = "No Hootsuite profiles configured for this store";
+        $issues[] = "No social media profiles configured for this store";
     }
     if ($store_profile_ids && empty($profiles)) {
         $issues[] = "Configured profiles don't exist or their networks are disabled";
@@ -223,7 +223,7 @@ try {
         echo "<p><strong>Recommended fixes:</strong></p>";
         echo "<ol>";
         if (count($store_profile_ids) === 0) {
-            echo "<li>Go to <a href='/admin/edit_store.php?id=$store_id' target='_blank'>Store Settings</a> and select Hootsuite profiles</li>";
+            echo "<li>Go to <a href='/admin/edit_store.php?id=$store_id' target='_blank'>Store Settings</a> and select social media profiles</li>";
         }
         if ($disabled_count > 0 && $store_profile_ids) {
             echo "<li>Go to <a href='/admin/settings.php' target='_blank'>Settings → Social Networks Management</a> and enable the networks</li>";

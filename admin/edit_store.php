@@ -367,13 +367,32 @@ include __DIR__.'/header.php';
                             <datalist id="campaigns_list"></datalist>
                         </div>
                         -->
-                        <div class="col-md-6">
-                            <label for="hootsuite_profile_ids" class="form-label-modern">Hootsuite Profiles</label>
-                            <input type="text" id="hootsuite_profile_search" class="form-control form-control-modern mb-2" placeholder="Search profiles">
-                            <select name="hootsuite_profile_ids[]" id="hootsuite_profile_ids" multiple
-                                    class="form-select form-select-modern"
-                                    data-selected="<?php echo htmlspecialchars($store['hootsuite_profile_ids']); ?>"></select>
-                            <div class="form-text">Select one or more profiles</div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="hootsuite_profile_ids" class="form-label-modern">
+                                        <span id="profiles_label">Hootsuite Profiles</span>
+                                        <small class="text-muted ms-2">
+                                            (<span id="selected_count">0</span> selected of <span id="total_count">0</span> available)
+                                        </small>
+                                    </label>
+                                    <input type="text" id="hootsuite_profile_search" class="form-control form-control-modern mb-2" placeholder="Search profiles">
+                                    <select name="hootsuite_profile_ids[]" id="hootsuite_profile_ids" multiple
+                                            class="form-select form-select-modern"
+                                            style="height: 400px;"
+                                            data-selected="<?php echo htmlspecialchars($store['hootsuite_profile_ids']); ?>"></select>
+                                    <div class="form-text">Select one or more profiles</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-modern">Selected Profiles</label>
+                                    <div id="selected_profiles_box" style="border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; min-height: 400px; max-height: 400px; overflow-y: auto; background: #f8f9fa;">
+                                        <div class="text-muted text-center" id="selected_empty_state">
+                                            <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.3;"></i>
+                                            <p class="mb-0 mt-2">No profiles selected</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!--
                         <div class="col-md-6">
@@ -540,12 +559,76 @@ include __DIR__.'/header.php';
         // Load campaigns on page load for convenience
         loadCampaigns();
 
+        function updateSelectedProfilesDisplay() {
+            const select = document.getElementById('hootsuite_profile_ids');
+            const selectedBox = document.getElementById('selected_profiles_box');
+            const emptyState = document.getElementById('selected_empty_state');
+            const selectedCountEl = document.getElementById('selected_count');
+
+            const selectedOptions = Array.from(select.options).filter(opt => opt.selected);
+            selectedCountEl.textContent = selectedOptions.length;
+
+            if (selectedOptions.length === 0) {
+                emptyState.style.display = 'block';
+                selectedBox.innerHTML = `
+                    <div class="text-muted text-center" id="selected_empty_state">
+                        <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.3;"></i>
+                        <p class="mb-0 mt-2">No profiles selected</p>
+                    </div>
+                `;
+            } else {
+                emptyState.style.display = 'none';
+                selectedBox.innerHTML = selectedOptions.map(opt => `
+                    <div class="selected-profile-tag" data-value="${opt.value}" style="
+                        display: inline-flex;
+                        align-items: center;
+                        background: white;
+                        border: 1px solid #dee2e6;
+                        border-radius: 6px;
+                        padding: 6px 10px;
+                        margin: 4px;
+                        font-size: 0.875rem;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                    ">
+                        <span style="margin-right: 8px;">${opt.textContent}</span>
+                        <button type="button" class="remove-profile-btn" data-value="${opt.value}" style="
+                            background: none;
+                            border: none;
+                            color: #dc3545;
+                            cursor: pointer;
+                            padding: 0;
+                            font-size: 1.1rem;
+                            line-height: 1;
+                            display: flex;
+                            align-items: center;
+                        " title="Remove">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+                `).join('');
+
+                // Add click handlers for remove buttons
+                document.querySelectorAll('.remove-profile-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const value = e.currentTarget.dataset.value;
+                        const option = Array.from(select.options).find(opt => opt.value === value);
+                        if (option) {
+                            option.selected = false;
+                            updateSelectedProfilesDisplay();
+                        }
+                    });
+                });
+            }
+        }
+
         fetch('../hootsuite/hootsuite_profiles.php')
             .then(r => r.json())
             .then(data => {
                 const select = document.getElementById('hootsuite_profile_ids');
                 const search = document.getElementById('hootsuite_profile_search');
+                const totalCountEl = document.getElementById('total_count');
                 const selected = (select.dataset.selected || '').split(',').map(s => s.trim()).filter(Boolean);
+
                 data.forEach(p => {
                     if (p.id && p.name !== undefined) {
                         const opt = document.createElement('option');
@@ -557,6 +640,15 @@ include __DIR__.'/header.php';
                         select.appendChild(opt);
                     }
                 });
+
+                // Update total count
+                totalCountEl.textContent = data.length;
+
+                // Update selected profiles display
+                updateSelectedProfilesDisplay();
+
+                // Listen for changes to update the selected box
+                select.addEventListener('change', updateSelectedProfilesDisplay);
 
                 search.addEventListener('input', () => {
                     const term = search.value.toLowerCase();

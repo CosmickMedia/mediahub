@@ -44,12 +44,29 @@ function hootsuite_update_profiles(bool $debug = false): array {
         if ($id) $new_ids[] = $id;
     }
 
+    // Check if we got any profiles from API
+    if (empty($new_ids) && empty($existing_ids)) {
+        // Both are empty - this is an error condition
+        return [false, 'No profiles found in Hootsuite API. Check access token and permissions.'];
+    }
+
+    if (empty($new_ids) && !empty($existing_ids)) {
+        // API returned nothing but we have profiles in DB - likely API error
+        return [false, 'Hootsuite API returned no profiles. This may indicate an authentication or permission issue.'];
+    }
+
     // Check if profiles are already up to date
     sort($existing_ids);
     $sorted_new_ids = $new_ids;
     sort($sorted_new_ids);
     if ($existing_ids === $sorted_new_ids) {
-        return [true, 'Profiles already up to date'];
+        $count = count($existing_ids);
+        return [true, "Profiles already up to date ($count profiles)"];
+    }
+
+    // Log what we're about to sync
+    if ($debug) {
+        error_log("Hootsuite: Syncing " . count($new_ids) . " profiles from API (currently have " . count($existing_ids) . " in DB)");
     }
 
     try {
@@ -116,6 +133,13 @@ function hootsuite_update_profiles(bool $debug = false): array {
         if ($deleted_count > 0) $messages[] = "removed $deleted_count";
 
         $summary = implode(', ', $messages);
+
+        // Log detailed results if debug enabled
+        if ($debug) {
+            $total = count($new_ids);
+            error_log("Hootsuite: Sync complete - Total: $total, Added: $added_count, Updated: $updated_count, Deleted: $deleted_count");
+        }
+
         return [true, "Profiles synced: $summary"];
 
     } catch (Throwable $e) {
