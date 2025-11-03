@@ -43,9 +43,10 @@ if (!empty($article['images'])) {
             $path = $img['local_path'] ?? '';
             $thumb = $img['thumb_path'] ?? $path;
             $images[] = [
-                'url' => '/' . ltrim($path, '/'),
-                'thumb' => '/' . ltrim($thumb, '/'),
-                'filename' => $img['filename'] ?? basename($path)
+                'url' => '/public/' . ltrim($path, '/'),
+                'thumb' => '/public/' . ltrim($thumb, '/'),
+                'filename' => $img['filename'] ?? basename($path),
+                'id' => $article['id']
             ];
         }
     }

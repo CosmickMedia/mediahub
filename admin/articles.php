@@ -143,13 +143,40 @@ $active = 'articles';
 include __DIR__.'/header.php';
 ?>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4>Article Management</h4>
-        <div class="d-flex gap-2">
-            <span class="badge bg-secondary">Total: <?php echo $stats['total']; ?></span>
-            <span class="badge bg-info">Pending: <?php echo $stats['pending']; ?></span>
-            <span class="badge bg-success">Approved: <?php echo $stats['approved']; ?></span>
-            <span class="badge bg-danger">Rejected: <?php echo $stats['rejected']; ?></span>
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="page-header-content">
+            <div>
+                <h1 class="page-title">Article Management</h1>
+                <p class="page-subtitle">Review and manage submitted articles</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid mb-4">
+        <div class="stat-card primary animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            <div class="stat-icon"><i class="bi bi-file-earmark-text"></i></div>
+            <div class="stat-number" data-count="<?php echo $stats['total']; ?>">0</div>
+            <div class="stat-label">Total Articles</div>
+            <div class="stat-bg"></div>
+        </div>
+        <div class="stat-card info animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+            <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+            <div class="stat-number" data-count="<?php echo $stats['pending']; ?>">0</div>
+            <div class="stat-label">Pending Review</div>
+            <div class="stat-bg"></div>
+        </div>
+        <div class="stat-card success animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+            <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+            <div class="stat-number" data-count="<?php echo $stats['approved']; ?>">0</div>
+            <div class="stat-label">Approved</div>
+            <div class="stat-bg"></div>
+        </div>
+        <div class="stat-card danger animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+            <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
+            <div class="stat-number" data-count="<?php echo $stats['rejected']; ?>">0</div>
+            <div class="stat-label">Rejected</div>
+            <div class="stat-bg"></div>
         </div>
     </div>
 
@@ -168,9 +195,11 @@ include __DIR__.'/header.php';
 <?php endforeach; ?>
 
     <!-- Filters -->
-    <form method="get" class="card mb-4">
-        <div class="card-body">
-            <div class="row g-3">
+    <form method="get" class="filter-card mb-4">
+        <h6 class="filter-title">
+            <i class="bi bi-funnel"></i> Filter Articles
+        </h6>
+        <div class="row g-3">
                 <div class="col-md-3">
                     <label for="store_id" class="form-label">Store</label>
                     <select name="store_id" id="store_id" class="form-select">
@@ -200,36 +229,54 @@ include __DIR__.'/header.php';
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
                 </div>
-            </div>
         </div>
     </form>
 
     <!-- Articles Table -->
-    <div class="card">
-        <div class="card-body">
+    <div class="stores-card animate__animated animate__fadeIn delay-50">
+        <div class="card-header-modern">
+            <h5 class="card-title-modern">
+                <i class="bi bi-file-earmark-text"></i>
+                All Articles
+            </h5>
+            <span class="results-count"><?php echo $total_count; ?> total</span>
+        </div>
+        <div class="card-body-modern">
             <?php if (empty($articles)): ?>
-                <p class="text-muted text-center py-4">No articles found</p>
+                <div class="empty-state">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <h4>No articles found</h4>
+                    <p>Articles will appear here once submitted</p>
+                </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-modern">
                         <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Store</th>
-                            <th>Status</th>
+                            <th style="width: 25%;">Title</th>
+                            <th style="width: 15%;">Store</th>
+                            <th style="width: 10%;">Status</th>
                             <?php if ($hasCategory): ?>
-                                <th>Category</th>
+                                <th style="width: 10%;">Category</th>
                             <?php endif; ?>
-                            <th>Submitted</th>
-                            <th>Excerpt</th>
-                            <th>Actions</th>
+                            <th style="width: 12%;">Submitted</th>
+                            <th style="width: 20%;" class="d-none d-md-table-cell">Excerpt</th>
+                            <th style="width: <?php echo $hasCategory ? '18%' : '28%'; ?>;">Actions</th>
                         </tr>
                         </thead>
                         <tbody>
                         <?php foreach ($articles as $article): ?>
                             <tr>
-                                <td>
-                                    <strong><?php echo htmlspecialchars($article['title']); ?></strong>
+                                <td style="max-width: 300px;">
+                                    <strong>
+                                        <a href="javascript:void(0)"
+                                           onclick="viewArticle(<?php echo $article['id']; ?>)"
+                                           class="text-decoration-none text-dark"
+                                           style="cursor: pointer; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                           title="<?php echo htmlspecialchars($article['title']); ?>">
+                                            <?php echo htmlspecialchars($article['title']); ?>
+                                        </a>
+                                    </strong>
                                 </td>
                                 <td><?php echo htmlspecialchars($article['store_name']); ?></td>
                                 <td>
@@ -249,23 +296,39 @@ include __DIR__.'/header.php';
                                     <td><?php echo htmlspecialchars($article['category']); ?></td>
                                 <?php endif; ?>
                                 <td><?php echo format_ts($article['created_at']); ?></td>
-                                <td class="article-excerpt">
+                                <td class="article-excerpt d-none d-md-table-cell">
                                     <?php
                                     $excerpt = $article['excerpt'] ?: strip_tags($article['content']);
                                     echo htmlspecialchars(substr($excerpt, 0, 100)) . '...';
                                     ?>
                                 </td>
                                 <td>
-                                    <div class="d-flex gap-1">
-                                        <button class="btn btn-sm btn-primary" onclick="viewArticle(<?php echo $article['id']; ?>)">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+                                        <button class="btn btn-action btn-action-primary"
+                                                onclick="viewArticle(<?php echo $article['id']; ?>)"
+                                                title="View Article">
                                             <i class="bi bi-eye"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-secondary" onclick="showStatusModal(<?php echo $article['id']; ?>, '<?php echo $article['status']; ?>', '<?php echo htmlspecialchars($article['admin_notes'] ?? '', ENT_QUOTES); ?>')">
+                                        <button class="btn btn-action btn-action-secondary"
+                                                onclick="showStatusModal(<?php echo $article['id']; ?>, '<?php echo $article['status']; ?>', '<?php echo htmlspecialchars($article['admin_notes'] ?? '', ENT_QUOTES); ?>')"
+                                                title="Update Status">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
+                                        <a href="export_article_wordpress.php?id=<?php echo $article['id']; ?>"
+                                           class="btn btn-action"
+                                           style="background: #2c3e50; color: white;"
+                                           title="Export for WordPress">
+                                            <i class="bi bi-file-earmark-arrow-down"></i>
+                                        </a>
+                                        <a href="download_article_images.php?id=<?php echo $article['id']; ?>&action=download_all"
+                                           class="btn btn-action btn-action-info"
+                                           title="Download Images">
+                                            <i class="bi bi-download"></i>
+                                        </a>
                                         <a href="?delete=<?php echo $article['id']; ?>"
-                                           class="btn btn-sm btn-danger"
-                                           onclick="return confirm('Delete this article?')">
+                                           class="btn btn-action btn-action-danger"
+                                           onclick="return confirm('Delete this article?')"
+                                           title="Delete Article">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
@@ -354,6 +417,26 @@ include __DIR__.'/header.php';
     </div>
 
     <script>
+        // Animated counter for stat cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const statNumbers = document.querySelectorAll('.stat-number[data-count]');
+            statNumbers.forEach(el => {
+                const target = parseInt(el.getAttribute('data-count'));
+                const duration = 1000;
+                const step = target / (duration / 16);
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        el.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        el.textContent = Math.floor(current);
+                    }
+                }, 16);
+            });
+        });
+
         function viewArticle(articleId) {
             fetch(`view_article_admin.php?id=${articleId}`)
                 .then(response => response.json())
@@ -361,32 +444,250 @@ include __DIR__.'/header.php';
                     if (data.success) {
                         document.getElementById('articleModalTitle').textContent = data.article.title;
                         document.getElementById('articleModalBody').innerHTML = `
-                    <div class="article-meta mb-3">
-                        <p class="mb-1">
-                            <strong>Store:</strong> ${data.article.store_name} |
-                            <strong>Status:</strong> <span class="badge bg-${data.statusClass}">${data.article.status}</span>
-                        </p>
-                        <p class="mb-1">
-                            <strong>Submitted:</strong> ${data.article.created_at}
-                            ${data.article.updated_at ? ` | <strong>Updated:</strong> ${data.article.updated_at}` : ''}
-                        </p>
-                        ${data.article.category ? `<p class="mb-1"><strong>Category:</strong> ${data.article.category}</p>` : ''}
-                        ${data.article.tags ? `<p class="mb-1"><strong>Tags:</strong> ${data.article.tags}</p>` : ''}
-                        ${data.article.ip ? `<p class="mb-1"><strong>IP:</strong> ${data.article.ip}</p>` : ''}
-                        ${data.article.excerpt ? `<p class="mb-1"><strong>Excerpt:</strong> ${data.article.excerpt}</p>` : ''}
-                        ${data.article.admin_notes ? `
-                            <div class="alert alert-warning py-2 px-3">
-                                <strong>Admin Notes:</strong> ${data.article.admin_notes}
+                    <style>
+                        .article-view-header {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            padding: 1.5rem;
+                            margin: -1rem -1rem 1.5rem -1rem;
+                            border-radius: 8px 8px 0 0;
+                        }
+                        .article-meta-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                            gap: 1rem;
+                            margin-bottom: 1.5rem;
+                        }
+                        .meta-item {
+                            background: #f8f9fa;
+                            padding: 0.75rem 1rem;
+                            border-radius: 8px;
+                            border-left: 3px solid #667eea;
+                        }
+                        .meta-label {
+                            font-size: 0.75rem;
+                            color: #6c757d;
+                            text-transform: uppercase;
+                            font-weight: 600;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 0.25rem;
+                        }
+                        .meta-value {
+                            font-size: 0.95rem;
+                            color: #2c3e50;
+                            font-weight: 500;
+                        }
+                        .article-excerpt-box {
+                            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                            padding: 1.25rem;
+                            border-radius: 8px;
+                            margin-bottom: 1.5rem;
+                            font-style: italic;
+                            color: #2c3e50;
+                            border-left: 4px solid #667eea;
+                        }
+                        .admin-notes-box {
+                            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+                            color: #2c3e50;
+                            padding: 1rem 1.25rem;
+                            border-radius: 8px;
+                            margin-bottom: 1.5rem;
+                            font-weight: 500;
+                        }
+                        .attachments-section {
+                            background: #f8f9fa;
+                            padding: 1.5rem;
+                            border-radius: 8px;
+                            margin-bottom: 1.5rem;
+                        }
+                        .attachments-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 1.25rem;
+                            padding-bottom: 0.75rem;
+                            border-bottom: 2px solid #dee2e6;
+                        }
+                        .attachments-header h5 {
+                            margin: 0;
+                            color: #2c3e50;
+                            font-weight: 600;
+                        }
+                        .image-card {
+                            background: white;
+                            border-radius: 12px;
+                            overflow: hidden;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            transition: transform 0.2s, box-shadow 0.2s;
+                        }
+                        .image-card:hover {
+                            transform: translateY(-4px);
+                            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+                        }
+                        .image-card img {
+                            width: 100%;
+                            height: 180px;
+                            object-fit: cover;
+                        }
+                        .image-card-body {
+                            padding: 0.75rem;
+                        }
+                        .image-filename {
+                            font-size: 0.85rem;
+                            color: #2c3e50;
+                            margin-bottom: 0.5rem;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                        }
+                        .download-btn {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            border: none;
+                            padding: 0.5rem;
+                            border-radius: 6px;
+                            width: 100%;
+                            font-size: 0.85rem;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: transform 0.2s;
+                        }
+                        .download-btn:hover {
+                            transform: scale(1.05);
+                        }
+                        .download-all-btn {
+                            background: #2c3e50;
+                            color: white;
+                            border: none;
+                            padding: 0.5rem 1.25rem;
+                            border-radius: 6px;
+                            font-size: 0.9rem;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: background 0.2s;
+                        }
+                        .download-all-btn:hover {
+                            background: #1a252f;
+                        }
+                        .article-content-section {
+                            background: white;
+                            padding: 2rem;
+                            border-radius: 8px;
+                            border: 1px solid #e9ecef;
+                            line-height: 1.8;
+                            color: #2c3e50;
+                        }
+                        .article-content-section h1,
+                        .article-content-section h2,
+                        .article-content-section h3 {
+                            color: #2c3e50;
+                            margin-top: 1.5rem;
+                            margin-bottom: 1rem;
+                        }
+                        .article-content-section img {
+                            max-width: 100%;
+                            height: auto;
+                            border-radius: 8px;
+                            margin: 1rem 0;
+                        }
+                        .status-badge-large {
+                            display: inline-block;
+                            padding: 0.5rem 1rem;
+                            border-radius: 20px;
+                            font-weight: 600;
+                            font-size: 0.9rem;
+                        }
+                    </style>
+
+                    <!-- Article Header -->
+                    <div class="article-view-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 style="margin: 0 0 0.5rem 0; opacity: 0.9; font-size: 0.9rem;">Article from</h5>
+                                <h3 style="margin: 0; font-weight: 600;">${data.article.store_name}</h3>
                             </div>
+                            <span class="status-badge-large bg-${data.statusClass}" style="background: white !important; color: #667eea !important;">
+                                ${data.article.status.toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Meta Information Grid -->
+                    <div class="article-meta-grid">
+                        <div class="meta-item">
+                            <div class="meta-label">Submitted</div>
+                            <div class="meta-value"><i class="bi bi-calendar3"></i> ${data.article.created_at}</div>
+                        </div>
+                        ${data.article.updated_at ? `
+                        <div class="meta-item">
+                            <div class="meta-label">Last Updated</div>
+                            <div class="meta-value"><i class="bi bi-clock-history"></i> ${data.article.updated_at}</div>
+                        </div>
+                        ` : ''}
+                        ${data.article.category ? `
+                        <div class="meta-item">
+                            <div class="meta-label">Category</div>
+                            <div class="meta-value"><i class="bi bi-tag"></i> ${data.article.category}</div>
+                        </div>
+                        ` : ''}
+                        ${data.article.tags ? `
+                        <div class="meta-item">
+                            <div class="meta-label">Tags</div>
+                            <div class="meta-value"><i class="bi bi-tags"></i> ${data.article.tags}</div>
+                        </div>
                         ` : ''}
                     </div>
-                    ${data.article.images && data.article.images.length ? `
-                        <div class="article-attachments mb-3">
-                            ${data.article.images.map(img => `<a href="${img.url}" target="_blank"><img src="${img.thumb}" class="me-2 mb-2" style="max-width:150px"></a>`).join('')}
-                        </div>
+
+                    <!-- Excerpt -->
+                    ${data.article.excerpt ? `
+                    <div class="article-excerpt-box">
+                        <i class="bi bi-quote" style="font-size: 1.5rem; opacity: 0.5;"></i>
+                        <div style="margin-top: 0.5rem;">${data.article.excerpt}</div>
+                    </div>
                     ` : ''}
-                    <hr>
-                    <div class="article-content">
+
+                    <!-- Admin Notes -->
+                    ${data.article.admin_notes ? `
+                    <div class="admin-notes-box">
+                        <strong><i class="bi bi-info-circle"></i> Admin Notes:</strong>
+                        <div style="margin-top: 0.5rem;">${data.article.admin_notes}</div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Attachments -->
+                    ${data.article.images && data.article.images.length ? `
+                    <div class="attachments-section">
+                        <div class="attachments-header">
+                            <h5><i class="bi bi-paperclip"></i> Attachments (${data.article.images.length})</h5>
+                            <button class="download-all-btn" onclick="downloadAllImages(${articleId})">
+                                <i class="bi bi-download"></i> Download All
+                            </button>
+                        </div>
+                        <div class="row g-3">
+                            ${data.article.images.map((img, idx) => `
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="image-card">
+                                        <a href="${img.url}" target="_blank">
+                                            <img src="${img.thumb}" alt="${img.filename}"
+                                                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22180%22%3E%3Crect fill=%22%23f8f9fa%22 width=%22200%22 height=%22180%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23adb5bd%22 font-size=%2214%22%3ENo Preview%3C/text%3E%3C/svg%3E'">
+                                        </a>
+                                        <div class="image-card-body">
+                                            <div class="image-filename" title="${img.filename}">
+                                                <i class="bi bi-file-earmark-image"></i> ${img.filename}
+                                            </div>
+                                            <button class="download-btn" onclick="downloadImage('${img.url}', '${img.filename}')">
+                                                <i class="bi bi-download"></i> Download
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Article Content -->
+                    <div class="article-content-section">
                         ${data.article.content}
                     </div>
                 `;
@@ -406,6 +707,45 @@ include __DIR__.'/header.php';
             document.getElementById('statusSelect').value = currentStatus;
             document.getElementById('adminNotes').value = currentNotes || '';
             new bootstrap.Modal(document.getElementById('statusModal')).show();
+        }
+
+        function downloadImage(url, filename) {
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                })
+                .catch(error => {
+                    console.error('Download failed:', error);
+                    alert('Failed to download image');
+                });
+        }
+
+        function downloadAllImages(articleId) {
+            fetch(`download_article_images.php?id=${articleId}&action=download_all`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Download failed');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `article_${articleId}_images.zip`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                })
+                .catch(error => {
+                    console.error('Download failed:', error);
+                    alert('Failed to download images');
+                });
         }
     </script>
 
