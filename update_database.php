@@ -658,7 +658,7 @@ foreach ($hootColumns as $col) {
 }
 
 try {
-    $pdo->exec("ALTER TABLE hootsuite_posts ADD CONSTRAINT fk_hootsuite_profile FOREIGN KEY (social_profile_id) REFERENCES hootsuite_profiles(id)");
+    $pdo->exec("ALTER TABLE hootsuite_posts ADD CONSTRAINT fk_hootsuite_profile FOREIGN KEY (social_profile_id) REFERENCES hootsuite_profiles(id) ON DELETE CASCADE ON UPDATE CASCADE");
     echo "✓ Added hootsuite_posts profile relation\n";
 } catch (PDOException $e) {
     echo "ℹ︎ Could not add hootsuite profile relation: " . $e->getMessage() . "\n";

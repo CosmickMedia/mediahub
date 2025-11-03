@@ -1137,7 +1137,7 @@ ALTER TABLE `calendar`
 -- Constraints for table `hootsuite_posts`
 --
 ALTER TABLE `hootsuite_posts`
-  ADD CONSTRAINT `fk_hootsuite_profile` FOREIGN KEY (`social_profile_id`) REFERENCES `hootsuite_profiles` (`id`);
+  ADD CONSTRAINT `fk_hootsuite_profile` FOREIGN KEY (`social_profile_id`) REFERENCES `hootsuite_profiles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `store_messages`

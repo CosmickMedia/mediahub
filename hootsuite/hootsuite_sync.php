@@ -39,7 +39,7 @@ function hootsuite_ensure_schema(PDO $pdo): void {
         try { $pdo->exec("ALTER TABLE hootsuite_posts ADD COLUMN $col"); } catch (PDOException $e) {}
     }
     try {
-        $pdo->exec('ALTER TABLE hootsuite_posts ADD CONSTRAINT fk_hootsuite_profile FOREIGN KEY (social_profile_id) REFERENCES hootsuite_profiles(id)');
+        $pdo->exec('ALTER TABLE hootsuite_posts ADD CONSTRAINT fk_hootsuite_profile FOREIGN KEY (social_profile_id) REFERENCES hootsuite_profiles(id) ON DELETE CASCADE ON UPDATE CASCADE');
     } catch (PDOException $e) {}
 }
 

@@ -33,33 +33,91 @@ function hootsuite_update_profiles(bool $debug = false): array {
         'tiktokbusiness'    => 'tiktok',
     ];
 
-    // Determine if the profiles already exist in the database
+    // Get existing profile IDs from database
     $existing_ids = $pdo->query('SELECT id FROM hootsuite_profiles')->fetchAll(PDO::FETCH_COLUMN);
+    $existing_set = array_flip($existing_ids); // Convert to set for fast lookup
+
+    // Collect new profile IDs from API
     $new_ids = [];
     foreach ($profiles as $p) {
         $id = $p['id'] ?? null;
         if ($id) $new_ids[] = $id;
     }
+
+    // Check if profiles are already up to date
     sort($existing_ids);
-    sort($new_ids);
-    if ($existing_ids === $new_ids) {
+    $sorted_new_ids = $new_ids;
+    sort($sorted_new_ids);
+    if ($existing_ids === $sorted_new_ids) {
         return [true, 'Profiles already up to date'];
     }
 
     try {
         $pdo->beginTransaction();
-        $pdo->exec('DELETE FROM hootsuite_profiles');
-        $stmt = $pdo->prepare('INSERT INTO hootsuite_profiles (id, type, username, network, raw) VALUES (?, ?, ?, ?, ?)');
+
+        // Prepare UPSERT statement (INSERT or UPDATE if exists)
+        // This preserves existing profiles and their relationships with posts
+        $upsert_stmt = $pdo->prepare('
+            INSERT INTO hootsuite_profiles (id, type, username, network, raw)
+            VALUES (?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                type = VALUES(type),
+                username = VALUES(username),
+                network = VALUES(network),
+                raw = VALUES(raw)
+        ');
+
+        $updated_count = 0;
+        $added_count = 0;
+
+        // Insert or update each profile from API
         foreach ($profiles as $p) {
             $id = $p['id'] ?? null;
             if (!$id) continue;
+
             $type = strtolower($p['type'] ?? '');
             $username = $p['socialNetworkUsername'] ?? '';
             $network = $type_map[$type] ?? null;
             $raw = json_encode($p);
-            $stmt->execute([$id, $type, $username, $network, $raw]);
+
+            $upsert_stmt->execute([$id, $type, $username, $network, $raw]);
+
+            // Track if this was an update or insert
+            if (isset($existing_set[$id])) {
+                $updated_count++;
+                unset($existing_set[$id]); // Remove from set to track deletions
+            } else {
+                $added_count++;
+            }
         }
+
+        // Delete profiles that no longer exist in Hootsuite
+        // Note: If posts reference these profiles, CASCADE DELETE will remove the posts too
+        $deleted_count = 0;
+        if (!empty($existing_set)) {
+            $to_delete = array_keys($existing_set);
+            $placeholders = implode(',', array_fill(0, count($to_delete), '?'));
+            $delete_stmt = $pdo->prepare("DELETE FROM hootsuite_profiles WHERE id IN ($placeholders)");
+            $delete_stmt->execute($to_delete);
+            $deleted_count = count($to_delete);
+
+            // Log deleted profiles for audit
+            if ($debug) {
+                error_log('Hootsuite: Deleted profiles that no longer exist in API: ' . implode(', ', $to_delete));
+            }
+        }
+
         $pdo->commit();
+
+        // Build success message
+        $messages = [];
+        if ($added_count > 0) $messages[] = "added $added_count";
+        if ($updated_count > 0) $messages[] = "updated $updated_count";
+        if ($deleted_count > 0) $messages[] = "removed $deleted_count";
+
+        $summary = implode(', ', $messages);
+        return [true, "Profiles synced: $summary"];
+
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
@@ -69,7 +127,5 @@ function hootsuite_update_profiles(bool $debug = false): array {
         }
         return [false, 'Failed to update profiles'];
     }
-
-    return [true, 'Updated '.count($new_ids).' profiles'];
 }
 ?>
