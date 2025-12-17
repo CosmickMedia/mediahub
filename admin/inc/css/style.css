@@ -337,14 +337,13 @@ a:hover { color: #1a252f; }
 }
 
 .btn-action-danger {
-    background: white;
-    color: #dc3545;
-    border: 2px solid #dc3545;
+    background: #dc3545;
+    color: white;
+    border: none;
 }
 
 .btn-action-danger:hover {
-    background: #dc3545;
-    color: white;
+    background: #c82333;
     transform: translateY(-2px);
 }
 
@@ -955,11 +954,6 @@ a:hover { color: #1a252f; }
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
     color: white;
-}
-
-.btn-action-danger:hover {
-    background: #c82333;
-    transform: translateY(-2px);
 }
 
 .btn-add-user {
@@ -1878,6 +1872,40 @@ body {
     background: #f8f9fa;
 }
 
+/* Table column widths for uploads page */
+.table-modern th:nth-child(1),
+.table-modern td:nth-child(1) { width: 90px; }
+
+.table-modern th:nth-child(2),
+.table-modern td:nth-child(2) {
+    width: 180px;
+    max-width: 180px;
+    min-width: 180px;
+}
+
+.table-modern td:nth-child(2) .upload-meta {
+    word-break: break-word;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.table-modern th:nth-child(3),
+.table-modern td:nth-child(3) { width: 120px; }
+
+.table-modern th:nth-child(4),
+.table-modern td:nth-child(4) {
+    width: 110px;
+    white-space: nowrap;
+}
+
+.table-modern th:nth-child(5),
+.table-modern td:nth-child(5) { width: 160px; }
+
+.table-modern th:nth-child(6),
+.table-modern td:nth-child(6) { width: 130px; }
+
 .preview-img-sm {
     width: 50px;
     height: 50px;
@@ -1898,8 +1926,13 @@ body {
 }
 
 .btn-action-primary {
-    background: #667eea;
+    background: var(--primary-gradient);
     color: white;
+}
+
+.btn-action-primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
 }
 
 .quick-actions {
@@ -2593,12 +2626,12 @@ body {
 }
 
 .btn-action-success {
-    background: #4ade80;
+    background: var(--success-gradient);
     color: white;
 }
 
 .btn-action-success:hover {
-    background: #22c55e;
+    filter: brightness(1.1);
     transform: translateY(-2px);
 }
 

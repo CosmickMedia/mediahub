@@ -422,7 +422,7 @@
     }
 
     // Check notifications every 3 seconds for near real-time updates
-    setInterval(checkNotifications, 3000);
+    setInterval(checkNotifications, 30000);
     checkNotifications();
 
     // Enhanced counter animations

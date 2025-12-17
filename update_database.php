@@ -506,7 +506,7 @@ try {
     echo "• thumb_path column might already exist\n";
 }
 
-// Insert default statuses if not already present
+// Insert default statuses if not already present (case-insensitive check)
 $defaultStatuses = [
     ['Reviewed', '#198754'],
     ['Pending Submission', '#ffc107'],
@@ -515,8 +515,9 @@ $defaultStatuses = [
 foreach ($defaultStatuses as $st) {
     list($name, $color) = $st;
     try {
-        $check = $pdo->prepare('SELECT COUNT(*) FROM upload_statuses WHERE name = ?');
-        $check->execute([$name]);
+        // Case-insensitive check for existing status with same or similar name
+        $check = $pdo->prepare('SELECT COUNT(*) FROM upload_statuses WHERE LOWER(name) = LOWER(?) OR LOWER(name) LIKE LOWER(?)');
+        $check->execute([$name, $name . '%']);
         if (!$check->fetchColumn()) {
             $stmt = $pdo->prepare('INSERT INTO upload_statuses (name, color) VALUES (?, ?)');
             $stmt->execute([$name, $color]);

@@ -15,11 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $success[] = 'Upload deleted successfully';
 }
 
-// Handle status update
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
-    $stmt = $pdo->prepare('UPDATE uploads SET status_id = ? WHERE id = ?');
-    $stmt->execute([$_POST['status_id'], $_POST['upload_id']]);
-    $success[] = 'Status updated successfully';
+// Handle AJAX status update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_status_update'])) {
+    header('Content-Type: application/json');
+    try {
+        $stmt = $pdo->prepare('UPDATE uploads SET status_id = ? WHERE id = ?');
+        $stmt->execute([$_POST['status_id'] ?: null, $_POST['upload_id']]);
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
 }
 
 // Get filter parameters
@@ -167,26 +173,22 @@ function render_upload_row($upload, $statuses) {
             <small class="text-muted"><?php echo date('g:i A', strtotime($upload['created_at'])); ?></small>
         </td>
         <td>
-            <form method="post" class="d-inline">
-                <input type="hidden" name="upload_id" value="<?php echo $upload['id']; ?>">
-                <select name="status_id" class="status-select-modern" onchange="this.form.submit()">
-                    <option value="">No Status</option>
-                    <?php foreach ($statuses as $status): ?>
-                        <option value="<?php echo $status['id']; ?>"
-                                <?php echo $upload['status_id'] == $status['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($status['name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <input type="hidden" name="update_status" value="1">
-            </form>
+            <select class="status-select-modern" data-upload-id="<?php echo $upload['id']; ?>" onchange="updateStatus(this)">
+                <option value="">No Status</option>
+                <?php foreach ($statuses as $status): ?>
+                    <option value="<?php echo $status['id']; ?>"
+                            <?php echo $upload['status_id'] == $status['id'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($status['name']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </td>
         <td class="actions-cell">
             <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view" target="_blank" class="btn btn-action btn-action-primary" title="View in Drive"><i class="bi bi-eye"></i></a>
             <a href="<?php echo htmlspecialchars(public_upload_url($upload['local_path'])); ?>" download class="btn btn-action btn-action-success" title="Download"><i class="bi bi-download"></i></a>
             <form method="post" class="d-inline" onsubmit="return confirm('Delete this upload?');">
                 <input type="hidden" name="delete_id" value="<?php echo $upload['id']; ?>">
-                <button type="submit" class="btn btn-action btn-action-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                <button type="submit" class="btn btn-action btn-action-danger" title="Delete" style="background: #dc3545 !important; color: white !important;"><i class="bi bi-trash" style="color: white !important;"></i></button>
             </form>
         </td>
     </tr>
@@ -440,19 +442,15 @@ include __DIR__.'/header.php';
                                     <small class="text-muted"><?php echo date('g:i A', strtotime($upload['created_at'])); ?></small>
                                 </td>
                                 <td>
-                                    <form method="post" class="d-inline">
-                                        <input type="hidden" name="upload_id" value="<?php echo $upload['id']; ?>">
-                                        <select name="status_id" class="status-select-modern" onchange="this.form.submit()">
-                                            <option value="">No Status</option>
-                                            <?php foreach ($statuses as $status): ?>
-                                                <option value="<?php echo $status['id']; ?>"
-                                                        <?php echo $upload['status_id'] == $status['id'] ? 'selected' : ''; ?>>
-                                                    <?php echo htmlspecialchars($status['name']); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <input type="hidden" name="update_status" value="1">
-                                    </form>
+                                    <select class="status-select-modern" data-upload-id="<?php echo $upload['id']; ?>" onchange="updateStatus(this)">
+                                        <option value="">No Status</option>
+                                        <?php foreach ($statuses as $status): ?>
+                                            <option value="<?php echo $status['id']; ?>"
+                                                    <?php echo $upload['status_id'] == $status['id'] ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($status['name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </td>
                                 <td class="actions-cell">
                                     <a href="https://drive.google.com/file/d/<?php echo $upload['drive_id']; ?>/view"
@@ -466,8 +464,8 @@ include __DIR__.'/header.php';
                                     </a>
                                     <form method="post" class="d-inline" onsubmit="return confirm('Delete this upload?');">
                                         <input type="hidden" name="delete_id" value="<?php echo $upload['id']; ?>">
-                                        <button type="submit" class="btn btn-action btn-action-danger" title="Delete">
-                                            <i class="bi bi-trash"></i>
+                                        <button type="submit" class="btn btn-action btn-action-danger" title="Delete" style="background: #dc3545 !important; color: white !important;">
+                                            <i class="bi bi-trash" style="color: white !important;"></i>
                                         </button>
                                     </form>
                                 </td>
@@ -487,6 +485,27 @@ include __DIR__.'/header.php';
         let totalPages = <?php echo $total_pages; ?>;
         let widget = 'total';
         let loading = false;
+
+        function updateStatus(select) {
+            const uploadId = select.dataset.uploadId;
+            const statusId = select.value;
+
+            fetch('uploads.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `ajax_status_update=1&upload_id=${uploadId}&status_id=${statusId}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    select.style.outline = '2px solid #28a745';
+                    setTimeout(() => select.style.outline = '', 500);
+                } else {
+                    alert('Failed to update status');
+                }
+            })
+            .catch(() => alert('Error updating status'));
+        }
 
         function loadUploads(page, append = false) {
             const form = document.querySelector('.filter-card form');
@@ -531,13 +550,6 @@ include __DIR__.'/header.php';
             }
         });
 
-        // Periodically refresh the uploads list similar to the public side
-        setInterval(() => {
-            if (!loading) {
-                currentPage = 1;
-                loadUploads(1);
-            }
-        }, 10000);
     </script>
 
 <?php include __DIR__.'/footer.php'; ?>

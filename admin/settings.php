@@ -101,6 +101,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $color = $colors[$i] ?? '#000000';
             $id = $ids[$i] ?? '';
             if ($name === '' && $id) {
+                // First, set any uploads using this status to NULL
+                $stmt = $pdo->prepare('UPDATE uploads SET status_id = NULL WHERE status_id = ?');
+                $stmt->execute([$id]);
+                // Also clear from history table
+                $stmt = $pdo->prepare('UPDATE upload_status_history SET old_status_id = NULL WHERE old_status_id = ?');
+                $stmt->execute([$id]);
+                $stmt = $pdo->prepare('UPDATE upload_status_history SET new_status_id = NULL WHERE new_status_id = ?');
+                $stmt->execute([$id]);
+                // Now delete the status
                 $stmt = $pdo->prepare('DELETE FROM upload_statuses WHERE id = ?');
                 $stmt->execute([$id]);
                 continue;
