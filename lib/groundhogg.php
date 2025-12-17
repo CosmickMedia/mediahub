@@ -112,94 +112,81 @@ function groundhogg_get_default_tags(?int $store_id = null): array {
  * Build the payload structure expected by Groundhogg.
  */
 function groundhogg_build_contact_structure(array $contactData): array {
+    // Build the 'data' object with core contact fields
     $data = [
-        'email'      => $contactData['email'],
-        'first_name' => $contactData['first_name'] ?? '',
-        'last_name'  => $contactData['last_name'] ?? '',
-        'meta'       => []
+        'email'        => $contactData['email'],
+        'first_name'   => $contactData['first_name'] ?? '',
+        'last_name'    => $contactData['last_name'] ?? '',
+        'optin_status' => 2  // 2 = confirmed
     ];
 
-    // Phone numbers in multiple fields and formats
+    // Override optin_status if provided
+    if (!empty($contactData['opt_in_status'])) {
+        $statusMap = [
+            'confirmed' => 2,
+            'unconfirmed' => 1,
+            'unsubscribed' => 0
+        ];
+        $data['optin_status'] = $statusMap[$contactData['opt_in_status']] ?? 2;
+    }
+
+    // Build the 'meta' object with additional fields
+    $meta = [];
+
+    // Phone numbers
     $phoneRaw = $contactData['mobile_phone'] ?? ($contactData['phone'] ?? '');
     $formats = phone_number_variations($phoneRaw);
     if (!empty($formats)) {
         [$digits, $intl, $dash] = $formats;
-        $phones = [
-            'phone'         => $digits,
-            'mobile_phone'  => $intl,
-            // Store primary phone using the same format as mobile
-            'primary_phone' => $intl,
-            'phone_number'  => $digits
-        ];
-        foreach ($phones as $field => $value) {
-            $data[$field] = $value;
-            $data['meta'][$field] = $value;
-        }
+        $meta['primary_phone'] = $intl;
+        $meta['mobile_phone'] = $intl;
     }
 
-    // Address/location fields
+    // Address/location fields (using Groundhogg's expected field names)
     if (!empty($contactData['address'])) {
-        foreach (['street_address_1', 'address_line_1', 'address'] as $field) {
-            $data[$field] = $contactData['address'];
-            $data['meta'][$field] = $contactData['address'];
-        }
+        $meta['street_address_1'] = $contactData['address'];
     }
     if (!empty($contactData['city'])) {
-        foreach (['city', 'locality'] as $field) {
-            $data[$field] = $contactData['city'];
-            $data['meta'][$field] = $contactData['city'];
-        }
+        $meta['city'] = $contactData['city'];
     }
     if (!empty($contactData['state'])) {
-        foreach (['region', 'state'] as $field) {
-            $data[$field] = $contactData['state'];
-            $data['meta'][$field] = $contactData['state'];
-        }
+        $meta['region'] = $contactData['state'];  // Groundhogg uses 'region' for state
     }
     if (!empty($contactData['zip'])) {
-        foreach (['postal_zip', 'zip', 'zip_code'] as $field) {
-            $data[$field] = $contactData['zip'];
-            $data['meta'][$field] = $contactData['zip'];
-        }
+        $meta['postal_zip'] = $contactData['zip'];
     }
     if (!empty($contactData['country'])) {
-        $data['country'] = $contactData['country'];
-        $data['meta']['country'] = $contactData['country'];
+        $meta['country'] = $contactData['country'];
     }
 
+    // Custom fields
     if (!empty($contactData['lead_source'])) {
-        $data['lead_source'] = $contactData['lead_source'];
-        $data['meta']['lead_source'] = $contactData['lead_source'];
+        $meta['lead_source'] = $contactData['lead_source'];
     }
-
-    if (!empty($contactData['opt_in_status'])) {
-        $data['optin_status'] = $contactData['opt_in_status'];
-    }
-
     if (!empty($contactData['company_name'])) {
-        $data['company_name'] = $contactData['company_name'];
-        $data['meta']['company'] = $contactData['company_name'];
+        $meta['company'] = $contactData['company_name'];
     }
-
     if (!empty($contactData['user_role'])) {
-        $data['user_role'] = $contactData['user_role'];
-        $data['meta']['user_role'] = $contactData['user_role'];
+        $meta['user_role'] = $contactData['user_role'];
     }
-
     if (!empty($contactData['store_id'])) {
-        $data['store_id'] = (string)$contactData['store_id'];
-        $data['meta']['store_id'] = (string)$contactData['store_id'];
+        $meta['store_id'] = (string)$contactData['store_id'];
     }
 
+    // Build tags array
     if (!empty($contactData['tags']) && is_array($contactData['tags'])) {
-        $data['tags'] = $contactData['tags'];
+        $tags = $contactData['tags'];
     } else {
-        // Pass store_id to get potential override tags
         $store_id = !empty($contactData['store_id']) ? (int)$contactData['store_id'] : null;
-        $data['tags'] = groundhogg_get_default_tags($store_id);
+        $tags = groundhogg_get_default_tags($store_id);
     }
 
-    return $data;
+    // Return the properly structured payload
+    return [
+        'data' => $data,
+        'meta' => $meta,
+        'tags' => $tags
+    ];
 }
 
 function groundhogg_send_contact(array $contactData): array {
@@ -274,8 +261,8 @@ function groundhogg_send_contact(array $contactData): array {
     $responseData = json_decode($response, true);
 
     if ($httpCode >= 200 && $httpCode < 300) {
-        if (isset($responseData['contact']['ID'])) {
-            $contactId = $responseData['contact']['ID'];
+        if (isset($responseData['item']['ID'])) {
+            $contactId = $responseData['item']['ID'];
             groundhogg_debug_log('Contact created/updated successfully with ID: ' . $contactId);
             return [true, 'Contact synchronized with Groundhogg (ID: ' . $contactId . ')'];
         } else {
@@ -317,13 +304,9 @@ function groundhogg_delete_contact(string $email): array {
     $query = http_build_query(['search' => $email]);
     $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts?' . $query;
 
-    $signature = hash_hmac('sha256', '', $settings['secret_key']);
-
     $headers = [
-        'X-GH-USER: ' . $settings['username'],
-        'X-GH-PUBLIC-KEY: ' . $settings['public_key'],
-        'X-GH-TOKEN: ' . $settings['token'],
-        'X-GH-SIGNATURE: ' . $signature
+        'gh-token: ' . $settings['token'],
+        'gh-public-key: ' . $settings['public_key']
     ];
 
     groundhogg_debug_log('DELETE ' . $url);
@@ -380,13 +363,9 @@ function groundhogg_get_contact(string $email): array {
     $query = http_build_query(['search' => $email]);
     $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts?' . $query;
 
-    $signature = hash_hmac('sha256', '', $settings['secret_key']);
-
     $headers = [
-        'X-GH-USER: ' . $settings['username'],
-        'X-GH-PUBLIC-KEY: ' . $settings['public_key'],
-        'X-GH-TOKEN: ' . $settings['token'],
-        'X-GH-SIGNATURE: ' . $signature
+        'gh-token: ' . $settings['token'],
+        'gh-public-key: ' . $settings['public_key']
     ];
 
     groundhogg_debug_log('GET ' . $url . ' (fetch contact)');
@@ -436,14 +415,9 @@ function test_groundhogg_connection(): array {
     // Test with the contacts endpoint using GET to check authentication
     $url = rtrim($settings['site_url'], '/') . '/wp-json/gh/v4/contacts?limit=1';
 
-    // For GET request, signature is based on empty string
-    $signature = hash_hmac('sha256', '', $settings['secret_key']);
-
     $headers = [
-        'X-GH-USER: ' . $settings['username'],
-        'X-GH-PUBLIC-KEY: ' . $settings['public_key'],
-        'X-GH-TOKEN: ' . $settings['token'],
-        'X-GH-SIGNATURE: ' . $signature
+        'gh-token: ' . $settings['token'],
+        'gh-public-key: ' . $settings['public_key']
     ];
 
     groundhogg_debug_log('GET ' . $url . ' (test connection)');
@@ -480,7 +454,31 @@ function test_groundhogg_connection(): array {
             return [true, 'Connection successful! Response: ' . substr($response, 0, 100)];
         }
     } elseif ($httpCode === 401 || $httpCode === 403) {
-        return [false, 'Authentication failed. Please check your API credentials.'];
+        $errorData = json_decode($response, true);
+        $apiMessage = $errorData['message'] ?? $errorData['error'] ?? $errorData['data']['message'] ?? '';
+        $errorMsg = "Authentication failed (HTTP $httpCode)";
+        if ($apiMessage) {
+            $errorMsg .= ": $apiMessage";
+        } else if ($response) {
+            // Show raw response if not JSON
+            $errorMsg .= ": " . substr($response, 0, 200);
+        }
+
+        // Add credential field hints based on common error patterns
+        $hint = '';
+        $lowerMsg = strtolower($apiMessage . ' ' . $response);
+        if (strpos($lowerMsg, 'token') !== false) {
+            $hint = ' (Check your Token field)';
+        } elseif (strpos($lowerMsg, 'public') !== false || strpos($lowerMsg, 'key') !== false) {
+            $hint = ' (Check your Public Key field)';
+        } elseif (strpos($lowerMsg, 'user') !== false) {
+            $hint = ' (Check your API Username field)';
+        } elseif (strpos($lowerMsg, 'secret') !== false || strpos($lowerMsg, 'signature') !== false) {
+            $hint = ' (Check your Secret Key field)';
+        }
+
+        $errorMsg .= $hint . ". Enable debug logging for full details.";
+        return [false, $errorMsg];
     } else {
         $errorData = json_decode($response, true);
         $errorMsg = $errorData['message'] ?? $errorData['error'] ?? 'HTTP ' . $httpCode;
