@@ -143,10 +143,13 @@ function render_upload_row($upload, $statuses) {
     $isVideo = strpos($upload['mime'], 'video') !== false;
     ob_start();
     ?>
+    <?php
+    $thumb = !empty($upload['thumb_path']) ? public_upload_url($upload['thumb_path']) : 'thumbnail.php?id=' . $upload['id'] . '&size=small';
+    $fullUrl = !empty($upload['local_path']) ? public_upload_url($upload['local_path']) : '';
+    ?>
     <tr>
         <td>
-            <div class="media-preview">
-                <?php $thumb = !empty($upload['thumb_path']) ? public_upload_url($upload['thumb_path']) : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
+            <div class="media-preview preview-trigger" style="cursor:pointer;" data-url="<?php echo htmlspecialchars($fullUrl); ?>" data-type="<?php echo $isVideo ? 'video' : 'image'; ?>" data-filename="<?php echo htmlspecialchars($upload['filename']); ?>">
                 <img src="<?php echo htmlspecialchars($thumb); ?>" alt="<?php echo htmlspecialchars($upload['filename']); ?>" loading="lazy">
                 <?php if ($isVideo): ?>
                     <div class="video-indicator"><i class="bi bi-play-fill"></i></div>
@@ -154,7 +157,7 @@ function render_upload_row($upload, $statuses) {
             </div>
         </td>
         <td>
-            <span class="upload-filename"><?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?></span>
+            <span class="upload-filename preview-trigger" style="cursor:pointer;" data-url="<?php echo htmlspecialchars($fullUrl); ?>" data-type="<?php echo $isVideo ? 'video' : 'image'; ?>" data-filename="<?php echo htmlspecialchars($upload['filename']); ?>"><?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?></span>
             <div class="upload-meta">
                 <?php if (!empty($upload['description'])): ?>
                     <div><i class="bi bi-chat-text me-1"></i> <?php echo htmlspecialchars($upload['description']); ?></div>
@@ -405,8 +408,11 @@ include __DIR__.'/header.php';
                             ?>
                             <tr>
                                 <td>
-                                    <div class="media-preview">
-                                        <?php $thumb = !empty($upload['thumb_path']) ? public_upload_url($upload['thumb_path']) : 'thumbnail.php?id=' . $upload['id'] . '&size=small'; ?>
+                                    <?php
+                                    $thumb = !empty($upload['thumb_path']) ? public_upload_url($upload['thumb_path']) : 'thumbnail.php?id=' . $upload['id'] . '&size=small';
+                                    $fullUrl = !empty($upload['local_path']) ? public_upload_url($upload['local_path']) : '';
+                                    ?>
+                                    <div class="media-preview preview-trigger" style="cursor:pointer;" data-url="<?php echo htmlspecialchars($fullUrl); ?>" data-type="<?php echo $isVideo ? 'video' : 'image'; ?>" data-filename="<?php echo htmlspecialchars($upload['filename']); ?>">
                                         <img src="<?php echo htmlspecialchars($thumb); ?>"
                                              alt="<?php echo htmlspecialchars($upload['filename']); ?>"
                                              loading="lazy">
@@ -418,7 +424,7 @@ include __DIR__.'/header.php';
                                     </div>
                                 </td>
                                 <td>
-                                <span class="upload-filename">
+                                <span class="upload-filename preview-trigger" style="cursor:pointer;" data-url="<?php echo htmlspecialchars($fullUrl); ?>" data-type="<?php echo $isVideo ? 'video' : 'image'; ?>" data-filename="<?php echo htmlspecialchars($upload['filename']); ?>">
                                     <?php echo htmlspecialchars(shorten_filename($upload['filename'])); ?>
                                 </span>
                                     <div class="upload-meta">
@@ -550,6 +556,53 @@ include __DIR__.'/header.php';
             }
         });
 
+        // Preview modal functionality
+        document.addEventListener('click', function(e) {
+            const trigger = e.target.closest('.preview-trigger');
+            if (trigger) {
+                const url = trigger.dataset.url;
+                const type = trigger.dataset.type;
+                const filename = trigger.dataset.filename;
+                if (url) {
+                    openPreview(url, type, filename);
+                }
+            }
+        });
+
+        function openPreview(url, type, filename) {
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('previewContent');
+            const title = document.getElementById('previewTitle');
+
+            title.textContent = filename;
+
+            if (type === 'video') {
+                content.innerHTML = `<video controls autoplay style="max-width:100%;max-height:70vh;"><source src="${url}" type="video/mp4">Your browser does not support video.</video>`;
+            } else {
+                content.innerHTML = `<img src="${url}" style="max-width:100%;max-height:70vh;object-fit:contain;">`;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closePreview() {
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('previewContent');
+            modal.style.display = 'none';
+            content.innerHTML = '';
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closePreview();
+        });
     </script>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" onclick="if(event.target===this)closePreview()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;justify-content:center;align-items:center;flex-direction:column;">
+        <div style="position:absolute;top:20px;right:30px;color:white;font-size:30px;cursor:pointer;" onclick="closePreview()">&times;</div>
+        <div id="previewTitle" style="color:white;margin-bottom:15px;font-size:14px;max-width:80%;text-align:center;word-break:break-all;"></div>
+        <div id="previewContent" style="display:flex;justify-content:center;align-items:center;"></div>
+    </div>
 
 <?php include __DIR__.'/footer.php'; ?>
