@@ -590,8 +590,8 @@ include __DIR__.'/header.php';
                                         <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
                                             <!-- Media previews will be added here -->
                                         </div>
-                                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addMoreMediaBtn" style="display: none;">
-                                            <i class="bi bi-plus-circle"></i> Add More (up to 4)
+                                        <button type="button" class="btn add-more-media-btn" id="addMoreMediaBtn" style="display: none;">
+                                            <i class="bi bi-plus-circle"></i> Add More Images
                                         </button>
                                     </div>
                                     <div id="mediaWarnings" class="media-platform-warnings mt-2"></div>
@@ -603,6 +603,15 @@ include __DIR__.'/header.php';
                         <input type="hidden" name="action" id="postAction" value="create">
                     </div>
                     <div class="modal-footer">
+                        <div id="uploadProgressContainer" class="upload-progress-container" style="display: none;">
+                            <div class="upload-progress-text">
+                                <span id="uploadProgressLabel">Uploading media...</span>
+                                <span id="uploadProgressPercent">0%</span>
+                            </div>
+                            <div class="upload-progress-bar">
+                                <div class="upload-progress-fill" id="uploadProgressFill"></div>
+                            </div>
+                        </div>
                         <button type="button" class="btn btn-modern-secondary" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle"></i>
                             Cancel
@@ -1371,11 +1380,52 @@ include __DIR__.'/header.php';
                         submitBtn.disabled = true;
                     }
 
+                    // Show progress bar
+                    var progressContainer = document.getElementById('uploadProgressContainer');
+                    var progressFill = document.getElementById('uploadProgressFill');
+                    var progressPercent = document.getElementById('uploadProgressPercent');
+                    var progressLabel = document.getElementById('uploadProgressLabel');
+                    var hasMedia = selectedFiles && selectedFiles.length > 0;
+
+                    if (progressContainer && hasMedia) {
+                        progressContainer.style.display = 'block';
+                        progressFill.style.width = '0%';
+                        progressPercent.textContent = '0%';
+                        progressLabel.textContent = 'Uploading media...';
+
+                        // Simulate progress stages
+                        setTimeout(function() {
+                            progressFill.style.width = '20%';
+                            progressPercent.textContent = '20%';
+                        }, 300);
+                        setTimeout(function() {
+                            progressFill.style.width = '45%';
+                            progressPercent.textContent = '45%';
+                            progressLabel.textContent = 'Processing images...';
+                        }, 1000);
+                        setTimeout(function() {
+                            progressFill.style.width = '70%';
+                            progressPercent.textContent = '70%';
+                            progressLabel.textContent = 'Scheduling post...';
+                        }, 2500);
+                    }
+
                     var formData = new FormData(this);
 
                     fetch('hootsuite_post.php', { method:'POST', body: formData })
                         .then(r=>r.json())
                         .then(function(res){
+                            // Complete progress bar
+                            if (progressContainer && hasMedia) {
+                                progressFill.style.width = '100%';
+                                progressPercent.textContent = '100%';
+                                progressLabel.textContent = 'Complete!';
+                                setTimeout(function() {
+                                    progressContainer.style.display = 'none';
+                                    progressFill.style.width = '0%';
+                                }, 500);
+                            }
+
                             if(submitBtn) {
                                 submitBtn.innerHTML = originalText;
                                 submitBtn.disabled = false;
@@ -1439,6 +1489,11 @@ include __DIR__.'/header.php';
                                 alert(res.error || 'Unable to save post');
                             }
                         }).catch(function(){
+                        // Hide progress bar on error
+                        if (progressContainer) {
+                            progressContainer.style.display = 'none';
+                            progressFill.style.width = '0%';
+                        }
                         if(submitBtn) {
                             submitBtn.innerHTML = originalText;
                             submitBtn.disabled = false;

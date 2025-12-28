@@ -366,7 +366,7 @@ function calendar_get_posts(int $store_id): array {
         } catch (PDOException $e) {
             $column = 'scheduled_time';
         }
-        $queries[] = "SELECT post_id, NULL AS created_by_user_id, text, $column AS scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'Sheet' AS source FROM calendar WHERE store_id=?";
+        $queries[] = "SELECT post_id, NULL AS created_by_user_id, text, $column AS scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'External' AS source FROM calendar WHERE store_id=?";
         $params[] = $store_id;
     }
 
@@ -379,7 +379,7 @@ function calendar_get_posts(int $store_id): array {
             $hasHootsuite = false;
         }
         if ($hasHootsuite) {
-            $queries[] = "SELECT post_id, created_by_user_id, text, scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'API' AS source FROM hootsuite_posts WHERE store_id=?";
+            $queries[] = "SELECT post_id, created_by_user_id, text, scheduled_send_time, social_profile_id, media_urls, media_thumb_urls, tags, 'MediaHub' AS source FROM hootsuite_posts WHERE store_id=?";
             $params[] = $store_id;
         }
     }

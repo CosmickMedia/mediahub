@@ -5,15 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.16] - 2025-07-30
+## [2.2.1] - 2025-12-27
+### Added
+- "Add More Images" button with themed styling for multi-file uploads
+- Progress bar with animated stages during post submission
+- Rebuilt complete changelog from git history (1.4.0 - 2.2.0)
 ### Changed
-- Auto-refresh the admin uploads list to show new content in real-time.
+- Day view modal now displays posts as responsive card grid
+- Source labels renamed: "API" to "MediaHub", "Sheet" to "External"
+- Close button repositioned to top-right in day view modal
+### Fixed
+- Individual profile fallback now properly handles all uploaded media files
+
+## [2.2.0] - 2025-12-26
+### Added
+- Multiple image upload support (up to 4 files per post)
+- Platform-specific character limit validation with auto-truncation
+- Platform media requirement warnings before posting
+- WebP image format support
+### Fixed
+- Backend fallback for multiple media uploads
+
+## [2.1.0] - 2025-11-15
+### Added
+- HEIC/HEIF image format support
+- Media preview modal on uploads admin page
+- Article export and download features
+### Changed
+- Increased upload file size limit
+- Enhanced article admin UI
+- Improved Hootsuite profile selection in store editor
+
+## [2.0.0] - 2025-10-01
+### Added
+- Platform-specific image cropping with admin controls
+- Groundhogg CRM integration
+- Status cleanup scripts
+- PWA manifest and app icons
+- Favicons for all pages
+### Changed
+- Refactored Groundhogg contact structure and API headers
+- Improved login page layout with "Remember Me" feature
+### Fixed
+- Mobile modal display and visibility issues
+- Calendar modal positioning on mobile devices
+
+## [1.5.2] - 2025-08-10
+### Changed
+- Articles UI improvements and dedicated stylesheet
+- Stats dashboard now displays horizontally
+### Fixed
+- Missing CSS styles on articles page
+
+## [1.5.1] - 2025-08-09
+### Changed
+- Public schedule modal layout aligned with admin version
+- Unified login page styling across public and admin
+### Fixed
+- Admin page header offset issue
+- CSS refactoring and organization
+
+## [1.5.0] - 2025-08-08
+### Added
+- Admin calendar management page with full functionality
+- Social Health Report dashboard
+- Admin can now delete calendar posts
+- Technical overview documentation
+### Changed
+- Refactored admin navigation for reports and settings
+- Reordered admin header icons with unified styles
+- Redesigned schedule report filters and layout
+- Moved inline calendar styles to stylesheet
+- Admin calendar now uses hootsuite_posts data
+### Fixed
+- Schedule modal z-index issues
+- Calendar library path resolution
+- Calendar media gallery and posted-by display
+
+## [1.4.0] - 2025-08-07
+### Added
+- Store users can now schedule Hootsuite posts from calendar
+- Support for scheduling to multiple Hootsuite profiles
+- Multi-file media upload support for posts
+- Hootsuite OAuth authentication in admin settings
+- Hootsuite profile sync with automatic refresh
+- Campaign tracking for Hootsuite posts
+- Profile search in Hootsuite selector
+- Display toggles for customer calendar
+### Changed
+- Renamed "hoot" directory to "hootsuite"
+- Moved cron scripts to dedicated directory
+- Improved schedule modal time picker and media preview
+- Redesigned schedule post modal with better UX
+- Enhanced Hootsuite profile UI selectors
+### Fixed
+- Hootsuite profile refresh transaction handling
+- Customer calendar display toggle
+- Hootsuite sync date range and pagination
 
 ## [1.3.17] - 2025-07-31
 ### Changed
 - Updated README with deployment instructions and a summary of recent features.
 ### Removed
 - Deleted the obsolete `config.xml` file.
+
+## [1.3.16] - 2025-07-30
+### Changed
+- Auto-refresh the admin uploads list to show new content in real-time.
 
 ## [1.3.15] - 2025-07-30
 ### Changed
