@@ -240,7 +240,7 @@ foreach ($posts as $p) {
 $events_json = json_encode($events);
 $extra_head = <<<HTML
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-<link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.6.2">
+<link rel="stylesheet" href="/assets/css/calendar-mobile.css?v=1.6.3">
 HTML;
 
 include __DIR__.'/header.php';

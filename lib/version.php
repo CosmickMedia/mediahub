@@ -109,6 +109,118 @@ function getChangelogForVersion($version) {
 }
 
 /**
+ * Get all changelog entries since a given version
+ * Returns all versions newer than $lastSeenVersion
+ * @param string $lastSeenVersion The last version the user saw
+ * @return array Array of changelog entries for all missed versions
+ */
+function getChangelogSinceVersion($lastSeenVersion) {
+    $changelogFile = __DIR__ . '/../CHANGELOG.md';
+    if (!file_exists($changelogFile)) {
+        return [];
+    }
+
+    $content = file_get_contents($changelogFile);
+    $lines = explode("\n", $content);
+
+    $versions = [];
+    $currentVersionIndex = -1;
+    $currentSection = null;
+
+    foreach ($lines as $line) {
+        // Check for version header: ## [2.2.1] - 2025-12-27
+        if (preg_match('/^## \[([^\]]+)\] - (.+)$/', $line, $matches)) {
+            $version = $matches[1];
+            // Only include versions newer than lastSeenVersion
+            if (version_compare($version, $lastSeenVersion, '>')) {
+                $versions[] = [
+                    'version' => $version,
+                    'date' => trim($matches[2]),
+                    'Added' => [],
+                    'Changed' => [],
+                    'Fixed' => [],
+                    'Removed' => []
+                ];
+                $currentVersionIndex = count($versions) - 1;
+            } else {
+                // Stop parsing once we hit an older version
+                break;
+            }
+            $currentSection = null;
+            continue;
+        }
+
+        if ($currentVersionIndex >= 0) {
+            // Check for section headers: ### Added, ### Changed, etc.
+            if (preg_match('/^### (Added|Changed|Fixed|Removed)/', $line, $matches)) {
+                $currentSection = $matches[1];
+                continue;
+            }
+
+            // Check for list items: - Some change here
+            if ($currentSection && preg_match('/^- (.+)$/', $line, $matches)) {
+                $versions[$currentVersionIndex][$currentSection][] = trim($matches[1]);
+            }
+        }
+    }
+
+    return $versions;
+}
+
+/**
+ * Generate HTML for multiple changelog versions (What's New modal with all missed updates)
+ * @param array $changelogs Array of changelog entries
+ * @return string HTML content
+ */
+function generateMultiVersionWhatsNewHTML($changelogs) {
+    if (empty($changelogs)) {
+        return '<p>Thanks for updating! Check the changelog for details.</p>';
+    }
+
+    $html = '';
+    $sections = [
+        'Added' => ['icon' => 'bi-plus-circle-fill', 'color' => '#198754'],
+        'Changed' => ['icon' => 'bi-arrow-repeat', 'color' => '#0dcaf0'],
+        'Fixed' => ['icon' => 'bi-check-circle-fill', 'color' => '#667eea'],
+        'Removed' => ['icon' => 'bi-trash-fill', 'color' => '#dc3545']
+    ];
+
+    foreach ($changelogs as $index => $changelog) {
+        $html .= '<div class="whats-new-version' . ($index > 0 ? ' mt-4 pt-3 border-top' : '') . '">';
+        $html .= '<h6 class="d-flex align-items-center justify-content-between mb-3">';
+        $html .= '<span class="fw-bold"><i class="bi bi-tag-fill me-2" style="color: #667eea;"></i>v' . htmlspecialchars($changelog['version']) . '</span>';
+        $html .= '<small class="text-muted">' . htmlspecialchars($changelog['date']) . '</small>';
+        $html .= '</h6>';
+
+        $hasContent = false;
+        foreach ($sections as $section => $style) {
+            if (!empty($changelog[$section])) {
+                $hasContent = true;
+                $html .= '<div class="whats-new-section mb-2">';
+                $html .= '<h6 class="d-flex align-items-center mb-2" style="font-size: 0.85rem;">';
+                $html .= '<i class="bi ' . $style['icon'] . ' me-2" style="color: ' . $style['color'] . '"></i>';
+                $html .= $section;
+                $html .= '</h6>';
+                $html .= '<ul class="whats-new-list mb-0">';
+                foreach ($changelog[$section] as $item) {
+                    $html .= '<li>' . htmlspecialchars($item) . '</li>';
+                }
+                $html .= '</ul>';
+                $html .= '</div>';
+            }
+        }
+
+        if (!$hasContent) {
+            $html .= '<p class="text-muted mb-0" style="font-size: 0.9rem;">Minor improvements and bug fixes.</p>';
+        }
+
+        $html .= '</div>';
+    }
+
+    return $html;
+}
+
+/**
  * Generate HTML for the What's New modal content
  * @param array $changelog Parsed changelog data
  * @return string HTML content

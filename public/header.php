@@ -264,9 +264,6 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                             <span class="user-role">Store User</span>
                         </div>
                     </div>
-                    <a href="logout.php" class="logout-btn" title="Logout">
-                        <i class="bi bi-box-arrow-right"></i>
-                    </a>
                 </div>
             </div>
         <?php endif; ?>

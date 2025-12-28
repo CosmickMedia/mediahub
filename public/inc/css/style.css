@@ -823,10 +823,6 @@ body {
     outline: none !important;
 }
 
-.btn-close-white {
-    filter: none !important;
-}
-
 #dayViewModal .btn-close-white {
     filter: none !important;
 }

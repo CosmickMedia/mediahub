@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.7] - 2025-12-27
+### Added
+- Scrollable What's New modal for multiple version updates
+### Changed
+- Modal now displays "X updates" badge when multiple versions missed
+
+## [2.2.6] - 2025-12-27
+### Added
+- Multi-version What's New popup test release
+
+## [2.2.5] - 2025-12-27
+### Fixed
+- What's New popup only registers as seen when clicking "Got it!" button
+
+## [2.2.4] - 2025-12-27
+### Fixed
+- What's New popup no longer reappears on chat page after dismissal
+
+## [2.2.3] - 2025-12-27
+### Changed
+- What's New popup now shows all missed version updates (scrollable if multiple)
+- Removed Quick Actions section from store dashboard
+- Removed duplicate logout button from mobile menu
+
+## [2.2.2] - 2025-12-27
+### Added
+- Full changelog modal when clicking footer version
+### Changed
+- Calendar stats widgets now horizontally scrollable on desktop
+- Compact stat cards to fit more per row
+### Fixed
+- Changelog parser now captures all items per version section
+
 ## [2.2.1] - 2025-12-27
 ### Added
 - "Add More Images" button with themed styling for multi-file uploads

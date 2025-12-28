@@ -133,7 +133,8 @@ $currentVersion = getCurrentVersion();
 // Check cookie first, then session, then default to 0.0.0
 $lastSeenVersion = $_COOKIE['whats_new_seen'] ?? $_SESSION['last_seen_version'] ?? '0.0.0';
 $showWhatsNew = shouldShowWhatsNew($lastSeenVersion);
-$changelog = $showWhatsNew ? getChangelogForVersion($currentVersion) : null;
+// Get ALL versions since last seen (not just the current one)
+$changelogs = $showWhatsNew ? getChangelogSinceVersion($lastSeenVersion) : [];
 ?>
 
 <!-- Footer with Version -->
@@ -162,18 +163,20 @@ $changelog = $showWhatsNew ? getChangelogForVersion($currentVersion) : null;
 
 <!-- What's New Modal -->
 <div class="modal fade" id="whatsNewModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border: none; border-radius: 16px; overflow: hidden;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="border: none; border-radius: 16px; overflow: hidden; max-height: 80vh;">
             <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1.5rem;">
                 <h5 class="modal-title" style="font-weight: 600;">
-                    <i class="bi bi-stars me-2"></i>What's New in v<?php echo htmlspecialchars($currentVersion); ?>
+                    <i class="bi bi-stars me-2"></i>What's New
+                    <?php if (count($changelogs) > 1): ?>
+                        <span class="badge bg-white text-primary ms-2" style="font-size: 0.7rem;"><?php echo count($changelogs); ?> updates</span>
+                    <?php endif; ?>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem;">
-                <?php if ($changelog): ?>
-                    <p class="text-muted mb-3"><small>Released <?php echo htmlspecialchars($changelog['date']); ?></small></p>
-                    <?php echo generateWhatsNewHTML($changelog); ?>
+            <div class="modal-body" style="padding: 1.5rem; overflow-y: auto;">
+                <?php if (!empty($changelogs)): ?>
+                    <?php echo generateMultiVersionWhatsNewHTML($changelogs); ?>
                 <?php else: ?>
                     <p>Thanks for updating! Check the changelog for details.</p>
                 <?php endif; ?>
@@ -282,20 +285,22 @@ $changelog = $showWhatsNew ? getChangelogForVersion($currentVersion) : null;
         measurePageLoadTime();
 
         // Show What's New modal if needed
-        <?php if ($showWhatsNew): ?>
+        <?php if ($showWhatsNew && !empty($changelogs)): ?>
         setTimeout(function() {
+            // Skip if already dismissed this session (prevents reappearing on page reloads)
+            if (sessionStorage.getItem('whats_new_dismissed') === '<?php echo $currentVersion; ?>') {
+                return;
+            }
+
             const whatsNewModal = new bootstrap.Modal(document.getElementById('whatsNewModal'));
             whatsNewModal.show();
 
-            // Mark version as seen when modal is closed
-            document.getElementById('whatsNewModal').addEventListener('hidden.bs.modal', function() {
-                // Set cookie immediately (1 year expiry) - this is the primary storage
+            // Only set cookie when "Got it!" button is clicked
+            document.getElementById('whatsNewDismiss').addEventListener('click', function() {
+                sessionStorage.setItem('whats_new_dismissed', '<?php echo $currentVersion; ?>');
                 document.cookie = 'whats_new_seen=<?php echo $currentVersion; ?>; path=/; max-age=31536000; SameSite=Lax';
-
-                // Also call server to update database (for cross-device sync when columns exist)
-                fetch('../lib/mark_version_seen.php', { method: 'POST' })
-                    .catch(err => console.log('Failed to mark version seen:', err));
-            }, { once: true });
+                fetch('../lib/mark_version_seen.php', { method: 'POST' }).catch(function() {});
+            });
         }, 1000);
         <?php endif; ?>
     });

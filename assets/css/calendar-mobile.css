@@ -1,5 +1,5 @@
 /* Mobile Calendar Enhancements */
-/* Version 1.6.2 - Fixed modal background/border display with proper flexbox layout */
+/* Version 1.6.3 - Compact horizontal scrolling stats widgets for desktop */
 
 /* CRITICAL FIX: Override Bootstrap's overflow: hidden on modal-dialog-scrollable */
 /* This rule applies to ALL screen sizes */
@@ -881,10 +881,38 @@
         width: auto;
     }
 
+    /* Analytics dashboard - horizontal scrolling on desktop too */
     .analytics-dashboard {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 1rem;
+        padding-bottom: 0.5rem;
+        scrollbar-width: thin;
+    }
+
+    .analytics-dashboard::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .analytics-dashboard::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .analytics-dashboard::-webkit-scrollbar-thumb {
+        background: rgba(102, 126, 234, 0.3);
+        border-radius: 3px;
+    }
+
+    .analytics-dashboard::-webkit-scrollbar-thumb:hover {
+        background: rgba(102, 126, 234, 0.5);
+    }
+
+    .analytics-dashboard .stat-card {
+        min-width: 140px;
+        max-width: 180px;
+        flex-shrink: 0;
     }
 
     .calendar-wrapper {
@@ -951,27 +979,36 @@
         min-height: 100px !important;
     }
 
-    /* Stats cards on desktop */
+    /* Stats cards on desktop - compact for horizontal scroll */
     .stat-card {
-        padding: 1.5rem;
+        padding: 1rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-height: 80px;
     }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     }
 
     .stat-icon {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
 
     .stat-number {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
 
     .stat-label {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stat-bg {
+        width: 50px;
+        height: 50px;
     }
 
     /* Profile selector on desktop */
@@ -989,8 +1026,10 @@
         max-width: 1600px;
     }
 
-    .analytics-dashboard {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    /* Keep horizontal scroll on large screens too */
+    .analytics-dashboard .stat-card {
+        min-width: 150px;
+        max-width: 200px;
     }
 
     #eventModalCalendar .modal-dialog,
