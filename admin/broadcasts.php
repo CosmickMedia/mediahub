@@ -228,10 +228,10 @@ include __DIR__.'/header.php';
             <!-- Broadcast Form -->
             <div class="broadcast-card animate__animated animate__fadeIn delay-60">
                 <div class="card-header-modern">
-                    <h5 class="card-title-modern">
-                        <i class="bi bi-send"></i>
-                        Post New Broadcast
-                    </h5>
+                    <div class="broadcasts-section-header" style="margin-bottom: 0; padding-bottom: 0; border: none;">
+                        <i class="bi bi-pencil-square"></i>
+                        <h4>Compose Broadcast</h4>
+                    </div>
                 </div>
                 <div class="card-body-modern">
                     <div class="info-card">
@@ -244,12 +244,12 @@ include __DIR__.'/header.php';
                     </div>
 
                     <form method="post">
-                        <div class="mb-4">
+                        <div class="mb-4 store-selector">
                             <label for="store_id" class="form-label-modern">
                                 <i class="bi bi-shop"></i> Target Store
                             </label>
                             <select name="store_id[]" id="store_id" class="form-select form-select-modern" multiple>
-                                <option value="all" selected>🌍 All Stores (Global Broadcast)</option>
+                                <option value="all" selected>All Stores (Global Broadcast)</option>
                                 <optgroup label="Individual Stores">
                                     <?php foreach ($stores as $store): ?>
                                         <option value="<?php echo $store['id']; ?>">
@@ -258,7 +258,7 @@ include __DIR__.'/header.php';
                                     <?php endforeach; ?>
                                 </optgroup>
                             </select>
-                            <div class="form-text">Start typing to add stores or leave as "All Stores"</div>
+                            <div class="form-text">Select specific stores or keep "All Stores" for a global broadcast</div>
                         </div>
 
                         <div class="mb-4">
@@ -286,10 +286,10 @@ include __DIR__.'/header.php';
             <!-- Messages List -->
             <div class="messages-card animate__animated animate__fadeIn delay-70">
                 <div class="card-header-modern">
-                    <h5 class="card-title-modern">
-                        <i class="bi bi-chat-square-text"></i>
-                        Active Broadcasts
-                    </h5>
+                    <div class="broadcasts-section-header" style="margin-bottom: 0; padding-bottom: 0; border: none;">
+                        <i class="bi bi-clock-history"></i>
+                        <h4>Broadcast History</h4>
+                    </div>
                 </div>
 
                 <?php if (empty($messages)): ?>
@@ -299,9 +299,9 @@ include __DIR__.'/header.php';
                         <p>Post your first broadcast to get started</p>
                     </div>
                 <?php else: ?>
-                    <div>
+                    <div class="messages-list">
                         <?php foreach ($messages as $msg): ?>
-                            <div class="message-item">
+                            <div class="message-item<?php echo !$msg['store_id'] ? ' global-message' : ''; ?>">
                                 <div class="message-header">
                                     <div class="message-badges">
                                         <?php if ($msg['store_id']): ?>
@@ -329,14 +329,14 @@ include __DIR__.'/header.php';
                                 <div class="message-actions">
                                     <a href="edit_broadcast.php?id=<?php echo $msg['id']; ?>"
                                        class="btn btn-action btn-action-secondary" title="Edit">
-                                        <i class="bi bi-pencil-square"></i>
-                                        <span class="visually-hidden">Edit</span>
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        <span class="d-none d-sm-inline">Edit</span>
                                     </a>
                                     <a href="?delete=<?php echo $msg['id']; ?>&page=<?php echo $page; ?>"
                                        class="btn btn-action btn-action-danger"
-                                       onclick="return confirm('Delete this message?')" title="Delete">
-                                        <i class="bi bi-trash"></i>
-                                        <span class="visually-hidden">Delete</span>
+                                       onclick="return confirm('Are you sure you want to delete this broadcast?')" title="Delete">
+                                        <i class="bi bi-trash me-1"></i>
+                                        <span class="d-none d-sm-inline">Delete</span>
                                     </a>
                                 </div>
                             </div>
