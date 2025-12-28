@@ -32,7 +32,18 @@ if (!$isLoggedIn) {
         $email = trim($_POST['email']);
         if ($pin !== '' && $email !== '') {
             $pdo = get_pdo();
-            $stmt = $pdo->prepare('SELECT s.*, u.id AS uid, u.first_name AS ufname, u.last_name AS ulname FROM stores s JOIN store_users u ON u.store_id = s.id WHERE s.pin = ? AND u.email = ?');
+            // Check if last_seen_version column exists
+            $hasVersionCol = false;
+            try {
+                $colCheck = $pdo->query("SHOW COLUMNS FROM store_users LIKE 'last_seen_version'");
+                $hasVersionCol = $colCheck->fetch() !== false;
+            } catch (Exception $e) {}
+
+            if ($hasVersionCol) {
+                $stmt = $pdo->prepare('SELECT s.*, u.id AS uid, u.first_name AS ufname, u.last_name AS ulname, u.last_seen_version AS ulast_seen FROM stores s JOIN store_users u ON u.store_id = s.id WHERE s.pin = ? AND u.email = ?');
+            } else {
+                $stmt = $pdo->prepare('SELECT s.*, u.id AS uid, u.first_name AS ufname, u.last_name AS ulname FROM stores s JOIN store_users u ON u.store_id = s.id WHERE s.pin = ? AND u.email = ?');
+            }
             $stmt->execute([$pin, $email]);
             if ($store = $stmt->fetch()) {
                 session_regenerate_id(true);
@@ -43,6 +54,7 @@ if (!$isLoggedIn) {
                 $_SESSION['store_user_id'] = $store['uid'] ?? null;
                 $_SESSION['store_first_name'] = $store['ufname'] ?? '';
                 $_SESSION['store_last_name'] = $store['ulname'] ?? '';
+                $_SESSION['last_seen_version'] = $store['ulast_seen'] ?? '0.0.0';
 
                 if (!empty($_POST['remember'])) {
                     $rememberLifetime = 60 * 60 * 24 * 30;
@@ -941,7 +953,7 @@ include __DIR__.'/header.php';
                             <?php foreach ($recent_uploads as $upload): ?>
                                 <?php
                                 $isVideo = strpos($upload['mime'], 'video') !== false;
-                                $viewUrl = !empty($upload['local_path']) ? '/public/' . $upload['local_path'] : 'https://drive.google.com/file/d/' . $upload['id'] . '/view';
+                                $viewUrl = !empty($upload['local_path']) ? '/public/' . $upload['local_path'] : 'https://drive.google.com/file/d/' . $upload['drive_id'] . '/view';
                                 ?>
                                 <div class="activity-item">
                                     <div class="activity-dot"></div>

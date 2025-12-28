@@ -126,6 +126,124 @@
 <!-- Toast Container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
 
+<?php
+// What's New Modal - check if we should show it
+require_once __DIR__ . '/../lib/version.php';
+$currentVersion = getCurrentVersion();
+// Check cookie first, then session, then default to 0.0.0
+$lastSeenVersion = $_COOKIE['whats_new_seen'] ?? $_SESSION['last_seen_version'] ?? '0.0.0';
+$showWhatsNew = shouldShowWhatsNew($lastSeenVersion);
+$changelog = $showWhatsNew ? getChangelogForVersion($currentVersion) : null;
+?>
+
+<!-- Footer with Version -->
+<footer class="text-center py-2 mt-4">
+    <small class="footer-version" style="cursor: pointer; color: #6c757d;" data-bs-toggle="modal" data-bs-target="#changelogModal">
+        Version: <?php echo htmlspecialchars($currentVersion); ?>
+    </small>
+</footer>
+
+<!-- Full Changelog Modal -->
+<div class="modal fade" id="changelogModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content" style="border: none; border-radius: 16px; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1.25rem 1.5rem;">
+                <h5 class="modal-title" style="font-weight: 600;">
+                    <i class="bi bi-journal-text me-2"></i>Changelog
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem; max-height: 70vh; overflow-y: auto;">
+                <?php echo generateFullChangelogHTML(); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- What's New Modal -->
+<div class="modal fade" id="whatsNewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 16px; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1.5rem;">
+                <h5 class="modal-title" style="font-weight: 600;">
+                    <i class="bi bi-stars me-2"></i>What's New in v<?php echo htmlspecialchars($currentVersion); ?>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+                <?php if ($changelog): ?>
+                    <p class="text-muted mb-3"><small>Released <?php echo htmlspecialchars($changelog['date']); ?></small></p>
+                    <?php echo generateWhatsNewHTML($changelog); ?>
+                <?php else: ?>
+                    <p>Thanks for updating! Check the changelog for details.</p>
+                <?php endif; ?>
+            </div>
+            <div class="modal-footer border-0" style="padding: 1rem 1.5rem 1.5rem;">
+                <button type="button" class="btn w-100" data-bs-dismiss="modal" id="whatsNewDismiss" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 600;">
+                    <i class="bi bi-check-circle me-1"></i>Got it!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.whats-new-section h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+}
+.whats-new-list {
+    list-style: none;
+    padding-left: 1.5rem;
+}
+.whats-new-list li {
+    position: relative;
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #555;
+}
+.whats-new-list li::before {
+    content: "•";
+    position: absolute;
+    left: -1rem;
+    color: #667eea;
+}
+/* Changelog styles */
+.changelog-version {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+.changelog-version:last-child {
+    border-bottom: none;
+}
+.changelog-section h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+}
+.changelog-list {
+    list-style: none;
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+.changelog-list li {
+    position: relative;
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #555;
+}
+.changelog-list li::before {
+    content: "•";
+    position: absolute;
+    left: -1rem;
+    color: #667eea;
+}
+.footer-version:hover {
+    color: #667eea !important;
+    text-decoration: underline;
+}
+</style>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
@@ -162,6 +280,24 @@
 
         // Initialize page load time
         measurePageLoadTime();
+
+        // Show What's New modal if needed
+        <?php if ($showWhatsNew): ?>
+        setTimeout(function() {
+            const whatsNewModal = new bootstrap.Modal(document.getElementById('whatsNewModal'));
+            whatsNewModal.show();
+
+            // Mark version as seen when modal is closed
+            document.getElementById('whatsNewModal').addEventListener('hidden.bs.modal', function() {
+                // Set cookie immediately (1 year expiry) - this is the primary storage
+                document.cookie = 'whats_new_seen=<?php echo $currentVersion; ?>; path=/; max-age=31536000; SameSite=Lax';
+
+                // Also call server to update database (for cross-device sync when columns exist)
+                fetch('../lib/mark_version_seen.php', { method: 'POST' })
+                    .catch(err => console.log('Failed to mark version seen:', err));
+            }, { once: true });
+        }, 1000);
+        <?php endif; ?>
     });
 
     // Theme Toggle

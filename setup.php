@@ -40,6 +40,7 @@ $queries = [
         first_name VARCHAR(100),
         last_name VARCHAR(100),
         email VARCHAR(255) NOT NULL,
+        last_seen_version VARCHAR(20) DEFAULT '0.0.0',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
@@ -51,6 +52,7 @@ $queries = [
         first_name VARCHAR(100),
         last_name VARCHAR(100),
         groundhogg_synced TINYINT(1) NOT NULL DEFAULT 0,
+        last_seen_version VARCHAR(20) DEFAULT '0.0.0',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY store_email_unique (store_id, email),
         FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
@@ -360,6 +362,20 @@ try {
 try {
     $pdo->exec("ALTER TABLE users ADD COLUMN email VARCHAR(255) AFTER last_name");
     echo "✓ Added email column to users table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN last_seen_version VARCHAR(20) DEFAULT '0.0.0' AFTER email");
+    echo "✓ Added last_seen_version column to users table\n";
+} catch (PDOException $e) {
+    // Column might already exist
+}
+
+try {
+    $pdo->exec("ALTER TABLE store_users ADD COLUMN last_seen_version VARCHAR(20) DEFAULT '0.0.0' AFTER groundhogg_synced");
+    echo "✓ Added last_seen_version column to store_users table\n";
 } catch (PDOException $e) {
     // Column might already exist
 }

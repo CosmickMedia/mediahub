@@ -59,7 +59,19 @@ function login($username, $password): bool {
     ensure_session();
 
     $pdo = get_pdo();
-    $stmt = $pdo->prepare('SELECT id, password, first_name, last_name FROM users WHERE username=?');
+
+    // Check if last_seen_version column exists
+    $hasVersionCol = false;
+    try {
+        $colCheck = $pdo->query("SHOW COLUMNS FROM users LIKE 'last_seen_version'");
+        $hasVersionCol = $colCheck->fetch() !== false;
+    } catch (Exception $e) {}
+
+    if ($hasVersionCol) {
+        $stmt = $pdo->prepare('SELECT id, password, first_name, last_name, last_seen_version FROM users WHERE username=?');
+    } else {
+        $stmt = $pdo->prepare('SELECT id, password, first_name, last_name FROM users WHERE username=?');
+    }
     $stmt->execute([$username]);
     if ($row = $stmt->fetch()) {
         if (password_verify($password, $row['password'])) {
@@ -70,6 +82,7 @@ function login($username, $password): bool {
             $_SESSION['login_time'] = time();
             $_SESSION['first_name'] = $row['first_name'] ?? '';
             $_SESSION['last_name'] = $row['last_name'] ?? '';
+            $_SESSION['last_seen_version'] = $row['last_seen_version'] ?? '0.0.0';
 
             return true;
         }
@@ -124,7 +137,19 @@ function login_with_google_email($email): bool {
     ensure_session();
 
     $pdo = get_pdo();
-    $stmt = $pdo->prepare('SELECT id, first_name, last_name FROM users WHERE username=?');
+
+    // Check if last_seen_version column exists
+    $hasVersionCol = false;
+    try {
+        $colCheck = $pdo->query("SHOW COLUMNS FROM users LIKE 'last_seen_version'");
+        $hasVersionCol = $colCheck->fetch() !== false;
+    } catch (Exception $e) {}
+
+    if ($hasVersionCol) {
+        $stmt = $pdo->prepare('SELECT id, first_name, last_name, last_seen_version FROM users WHERE username=?');
+    } else {
+        $stmt = $pdo->prepare('SELECT id, first_name, last_name FROM users WHERE username=?');
+    }
     $stmt->execute([$email]);
     if ($row = $stmt->fetch()) {
         session_regenerate_id(true);
@@ -133,6 +158,7 @@ function login_with_google_email($email): bool {
         $_SESSION['login_time'] = time();
         $_SESSION['first_name'] = $row['first_name'] ?? '';
         $_SESSION['last_name'] = $row['last_name'] ?? '';
+        $_SESSION['last_seen_version'] = $row['last_seen_version'] ?? '0.0.0';
         return true;
     }
     return false;
