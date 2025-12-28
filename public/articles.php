@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
 
             // Send email notifications
             $emailSettings = [];
-            $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('notification_email', 'email_from_name', 'email_from_address', 'admin_article_notification_subject', 'store_article_notification_subject')");
+            $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('notification_email', 'article_notification_email', 'email_from_name', 'email_from_address', 'admin_article_notification_subject', 'store_article_notification_subject', 'enable_article_admin_notification', 'enable_article_store_confirmation')");
             while ($row = $settingsQuery->fetch()) {
                 $emailSettings[$row['name']] = $row['value'];
             }
@@ -186,9 +186,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
             $headers .= "Reply-To: $fromAddress\r\n";
             $headers .= "X-Mailer: PHP/" . phpversion();
 
-            // Notify admin
-            if (!empty($emailSettings['notification_email'])) {
-                $emailList = array_map('trim', explode(',', $emailSettings['notification_email']));
+            // Notify admin (use article-specific email if set, otherwise fall back to general)
+            $enableAdminNotification = ($emailSettings['enable_article_admin_notification'] ?? '1') !== '0';
+            $notifyEmails = !empty($emailSettings['article_notification_email'])
+                ? $emailSettings['article_notification_email']
+                : ($emailSettings['notification_email'] ?? '');
+            if ($enableAdminNotification && !empty($notifyEmails)) {
+                $emailList = array_map('trim', explode(',', $notifyEmails));
                 $message = "New article submitted by: $store_name\n\n";
                 $message .= "Title: $title\n";
                 $message .= "Category: " . ucfirst($category) . "\n";
@@ -203,7 +207,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
             }
 
             // Send confirmation to store
-            if (!empty($store['admin_email'])) {
+            $enableStoreConfirmation = ($emailSettings['enable_article_store_confirmation'] ?? '1') !== '0';
+            if ($enableStoreConfirmation && !empty($store['admin_email'])) {
                 $confirmMessage = "Dear $store_name,\n\n";
                 $confirmMessage .= "Thank you for submitting your article to Cosmick Media.\n\n";
                 $confirmMessage .= "Article Title: $title\n";

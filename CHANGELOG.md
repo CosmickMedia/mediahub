@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2025-12-28
+### Added
+- Separate notification email recipients for uploads vs articles
+- Enable/disable toggles for all notification types (admin alerts, store confirmations, approvals, broadcasts)
+- Test email functionality to verify notification settings
+- Descriptions and help text for Calendar tab sections
+- Show/hide settings based on feature enabled state in Calendar tab
+### Changed
+- Renamed "Email Subjects" tab to "Email"
+- Renamed "Calendar Import" section to "Google Sheet Integration"
+- Reordered admin settings tabs (Calendar now second after General)
+- Improved test email button alignment
+
 ## [2.2.7] - 2025-12-27
 ### Added
 - Scrollable What's New modal for multiple version updates

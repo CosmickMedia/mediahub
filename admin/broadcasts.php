@@ -34,11 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
         // Get email settings
         $emailSettings = [];
-        $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('email_from_name', 'email_from_address', 'store_message_subject')");
+        $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('email_from_name', 'email_from_address', 'store_message_subject', 'enable_broadcast_emails')");
         while ($row = $settingsQuery->fetch()) {
             $emailSettings[$row['name']] = $row['value'];
         }
 
+        $enableBroadcastEmails = ($emailSettings['enable_broadcast_emails'] ?? '1') !== '0';
         $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
         $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
         $messageSubject = $emailSettings['store_message_subject'] ?? "New message from Cosmick Media";
@@ -52,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
         $baseUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI']));
         $loginUrl = $baseUrl . '/public/index.php';
 
-        if ($send_all) {
+        if ($enableBroadcastEmails && $send_all) {
             // Send to all stores
             $stores_with_email = $pdo->query('SELECT * FROM stores WHERE admin_email IS NOT NULL AND admin_email != ""')->fetchAll(PDO::FETCH_ASSOC);
 
@@ -71,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
                 mail($store['admin_email'], $subject, $emailBody, $headers);
             }
-        } else {
+        } elseif ($enableBroadcastEmails) {
             // Send to selected stores
             $storeStmt = $pdo->prepare('SELECT * FROM stores WHERE id = ?');
             foreach ($store_ids as $sid) {

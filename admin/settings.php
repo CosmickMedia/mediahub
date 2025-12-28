@@ -46,6 +46,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'admin_article_notification_subject' => $_POST['admin_article_notification_subject'] ?? 'New article submission from {store_name}',
         'store_article_notification_subject' => $_POST['store_article_notification_subject'] ?? 'Article Submission Confirmation - Cosmick Media',
         'article_approval_subject' => $_POST['article_approval_subject'] ?? 'Article Status Update - Cosmick Media',
+        'upload_notification_email' => trim($_POST['upload_notify_email'] ?? ''),
+        'article_notification_email' => trim($_POST['article_notify_email'] ?? ''),
+        'enable_upload_admin_notification' => isset($_POST['enable_upload_admin_notification']) ? '1' : '0',
+        'enable_upload_store_confirmation' => isset($_POST['enable_upload_store_confirmation']) ? '1' : '0',
+        'enable_article_admin_notification' => isset($_POST['enable_article_admin_notification']) ? '1' : '0',
+        'enable_article_store_confirmation' => isset($_POST['enable_article_store_confirmation']) ? '1' : '0',
+        'enable_article_approval_notification' => isset($_POST['enable_article_approval_notification']) ? '1' : '0',
+        'enable_broadcast_emails' => isset($_POST['enable_broadcast_emails']) ? '1' : '0',
         'max_article_length' => $_POST['max_article_length'] ?? '50000',
         'groundhogg_site_url'     => trim($_POST['groundhogg_site_url'] ?? ''),
         'groundhogg_username'     => trim($_POST['groundhogg_username'] ?? ''),
@@ -235,6 +243,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         [$ok, $msg] = test_groundhogg_connection();
         $test_result = [$ok, $msg];
         $test_action = 'groundhogg';
+    } elseif (isset($_POST['test_email'])) {
+        $test_email_address = trim($_POST['test_email_address'] ?? '');
+        if (filter_var($test_email_address, FILTER_VALIDATE_EMAIL)) {
+            $fromName = get_setting('email_from_name') ?: 'Cosmick Media';
+            $fromAddress = get_setting('email_from_address') ?: 'noreply@cosmickmedia.com';
+            $testSubject = 'Test Email - MediaHub Notification Settings';
+
+            $testMessage = "This is a test email from MediaHub.\n\n";
+            $testMessage .= "Email Configuration:\n";
+            $testMessage .= "-------------------\n";
+            $testMessage .= "From Name: $fromName\n";
+            $testMessage .= "From Address: $fromAddress\n\n";
+            $testMessage .= "Notification Toggles:\n";
+            $testMessage .= "-------------------\n";
+            $testMessage .= "Upload Admin Notifications: " . (get_setting('enable_upload_admin_notification') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "Upload Store Confirmations: " . (get_setting('enable_upload_store_confirmation') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "Article Admin Notifications: " . (get_setting('enable_article_admin_notification') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "Article Store Confirmations: " . (get_setting('enable_article_store_confirmation') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "Article Approval Notifications: " . (get_setting('enable_article_approval_notification') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "Broadcast Emails: " . (get_setting('enable_broadcast_emails') !== '0' ? 'Enabled' : 'Disabled') . "\n\n";
+            $testMessage .= "If you received this email, your email settings are working correctly.";
+
+            $headers = "From: $fromName <$fromAddress>\r\n";
+            $headers .= "Reply-To: $fromAddress\r\n";
+            $headers .= "X-Mailer: PHP/" . phpversion();
+
+            $sent = @mail($test_email_address, $testSubject, $testMessage, $headers);
+            if ($sent) {
+                $test_result = [true, "Test email sent to $test_email_address"];
+            } else {
+                $test_result = [false, "Failed to send test email. Check your server's mail configuration."];
+            }
+        } else {
+            $test_result = [false, 'Please enter a valid email address'];
+        }
+        $test_action = 'test_email';
+        $active_tab = 'subjects';
     } elseif (isset($_POST['calendar_update'])) {
         if (get_setting('calendar_enabled') === '1') {
             require_once __DIR__.'/../lib/calendar.php';
@@ -344,6 +389,21 @@ $store_message_subject = get_setting('store_message_subject') ?: 'New message fr
 $admin_article_notification_subject = get_setting('admin_article_notification_subject') ?: 'New article submission from {store_name}';
 $store_article_notification_subject = get_setting('store_article_notification_subject') ?: 'Article Submission Confirmation - Cosmick Media';
 $article_approval_subject = get_setting('article_approval_subject') ?: 'Article Status Update - Cosmick Media';
+$upload_notify_email = get_setting('upload_notification_email') ?: '';
+$article_notify_email = get_setting('article_notification_email') ?: '';
+// Email notification toggles (default to enabled for backward compatibility)
+$enable_upload_admin_notification = get_setting('enable_upload_admin_notification');
+$enable_upload_admin_notification = ($enable_upload_admin_notification === false || $enable_upload_admin_notification === '') ? '1' : $enable_upload_admin_notification;
+$enable_upload_store_confirmation = get_setting('enable_upload_store_confirmation');
+$enable_upload_store_confirmation = ($enable_upload_store_confirmation === false || $enable_upload_store_confirmation === '') ? '1' : $enable_upload_store_confirmation;
+$enable_article_admin_notification = get_setting('enable_article_admin_notification');
+$enable_article_admin_notification = ($enable_article_admin_notification === false || $enable_article_admin_notification === '') ? '1' : $enable_article_admin_notification;
+$enable_article_store_confirmation = get_setting('enable_article_store_confirmation');
+$enable_article_store_confirmation = ($enable_article_store_confirmation === false || $enable_article_store_confirmation === '') ? '1' : $enable_article_store_confirmation;
+$enable_article_approval_notification = get_setting('enable_article_approval_notification');
+$enable_article_approval_notification = ($enable_article_approval_notification === false || $enable_article_approval_notification === '') ? '1' : $enable_article_approval_notification;
+$enable_broadcast_emails = get_setting('enable_broadcast_emails');
+$enable_broadcast_emails = ($enable_broadcast_emails === false || $enable_broadcast_emails === '') ? '1' : $enable_broadcast_emails;
 $max_article_length = get_setting('max_article_length') ?: '50000';
 $company_address = get_setting('company_address') ?: '';
 $company_city = get_setting('company_city') ?: '';
@@ -515,6 +575,20 @@ include __DIR__.'/header.php';
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
+            <?php elseif ($test_action === 'test_email'): ?>
+                <?php if ($test_result[0]): ?>
+                    <div class="alert alert-success alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <?php echo htmlspecialchars($test_result[1]); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <?php echo htmlspecialchars($test_result[1]); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
         <?php endif; ?>
 
@@ -527,13 +601,18 @@ include __DIR__.'/header.php';
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link<?php if($active_tab==='calendar') echo ' active'; ?>" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab">
+                        <i class="bi bi-calendar"></i> Calendar
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button class="nav-link<?php if($active_tab==='dripley') echo ' active'; ?>" id="dripley-tab" data-bs-toggle="tab" data-bs-target="#dripley" type="button" role="tab">
                         <i class="bi bi-people"></i> Dripley CRM
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link<?php if($active_tab==='subjects') echo ' active'; ?>" id="subjects-tab" data-bs-toggle="tab" data-bs-target="#subjects" type="button" role="tab">
-                        <i class="bi bi-envelope"></i> Email Subjects
+                        <i class="bi bi-envelope"></i> Email
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -544,11 +623,6 @@ include __DIR__.'/header.php';
                 <li class="nav-item" role="presentation">
                     <button class="nav-link<?php if($active_tab==='networks') echo ' active'; ?>" id="networks-tab" data-bs-toggle="tab" data-bs-target="#networks" type="button" role="tab">
                         <i class="bi bi-share"></i> Networks
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link<?php if($active_tab==='calendar') echo ' active'; ?>" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab">
-                        <i class="bi bi-calendar"></i> Calendar
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -614,7 +688,7 @@ include __DIR__.'/header.php';
                                         <i class="bi bi-bell"></i> Admin Notification Email(s)
                                     </label>
                                     <input type="text" name="notify_email" id="notify_email" class="form-control form-control-modern" value="<?php echo htmlspecialchars($notify_email); ?>">
-                                    <div class="form-text-modern">Comma-separated emails for upload and article notifications</div>
+                                    <div class="form-text-modern">Default admin notification emails (comma-separated). Can be overridden per feature in the Email Subjects tab.</div>
                                 </div>
                                 <div class="mb-4">
                                     <label for="email_from_name" class="form-label-modern">
@@ -788,6 +862,31 @@ include __DIR__.'/header.php';
                             </h5>
                         </div>
                         <div class="card-body-modern">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" name="enable_upload_admin_notification" id="enable_upload_admin_notification" class="form-check-input" value="1" <?php if ($enable_upload_admin_notification === '1') echo 'checked'; ?>>
+                                        <label for="enable_upload_admin_notification" class="form-check-label">
+                                            <strong>Enable admin upload notifications</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" name="enable_upload_store_confirmation" id="enable_upload_store_confirmation" class="form-check-input" value="1" <?php if ($enable_upload_store_confirmation === '1') echo 'checked'; ?>>
+                                        <label for="enable_upload_store_confirmation" class="form-check-label">
+                                            <strong>Enable store upload confirmations</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="upload_notify_email" class="form-label-modern">
+                                    <i class="bi bi-at"></i> Upload Notification Recipients
+                                </label>
+                                <input type="text" name="upload_notify_email" id="upload_notify_email" class="form-control form-control-modern" value="<?php echo htmlspecialchars($upload_notify_email); ?>" placeholder="Leave empty to use general admin email">
+                                <div class="form-text-modern">Comma-separated email addresses for upload notifications. If empty, uses the general Admin Notification Email from the General tab.</div>
+                            </div>
                             <div class="mb-4">
                                 <label for="admin_notification_subject" class="form-label-modern">
                                     <i class="bi bi-bell"></i> Admin Notification Subject (New Uploads)
@@ -820,6 +919,39 @@ include __DIR__.'/header.php';
                             </h5>
                         </div>
                         <div class="card-body-modern">
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" name="enable_article_admin_notification" id="enable_article_admin_notification" class="form-check-input" value="1" <?php if ($enable_article_admin_notification === '1') echo 'checked'; ?>>
+                                        <label for="enable_article_admin_notification" class="form-check-label">
+                                            <strong>Enable admin article notifications</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" name="enable_article_store_confirmation" id="enable_article_store_confirmation" class="form-check-input" value="1" <?php if ($enable_article_store_confirmation === '1') echo 'checked'; ?>>
+                                        <label for="enable_article_store_confirmation" class="form-check-label">
+                                            <strong>Enable store article confirmations</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" name="enable_article_approval_notification" id="enable_article_approval_notification" class="form-check-input" value="1" <?php if ($enable_article_approval_notification === '1') echo 'checked'; ?>>
+                                        <label for="enable_article_approval_notification" class="form-check-label">
+                                            <strong>Enable article approval notifications</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="article_notify_email" class="form-label-modern">
+                                    <i class="bi bi-at"></i> Article Notification Recipients
+                                </label>
+                                <input type="text" name="article_notify_email" id="article_notify_email" class="form-control form-control-modern" value="<?php echo htmlspecialchars($article_notify_email); ?>" placeholder="Leave empty to use general admin email">
+                                <div class="form-text-modern">Comma-separated email addresses for article notifications. If empty, uses the general Admin Notification Email from the General tab.</div>
+                            </div>
                             <div class="mb-4">
                                 <label for="admin_article_notification_subject" class="form-label-modern">
                                     <i class="bi bi-bell"></i> Admin Notification Subject (New Articles)
@@ -841,6 +973,51 @@ include __DIR__.'/header.php';
                                 <input type="text" name="article_approval_subject" id="article_approval_subject" class="form-control form-control-modern" value="<?php echo htmlspecialchars($article_approval_subject); ?>">
                                 <div class="form-text-modern">Subject for emails sent when article status is updated. Use {store_name} as placeholder.</div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Broadcast Messages -->
+                    <div class="settings-card animate__animated animate__fadeIn delay-50">
+                        <div class="card-header-modern">
+                            <h5 class="card-title-modern">
+                                <i class="bi bi-megaphone"></i>
+                                Broadcast Messages
+                            </h5>
+                        </div>
+                        <div class="card-body-modern">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="enable_broadcast_emails" id="enable_broadcast_emails" class="form-check-input" value="1" <?php if ($enable_broadcast_emails === '1') echo 'checked'; ?>>
+                                <label for="enable_broadcast_emails" class="form-check-label">
+                                    <strong>Send emails with broadcast messages</strong>
+                                </label>
+                                <div class="form-text-modern">When enabled, stores receive email notifications for broadcast messages.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test Email Settings -->
+                    <div class="settings-card animate__animated animate__fadeIn delay-60">
+                        <div class="card-header-modern">
+                            <h5 class="card-title-modern">
+                                <i class="bi bi-send"></i>
+                                Test Email Settings
+                            </h5>
+                        </div>
+                        <div class="card-body-modern">
+                            <div class="row align-items-end">
+                                <div class="col-md-8">
+                                    <label for="test_email_address" class="form-label-modern">
+                                        <i class="bi bi-envelope"></i> Test Email Address
+                                    </label>
+                                    <input type="email" name="test_email_address" id="test_email_address" class="form-control form-control-modern" placeholder="Enter email address to send test">
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-secondary-modern" type="submit" name="test_email">
+                                        <i class="bi bi-send me-1"></i> Send Test Email
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-text-modern mt-2">Send a test email to verify your notification settings are working correctly.</div>
                         </div>
                     </div>
                 </div>
@@ -980,63 +1157,79 @@ include __DIR__.'/header.php';
                     <div class="settings-card animate__animated animate__fadeIn delay-30">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
-                                <i class="bi bi-calendar"></i>
-                                Calendar Import
+                                <i class="bi bi-table"></i>
+                                Google Sheet Integration
                             </h5>
                         </div>
                         <div class="card-body-modern">
-                            <div class="form-check-modern mb-3">
-                                <input type="checkbox" name="calendar_enabled" id="calendar_enabled" class="form-check-input" value="1" <?php if ($calendar_enabled === '1') echo 'checked'; ?>>
-                                <label for="calendar_enabled" class="form-check-label">
-                                    <strong>Enable Calendar Import</strong>
-                                </label>
-                            </div>
-                            <div class="form-check-modern mb-3">
-                                <input type="checkbox" name="calendar_display_customer" id="calendar_display_customer" class="form-check-input" value="1" <?php if ($calendar_display_customer === '1') echo 'checked'; ?>>
-                                <label for="calendar_display_customer" class="form-check-label">
-                                    <strong>Display on customer calendar</strong>
-                                </label>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-md-12">
-                                    <label for="calendar_sheet_url" class="form-label-modern">
-                                        <i class="bi bi-link"></i> Google Sheet URL
-                                    </label>
-                                    <input type="text" name="calendar_sheet_url" id="calendar_sheet_url" class="form-control form-control-modern" value="<?php echo htmlspecialchars($calendar_sheet_url); ?>">
-                                    <div class="form-text-modern">Paste the public sheet link; export URL is handled automatically</div>
+                            <div class="info-card mb-4">
+                                <div class="info-card-title">
+                                    <i class="bi bi-info-circle"></i> What is this?
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="calendar_sheet_range" class="form-label-modern">
-                                        <i class="bi bi-grid"></i> Sheet Range
-                                    </label>
-                                    <input type="text" name="calendar_sheet_range" id="calendar_sheet_range" class="form-control form-control-modern" value="<?php echo htmlspecialchars($calendar_sheet_range); ?>">
-                                    <div class="form-text-modern">Range in A1 notation, e.g. Sheet1!A:A</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="calendar_update_interval" class="form-label-modern">
-                                        <i class="bi bi-clock"></i> Update Interval (hours)
-                                    </label>
-                                    <input type="number" name="calendar_update_interval" id="calendar_update_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($calendar_update_interval); ?>">
+                                <div class="info-card-content">
+                                    Import calendar events from a public Google Sheet. Events from the sheet will be displayed on the customer calendar view, helping them stay informed about upcoming deadlines, events, or promotions. Make sure your Google Sheet is set to "Anyone with the link can view".
                                 </div>
                             </div>
 
-                            <div class="test-section">
-                                <h6>
-                                    <i class="bi bi-arrow-repeat"></i> Calendar Actions
-                                </h6>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="calendar_update">
-                                        <i class="bi bi-download"></i> Update
-                                    </button>
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="force_calendar_update">
-                                        <i class="bi bi-arrow-repeat"></i> Force Sync
-                                    </button>
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="erase_calendar">
-                                        <i class="bi bi-x-circle"></i> Erase All
-                                    </button>
+                            <div class="form-check form-switch mb-3">
+                                <input type="checkbox" name="calendar_enabled" id="calendar_enabled" class="form-check-input" value="1" <?php if ($calendar_enabled === '1') echo 'checked'; ?> onchange="toggleGoogleSheetSettings()">
+                                <label for="calendar_enabled" class="form-check-label">
+                                    <strong>Enable Google Sheet Integration</strong>
+                                </label>
+                            </div>
+
+                            <div id="google-sheet-settings" style="<?php echo $calendar_enabled !== '1' ? 'display:none;' : ''; ?>">
+                                <div class="form-check form-switch mb-3">
+                                    <input type="checkbox" name="calendar_display_customer" id="calendar_display_customer" class="form-check-input" value="1" <?php if ($calendar_display_customer === '1') echo 'checked'; ?>>
+                                    <label for="calendar_display_customer" class="form-check-label">
+                                        <strong>Display on customer calendar</strong>
+                                    </label>
+                                    <div class="form-text-modern">When enabled, imported events will appear on your customers' calendar view.</div>
                                 </div>
-                                <div class="form-text-modern mt-2">
-                                    <strong>Update</strong> adds new sheet entries without removing existing ones. <strong>Force Sync</strong> clears all entries then syncs. <strong>Erase All</strong> removes all entries without syncing.
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="calendar_sheet_url" class="form-label-modern">
+                                            <i class="bi bi-link"></i> Google Sheet URL
+                                        </label>
+                                        <input type="text" name="calendar_sheet_url" id="calendar_sheet_url" class="form-control form-control-modern" value="<?php echo htmlspecialchars($calendar_sheet_url); ?>" placeholder="https://docs.google.com/spreadsheets/d/...">
+                                        <div class="form-text-modern">Paste the public Google Sheet link. The sheet must be shared publicly or set to "Anyone with the link can view".</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="calendar_sheet_range" class="form-label-modern">
+                                            <i class="bi bi-grid"></i> Sheet Range
+                                        </label>
+                                        <input type="text" name="calendar_sheet_range" id="calendar_sheet_range" class="form-control form-control-modern" value="<?php echo htmlspecialchars($calendar_sheet_range); ?>" placeholder="Sheet1!A:A">
+                                        <div class="form-text-modern">The range of cells to import in A1 notation (e.g., Sheet1!A:A or Sheet1!A1:D100).</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="calendar_update_interval" class="form-label-modern">
+                                            <i class="bi bi-clock"></i> Update Interval (hours)
+                                        </label>
+                                        <input type="number" name="calendar_update_interval" id="calendar_update_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($calendar_update_interval); ?>" min="1">
+                                        <div class="form-text-modern">How often to automatically sync data from the Google Sheet.</div>
+                                    </div>
+                                </div>
+
+                                <div class="test-section">
+                                    <h6>
+                                        <i class="bi bi-arrow-repeat"></i> Sync Actions
+                                    </h6>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="calendar_update">
+                                            <i class="bi bi-download"></i> Update
+                                        </button>
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="force_calendar_update">
+                                            <i class="bi bi-arrow-repeat"></i> Force Sync
+                                        </button>
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="erase_calendar">
+                                            <i class="bi bi-x-circle"></i> Erase All
+                                        </button>
+                                    </div>
+                                    <div class="form-text-modern mt-2">
+                                        <strong>Update:</strong> Adds new entries from the sheet without removing existing ones.<br>
+                                        <strong>Force Sync:</strong> Clears all existing entries and imports fresh data from the sheet.<br>
+                                        <strong>Erase All:</strong> Removes all imported entries without syncing new data.
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1050,99 +1243,126 @@ include __DIR__.'/header.php';
                             </h5>
                         </div>
                         <div class="card-body-modern">
-                            <div class="form-check-modern mb-3">
-                                <input type="checkbox" name="hootsuite_enabled" id="hootsuite_enabled" class="form-check-input" value="1" <?php if ($hootsuite_enabled === '1') echo 'checked'; ?>>
+                            <div class="info-card mb-4">
+                                <div class="info-card-title">
+                                    <i class="bi bi-info-circle"></i> What is this?
+                                </div>
+                                <div class="info-card-content">
+                                    Connect to Hootsuite to automatically sync scheduled social media posts to your calendar. When enabled, customers can see their upcoming social posts alongside other calendar events, providing a unified view of their content schedule.
+                                </div>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                <input type="checkbox" name="hootsuite_enabled" id="hootsuite_enabled" class="form-check-input" value="1" <?php if ($hootsuite_enabled === '1') echo 'checked'; ?> onchange="toggleHootsuiteSettings()">
                                 <label for="hootsuite_enabled" class="form-check-label">
                                     <strong>Enable Hootsuite Integration</strong>
                                 </label>
                             </div>
-                            <div class="form-check-modern mb-3">
-                                <input type="checkbox" name="hootsuite_display_customer" id="hootsuite_display_customer" class="form-check-input" value="1" <?php if ($hootsuite_display_customer === '1') echo 'checked'; ?>>
-                                <label for="hootsuite_display_customer" class="form-check-label">
-                                    <strong>Display on customer calendar</strong>
-                                </label>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label for="hootsuite_client_id" class="form-label-modern">
-                                        <i class="bi bi-key"></i> Client ID
+
+                            <div id="hootsuite-settings" style="<?php echo $hootsuite_enabled !== '1' ? 'display:none;' : ''; ?>">
+                                <div class="form-check form-switch mb-3">
+                                    <input type="checkbox" name="hootsuite_display_customer" id="hootsuite_display_customer" class="form-check-input" value="1" <?php if ($hootsuite_display_customer === '1') echo 'checked'; ?>>
+                                    <label for="hootsuite_display_customer" class="form-check-label">
+                                        <strong>Display on customer calendar</strong>
                                     </label>
-                                    <input type="text" name="hootsuite_client_id" id="hootsuite_client_id" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_client_id); ?>">
+                                    <div class="form-text-modern">When enabled, scheduled Hootsuite posts will appear on your customers' calendar view.</div>
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="hootsuite_client_secret" class="form-label-modern">
-                                        <i class="bi bi-lock"></i> Client Secret
-                                    </label>
-                                    <input type="text" name="hootsuite_client_secret" id="hootsuite_client_secret" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_client_secret); ?>">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="hootsuite_redirect_uri" class="form-label-modern">
-                                        <i class="bi bi-link-45deg"></i> Redirect URI
-                                    </label>
-                                    <input type="text" name="hootsuite_redirect_uri" id="hootsuite_redirect_uri" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_redirect_uri); ?>">
-                                </div>
-                                <div class="col-md-12">
-                                    <label for="hootsuite_access_token" class="form-label-modern">
-                                        <i class="bi bi-shield-check"></i> Access Token
-                                    </label>
-                                    <input type="text" id="hootsuite_access_token" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_access_token); ?>" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="hootsuite_update_interval" class="form-label-modern">
-                                        <i class="bi bi-clock"></i> Sync Interval (hours)
-                                    </label>
-                                    <input type="number" name="hootsuite_update_interval" id="hootsuite_update_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_update_interval); ?>">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="hootsuite_token_refresh_interval" class="form-label-modern">
-                                        <i class="bi bi-arrow-clockwise"></i> Token Refresh Interval (hours)
-                                    </label>
-                                    <input type="number" name="hootsuite_token_refresh_interval" id="hootsuite_token_refresh_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_token_refresh_interval); ?>">
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check-modern">
-                                        <input type="checkbox" name="hootsuite_debug" id="hootsuite_debug" class="form-check-input" value="1" <?php if ($hootsuite_debug === '1') echo 'checked'; ?>>
-                                        <label for="hootsuite_debug" class="form-check-label">
-                                            <strong>Debug Mode</strong>
+
+                                <h6 class="mb-3"><i class="bi bi-gear"></i> OAuth Credentials</h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-4">
+                                        <label for="hootsuite_client_id" class="form-label-modern">
+                                            <i class="bi bi-key"></i> Client ID
                                         </label>
+                                        <input type="text" name="hootsuite_client_id" id="hootsuite_client_id" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_client_id); ?>">
+                                        <div class="form-text-modern">From your Hootsuite Developer App settings.</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="hootsuite_client_secret" class="form-label-modern">
+                                            <i class="bi bi-lock"></i> Client Secret
+                                        </label>
+                                        <input type="text" name="hootsuite_client_secret" id="hootsuite_client_secret" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_client_secret); ?>">
+                                        <div class="form-text-modern">Keep this secret and never share it.</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="hootsuite_redirect_uri" class="form-label-modern">
+                                            <i class="bi bi-link-45deg"></i> Redirect URI
+                                        </label>
+                                        <input type="text" name="hootsuite_redirect_uri" id="hootsuite_redirect_uri" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_redirect_uri); ?>">
+                                        <div class="form-text-modern">Must match your Hootsuite App's redirect URI.</div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label for="hootsuite_access_token" class="form-label-modern">
+                                            <i class="bi bi-shield-check"></i> Access Token
+                                        </label>
+                                        <input type="text" id="hootsuite_access_token" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_access_token); ?>" readonly>
+                                        <div class="form-text-modern">Automatically populated after authentication. Use the Authenticate button below to connect.</div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="test-section">
-                                <h6>
-                                    <i class="bi bi-arrow-repeat"></i> Hootsuite Actions
-                                </h6>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <a class="btn btn-secondary-modern btn-sm-modern" href="hootsuite_login.php">
-                                        <i class="bi bi-box-arrow-in-right"></i> Authenticate
-                                    </a>
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="test_hootsuite_connection">
-                                        <i class="bi bi-plug"></i> Test Connection
-                                    </button>
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="hootsuite_update">
-                                        <i class="bi bi-download"></i> Sync Now
-                                    </button>
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="force_hootsuite_update">
-                                        <i class="bi bi-arrow-repeat"></i> Force Sync
-                                    </button>
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="erase_hootsuite">
-                                        <i class="bi bi-x-circle"></i> Erase All
-                                    </button>
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="refresh_hootsuite_token">
-                                        <i class="bi bi-arrow-clockwise"></i> Refresh Token
-                                    </button>
-                                    <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="update_hootsuite_profiles">
-                                        <i class="bi bi-people"></i> Refresh Profiles
-                                    </button>
+                                <h6 class="mb-3"><i class="bi bi-sliders"></i> Sync Settings</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="hootsuite_update_interval" class="form-label-modern">
+                                            <i class="bi bi-clock"></i> Sync Interval (hours)
+                                        </label>
+                                        <input type="number" name="hootsuite_update_interval" id="hootsuite_update_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_update_interval); ?>" min="1">
+                                        <div class="form-text-modern">How often to fetch scheduled posts from Hootsuite.</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="hootsuite_token_refresh_interval" class="form-label-modern">
+                                            <i class="bi bi-arrow-clockwise"></i> Token Refresh Interval (hours)
+                                        </label>
+                                        <input type="number" name="hootsuite_token_refresh_interval" id="hootsuite_token_refresh_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_token_refresh_interval); ?>" min="1">
+                                        <div class="form-text-modern">How often to automatically refresh the access token.</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch mt-4">
+                                            <input type="checkbox" name="hootsuite_debug" id="hootsuite_debug" class="form-check-input" value="1" <?php if ($hootsuite_debug === '1') echo 'checked'; ?>>
+                                            <label for="hootsuite_debug" class="form-check-label">
+                                                <strong>Debug Mode</strong>
+                                            </label>
+                                            <div class="form-text-modern">Enable detailed logging for troubleshooting.</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-text-modern mt-2">
-                                    <strong>Test Connection</strong> checks OAuth settings.
-                                    <strong>Sync Now</strong> adds new posts without clearing existing ones.
-                                    <strong>Force Sync</strong> clears all posts then syncs.
-                                    <strong>Erase All</strong> removes all stored posts.
-                                    <strong>Refresh Token</strong> uses the saved refresh token to obtain a new access token.
-                                </div>
+
+                                <div class="test-section">
+                                    <h6>
+                                        <i class="bi bi-arrow-repeat"></i> Hootsuite Actions
+                                    </h6>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a class="btn btn-secondary-modern btn-sm-modern" href="hootsuite_login.php">
+                                            <i class="bi bi-box-arrow-in-right"></i> Authenticate
+                                        </a>
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="test_hootsuite_connection">
+                                            <i class="bi bi-plug"></i> Test Connection
+                                        </button>
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="hootsuite_update">
+                                            <i class="bi bi-download"></i> Sync Now
+                                        </button>
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="force_hootsuite_update">
+                                            <i class="bi bi-arrow-repeat"></i> Force Sync
+                                        </button>
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="erase_hootsuite">
+                                            <i class="bi bi-x-circle"></i> Erase All
+                                        </button>
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="refresh_hootsuite_token">
+                                            <i class="bi bi-arrow-clockwise"></i> Refresh Token
+                                        </button>
+                                        <button class="btn btn-secondary-modern btn-sm-modern" type="submit" name="update_hootsuite_profiles">
+                                            <i class="bi bi-people"></i> Refresh Profiles
+                                        </button>
+                                    </div>
+                                    <div class="form-text-modern mt-2">
+                                        <strong>Authenticate:</strong> Connect to your Hootsuite account using OAuth.<br>
+                                        <strong>Test Connection:</strong> Verify your OAuth credentials are working.<br>
+                                        <strong>Sync Now:</strong> Fetch new scheduled posts without removing existing ones.<br>
+                                        <strong>Force Sync:</strong> Clear all posts and fetch fresh data from Hootsuite.<br>
+                                        <strong>Erase All:</strong> Remove all synced posts without fetching new ones.<br>
+                                        <strong>Refresh Token:</strong> Manually refresh the access token.<br>
+                                        <strong>Refresh Profiles:</strong> Update the list of connected social profiles.
+                                    </div>
                                 <?php if ($hootsuite_token_last_refresh): ?>
                                     <div class="alert alert-info mt-3 mb-0" style="font-size: 0.875rem;">
                                         <i class="bi bi-clock-history"></i>
@@ -1161,6 +1381,7 @@ include __DIR__.'/header.php';
                                         ?>
                                     </div>
                                 <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1419,6 +1640,20 @@ include __DIR__.'/header.php';
     </div>
 
     <script>
+        // Toggle visibility for Google Sheet settings
+        function toggleGoogleSheetSettings() {
+            const enabled = document.getElementById('calendar_enabled').checked;
+            const settings = document.getElementById('google-sheet-settings');
+            settings.style.display = enabled ? 'block' : 'none';
+        }
+
+        // Toggle visibility for Hootsuite settings
+        function toggleHootsuiteSettings() {
+            const enabled = document.getElementById('hootsuite_enabled').checked;
+            const settings = document.getElementById('hootsuite-settings');
+            settings.style.display = enabled ? 'block' : 'none';
+        }
+
         // Add Status functionality
         document.getElementById('addStatus').addEventListener('click', function () {
             const tbody = document.querySelector('#statusTable tbody');

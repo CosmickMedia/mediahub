@@ -33,27 +33,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
         if ($article && $article['admin_email']) {
             // Send status update email
             $emailSettings = [];
-            $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('email_from_name', 'email_from_address', 'article_approval_subject')");
+            $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('email_from_name', 'email_from_address', 'article_approval_subject', 'enable_article_approval_notification')");
             while ($row = $settingsQuery->fetch()) {
                 $emailSettings[$row['name']] = $row['value'];
             }
 
-            $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
-            $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
-            $subject = str_replace('{store_name}', $article['store_name'], $emailSettings['article_approval_subject'] ?? 'Article Status Update - Cosmick Media');
+            $enableApprovalNotification = ($emailSettings['enable_article_approval_notification'] ?? '1') !== '0';
+            if ($enableApprovalNotification) {
+                $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
+                $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
+                $subject = str_replace('{store_name}', $article['store_name'], $emailSettings['article_approval_subject'] ?? 'Article Status Update - Cosmick Media');
 
-            $headers = "From: $fromName <$fromAddress>\r\n";
-            $headers .= "Reply-To: $fromAddress\r\n";
-            $headers .= "X-Mailer: PHP/" . phpversion();
+                $headers = "From: $fromName <$fromAddress>\r\n";
+                $headers .= "Reply-To: $fromAddress\r\n";
+                $headers .= "X-Mailer: PHP/" . phpversion();
 
-            $message = "Dear {$article['store_name']},\n\n";
-            $message .= "Your article \"{$article['title']}\" has been {$new_status}.\n\n";
-            if ($admin_notes) {
-                $message .= "Admin Notes: $admin_notes\n\n";
+                $message = "Dear {$article['store_name']},\n\n";
+                $message .= "Your article \"{$article['title']}\" has been {$new_status}.\n\n";
+                if ($admin_notes) {
+                    $message .= "Admin Notes: $admin_notes\n\n";
+                }
+                $message .= "Best regards,\n$fromName";
+
+                mail($article['admin_email'], $subject, $message, $headers);
             }
-            $message .= "Best regards,\n$fromName";
-
-            mail($article['admin_email'], $subject, $message, $headers);
         }
 
         $success[] = 'Article status updated successfully';
