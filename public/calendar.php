@@ -590,6 +590,9 @@ include __DIR__.'/header.php';
                                         <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
                                             <!-- Media previews will be added here -->
                                         </div>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addMoreMediaBtn" style="display: none;">
+                                            <i class="bi bi-plus-circle"></i> Add More (up to 4)
+                                        </button>
                                     </div>
                                     <div id="mediaWarnings" class="media-platform-warnings mt-2"></div>
                                 </div>
@@ -1102,6 +1105,14 @@ include __DIR__.'/header.php';
                     });
                 }
 
+                // "Add More" button click handler
+                var addMoreBtn = document.getElementById('addMoreMediaBtn');
+                if (addMoreBtn) {
+                    addMoreBtn.addEventListener('click', function() {
+                        mediaInput.click();
+                    });
+                }
+
                 // Drag and drop
                 if (uploadArea) {
                     uploadArea.addEventListener('dragover', function(e) {
@@ -1177,15 +1188,20 @@ include __DIR__.'/header.php';
                 }
 
                 function displayMediaPreviews() {
+                    var addMoreBtn = document.getElementById('addMoreMediaBtn');
+
                     if (selectedFiles.length === 0) {
                         uploadContent.style.display = 'block';
                         mediaPreviewGrid.style.display = 'none';
+                        addMoreBtn.style.display = 'none';
                         mediaPreviewGrid.innerHTML = '';
                         return;
                     }
 
                     uploadContent.style.display = 'none';
                     mediaPreviewGrid.style.display = 'grid';
+                    // Show "Add More" button if under 4 files
+                    addMoreBtn.style.display = selectedFiles.length < 4 ? 'inline-block' : 'none';
                     mediaPreviewGrid.innerHTML = '';
 
                     selectedFiles.forEach(function(file, index) {

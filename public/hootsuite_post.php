@@ -1046,85 +1046,88 @@ if ($action === 'create') {
             // Upload media for this specific profile only if it supports it
             $profileMediaPayload = [];
             if ($hasMedia && $supportsMedia) {
-                // Only try media if profile supports it
-                $mediaFile = $localMediaPaths[0];
-                $uploadPath = $mediaFile['path'];
-                $uploadMime = $mediaFile['mime'];
-                $wasCompressed = false;
-                $wasCropped = false;
-                $croppedPath = null;
-
-                // Get platform-specific image settings
+                // Get platform-specific image settings once for this profile
                 $platformSettings = getPlatformImageSettings($pdo, $networkName);
 
-                // Apply platform-specific cropping if enabled (only for images)
-                if (strpos($uploadMime, 'image/') === 0 && $platformSettings && !empty($platformSettings['enabled'])) {
-                    $targetWidth = $platformSettings['target_width'] ?? 1080;
-                    $targetHeight = $platformSettings['target_height'] ?? 1080;
+                // Loop through ALL media files (not just the first one)
+                foreach ($localMediaPaths as $mediaFile) {
+                    $uploadPath = $mediaFile['path'];
+                    $uploadMime = $mediaFile['mime'];
+                    $wasCompressed = false;
+                    $wasCropped = false;
+                    $croppedPath = null;
 
-                    error_log("Platform $networkName requires {$targetWidth}x{$targetHeight} (aspect ratio: {$platformSettings['aspect_ratio']})");
+                    // Apply platform-specific cropping if enabled (only for images)
+                    if (strpos($uploadMime, 'image/') === 0 && $platformSettings && !empty($platformSettings['enabled'])) {
+                        $targetWidth = $platformSettings['target_width'] ?? 1080;
+                        $targetHeight = $platformSettings['target_height'] ?? 1080;
 
-                    // Generate platform-specific crop
-                    $pathInfo = pathinfo($mediaFile['path']);
-                    $croppedFilename = time() . '_' . $networkName . '_' . $pathInfo['filename'] . '.jpg';
-                    $croppedPath = $uploadDir . $croppedFilename;
+                        error_log("Platform $networkName requires {$targetWidth}x{$targetHeight} (aspect ratio: {$platformSettings['aspect_ratio']})");
 
-                    $cropResult = cropImageToAspectRatio(
-                        $mediaFile['path'],
-                        $targetWidth,
-                        $targetHeight,
-                        $croppedPath
-                    );
+                        // Generate platform-specific crop
+                        $pathInfo = pathinfo($mediaFile['path']);
+                        $croppedFilename = time() . '_' . $networkName . '_' . $pathInfo['filename'] . '.jpg';
+                        $croppedPath = $uploadDir . $croppedFilename;
 
-                    if ($cropResult && file_exists($croppedPath)) {
-                        $uploadPath = $croppedPath;
-                        $uploadMime = 'image/jpeg';
-                        $wasCropped = true;
-                        error_log("Generated platform-specific crop for $networkName: $croppedPath");
-                    } else {
-                        error_log("Failed to crop image for $networkName, using original");
-                    }
-                }
+                        $cropResult = cropImageToAspectRatio(
+                            $mediaFile['path'],
+                            $targetWidth,
+                            $targetHeight,
+                            $croppedPath
+                        );
 
-                // Compress image if needed (only for images)
-                if (strpos($uploadMime, 'image/') === 0) {
-                    $compressionResult = compressImageIfNeeded($uploadPath, $uploadMime);
-
-                    if ($compressionResult && $compressionResult !== false) {
-                        list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
-
-                        if ($wasCompressed) {
-                            // If we created a crop, clean it up before using compressed version
-                            if ($wasCropped && $uploadPath !== $mediaFile['path'] && file_exists($uploadPath)) {
-                                @unlink($uploadPath);
-                            }
-                            $uploadPath = $compressedPath;
+                        if ($cropResult && file_exists($croppedPath)) {
+                            $uploadPath = $croppedPath;
                             $uploadMime = 'image/jpeg';
-                            error_log("Image compressed for profile $profile_id");
+                            $wasCropped = true;
+                            error_log("Generated platform-specific crop for $networkName: $croppedPath");
+                        } else {
+                            error_log("Failed to crop image for $networkName, using original");
                         }
                     }
+
+                    // Compress image if needed (only for images)
+                    if (strpos($uploadMime, 'image/') === 0) {
+                        $compressionResult = compressImageIfNeeded($uploadPath, $uploadMime);
+
+                        if ($compressionResult && $compressionResult !== false) {
+                            list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
+
+                            if ($wasCompressed) {
+                                // If we created a crop, clean it up before using compressed version
+                                if ($wasCropped && $uploadPath !== $mediaFile['path'] && file_exists($uploadPath)) {
+                                    @unlink($uploadPath);
+                                }
+                                $uploadPath = $compressedPath;
+                                $uploadMime = 'image/jpeg';
+                                error_log("Image compressed for profile $profile_id: " . $mediaFile['name']);
+                            }
+                        }
+                    }
+
+                    $mediaId = uploadMediaToHootsuite(
+                        $token,
+                        $uploadPath,
+                        $mediaFile['name'],
+                        $uploadMime
+                    );
+
+                    // Clean up temporary files
+                    if ($wasCompressed && file_exists($uploadPath)) {
+                        @unlink($uploadPath);
+                    } else if ($wasCropped && $uploadPath !== $mediaFile['path'] && file_exists($uploadPath)) {
+                        @unlink($uploadPath);
+                    }
+
+                    if ($mediaId) {
+                        $profileMediaPayload[] = ['id' => $mediaId];
+                        error_log("Media upload complete with ID: $mediaId for profile: $profile_id (" . $mediaFile['name'] . ")");
+                    } else {
+                        error_log("Media upload failed for profile: $profile_id (" . $mediaFile['name'] . "), proceeding without this media");
+                    }
                 }
 
-                $mediaId = uploadMediaToHootsuite(
-                    $token,
-                    $uploadPath,
-                    $mediaFile['name'],
-                    $uploadMime
-                );
-
-                // Clean up temporary files
-                if ($wasCompressed && file_exists($uploadPath)) {
-                    @unlink($uploadPath);
-                } else if ($wasCropped && $uploadPath !== $mediaFile['path'] && file_exists($uploadPath)) {
-                    @unlink($uploadPath);
-                }
-
-                if ($mediaId) {
-                    $profileMediaPayload[] = ['id' => $mediaId];
-                    error_log("Media upload complete with ID: $mediaId for profile: $profile_id");
-                } else {
-                    error_log("Media upload failed for profile: $profile_id, proceeding without media");
-                }
+                error_log("Total media uploaded for profile $profile_id: " . count($profileMediaPayload) . " of " . count($localMediaPaths));
             } else if ($hasMedia && !$supportsMedia) {
                 error_log("Skipping media upload for profile: $profile_id (platform restrictions detected)");
             }
