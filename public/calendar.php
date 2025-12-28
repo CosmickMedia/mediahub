@@ -68,7 +68,7 @@ if ($store_profile_ids) {
     $placeholders = implode(',', array_fill(0, count($store_profile_ids), '?'));
     // Join with social_networks to filter by enabled status
     $stmt = $pdo->prepare("
-        SELECT hp.id, hp.username, hp.network
+        SELECT hp.id, hp.username, hp.network, UPPER(hp.type) as type
         FROM hootsuite_profiles hp
         LEFT JOIN social_networks sn ON LOWER(sn.name) = LOWER(hp.network)
         WHERE hp.id IN ($placeholders)
@@ -449,10 +449,11 @@ include __DIR__.'/header.php';
                                             rows="5"
                                             placeholder="Write your post here..."
                                             required
-                                            maxlength="500"></textarea>
+                                            maxlength="3000"></textarea>
                                     <div class="char-counter">
-                                        <span id="charCount">0</span> / 500 characters
+                                        <span id="charCount">0</span> / 3000 characters
                                     </div>
+                                    <div id="platformWarnings" class="platform-char-warnings"></div>
                                 </div>
 
                                 <div class="form-group">
@@ -531,7 +532,9 @@ include __DIR__.'/header.php';
                                                         type="checkbox"
                                                         name="profile_ids[]"
                                                         value="<?php echo htmlspecialchars($prof['id']); ?>"
-                                                        class="profile-checkbox-input">
+                                                        class="profile-checkbox-input"
+                                                        data-type="<?php echo htmlspecialchars($prof['type'] ?? ''); ?>"
+                                                        data-name="<?php echo htmlspecialchars($prof['network'] ?? ''); ?>">
                                                 <div class="profile-checkbox-label" style="--profile-color: <?php echo $color; ?>;">
                                                     <i class="bi <?php echo $icon; ?>"></i>
                                                     <div class="profile-info">
@@ -588,6 +591,7 @@ include __DIR__.'/header.php';
                                             <!-- Media previews will be added here -->
                                         </div>
                                     </div>
+                                    <div id="mediaWarnings" class="media-platform-warnings mt-2"></div>
                                 </div>
                             </div>
                         </div>
@@ -846,19 +850,242 @@ include __DIR__.'/header.php';
                 document.getElementById('postDate').addEventListener('change', updateScheduledTime);
                 document.getElementById('postTime').addEventListener('change', updateScheduledTime);
 
-                // Character counter
-                var textArea = document.getElementById('postText');
-                var charCount = document.getElementById('charCount');
-                if (textArea && charCount) {
-                    textArea.addEventListener('input', function() {
-                        charCount.textContent = this.value.length;
-                        if (this.value.length > 450) {
-                            charCount.style.color = '#dc3545';
-                        } else {
-                            charCount.style.color = '#6c757d';
-                        }
+                // Platform character limits configuration
+                var platformCharLimits = {
+                    'TWITTER': 280,
+                    'PINTEREST': 500,
+                    'INSTAGRAM': 2200,
+                    'INSTAGRAMBUSINESS': 2200,
+                    'TIKTOK': 2200,
+                    'LINKEDIN': 3000,
+                    'LINKEDINCOMPANY': 3000,
+                    'YOUTUBE': 5000,
+                    'FACEBOOK': 63206,
+                    'FACEBOOKPAGE': 63206,
+                    'default': 3000
+                };
+
+                // Platform media requirements configuration
+                var platformMediaRequirements = {
+                    'INSTAGRAM': { aspectRatio: '1:1', ratioValue: 1, targetWidth: 1080, targetHeight: 1080, minWidth: 320, maxFileMB: 5, name: 'Instagram' },
+                    'INSTAGRAMBUSINESS': { aspectRatio: '1:1', ratioValue: 1, targetWidth: 1080, targetHeight: 1080, minWidth: 320, maxFileMB: 5, name: 'Instagram' },
+                    'THREADS': { aspectRatio: '9:16', ratioValue: 9/16, targetWidth: 1080, targetHeight: 1920, minWidth: 320, maxFileMB: 10, name: 'Threads' },
+                    'FACEBOOK': { aspectRatio: '1.91:1', ratioValue: 1.91, targetWidth: 1200, targetHeight: 630, minWidth: 200, maxFileMB: 10, name: 'Facebook' },
+                    'FACEBOOKPAGE': { aspectRatio: '1.91:1', ratioValue: 1.91, targetWidth: 1200, targetHeight: 630, minWidth: 200, maxFileMB: 10, name: 'Facebook' },
+                    'LINKEDIN': { aspectRatio: '1.91:1', ratioValue: 1.91, targetWidth: 1200, targetHeight: 627, minWidth: 200, maxFileMB: 10, name: 'LinkedIn' },
+                    'LINKEDINCOMPANY': { aspectRatio: '1.91:1', ratioValue: 1.91, targetWidth: 1200, targetHeight: 627, minWidth: 200, maxFileMB: 10, name: 'LinkedIn' },
+                    'TWITTER': { aspectRatio: '1:1', ratioValue: 1, targetWidth: 1080, targetHeight: 1080, minWidth: 200, maxFileMB: 5, name: 'X/Twitter' },
+                    'PINTEREST': { aspectRatio: '2:3', ratioValue: 2/3, targetWidth: 1000, targetHeight: 1500, minWidth: 200, maxFileMB: 20, name: 'Pinterest' },
+                    'TIKTOK': { aspectRatio: '9:16', ratioValue: 9/16, targetWidth: 1080, targetHeight: 1920, minWidth: 320, maxFileMB: 10, name: 'TikTok' },
+                    'YOUTUBE': { aspectRatio: '16:9', ratioValue: 16/9, targetWidth: 1920, targetHeight: 1080, minWidth: 200, maxFileMB: 10, name: 'YouTube' }
+                };
+
+                // Store media dimensions for validation
+                var mediaMetadata = [];
+
+                // Get image dimensions from file
+                function getImageDimensions(file) {
+                    return new Promise(function(resolve) {
+                        var img = new Image();
+                        img.onload = function() {
+                            resolve({ width: img.width, height: img.height, type: 'image' });
+                            URL.revokeObjectURL(img.src);
+                        };
+                        img.onerror = function() {
+                            resolve(null);
+                        };
+                        img.src = URL.createObjectURL(file);
                     });
                 }
+
+                // Get video dimensions and duration from file
+                function getVideoDimensions(file) {
+                    return new Promise(function(resolve) {
+                        var video = document.createElement('video');
+                        video.preload = 'metadata';
+                        video.onloadedmetadata = function() {
+                            resolve({
+                                width: video.videoWidth,
+                                height: video.videoHeight,
+                                duration: video.duration,
+                                type: 'video'
+                            });
+                            URL.revokeObjectURL(video.src);
+                        };
+                        video.onerror = function() {
+                            resolve(null);
+                        };
+                        video.src = URL.createObjectURL(file);
+                    });
+                }
+
+                // Get human-readable aspect ratio name
+                function getAspectRatioName(ratio) {
+                    if (Math.abs(ratio - 1) < 0.05) return '1:1 (square)';
+                    if (Math.abs(ratio - 16/9) < 0.05) return '16:9 (landscape)';
+                    if (Math.abs(ratio - 9/16) < 0.05) return '9:16 (vertical)';
+                    if (Math.abs(ratio - 4/3) < 0.05) return '4:3';
+                    if (Math.abs(ratio - 3/4) < 0.05) return '3:4';
+                    if (Math.abs(ratio - 1.91) < 0.1) return '1.91:1 (landscape)';
+                    if (Math.abs(ratio - 2/3) < 0.05) return '2:3 (vertical)';
+                    if (ratio > 1) return Math.round(ratio * 100) / 100 + ':1 (landscape)';
+                    return '1:' + Math.round(100/ratio) / 100 + ' (vertical)';
+                }
+
+                // Validate media against platform requirements
+                function validateMediaForPlatforms() {
+                    var warningsDiv = document.getElementById('mediaWarnings');
+                    if (!warningsDiv) return;
+
+                    // Get selected profiles
+                    var selectedProfiles = document.querySelectorAll('.profile-checkbox-input:checked');
+                    if (selectedProfiles.length === 0 || mediaMetadata.length === 0) {
+                        warningsDiv.innerHTML = '';
+                        return;
+                    }
+
+                    var html = '';
+                    var hasWarnings = false;
+
+                    // Use the first media file for validation (primary media)
+                    var media = mediaMetadata[0];
+                    if (!media) {
+                        warningsDiv.innerHTML = '';
+                        return;
+                    }
+
+                    var mediaRatio = media.width / media.height;
+                    var fileSizeMB = media.sizeMB || 0;
+
+                    selectedProfiles.forEach(function(checkbox) {
+                        var platformType = checkbox.dataset.type;
+                        var platformName = checkbox.dataset.name || platformType;
+                        var req = platformMediaRequirements[platformType];
+
+                        if (!req) return;
+
+                        var issues = [];
+                        var outcomes = [];
+                        var isWarning = false;
+
+                        // Check aspect ratio
+                        var ratioDiff = Math.abs(mediaRatio - req.ratioValue);
+                        var ratioTolerance = req.ratioValue * 0.1; // 10% tolerance
+
+                        if (ratioDiff > ratioTolerance) {
+                            issues.push('Your ' + media.type + ' is ' + media.width + 'x' + media.height + ' (' + getAspectRatioName(mediaRatio) + ')');
+                            issues.push(req.name + ' prefers ' + req.aspectRatio + ' aspect ratio');
+                            outcomes.push('Will be auto-cropped to ' + req.targetWidth + 'x' + req.targetHeight + ' from center');
+                            isWarning = true;
+                        }
+
+                        // Check minimum width
+                        if (media.width < req.minWidth) {
+                            issues.push(media.type.charAt(0).toUpperCase() + media.type.slice(1) + ' width (' + media.width + 'px) is below minimum (' + req.minWidth + 'px)');
+                            outcomes.push('Media may be skipped for this platform');
+                            isWarning = true;
+                        }
+
+                        // Check file size
+                        if (fileSizeMB > req.maxFileMB) {
+                            issues.push('File size (' + fileSizeMB.toFixed(1) + 'MB) exceeds ' + req.name + ' limit (' + req.maxFileMB + 'MB)');
+                            outcomes.push('Will be compressed before upload');
+                            isWarning = true;
+                        }
+
+                        // Check video duration (if applicable)
+                        if (media.type === 'video' && media.duration) {
+                            if (media.duration > 60) {
+                                issues.push('Video duration (' + Math.round(media.duration) + 's) exceeds recommended 60 seconds');
+                                outcomes.push('May be rejected by platform');
+                                isWarning = true;
+                            }
+                        }
+
+                        // Generate the alert
+                        if (isWarning) {
+                            hasWarnings = true;
+                            html += '<div class="alert alert-warning mb-2 py-2 px-3">';
+                            html += '<strong><i class="bi bi-exclamation-triangle me-1"></i>' + req.name + ':</strong> ';
+                            html += issues.join('. ') + '.';
+                            if (outcomes.length > 0) {
+                                html += '<br><small class="text-muted"><i class="bi bi-arrow-right me-1"></i>' + outcomes.join('. ') + '</small>';
+                            }
+                            html += '</div>';
+                        } else {
+                            html += '<div class="alert alert-success mb-2 py-2 px-3">';
+                            html += '<strong><i class="bi bi-check-circle me-1"></i>' + req.name + ':</strong> ';
+                            html += 'Media meets requirements';
+                            if (ratioDiff > 0.01) {
+                                html += '<br><small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Will be optimized to ' + req.targetWidth + 'x' + req.targetHeight + '</small>';
+                            }
+                            html += '</div>';
+                        }
+                    });
+
+                    warningsDiv.innerHTML = html;
+                }
+
+                // Enhanced character counter with platform warnings
+                function updateCharacterCount() {
+                    var textArea = document.getElementById('postText');
+                    var charCountEl = document.getElementById('charCount');
+                    if (!textArea || !charCountEl) return;
+
+                    var length = textArea.value.length;
+                    charCountEl.textContent = length;
+
+                    // Color based on proximity to max limit (3000)
+                    if (length > 2700) {
+                        charCountEl.style.color = '#dc3545'; // Red - near max
+                    } else if (length > 2400) {
+                        charCountEl.style.color = '#ffc107'; // Yellow - approaching
+                    } else {
+                        charCountEl.style.color = '#6c757d'; // Normal
+                    }
+
+                    // Show per-platform truncation warnings
+                    updatePlatformWarnings(length);
+                }
+
+                function updatePlatformWarnings(charCount) {
+                    var warningsDiv = document.getElementById('platformWarnings');
+                    if (!warningsDiv) return;
+
+                    var selectedProfiles = document.querySelectorAll('.profile-checkbox-input:checked');
+                    var warnings = [];
+
+                    selectedProfiles.forEach(function(checkbox) {
+                        var platformType = checkbox.dataset.type;
+                        var platformName = checkbox.dataset.name || platformType;
+                        var limit = platformCharLimits[platformType] || platformCharLimits['default'];
+
+                        if (charCount > limit) {
+                            warnings.push('<span class="badge bg-warning text-dark"><i class="bi bi-scissors"></i> ' + platformName + ': will be clipped to ' + limit + ' chars</span>');
+                        }
+                    });
+
+                    warningsDiv.innerHTML = warnings.length > 0
+                        ? '<small class="text-muted">Text will be truncated for:</small> ' + warnings.join(' ')
+                        : '';
+                }
+
+                // Wire up event listeners for character counting
+                var postTextArea = document.getElementById('postText');
+                if (postTextArea) {
+                    postTextArea.addEventListener('input', updateCharacterCount);
+                }
+
+                // Update warnings when profile selection changes
+                document.querySelectorAll('.profile-checkbox-input').forEach(function(checkbox) {
+                    checkbox.addEventListener('change', function() {
+                        updateCharacterCount();
+                        validateMediaForPlatforms();
+                    });
+                });
+
+                // Initialize character count
+                updateCharacterCount();
 
                 // Media upload handling - UPDATED FOR MULTIPLE FILES
                 var mediaInput = document.getElementById('postMedia');
@@ -903,7 +1130,7 @@ include __DIR__.'/header.php';
                     });
                 }
 
-                function handleMultipleFiles(files) {
+                async function handleMultipleFiles(files) {
                     // Filter and limit files
                     var validFiles = files.filter(function(file) {
                         return file.type.startsWith('image/') || file.type.startsWith('video/');
@@ -925,8 +1152,28 @@ include __DIR__.'/header.php';
                     });
                     mediaInput.files = dt.files;
 
+                    // Get media dimensions for validation
+                    mediaMetadata = [];
+                    for (var i = 0; i < selectedFiles.length; i++) {
+                        var file = selectedFiles[i];
+                        var metadata = null;
+                        if (file.type.startsWith('image/')) {
+                            metadata = await getImageDimensions(file);
+                        } else if (file.type.startsWith('video/')) {
+                            metadata = await getVideoDimensions(file);
+                        }
+                        if (metadata) {
+                            metadata.sizeMB = file.size / (1024 * 1024);
+                            metadata.name = file.name;
+                            mediaMetadata.push(metadata);
+                        }
+                    }
+
                     // Display previews
                     displayMediaPreviews();
+
+                    // Validate media against selected platforms
+                    validateMediaForPlatforms();
                 }
 
                 function displayMediaPreviews() {
@@ -991,6 +1238,7 @@ include __DIR__.'/header.php';
 
                 function removeMediaItem(index) {
                     selectedFiles.splice(index, 1);
+                    mediaMetadata.splice(index, 1);
 
                     // Update the file input
                     var dt = new DataTransfer();
@@ -1000,6 +1248,7 @@ include __DIR__.'/header.php';
                     mediaInput.files = dt.files;
 
                     displayMediaPreviews();
+                    validateMediaForPlatforms();
                 }
 
                 if(scheduleBtn){
@@ -1016,8 +1265,14 @@ include __DIR__.'/header.php';
 
                 // Clear media
                 selectedFiles = [];
+                mediaMetadata = [];
                 if (window.displayMediaPreviews) {
                     window.displayMediaPreviews();
+                }
+                // Clear media warnings
+                var mediaWarningsDiv = document.getElementById('mediaWarnings');
+                if (mediaWarningsDiv) {
+                    mediaWarningsDiv.innerHTML = '';
                 }
 
                 // Clear checkboxes

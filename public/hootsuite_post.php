@@ -107,6 +107,9 @@ function compressImageIfNeeded($filePath, $mimeType) {
     } elseif ($mimeType === 'image/png') {
         $image = @imagecreatefrompng($filePath);
         $imageType = 'png';
+    } elseif ($mimeType === 'image/webp') {
+        $image = @imagecreatefromwebp($filePath);
+        $imageType = 'webp';
     } else {
         error_log("Unsupported image type for compression: $mimeType");
         return false;
@@ -471,6 +474,62 @@ function getDefaultPlatformSettings($network) {
 }
 
 /**
+ * Platform character limits for text truncation
+ * Used to auto-truncate posts that exceed platform limits
+ */
+$GLOBALS['platformCharLimits'] = [
+    'TWITTER' => 280,
+    'PINTEREST' => 500,
+    'INSTAGRAM' => 2200,
+    'INSTAGRAMBUSINESS' => 2200,
+    'TIKTOK' => 2200,
+    'LINKEDIN' => 3000,
+    'LINKEDINCOMPANY' => 3000,
+    'YOUTUBE' => 5000,
+    'FACEBOOK' => 63206,
+    'FACEBOOKPAGE' => 63206
+];
+
+/**
+ * Truncate text for a specific platform if it exceeds the character limit
+ * Adds "..." at the end if truncated
+ */
+function truncateForPlatform($text, $platformType) {
+    $limits = $GLOBALS['platformCharLimits'];
+    $limit = $limits[strtoupper($platformType)] ?? 3000;
+
+    if (mb_strlen($text) > $limit) {
+        // Truncate and add ellipsis (leave room for "...")
+        return mb_substr($text, 0, $limit - 3) . '...';
+    }
+    return $text;
+}
+
+/**
+ * Get the minimum character limit from a list of profile IDs
+ */
+function getMinCharLimitForProfiles($pdo, $profileIds) {
+    if (empty($profileIds)) {
+        return 3000;
+    }
+
+    $limits = $GLOBALS['platformCharLimits'];
+    $minLimit = 3000;
+
+    $placeholders = implode(',', array_fill(0, count($profileIds), '?'));
+    $stmt = $pdo->prepare("SELECT UPPER(type) as type FROM hootsuite_profiles WHERE id IN ($placeholders)");
+    $stmt->execute($profileIds);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $type = $row['type'] ?? '';
+        $limit = $limits[$type] ?? 3000;
+        $minLimit = min($minLimit, $limit);
+    }
+
+    return $minLimit;
+}
+
+/**
  * Crop and resize image to specific aspect ratio from center
  * Returns path to cropped image or false on error
  */
@@ -501,6 +560,9 @@ function cropImageToAspectRatio($sourcePath, $targetWidth, $targetHeight, $outpu
             break;
         case IMAGETYPE_GIF:
             $srcImage = @imagecreatefromgif($sourcePath);
+            break;
+        case IMAGETYPE_WEBP:
+            $srcImage = @imagecreatefromwebp($sourcePath);
             break;
         default:
             error_log("Unsupported image type: $imageType");
@@ -536,8 +598,8 @@ function cropImageToAspectRatio($sourcePath, $targetWidth, $targetHeight, $outpu
     // Create destination image
     $dstImage = imagecreatetruecolor($targetWidth, $targetHeight);
 
-    // Preserve transparency for PNG
-    if ($imageType == IMAGETYPE_PNG) {
+    // Preserve transparency for PNG and WebP
+    if ($imageType == IMAGETYPE_PNG || $imageType == IMAGETYPE_WEBP) {
         imagealphablending($dstImage, false);
         imagesavealpha($dstImage, true);
         $transparent = imagecolorallocatealpha($dstImage, 255, 255, 255, 127);
@@ -824,8 +886,12 @@ if ($action === 'create') {
         }
 
         // Try creating with all profiles together first
+        // Truncate text to the minimum limit among all selected profiles
+        $minLimit = getMinCharLimitForProfiles($pdo, $profile_ids);
+        $batchText = mb_strlen($text) > $minLimit ? mb_substr($text, 0, $minLimit - 3) . '...' : $text;
+
         $payload = [
-            'text' => $text,
+            'text' => $batchText,
             'socialProfileIds' => $profile_ids,
             'scheduledSendTime' => $utc_time
         ];
@@ -964,10 +1030,12 @@ if ($action === 'create') {
         foreach ($profile_ids as $profile_id) {
             error_log("Creating post for profile: $profile_id");
 
-            // Get network name for this profile
-            $profStmt = $pdo->prepare('SELECT network FROM hootsuite_profiles WHERE id=?');
+            // Get network name and type for this profile
+            $profStmt = $pdo->prepare('SELECT network, UPPER(type) as type FROM hootsuite_profiles WHERE id=?');
             $profStmt->execute([$profile_id]);
-            $networkName = strtolower($profStmt->fetchColumn() ?: '');
+            $profRow = $profStmt->fetch(PDO::FETCH_ASSOC);
+            $networkName = strtolower($profRow['network'] ?? '');
+            $profileType = $profRow['type'] ?? '';
 
             // Check if this profile supports media
             $supportsMedia = profileSupportsMedia($pdo, $profile_id);
@@ -1061,8 +1129,11 @@ if ($action === 'create') {
                 error_log("Skipping media upload for profile: $profile_id (platform restrictions detected)");
             }
 
+            // Truncate text for this specific platform
+            $profileText = truncateForPlatform($text, $profileType);
+
             $profilePayload = [
-                'text' => $text,
+                'text' => $profileText,
                 'socialProfileIds' => [$profile_id],
                 'scheduledSendTime' => $utc_time
             ];

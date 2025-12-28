@@ -3891,3 +3891,38 @@ textarea.form-control-modern {
     font-size: 0.6rem;
     color: #6c757d;
 }
+
+/* Platform character limit warnings */
+.platform-char-warnings {
+    font-size: 0.85rem;
+    margin-top: 8px;
+}
+.platform-char-warnings .badge {
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+/* Media platform warnings */
+.media-platform-warnings {
+    max-height: 250px;
+    overflow-y: auto;
+}
+.media-platform-warnings .alert {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    border-radius: 0.375rem;
+}
+.media-platform-warnings .alert:last-child {
+    margin-bottom: 0;
+}
+.media-platform-warnings .alert-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.3);
+    color: #856404;
+}
+.media-platform-warnings .alert-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    border-color: rgba(25, 135, 84, 0.2);
+    color: #0f5132;
+}
