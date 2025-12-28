@@ -444,3 +444,93 @@ Payload sent:
 Response received:
 {"data":[{"id":"13043056363","state":"SCHEDULED","text":"multiple sources 2:18","scheduledSendTime":"2025-10-31T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_8b25a37d-656a-4e12-be77-60cc45e61104.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761084802&Signature=vc7ixGjVHsKbc597b2F4v4vDZsI%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_8b25a37d-656a-4e12-be77-60cc45e61104-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1761084802&Signature=4dLFQYKcmHLlhpasrC5kKB4ozLI%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzhiMjVhMzdkLTY1NmEtNGUxMi1iZTc3LTYwY2M0NWU2MTEwNC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwXzhiMjVhMzdkLTY1NmEtNGUxMi1iZTc3LTYwY2M0NWU2MTEwNC10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["Multiple"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
 ----------------------------------------
+2025-11-11 11:43:49 - All Profiles: 140049217 - Code: 200
+Payload sent:
+{
+    "text": "Welcome to PetCenter meet our newest ufskafhskf\r\n\r\nINSERT LINK",
+    "socialProfileIds": [
+        "140049217"
+    ],
+    "scheduledSendTime": "2025-11-14T18:00:00Z",
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2QyZGU4YmU0LTE5OGItNGZlMS1hYzQ5LTQ1Y2IwMTIxMzg0OS5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13048141795","state":"SCHEDULED","text":"Welcome to PetCenter meet our newest ufskafhskf\r\n\r\nINSERT LINK","scheduledSendTime":"2025-11-14T18:00:00Z","socialProfile":{"id":"140049217"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546050_d2de8be4-198b-4fe1-ac49-45cb01213849.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1762881229&Signature=GKU%2BAL8tD1dVUjaSkaso5pf3t5g%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546050_d2de8be4-198b-4fe1-ac49-45cb01213849-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1762881229&Signature=XR1e9xcFdXLMwOHnDPXdkCp5z9k%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2QyZGU4YmU0LTE5OGItNGZlMS1hYzQ5LTQ1Y2IwMTIxMzg0OS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDUwX2QyZGU4YmU0LTE5OGItNGZlMS1hYzQ5LTQ1Y2IwMTIxMzg0OS10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546050"},"lastUpdatedByMember":{"id":"27546050"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-23 04:23:54 - All Profiles: 139926693 - Code: 200
+Payload sent:
+{
+    "text": "As 2025 comes to a close, we\u2019ve been reflecting on what Cosmick Media stands for \u2014 and why we continue to operate the way we do.\r\n\r\nWe believe marketing should create clarity, not confusion.\r\nSystems matter more than shortcuts.\r\nAccountability matters more than hype.\r\n\r\nWe shared a deeper reflection on our mission, our people, and our story here: https:\/\/www.cosmickmedia.com\/cosmick-media-2025-mission-people-story\/",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2025-12-23T14:00:00Z",
+    "tags": [
+        "CosmickMedia",
+        "MarketingLeadership",
+        "BrandStrategy",
+        "AgencyLife",
+        "LongTermGrowth",
+        "MarketingPhilosophy"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzhlZjM3NDA3LTI4ZjYtNDQ2OS1iM2Y0LWU1ZjZlNGViZDM0Zi5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058273091","state":"SCHEDULED","text":"As 2025 comes to a close, we’ve been reflecting on what Cosmick Media stands for — and why we continue to operate the way we do.\r\n\r\nWe believe marketing should create clarity, not confusion.\r\nSystems matter more than shortcuts.\r\nAccountability matters more than hype.\r\n\r\nWe shared a deeper reflection on our mission, our people, and our story here: https://www.cosmickmedia.com/cosmick-media-2025-mission-people-story/","scheduledSendTime":"2025-12-23T14:00:00Z","socialProfile":{"id":"139926693"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_8ef37407-28f6-4469-b3f4-e5f6e4ebd34f.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766483634&Signature=pwhO07kcJUtC4R%2FUoKopm5SWlhE%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_8ef37407-28f6-4469-b3f4-e5f6e4ebd34f-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766483634&Signature=qTGqMibyydJKh0t8lYrQ4QOGtMk%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzhlZjM3NDA3LTI4ZjYtNDQ2OS1iM2Y0LWU1ZjZlNGViZDM0Zi5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzhlZjM3NDA3LTI4ZjYtNDQ2OS1iM2Y0LWU1ZjZlNGViZDM0Zi10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["LongTermGrowth","AgencyLife","BrandStrategy","MarketingPhilosophy","MarketingLeadership"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-24 07:11:43 - All Profiles: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "Happy holidays from our Cosmick family \ud83c\udf84\r\n\r\nAs the year winds down, we\u2019re grateful for the people we work with, the partners who trust us, and the community we get to build alongside every day.\r\n\r\nHere\u2019s to rest, reflection, and a strong start ahead.\r\n\r\nWishing you warmth, clarity, and a great holiday season.\r\n\r\n\u2014 Cosmick Media",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-24T15:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-24 07:11:43 - Profile: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "Happy holidays from our Cosmick family \ud83c\udf84\r\n\r\nAs the year winds down, we\u2019re grateful for the people we work with, the partners who trust us, and the community we get to build alongside every day.\r\n\r\nHere\u2019s to rest, reflection, and a strong start ahead.\r\n\r\nWishing you warmth, clarity, and a great holiday season.\r\n\r\n\u2014 Cosmick Media",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-24T15:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-24 07:12:45 - All Profiles: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "Happy holidays from our Cosmick family \ud83c\udf84\r\n\r\nAs the year winds down, we\u2019re grateful for the people we work with, the partners who trust us, and the community we get to build alongside every day.\r\n\r\nHere\u2019s to rest, reflection, and a strong start ahead.\r\n\r\nWishing you warmth, clarity, and a great holiday season.\r\n\r\n\u2014 Cosmick Media",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-24T15:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-24 07:12:46 - Profile: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "Happy holidays from our Cosmick family \ud83c\udf84\r\n\r\nAs the year winds down, we\u2019re grateful for the people we work with, the partners who trust us, and the community we get to build alongside every day.\r\n\r\nHere\u2019s to rest, reflection, and a strong start ahead.\r\n\r\nWishing you warmth, clarity, and a great holiday season.\r\n\r\n\u2014 Cosmick Media",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-24T15:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
