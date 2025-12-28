@@ -9,16 +9,6 @@ $localUploadDir = $config['local_upload_dir'] ?? (__DIR__ . '/uploads');
 
 ensure_session();
 
-// DEBUG - remove after testing
-if (isset($_GET['debug'])) {
-    echo "<pre>Session Status: " . session_status() . "\n";
-    echo "Session Name: " . session_name() . "\n";
-    echo "Session ID: " . session_id() . "\n";
-    echo "store_id set: " . (isset($_SESSION['store_id']) ? 'YES - ' . $_SESSION['store_id'] : 'NO') . "\n";
-    echo "Session contents: " . print_r($_SESSION, true) . "</pre>";
-    exit;
-}
-
 // Check if logged in
 if (!isset($_SESSION['store_id'])) {
     header('Location: index.php');

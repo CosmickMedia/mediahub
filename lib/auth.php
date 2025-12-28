@@ -93,44 +93,37 @@ function login($username, $password): bool {
 function logout() {
     ensure_session();
 
+    // Get session name and ID before destroying
+    $sessionName = session_name();
+    $sessionId = session_id();
+
     // Unset all session variables
     $_SESSION = array();
+    session_unset();
 
-    // Destroy the session cookie
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(
-            session_name(),
-            '',
-            [
-                'expires' => time() - 42000,
-                'path' => $params["path"],
-                'domain' => $params["domain"],
-                'secure' => $params["secure"],
-                'httponly' => $params["httponly"],
-                'samesite' => $params["samesite"] ?? 'Lax'
-            ]
-        );
+    // Destroy the session first (removes server-side session data)
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
     }
+
+    // Now delete the session cookie
+    $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+    $params = session_get_cookie_params();
+
+    // Delete the session cookie with proper parameters
+    setcookie($sessionName, '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
 
     // Clear persistent login cookie
     $isAdmin = isset($_SERVER['SCRIPT_NAME']) && strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false;
     $rememberCookie = $isAdmin ? 'cm_admin_remember' : 'cm_public_remember';
-    setcookie(
-        $rememberCookie,
-        '',
-        [
-            'expires' => time() - 3600,
-            'path' => '/',
-            'domain' => '',
-            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-            'httponly' => true,
-            'samesite' => 'Lax'
-        ]
-    );
-
-    // Destroy the session
-    session_destroy();
+    setcookie($rememberCookie, '', time() - 3600, '/');
 }
 
 function login_with_google_email($email): bool {

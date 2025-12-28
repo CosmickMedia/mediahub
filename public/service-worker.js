@@ -1,7 +1,7 @@
 // MediaHub Public Service Worker
-const CACHE_NAME = 'mediahub-public-v3';
+const CACHE_NAME = 'mediahub-public-v4';
 const urlsToCache = [
-  '/public/index.php',
+  // Don't cache PHP files - they're dynamic/authenticated
   '/assets/css/common.css',
   '/assets/images/mediahub-logo.png',
   '/icon-192.png',
@@ -58,6 +58,12 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
+  // Don't cache PHP files - they're dynamic/authenticated
+  if (event.request.url.includes('.php')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {

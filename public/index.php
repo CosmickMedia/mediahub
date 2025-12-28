@@ -1109,7 +1109,7 @@ include __DIR__.'/header.php';
             }
 
             // Auto-refresh upload token every 20 minutes to prevent session expiry
-            setInterval(function() {
+            window.tokenRefreshInterval = setInterval(function() {
                 fetch('?refresh_token=1')
                     .then(r => r.json())
                     .then(data => {

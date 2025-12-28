@@ -197,7 +197,7 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 </div>
 
                 <!-- Logout -->
-                <a href="logout.php" class="logout-btn" title="Logout">
+                <a href="logout.php" class="logout-btn" title="Logout" onclick="if(window.tokenRefreshInterval){clearInterval(window.tokenRefreshInterval);}">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>
 
