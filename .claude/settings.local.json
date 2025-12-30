@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(git show:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Skill(frontend-design)"
     ]
   }
 }
