@@ -3,6 +3,7 @@ require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/config.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/email.php';
 require_login();
 $pdo = get_pdo();
 $config = get_config();
@@ -34,43 +35,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 
         // Get email settings
         $emailSettings = [];
-        $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('email_from_name', 'email_from_address', 'store_message_subject', 'enable_broadcast_emails')");
+        $settingsQuery = $pdo->query("SELECT name, value FROM settings WHERE name IN ('email_from_name', 'email_from_address', 'store_message_subject', 'enable_broadcast_emails', 'broadcast_email_to_store_users')");
         while ($row = $settingsQuery->fetch()) {
             $emailSettings[$row['name']] = $row['value'];
         }
 
         $enableBroadcastEmails = ($emailSettings['enable_broadcast_emails'] ?? '1') !== '0';
+        $broadcastToStoreUsers = ($emailSettings['broadcast_email_to_store_users'] ?? '0') === '1';
         $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
-        $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
         $messageSubject = $emailSettings['store_message_subject'] ?? "New message from Cosmick Media";
-
-        $headers = "From: $fromName <$fromAddress>\r\n";
-        $headers .= "Reply-To: $fromAddress\r\n";
-        $headers .= "X-Mailer: PHP/" . phpversion();
 
         // Get the base URL for the login link
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $baseUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI']));
         $loginUrl = $baseUrl . '/public/index.php';
 
-        if ($enableBroadcastEmails && $send_all) {
-            // Send to all stores
-            $stores_with_email = $pdo->query('SELECT * FROM stores WHERE admin_email IS NOT NULL AND admin_email != ""')->fetchAll(PDO::FETCH_ASSOC);
+        // Helper function to send broadcast email to a store
+        // Uses logged-in admin's name as sender
+        $sendBroadcastEmail = function($store, $recipients = []) use ($message, $messageSubject, $fromName, $loginUrl) {
+            $subject = str_replace('{store_name}', $store['name'], $messageSubject);
 
-            foreach ($stores_with_email as $store) {
-                $subject = str_replace('{store_name}', $store['name'], $messageSubject);
-
-                $emailBody = "Dear {$store['name']},\n\n";
-                $emailBody .= "You have a new message from Cosmick Media:\n\n";
+            foreach ($recipients as $recipient) {
+                $recipientName = $recipient['name'] ?? $store['name'];
+                $emailBody = "Dear {$recipientName},\n\n";
+                $emailBody .= "You have a new message from $fromName:\n\n";
                 $emailBody .= "=====================================\n";
                 $emailBody .= $message . "\n";
                 $emailBody .= "=====================================\n\n";
                 $emailBody .= "To view this message and upload content, please visit:\n";
                 $emailBody .= $loginUrl . "\n\n";
-                $emailBody .= "Your PIN: {$store['pin']}\n\n";
+                if (!empty($store['pin'])) {
+                    $emailBody .= "Your PIN: {$store['pin']}\n\n";
+                }
                 $emailBody .= "Best regards,\n$fromName";
 
-                mail($store['admin_email'], $subject, $emailBody, $headers);
+                // Use logged-in admin's name as sender (via send_email's default behavior)
+                send_email($recipient['email'], $subject, $emailBody, $recipientName);
+            }
+        };
+
+        // Get store users query
+        $storeUsersStmt = $pdo->prepare("SELECT email, COALESCE(CONCAT(first_name, ' ', last_name), email) as name FROM store_users WHERE store_id = ? AND email IS NOT NULL AND email != ''");
+
+        if ($enableBroadcastEmails && $send_all) {
+            // Send to all stores
+            $stores_with_email = $pdo->query('SELECT * FROM stores WHERE admin_email IS NOT NULL AND admin_email != ""')->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($stores_with_email as $store) {
+                // Build recipient list
+                $recipients = [['email' => $store['admin_email'], 'name' => $store['name']]];
+
+                // Add store users if enabled
+                if ($broadcastToStoreUsers) {
+                    $storeUsersStmt->execute([$store['id']]);
+                    $storeUsers = $storeUsersStmt->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($storeUsers as $user) {
+                        // Don't duplicate if same as admin_email
+                        if (strtolower($user['email']) !== strtolower($store['admin_email'])) {
+                            $recipients[] = $user;
+                        }
+                    }
+                }
+
+                $sendBroadcastEmail($store, $recipients);
+            }
+
+            // Also send to stores without admin_email but with store users (if store users enabled)
+            if ($broadcastToStoreUsers) {
+                $stores_without_admin_email = $pdo->query('SELECT * FROM stores WHERE admin_email IS NULL OR admin_email = ""')->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($stores_without_admin_email as $store) {
+                    $storeUsersStmt->execute([$store['id']]);
+                    $storeUsers = $storeUsersStmt->fetchAll(PDO::FETCH_ASSOC);
+                    if (!empty($storeUsers)) {
+                        $sendBroadcastEmail($store, $storeUsers);
+                    }
+                }
             }
         } elseif ($enableBroadcastEmails) {
             // Send to selected stores
@@ -79,20 +118,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
                 $storeStmt->execute([$sid]);
                 $store = $storeStmt->fetch();
 
-                if ($store && !empty($store['admin_email'])) {
-                    $subject = str_replace('{store_name}', $store['name'], $messageSubject);
+                if ($store) {
+                    // Build recipient list
+                    $recipients = [];
+                    if (!empty($store['admin_email'])) {
+                        $recipients[] = ['email' => $store['admin_email'], 'name' => $store['name']];
+                    }
 
-                    $emailBody = "Dear {$store['name']},\n\n";
-                    $emailBody .= "You have a new message from Cosmick Media:\n\n";
-                    $emailBody .= "=====================================\n";
-                    $emailBody .= $message . "\n";
-                    $emailBody .= "=====================================\n\n";
-                    $emailBody .= "To view this message and upload content, please visit:\n";
-                    $emailBody .= $loginUrl . "\n\n";
-                    $emailBody .= "Your PIN: {$store['pin']}\n\n";
-                    $emailBody .= "Best regards,\n$fromName";
+                    // Add store users if enabled
+                    if ($broadcastToStoreUsers) {
+                        $storeUsersStmt->execute([$store['id']]);
+                        $storeUsers = $storeUsersStmt->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($storeUsers as $user) {
+                            // Don't duplicate if same as admin_email
+                            if (empty($store['admin_email']) || strtolower($user['email']) !== strtolower($store['admin_email'])) {
+                                $recipients[] = $user;
+                            }
+                        }
+                    }
 
-                    mail($store['admin_email'], $subject, $emailBody, $headers);
+                    if (!empty($recipients)) {
+                        $sendBroadcastEmail($store, $recipients);
+                    }
                 }
             }
         }

@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/email.php';
 require_login();
 $pdo = get_pdo();
 
@@ -30,12 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_message'])) {
 
         $enableBroadcastEmails = ($emailSettings['enable_broadcast_emails'] ?? '1') !== '0';
         $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
-        $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
         $subjectTemplate = $emailSettings['store_message_subject'] ?? 'New message from Cosmick Media';
-
-        $headers = "From: $fromName <$fromAddress>\r\n";
-        $headers .= "Reply-To: $fromAddress\r\n";
-        $headers .= "X-Mailer: PHP/" . phpversion();
 
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $baseUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname(dirname($_SERVER['REQUEST_URI']));
@@ -50,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_message'])) {
                 $subject = str_replace('{store_name}', $store['name'], $subjectTemplate);
 
                 $body = "Dear {$store['name']},\n\n";
-                $body .= "You have a new message from Cosmick Media:\n\n";
+                $body .= "You have a new message from $fromName:\n\n";
                 $body .= "=====================================\n";
                 $body .= $message . "\n";
                 $body .= "=====================================\n\n";
@@ -59,7 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_message'])) {
                 $body .= "Your PIN: {$store['pin']}\n\n";
                 $body .= "Best regards,\n$fromName";
 
-                mail($store['admin_email'], $subject, $body, $headers);
+                // Uses logged-in admin's name as sender
+                send_email($store['admin_email'], $subject, $body, $store['name']);
             }
         } elseif ($enableBroadcastEmails && !$store_id) {
             $stores = $pdo->query('SELECT * FROM stores WHERE admin_email IS NOT NULL AND admin_email != ""')->fetchAll(PDO::FETCH_ASSOC);
@@ -68,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_message'])) {
                 $subject = str_replace('{store_name}', $store['name'], $subjectTemplate);
 
                 $body = "Dear {$store['name']},\n\n";
-                $body .= "You have a new message from Cosmick Media:\n\n";
+                $body .= "You have a new message from $fromName:\n\n";
                 $body .= "=====================================\n";
                 $body .= $message . "\n";
                 $body .= "=====================================\n\n";
@@ -77,7 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_message'])) {
                 $body .= "Your PIN: {$store['pin']}\n\n";
                 $body .= "Best regards,\n$fromName";
 
-                mail($store['admin_email'], $subject, $body, $headers);
+                // Uses logged-in admin's name as sender
+                send_email($store['admin_email'], $subject, $body, $store['name']);
             }
         }
 

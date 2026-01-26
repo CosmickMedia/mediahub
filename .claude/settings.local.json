@@ -8,7 +8,10 @@
       "Bash(done)",
       "Bash(xxd:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(php -l:*)",
+      "Bash(/usr/local/bin/php:*)",
+      "Bash(/opt/homebrew/bin/php:*)"
     ]
   }
 }

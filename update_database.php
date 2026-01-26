@@ -97,7 +97,20 @@ $defaultSettings = [
     'admin_article_notification_subject' => 'New article submission from {store_name}',
     'store_article_notification_subject' => 'Article Submission Confirmation - Cosmick Media',
     'article_approval_subject' => 'Article Status Update - Cosmick Media',
-    'max_article_length' => '50000' // Characters
+    'max_article_length' => '50000', // Characters
+    // Chat notification settings
+    'enable_chat_emails' => '1',
+    'enable_chat_email_to_admin' => '1',
+    'enable_chat_email_to_store' => '1',
+    'chat_notification_email' => '',
+    'chat_admin_notification_subject' => 'New chat message from {store_name}',
+    'chat_store_notification_subject' => 'New message from {admin_name}',
+    'chat_email_cooldown_minutes' => '5',
+    // Broadcast to store users setting
+    'broadcast_email_to_store_users' => '0',
+    // Brevo email provider settings
+    'brevo_api_key' => '',
+    'brevo_enabled' => '0'
 ];
 
 foreach ($defaultSettings as $name => $value) {
@@ -284,6 +297,14 @@ try {
     echo "✓ Added love_by_admin column to store_messages table\n";
 } catch (PDOException $e) {
     echo "• love_by_admin column might already exist\n";
+}
+
+// Add admin_user_id column to track which admin sent each message
+try {
+    $pdo->exec("ALTER TABLE store_messages ADD COLUMN admin_user_id INT(11) DEFAULT NULL AFTER store_user_id");
+    echo "✓ Added admin_user_id column to store_messages table\n";
+} catch (PDOException $e) {
+    echo "• admin_user_id column might already exist\n";
 }
 
 // ========== STORE ENHANCEMENTS ==========

@@ -3,6 +3,7 @@ require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_once __DIR__.'/../lib/drive.php';
+require_once __DIR__.'/../lib/email.php';
 
 $config = get_config();
 $localUploadDir = $config['local_upload_dir'] ?? (__DIR__ . '/uploads');
@@ -157,13 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                 }
 
                 $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
-                $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
                 $adminSubject = str_replace('{store_name}', $store_name, $emailSettings['admin_notification_subject'] ?? 'New uploads from {store_name}');
                 $storeSubject = str_replace('{store_name}', $store_name, $emailSettings['store_notification_subject'] ?? 'Content Submission Confirmation - Cosmick Media');
-
-                $headers = "From: $fromName <$fromAddress>\r\n";
-                $headers .= "Reply-To: $fromAddress\r\n";
-                $headers .= "X-Mailer: PHP/" . phpversion();
 
                 // Use upload-specific email if set, otherwise fall back to general
                 $enableAdminNotification = ($emailSettings['enable_upload_admin_notification'] ?? '1') !== '0';
@@ -180,7 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                     }
                     foreach ($emailList as $email) {
                         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            mail($email, $adminSubject, $message, $headers);
+                            // Use company name as sender for system notifications
+                            send_email($email, $adminSubject, $message, null, $fromName);
                         }
                     }
                 }
@@ -195,7 +192,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['files'])) {
                     $confirmMessage .= "We will review your submission and get back to you if we need any additional information.\n\n";
                     $confirmMessage .= "Best regards,\n$fromName";
 
-                    mail($store['admin_email'], $storeSubject, $confirmMessage, $headers);
+                    // Use company name as sender for system notifications
+                    send_email($store['admin_email'], $storeSubject, $confirmMessage, $store_name, $fromName);
                 }
             }
 

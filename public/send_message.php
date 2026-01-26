@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_once __DIR__.'/../lib/auth.php';
+require_once __DIR__.'/../lib/chat_notifications.php';
 ensure_session();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -23,8 +24,12 @@ if ($message === '') {
 $pdo = get_pdo();
 $parent = intval($_POST['parent_id'] ?? 0) ?: null;
 $storeUserId = $_SESSION['store_user_id'] ?? null;
+$storeId = $_SESSION['store_id'];
 $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, store_user_id, sender, message, parent_id, created_at, read_by_store, read_by_admin) VALUES (?, ?, 'store', ?, ?, NOW(), 1, 0)");
-$stmt->execute([$_SESSION['store_id'], $storeUserId, $message, $parent]);
+$stmt->execute([$storeId, $storeUserId, $message, $parent]);
+
+// Send email notification to admin
+send_chat_email_to_admin($storeId, $message, $storeUserId);
 
 if (!empty($_POST['ajax'])) {
     echo json_encode(['success' => true]);

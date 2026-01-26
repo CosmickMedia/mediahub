@@ -2,6 +2,7 @@
 require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
+require_once __DIR__.'/../lib/chat_notifications.php';
 require_login();
 $pdo = get_pdo();
 
@@ -34,8 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
             $upload_id = $pdo->lastInsertId();
         }
 
-        $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, sender, message, created_at, is_reply, read_by_admin, read_by_store, upload_id) VALUES (?, 'admin', ?, NOW(), 1, 1, 0, ?)");
-        $stmt->execute([$store_id, $message, $upload_id]);
+        $admin_user_id = $_SESSION['user_id'] ?? null;
+        $stmt = $pdo->prepare("INSERT INTO store_messages (store_id, admin_user_id, sender, message, created_at, is_reply, read_by_admin, read_by_store, upload_id) VALUES (?, ?, 'admin', ?, NOW(), 1, 1, 0, ?)");
+        $stmt->execute([$store_id, $admin_user_id, $message, $upload_id]);
+
+        // Send email notification to store users
+        send_chat_email_to_store($store_id, $message, $admin_user_id);
+
         $success[] = 'Message sent successfully';
     }
 }

@@ -3,6 +3,7 @@ require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_once __DIR__.'/../lib/drive.php';
+require_once __DIR__.'/../lib/email.php';
 
 $config = get_config();
 $localUploadDir = $config['local_upload_dir'] ?? (__DIR__ . '/uploads');
@@ -178,13 +179,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
             }
 
             $fromName = $emailSettings['email_from_name'] ?? 'Cosmick Media';
-            $fromAddress = $emailSettings['email_from_address'] ?? 'noreply@cosmickmedia.com';
             $adminSubject = str_replace('{store_name}', $store_name, $emailSettings['admin_article_notification_subject'] ?? 'New article submission from {store_name}');
             $storeSubject = str_replace('{store_name}', $store_name, $emailSettings['store_article_notification_subject'] ?? 'Article Submission Confirmation - Cosmick Media');
-
-            $headers = "From: $fromName <$fromAddress>\r\n";
-            $headers .= "Reply-To: $fromAddress\r\n";
-            $headers .= "X-Mailer: PHP/" . phpversion();
 
             // Notify admin (use article-specific email if set, otherwise fall back to general)
             $enableAdminNotification = ($emailSettings['enable_article_admin_notification'] ?? '1') !== '0';
@@ -201,7 +197,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
 
                 foreach ($emailList as $email) {
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        mail($email, $adminSubject, $message, $headers);
+                        // Use company name as sender for system notifications (no admin logged in)
+                        send_email($email, $adminSubject, $message, null, $fromName);
                     }
                 }
             }
@@ -217,7 +214,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
                 $confirmMessage .= "We will notify you once it has been reviewed.\n\n";
                 $confirmMessage .= "Best regards,\n$fromName";
 
-                mail($store['admin_email'], $storeSubject, $confirmMessage, $headers);
+                // Use company name as sender for system notifications
+                send_email($store['admin_email'], $storeSubject, $confirmMessage, $store_name, $fromName);
             }
 
         } catch (PDOException $e) {

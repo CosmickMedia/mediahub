@@ -3,6 +3,7 @@ require_once __DIR__.'/../lib/db.php';
 require_once __DIR__.'/../lib/auth.php';
 require_once __DIR__.'/../lib/groundhogg.php';
 require_once __DIR__.'/../lib/settings.php';
+require_once __DIR__.'/../lib/email.php';
 $test_action = '';
 require_login();
 $pdo = get_pdo();
@@ -54,6 +55,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'enable_article_store_confirmation' => isset($_POST['enable_article_store_confirmation']) ? '1' : '0',
         'enable_article_approval_notification' => isset($_POST['enable_article_approval_notification']) ? '1' : '0',
         'enable_broadcast_emails' => isset($_POST['enable_broadcast_emails']) ? '1' : '0',
+        'broadcast_email_to_store_users' => isset($_POST['broadcast_email_to_store_users']) ? '1' : '0',
+        // Chat notification settings
+        'enable_chat_emails' => isset($_POST['enable_chat_emails']) ? '1' : '0',
+        'enable_chat_email_to_admin' => isset($_POST['enable_chat_email_to_admin']) ? '1' : '0',
+        'enable_chat_email_to_store' => isset($_POST['enable_chat_email_to_store']) ? '1' : '0',
+        'chat_notification_email' => trim($_POST['chat_notification_email'] ?? ''),
+        'chat_admin_notification_subject' => trim($_POST['chat_admin_notification_subject'] ?? 'New chat message from {store_name}'),
+        'chat_store_notification_subject' => trim($_POST['chat_store_notification_subject'] ?? 'New message from {admin_name}'),
+        'chat_email_cooldown_minutes' => trim($_POST['chat_email_cooldown_minutes'] ?? '5'),
+        // Brevo email provider settings
+        'brevo_enabled' => isset($_POST['brevo_enabled']) ? '1' : '0',
+        'brevo_api_key' => trim($_POST['brevo_api_key'] ?? ''),
         'max_article_length' => $_POST['max_article_length'] ?? '50000',
         'groundhogg_site_url'     => trim($_POST['groundhogg_site_url'] ?? ''),
         'groundhogg_username'     => trim($_POST['groundhogg_username'] ?? ''),
@@ -262,18 +275,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $testMessage .= "Article Admin Notifications: " . (get_setting('enable_article_admin_notification') !== '0' ? 'Enabled' : 'Disabled') . "\n";
             $testMessage .= "Article Store Confirmations: " . (get_setting('enable_article_store_confirmation') !== '0' ? 'Enabled' : 'Disabled') . "\n";
             $testMessage .= "Article Approval Notifications: " . (get_setting('enable_article_approval_notification') !== '0' ? 'Enabled' : 'Disabled') . "\n";
-            $testMessage .= "Broadcast Emails: " . (get_setting('enable_broadcast_emails') !== '0' ? 'Enabled' : 'Disabled') . "\n\n";
+            $testMessage .= "Broadcast Emails: " . (get_setting('enable_broadcast_emails') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "Broadcast to Store Users: " . (get_setting('broadcast_email_to_store_users') === '1' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "Chat Notifications: " . (get_setting('enable_chat_emails') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "  - Admin Notifications: " . (get_setting('enable_chat_email_to_admin') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "  - Store Notifications: " . (get_setting('enable_chat_email_to_store') !== '0' ? 'Enabled' : 'Disabled') . "\n";
+            $testMessage .= "  - Cooldown: " . (get_setting('chat_email_cooldown_minutes') ?: '5') . " minutes\n\n";
+            $testMessage .= "Email Provider:\n";
+            $testMessage .= "-------------------\n";
+            $testMessage .= "Brevo: " . (get_setting('brevo_enabled') === '1' ? 'Enabled' : 'Disabled (using server mail)') . "\n\n";
             $testMessage .= "If you received this email, your email settings are working correctly.";
 
-            $headers = "From: $fromName <$fromAddress>\r\n";
-            $headers .= "Reply-To: $fromAddress\r\n";
-            $headers .= "X-Mailer: PHP/" . phpversion();
-
-            $sent = @mail($test_email_address, $testSubject, $testMessage, $headers);
+            // Use the centralized send_email function (uses Brevo if enabled)
+            $sent = send_email($test_email_address, $testSubject, $testMessage, null, $fromName);
+            $brevoEnabled = get_setting('brevo_enabled') === '1';
             if ($sent) {
-                $test_result = [true, "Test email sent to $test_email_address"];
+                $via = $brevoEnabled ? 'Brevo' : 'server mail';
+                $test_result = [true, "Test email sent to $test_email_address via $via"];
             } else {
-                $test_result = [false, "Failed to send test email. Check your server's mail configuration."];
+                $test_result = [false, "Failed to send test email. Check your " . ($brevoEnabled ? "Brevo API key and sender configuration" : "server's mail configuration") . "."];
             }
         } else {
             $test_result = [false, 'Please enter a valid email address'];
@@ -404,6 +424,21 @@ $enable_article_approval_notification = get_setting('enable_article_approval_not
 $enable_article_approval_notification = ($enable_article_approval_notification === false || $enable_article_approval_notification === '') ? '1' : $enable_article_approval_notification;
 $enable_broadcast_emails = get_setting('enable_broadcast_emails');
 $enable_broadcast_emails = ($enable_broadcast_emails === false || $enable_broadcast_emails === '') ? '1' : $enable_broadcast_emails;
+$broadcast_email_to_store_users = get_setting('broadcast_email_to_store_users') ?: '0';
+// Chat notification settings
+$enable_chat_emails = get_setting('enable_chat_emails');
+$enable_chat_emails = ($enable_chat_emails === false || $enable_chat_emails === '') ? '1' : $enable_chat_emails;
+$enable_chat_email_to_admin = get_setting('enable_chat_email_to_admin');
+$enable_chat_email_to_admin = ($enable_chat_email_to_admin === false || $enable_chat_email_to_admin === '') ? '1' : $enable_chat_email_to_admin;
+$enable_chat_email_to_store = get_setting('enable_chat_email_to_store');
+$enable_chat_email_to_store = ($enable_chat_email_to_store === false || $enable_chat_email_to_store === '') ? '1' : $enable_chat_email_to_store;
+$chat_notification_email = get_setting('chat_notification_email') ?: '';
+$chat_admin_notification_subject = get_setting('chat_admin_notification_subject') ?: 'New chat message from {store_name}';
+$chat_store_notification_subject = get_setting('chat_store_notification_subject') ?: 'New message from {admin_name}';
+$chat_email_cooldown_minutes = get_setting('chat_email_cooldown_minutes') ?: '5';
+// Brevo email provider settings
+$brevo_enabled = get_setting('brevo_enabled') ?: '0';
+$brevo_api_key = get_setting('brevo_api_key') ?: '';
 $max_article_length = get_setting('max_article_length') ?: '50000';
 $company_address = get_setting('company_address') ?: '';
 $company_city = get_setting('company_city') ?: '';
@@ -690,20 +725,6 @@ include __DIR__.'/header.php';
                                     <input type="text" name="notify_email" id="notify_email" class="form-control form-control-modern" value="<?php echo htmlspecialchars($notify_email); ?>">
                                     <div class="form-text-modern">Default admin notification emails (comma-separated). Can be overridden per feature in the Email Subjects tab.</div>
                                 </div>
-                                <div class="mb-4">
-                                    <label for="email_from_name" class="form-label-modern">
-                                        <i class="bi bi-person"></i> From Name
-                                    </label>
-                                    <input type="text" name="email_from_name" id="email_from_name" class="form-control form-control-modern" value="<?php echo htmlspecialchars($email_from_name); ?>">
-                                    <div class="form-text-modern">Name shown in email "From" field</div>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="email_from_address" class="form-label-modern">
-                                        <i class="bi bi-envelope-at"></i> From Email Address
-                                    </label>
-                                    <input type="email" name="email_from_address" id="email_from_address" class="form-control form-control-modern" value="<?php echo htmlspecialchars($email_from_address); ?>">
-                                    <div class="form-text-modern">Email address used for sending</div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -854,6 +875,57 @@ include __DIR__.'/header.php';
 
                 <!-- Email Subjects Tab -->
                 <div class="tab-pane fade<?php if($active_tab==='subjects') echo ' show active'; ?>" id="subjects" role="tabpanel">
+                    <!-- Email Provider Configuration -->
+                    <div class="settings-card animate__animated animate__fadeIn delay-20">
+                        <div class="card-header-modern">
+                            <h5 class="card-title-modern">
+                                <i class="bi bi-envelope-arrow-up"></i>
+                                Email Provider
+                            </h5>
+                        </div>
+                        <div class="card-body-modern">
+                            <div class="info-card mb-4">
+                                <div class="info-card-title">
+                                    <i class="bi bi-info-circle"></i> About Email Delivery
+                                </div>
+                                <div class="info-card-content">
+                                    Configure Brevo (formerly Sendinblue) for reliable email delivery. When enabled, all outbound emails are sent via Brevo's API. The sender name will automatically use the logged-in admin's name when available.
+                                </div>
+                            </div>
+
+                            <div class="form-check form-switch mb-4">
+                                <input type="checkbox" name="brevo_enabled" id="brevo_enabled" class="form-check-input" value="1" <?php if ($brevo_enabled === '1') echo 'checked'; ?>>
+                                <label for="brevo_enabled" class="form-check-label">
+                                    <strong>Use Brevo for email delivery</strong>
+                                </label>
+                                <div class="form-text-modern">When enabled, all emails are sent via Brevo API. When disabled, falls back to server mail.</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="brevo_api_key" class="form-label-modern">
+                                    <i class="bi bi-key"></i> Brevo API Key
+                                </label>
+                                <input type="password" name="brevo_api_key" id="brevo_api_key" class="form-control form-control-modern" value="<?php echo htmlspecialchars($brevo_api_key); ?>" placeholder="Enter your Brevo API key">
+                                <div class="form-text-modern">Get your API key from <a href="https://app.brevo.com/settings/keys/api" target="_blank">Brevo Dashboard > SMTP & API > API Keys</a></div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="email_from_address" class="form-label-modern">
+                                    <i class="bi bi-envelope-at"></i> From Email Address
+                                </label>
+                                <input type="email" name="email_from_address" id="email_from_address" class="form-control form-control-modern" value="<?php echo htmlspecialchars($email_from_address); ?>" placeholder="noreply@mediahub.marketing">
+                                <div class="form-text-modern">All outbound emails will be sent from this address (must be verified in Brevo)</div>
+                            </div>
+                            <div class="mb-0">
+                                <label for="email_from_name" class="form-label-modern">
+                                    <i class="bi bi-person"></i> Default From Name
+                                </label>
+                                <input type="text" name="email_from_name" id="email_from_name" class="form-control form-control-modern" value="<?php echo htmlspecialchars($email_from_name); ?>">
+                                <div class="form-text-modern">Default sender name. Admin names are used automatically when an admin is logged in.</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="settings-card animate__animated animate__fadeIn delay-30">
                         <div class="card-header-modern">
                             <h5 class="card-title-modern">
@@ -985,12 +1057,101 @@ include __DIR__.'/header.php';
                             </h5>
                         </div>
                         <div class="card-body-modern">
-                            <div class="form-check form-switch">
+                            <div class="form-check form-switch mb-3">
                                 <input type="checkbox" name="enable_broadcast_emails" id="enable_broadcast_emails" class="form-check-input" value="1" <?php if ($enable_broadcast_emails === '1') echo 'checked'; ?>>
                                 <label for="enable_broadcast_emails" class="form-check-label">
                                     <strong>Send emails with broadcast messages</strong>
                                 </label>
                                 <div class="form-text-modern">When enabled, stores receive email notifications for broadcast messages.</div>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="broadcast_email_to_store_users" id="broadcast_email_to_store_users" class="form-check-input" value="1" <?php if ($broadcast_email_to_store_users === '1') echo 'checked'; ?>>
+                                <label for="broadcast_email_to_store_users" class="form-check-label">
+                                    <strong>Send broadcasts to individual store users</strong>
+                                </label>
+                                <div class="form-text-modern">When enabled, broadcast emails are also sent to individual store users (not just the store's admin email).</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Notifications -->
+                    <div class="settings-card animate__animated animate__fadeIn delay-55">
+                        <div class="card-header-modern">
+                            <h5 class="card-title-modern">
+                                <i class="bi bi-chat-dots"></i>
+                                Chat Notifications
+                            </h5>
+                        </div>
+                        <div class="card-body-modern">
+                            <div class="info-card mb-4">
+                                <div class="info-card-title">
+                                    <i class="bi bi-info-circle"></i> About Chat Notifications
+                                </div>
+                                <div class="info-card-content">
+                                    Email notifications for chat messages between admins and store users. When a store user sends a message, the last admin who responded gets notified. Rate limiting prevents email flooding during rapid conversations.
+                                </div>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                <input type="checkbox" name="enable_chat_emails" id="enable_chat_emails" class="form-check-input" value="1" <?php if ($enable_chat_emails === '1') echo 'checked'; ?>>
+                                <label for="enable_chat_emails" class="form-check-label">
+                                    <strong>Enable chat email notifications</strong>
+                                </label>
+                                <div class="form-text-modern">Master toggle for all chat email notifications.</div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" name="enable_chat_email_to_admin" id="enable_chat_email_to_admin" class="form-check-input" value="1" <?php if ($enable_chat_email_to_admin === '1') echo 'checked'; ?>>
+                                        <label for="enable_chat_email_to_admin" class="form-check-label">
+                                            <strong>Notify admins</strong>
+                                        </label>
+                                        <div class="form-text-modern">Email admins when store user sends a message.</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" name="enable_chat_email_to_store" id="enable_chat_email_to_store" class="form-check-input" value="1" <?php if ($enable_chat_email_to_store === '1') echo 'checked'; ?>>
+                                        <label for="enable_chat_email_to_store" class="form-check-label">
+                                            <strong>Notify store users</strong>
+                                        </label>
+                                        <div class="form-text-modern">Email store users when admin sends a message.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="chat_notification_email" class="form-label-modern">
+                                    <i class="bi bi-envelope-at"></i> Override Admin Notification Recipients
+                                </label>
+                                <input type="text" name="chat_notification_email" id="chat_notification_email" class="form-control form-control-modern" value="<?php echo htmlspecialchars($chat_notification_email); ?>" placeholder="Leave empty to notify last responding admin">
+                                <div class="form-text-modern">Comma-separated emails. If empty, the last admin who responded to the chat will receive notifications.</div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="chat_admin_notification_subject" class="form-label-modern">
+                                        <i class="bi bi-envelope-open"></i> Store to Admin Subject
+                                    </label>
+                                    <input type="text" name="chat_admin_notification_subject" id="chat_admin_notification_subject" class="form-control form-control-modern" value="<?php echo htmlspecialchars($chat_admin_notification_subject); ?>">
+                                    <div class="form-text-modern">Use {store_name} as placeholder.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="chat_store_notification_subject" class="form-label-modern">
+                                        <i class="bi bi-envelope-open"></i> Admin to Store Subject
+                                    </label>
+                                    <input type="text" name="chat_store_notification_subject" id="chat_store_notification_subject" class="form-control form-control-modern" value="<?php echo htmlspecialchars($chat_store_notification_subject); ?>">
+                                    <div class="form-text-modern">Use {admin_name} as placeholder.</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-0">
+                                <label for="chat_email_cooldown_minutes" class="form-label-modern">
+                                    <i class="bi bi-clock"></i> Email Cooldown (minutes)
+                                </label>
+                                <input type="number" name="chat_email_cooldown_minutes" id="chat_email_cooldown_minutes" class="form-control form-control-modern" style="max-width: 150px;" value="<?php echo htmlspecialchars($chat_email_cooldown_minutes); ?>" min="0" max="1440">
+                                <div class="form-text-modern">Minimum time between notification emails for the same conversation. Set to 0 to disable rate limiting.</div>
                             </div>
                         </div>
                     </div>
