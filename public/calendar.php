@@ -4,6 +4,10 @@ require_once __DIR__.'/../lib/calendar.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_once __DIR__.'/../lib/auth.php';
 
+// Debug logging for redirect investigation
+error_log("Calendar DEBUG - Session status: " . session_status());
+error_log("Calendar DEBUG - store_id: " . (isset($_SESSION['store_id']) ? $_SESSION['store_id'] : 'NOT SET'));
+
 ensure_session();
 
 if (!isset($_SESSION['store_id'])) {
@@ -273,9 +277,6 @@ include __DIR__.'/header.php';
                     </button>
                 <?php endif; ?>
 
-                <a href="index.php" class="btn btn-modern-primary">
-                    <i class="bi bi-arrow-left"></i> <span class="btn-text">Back to Upload</span>
-                </a>
             </div>
         </div>
 

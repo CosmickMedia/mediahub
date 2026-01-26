@@ -398,13 +398,7 @@ include __DIR__.'/header.php';
                 <h2 class="history-title">Media Library</h2>
                 <p class="history-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
             </div>
-            <a href="index.php" class="btn btn-modern-primary">
-                <i class="bi bi-arrow-left"></i> Back to Dashboard
-            </a>
-        </div>
-
-        <div class="text-end mb-3">
-            <button class="btn btn-modern-secondary" type="button" id="toggleQuickUpload">
+            <button class="btn btn-modern-primary" type="button" id="toggleQuickUpload">
                 <i class="bi bi-plus-circle"></i> Add Media
             </button>
         </div>
@@ -444,7 +438,18 @@ include __DIR__.'/header.php';
                 </div>
 
                 <input type="hidden" name="upload_token" value="<?php echo htmlspecialchars($upload_token); ?>">
-                <button type="submit" class="btn-modern btn-modern-primary mt-2" id="quickUploadBtn">Upload</button>
+
+                <div class="upload-progress-container" id="uploadProgress" style="display: none;">
+                    <div class="upload-progress-bar">
+                        <div class="upload-progress-fill" id="uploadProgressFill"></div>
+                    </div>
+                    <div class="upload-progress-text">
+                        <span id="uploadProgressPercent">0%</span>
+                        <span id="uploadProgressStatus">Uploading...</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-modern btn-modern-primary mt-2" id="quickUploadBtn"><i class="bi bi-cloud-upload"></i> Upload</button>
             </form>
         </div>
 
@@ -488,23 +493,23 @@ include __DIR__.'/header.php';
                 <div class="stat-bg"></div>
             </div>
 
-            <div class="stat-card images">
+            <a href="?type=image" class="stat-card images stat-card-link">
                 <div class="stat-icon">
                     <i class="bi bi-image-fill"></i>
                 </div>
                 <div class="stat-number" data-count="<?php echo $stats['total_images']; ?>">0</div>
                 <div class="stat-label">Images</div>
                 <div class="stat-bg"></div>
-            </div>
+            </a>
 
-            <div class="stat-card videos">
+            <a href="?type=video" class="stat-card videos stat-card-link">
                 <div class="stat-icon">
                     <i class="bi bi-camera-video-fill"></i>
                 </div>
                 <div class="stat-number" data-count="<?php echo $stats['total_videos']; ?>">0</div>
                 <div class="stat-label">Videos</div>
                 <div class="stat-bg"></div>
-            </div>
+            </a>
 
             <div class="stat-card recent">
                 <div class="stat-icon">
@@ -522,13 +527,13 @@ include __DIR__.'/header.php';
                 <div class="filter-group">
                     <span class="filter-label">Type:</span>
                     <a href="?type=all" class="filter-button <?php echo $filter_type === 'all' ? 'active' : ''; ?>">
-                        <i class="bi bi-grid-3x3-gap"></i> All
+                        <i class="bi bi-grid-3x3-gap"></i> <span>All</span>
                     </a>
                     <a href="?type=image" class="filter-button <?php echo $filter_type === 'image' ? 'active' : ''; ?>">
-                        <i class="bi bi-image"></i> Images
+                        <i class="bi bi-image"></i> <span>Images</span>
                     </a>
                     <a href="?type=video" class="filter-button <?php echo $filter_type === 'video' ? 'active' : ''; ?>">
-                        <i class="bi bi-camera-video"></i> Videos
+                        <i class="bi bi-camera-video"></i> <span>Videos</span>
                     </a>
                 </div>
 
@@ -869,6 +874,51 @@ include __DIR__.'/header.php';
                         updateQuickMainFileInput();
                         this.value = '';
                     }
+                });
+            }
+
+            // AJAX upload with progress bar
+            const uploadForm = document.getElementById('quickUploadForm');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const progressContainer = document.getElementById('uploadProgress');
+                    const progressFill = document.getElementById('uploadProgressFill');
+                    const progressPercent = document.getElementById('uploadProgressPercent');
+                    const progressStatus = document.getElementById('uploadProgressStatus');
+                    const uploadBtn = document.getElementById('quickUploadBtn');
+
+                    // Show progress, disable button
+                    progressContainer.style.display = 'block';
+                    uploadBtn.disabled = true;
+                    uploadBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Uploading...';
+
+                    const xhr = new XMLHttpRequest();
+
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            const percent = Math.round((e.loaded / e.total) * 100);
+                            progressFill.style.width = percent + '%';
+                            progressPercent.textContent = percent + '%';
+                            progressStatus.textContent = percent < 100 ? 'Uploading...' : 'Processing...';
+                        }
+                    });
+
+                    xhr.addEventListener('load', function() {
+                        // Reload page to show success/errors
+                        window.location.reload();
+                    });
+
+                    xhr.addEventListener('error', function() {
+                        progressStatus.textContent = 'Upload failed. Please try again.';
+                        uploadBtn.disabled = false;
+                        uploadBtn.innerHTML = '<i class="bi bi-cloud-upload"></i> Upload';
+                    });
+
+                    xhr.open('POST', window.location.href);
+                    xhr.send(formData);
                 });
             }
         });

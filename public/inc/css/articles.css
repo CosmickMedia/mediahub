@@ -1,6 +1,6 @@
 /* Articles Page Styles - Matching Modern Theme */
 .articles-container {
-    padding: 2rem;
+    padding: 0.5rem;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -166,6 +166,10 @@
     box-shadow: var(--card-shadow);
     padding: 2rem;
     margin-bottom: 2rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .form-header {
@@ -196,12 +200,16 @@
 .form-grid {
     display: grid;
     gap: 1.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    width: 100%;
+    max-width: 100%;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .form-group.full-width {
@@ -236,6 +244,8 @@
     transition: var(--transition);
     background: white;
     width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 .form-control-modern:focus {
@@ -264,8 +274,10 @@ textarea.form-control-modern {
 /* Category Selection */
 .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .category-card {
@@ -328,6 +340,10 @@ textarea.form-control-modern {
     transition: var(--transition);
     background: #f8f9fa;
     cursor: pointer;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .upload-area.small {
@@ -364,6 +380,8 @@ textarea.form-control-modern {
     gap: 1rem;
     justify-content: center;
     margin-top: 1.5rem;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
 /* File List */
@@ -916,7 +934,7 @@ textarea.form-control-modern {
 /* Responsive Design */
 @media (max-width: 992px) {
     .articles-container {
-        padding: 1rem;
+        padding: 0.5rem;
     }
 
     .stats-dashboard {
@@ -938,8 +956,11 @@ textarea.form-control-modern {
 }
 
 @media (max-width: 768px) {
+    .articles-container {
+        padding: 0.5rem;
+    }
+
     .articles-header {
-        text-align: center;
         flex-direction: column;
     }
 
@@ -1037,7 +1058,24 @@ textarea.form-control-modern {
 
 @media (max-width: 576px) {
     .category-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .category-content {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .form-container {
+        padding: 1rem;
+    }
+
+    .upload-area {
+        padding: 1.5rem 1rem;
+    }
+
+    .upload-area.small {
+        padding: 1rem;
     }
 
     .stat-card {

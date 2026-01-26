@@ -69,9 +69,6 @@ include __DIR__.'/header.php';
                 <h2 class="messages-title">Chat</h2>
                 <p class="messages-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
             </div>
-            <a href="index.php" class="btn btn-modern-primary">
-                <i class="bi bi-arrow-left"></i> Back to Dashboard
-            </a>
         </div>
 
         <!-- Statistics Dashboard -->

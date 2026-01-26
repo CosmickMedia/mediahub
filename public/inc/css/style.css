@@ -139,9 +139,23 @@ body {
     z-index: 0;
 }
 
+/* Clickable stat cards for filtering */
+a.stat-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+a.stat-card-link:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
 /* Marketing Page Styles */
 .marketing-container {
-    padding: 2rem;
+    padding: 0.5rem;
     width: 100%;
     margin: 0 auto;
     height: calc(100vh - var(--header-height));
@@ -330,7 +344,7 @@ body {
 
 /* Calendar Container */
 .calendar-container {
-    padding: 2rem;
+    padding: 0.5rem;
     width: 100%;
     margin: 0 auto;
 }
@@ -1196,7 +1210,7 @@ body {
 }
 
 .history-container {
-    padding: 2rem;
+    padding: 0.5rem;
     width: 100%;
     margin: 0 auto;
 }
@@ -1563,7 +1577,7 @@ body {
 
 /* Messages/Chat Page Styles */
 .messages-container {
-    padding: 2rem;
+    padding: 0.5rem;
     width: 100%;
     margin: 0 auto;
     display: flex;
@@ -2407,32 +2421,52 @@ body {
     justify-content: space-between;
 }
 
+/* Notification Offcanvas Panel */
 .notification-dropdown {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 320px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     display: none;
+    position: fixed;
+    top: var(--header-height, 70px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: calc(100vh - var(--header-height, 70px));
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     z-index: 1050;
+    overflow-y: auto;
+    border-radius: 0 0 16px 16px;
 }
 
 .notification-dropdown.show {
     display: block;
-    animation: fadeIn 0.3s ease-out;
+    animation: slideDown 0.3s ease-out;
 }
 
-@keyframes fadeIn {
+@keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-20px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Notification Backdrop Overlay */
+.notification-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1049;
+}
+
+.notification-backdrop.show {
+    display: block;
 }
 
 .notification-dropdown-header {
@@ -2493,7 +2527,7 @@ body {
 }
 
 .dashboard-container {
-    padding: 2rem;
+    padding: 0.5rem;
     width: 100%;
     margin: 0 auto;
 }
@@ -3386,7 +3420,7 @@ textarea.form-control-modern {
     }
 
     .marketing-container {
-        padding: 1rem;
+        padding: 0.5rem;
         height: calc(100vh - var(--header-height));
     }
 
@@ -3470,7 +3504,7 @@ textarea.form-control-modern {
     .delay-100 { animation-delay: 1s !important; }
 
     .calendar-container {
-        padding: 0.75rem;
+        padding: 0.5rem;
     }
 
     .calendar-header {
@@ -3547,11 +3581,7 @@ textarea.form-control-modern {
     }
 
     .history-container {
-        padding: 1rem;
-    }
-
-    .history-header {
-        text-align: center;
+        padding: 0.5rem;
     }
 
     .history-title {
@@ -3649,21 +3679,41 @@ textarea.form-control-modern {
     }
 
     .filters-row {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         align-items: stretch;
     }
 
     .filter-group {
-        width: 100%;
         justify-content: space-between;
+    }
+
+    /* Type filter takes full width */
+    .filter-group:first-child {
+        width: 100%;
+        order: 1;
     }
 
     .search-box {
         width: 100%;
+        order: 2;
+    }
+
+    /* Sort and Per Page dropdowns share a row */
+    .filter-group:nth-last-child(2),
+    .filter-group:last-child {
+        width: calc(50% - 0.5rem);
+        order: 3;
+    }
+
+    .filter-group:nth-last-child(2) .sort-select,
+    .filter-group:last-child .sort-select {
+        flex: 1;
+        min-width: 0;
     }
 
     .messages-container {
-        padding: 1rem;
+        padding: 0.5rem;
     }
 
     .messages-header {
@@ -3724,7 +3774,7 @@ textarea.form-control-modern {
     }
 
     .dashboard-container {
-        padding: 0.75rem;
+        padding: 0.5rem;
     }
 
     .left-column {
@@ -3736,7 +3786,7 @@ textarea.form-control-modern {
     }
 
     .marketing-container {
-        padding: 0.75rem;
+        padding: 0.5rem;
     }
 
     .iframe-wrapper {
@@ -3756,7 +3806,7 @@ textarea.form-control-modern {
     }
 
     .articles-container {
-        padding: 0.75rem;
+        padding: 0.5rem;
     }
 
     .articles-header {
@@ -3780,7 +3830,7 @@ textarea.form-control-modern {
     }
 
     .marketing-container {
-        padding: 1rem;
+        padding: 0.5rem;
     }
 
     .report-header {
@@ -3885,15 +3935,6 @@ textarea.form-control-modern {
         width: 100%;
         max-width: 100%;
     }
-    
-    /* Ensure content doesn't get too stretched, add some padding for readability */
-    .marketing-container,
-    .calendar-container,
-    .history-container,
-    .dashboard-container {
-        padding-left: 3rem;
-        padding-right: 3rem;
-    }
 }
 
 /* Footer version */
@@ -3992,4 +4033,69 @@ textarea.form-control-modern {
     border-radius: 4px;
     width: 0%;
     transition: width 0.3s ease;
+}
+
+/* History Page Upload Progress Container */
+#quickUpload .upload-progress-container {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+/* Fix: Override conflicting .upload-progress-bar width: 0% from line 2906 */
+#quickUpload .upload-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#quickUpload .upload-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+#quickUpload .upload-progress-text {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* Mobile History Page Refinements */
+@media (max-width: 576px) {
+    /* Hide filter label and button text on mobile - icon only */
+    .filter-label {
+        display: none;
+    }
+
+    .filter-button span {
+        display: none;
+    }
+
+    .filter-button {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Make action buttons finger-friendly (44px minimum) */
+    .history-actions .action-icon-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1.1rem;
+    }
+
+    /* Stack actions with more space */
+    .history-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
 }

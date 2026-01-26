@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.3] - 2026-01-26
+### Changed
+- Reduced container padding across all pages for tighter layout (0.5rem uniform padding)
+- Removed excessive 3rem desktop padding override
+- Standardized padding across all breakpoints (desktop, tablet, mobile)
+
 ## [2.4.2] - 2026-01-26
 ### Changed
 - Moved From Email Address and Default From Name fields from General tab to Email Provider card in Email Subjects tab

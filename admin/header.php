@@ -159,11 +159,31 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
 
             <!-- Notifications -->
             <div class="notification-container">
-                <div class="notification-bell" id="notifyWrap" title="Notifications">
+                <button class="notification-bell" id="notificationBtn" title="Notifications">
                     <i class="bi bi-bell notification-icon" id="notifyBell"></i>
                     <span class="notification-badge" id="notifyCount">0</span>
+                </button>
+
+                <!-- Notification Dropdown -->
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-dropdown-header">
+                        <h6 class="notification-dropdown-title">Notifications</h6>
+                        <span class="badge bg-danger" id="notifyCountBadge">0 New</span>
+                    </div>
+                    <div class="notification-dropdown-body" id="notificationBody">
+                        <div class="notification-empty">
+                            <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
+                            No new notifications
+                        </div>
+                    </div>
+                    <div class="notification-dropdown-footer">
+                        <a href="chat.php">View all messages</a>
+                    </div>
                 </div>
             </div>
+
+            <!-- Notification Backdrop -->
+            <div class="notification-backdrop" id="notificationBackdrop"></div>
 
             <!-- Settings -->
             <a href="settings.php" class="logout-btn settings-btn" title="Settings">

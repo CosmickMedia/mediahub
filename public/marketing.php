@@ -32,9 +32,6 @@ include __DIR__.'/header.php';
                 <h2 class="marketing-title">Marketing Analytics</h2>
                 <p class="marketing-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
             </div>
-            <a href="index.php" class="btn btn-modern-primary">
-                <i class="bi bi-arrow-left"></i> Back to Dashboard
-            </a>
         </div>
 
         <?php if ($url): ?>

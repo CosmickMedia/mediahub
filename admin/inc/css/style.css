@@ -1787,6 +1787,111 @@ body {
     75% { transform: rotate(10deg); }
 }
 
+/* Notification Offcanvas Panel */
+.notification-dropdown {
+    display: none;
+    position: fixed;
+    top: var(--header-height, 70px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: calc(100vh - var(--header-height, 70px));
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+    overflow-y: auto;
+    border-radius: 0 0 16px 16px;
+}
+
+.notification-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Notification Backdrop Overlay */
+.notification-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1049;
+}
+
+.notification-backdrop.show {
+    display: block;
+}
+
+.notification-dropdown-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-dropdown-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.notification-dropdown-body {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-empty {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.notification-dropdown-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.notification-dropdown-footer a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.notification-dropdown-footer a:hover {
+    text-decoration: underline;
+}
+
 .logout-btn,
 .settings-btn {
     display: flex;

@@ -169,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_article'])) {
             error_log("Article inserted - Fields: " . implode(',', $fields));
             error_log("Article inserted - Values: " . print_r($values, true));
 
-            $success[] = 'Article submitted successfully!';
+            $success[] = 'Blog submitted successfully!';
 
             // Send email notifications
             $emailSettings = [];
@@ -388,12 +388,9 @@ include __DIR__.'/header.php';
         <!-- Header Section -->
         <div class="articles-header">
             <div>
-                <h2 class="articles-title">Content Articles</h2>
+                <h2 class="articles-title">Blogs</h2>
                 <p class="articles-subtitle"><?php echo htmlspecialchars($store_name); ?></p>
             </div>
-            <a href="index.php" class="btn btn-modern-primary">
-                <i class="bi bi-arrow-left"></i> Back to Dashboard
-            </a>
         </div>
 
         <?php foreach ($errors as $e): ?>
@@ -471,11 +468,11 @@ include __DIR__.'/header.php';
         <div class="tab-navigation">
             <a class="tab-btn <?php echo $tab === 'submit' ? 'active' : ''; ?>" href="?tab=submit">
                 <i class="bi bi-pencil-square"></i>
-                <span>Articles</span>
+                <span>Blogs</span>
             </a>
             <a class="tab-btn <?php echo $tab === 'history' ? 'active' : ''; ?>" href="?tab=history">
                 <i class="bi bi-clock-history"></i>
-                <span>Article History</span>
+                <span>Blog History</span>
                 <?php if ($total_count > 0): ?>
                     <span class="tab-count"><?php echo $total_count; ?></span>
                 <?php endif; ?>
@@ -488,9 +485,9 @@ include __DIR__.'/header.php';
                 <div class="form-header">
                     <h3 class="section-title">
                         <i class="bi bi-pencil-square"></i>
-                        Submit New Article
+                        Submit New Blog
                     </h3>
-                    <p class="section-subtitle">Share your story, news, or press release with us</p>
+                    <p class="section-subtitle">Share your blog post with us</p>
                 </div>
 
                 <form method="post" enctype="multipart/form-data" id="articleForm">
@@ -500,7 +497,7 @@ include __DIR__.'/header.php';
                         <!-- Title Field -->
                         <div class="form-group full-width">
                             <label for="title" class="form-label">
-                                Article Title <span class="required">*</span>
+                                Blog Title <span class="required">*</span>
                             </label>
                             <input type="text"
                                    class="form-control-modern"
@@ -588,7 +585,7 @@ include __DIR__.'/header.php';
                         <!-- Media Upload -->
                         <div class="form-group full-width">
                             <label class="form-label">
-                                Article Images
+                                Blog Images
                                 <span class="form-label-optional">(Optional)</span>
                             </label>
                             <div class="upload-area small" id="articleImageArea">
@@ -612,7 +609,7 @@ include __DIR__.'/header.php';
                         <!-- Content Editor -->
                         <div class="form-group full-width">
                             <label for="content" class="form-label">
-                                Article Content <span class="required">*</span>
+                                Blog Content <span class="required">*</span>
                             </label>
                             <div class="editor-wrapper">
                                 <textarea class="form-control-modern" id="content" name="content"></textarea>
@@ -631,7 +628,7 @@ include __DIR__.'/header.php';
                         </button>
                         <button type="submit" class="btn-modern btn-modern-primary" id="submitBtn">
                             <i class="bi bi-send"></i>
-                            Submit Article
+                            Submit Blog
                         </button>
                     </div>
                 </form>
@@ -642,16 +639,16 @@ include __DIR__.'/header.php';
             <?php if (empty($articles)): ?>
                 <div class="empty-state">
                     <i class="bi bi-file-text"></i>
-                    <h3>No articles found</h3>
+                    <h3>No blogs found</h3>
                     <p>
                         <?php if ($search_query || $filter_status !== 'all' || $filter_category !== 'all'): ?>
                             Try adjusting your filters or search query
                         <?php else: ?>
-                            Start by submitting your first article
+                            Start by submitting your first blog
                         <?php endif; ?>
                     </p>
                     <a href="?tab=submit" class="btn btn-modern-primary">
-                        <i class="bi bi-pencil-square"></i> Write Article
+                        <i class="bi bi-pencil-square"></i> Write Blog
                     </a>
                 </div>
             <?php else: ?>

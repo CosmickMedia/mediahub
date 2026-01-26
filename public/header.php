@@ -143,9 +143,7 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                 <div class="notification-wrapper">
                     <button class="notification-btn <?php echo $unread_count > 0 ? 'has-notifications' : ''; ?>" id="notificationBtn">
                         <i class="bi bi-bell"></i>
-                        <?php if ($unread_count > 0): ?>
-                            <span class="notification-badge" id="notifyCount"><?php echo $unread_count; ?></span>
-                        <?php endif; ?>
+                        <span class="notification-badge" id="notifyCount" <?php echo $unread_count == 0 ? 'style="display:none"' : ''; ?>><?php echo $unread_count; ?></span>
                     </button>
 
                     <!-- Notification Dropdown -->
@@ -174,6 +172,9 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
                         </div>
                     </div>
                 </div>
+
+                <!-- Notification Backdrop -->
+                <div class="notification-backdrop" id="notificationBackdrop"></div>
 
                 <!-- User Info -->
                 <div class="user-info">
@@ -292,20 +293,43 @@ $version = trim(file_get_contents(__DIR__.'/../VERSION'));
         });
     }
 
-    // Notification dropdown
+    // Notification offcanvas panel
     const notificationBtn = document.getElementById('notificationBtn');
     const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationBackdrop = document.getElementById('notificationBackdrop');
+    const notifyCount = document.getElementById('notifyCount');
 
     if (notificationBtn && notificationDropdown) {
         notificationBtn.addEventListener('click', function(e) {
             e.stopPropagation();
+
+            // Don't open if no notifications
+            const count = notifyCount ? parseInt(notifyCount.textContent) || 0 : 0;
+            if (count === 0) {
+                return; // Do nothing if no notifications
+            }
+
             notificationDropdown.classList.toggle('show');
+            if (notificationBackdrop) {
+                notificationBackdrop.classList.toggle('show');
+            }
         });
 
-        // Close dropdown when clicking outside
+        // Close on backdrop click
+        if (notificationBackdrop) {
+            notificationBackdrop.addEventListener('click', function() {
+                notificationDropdown.classList.remove('show');
+                notificationBackdrop.classList.remove('show');
+            });
+        }
+
+        // Close on outside click
         document.addEventListener('click', function(e) {
             if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
                 notificationDropdown.classList.remove('show');
+                if (notificationBackdrop) {
+                    notificationBackdrop.classList.remove('show');
+                }
             }
         });
     }

@@ -537,10 +537,11 @@ $changelogs = $showWhatsNew ? getChangelogSinceVersion($lastSeenVersion) : [];
             .then(r => r.json())
             .then(list => {
                 const total = list.reduce((s,v) => s + parseInt(v.unread || 0), 0);
-                const wrap = document.getElementById('notifyWrap');
                 const countEl = document.getElementById('notifyCount');
+                const countBadge = document.getElementById('notifyCountBadge');
+                const notificationBody = document.getElementById('notificationBody');
 
-                if (wrap && countEl) {
+                if (countEl) {
                     if (total > 0) {
                         countEl.style.display = 'block';
                         countEl.textContent = total;
@@ -549,9 +550,39 @@ $changelogs = $showWhatsNew ? getChangelogSinceVersion($lastSeenVersion) : [];
                         if (!countEl.classList.contains('animate__animated')) {
                             countEl.classList.add('animate__animated', 'animate__pulse');
                         }
+
+                        // Update dropdown badge
+                        if (countBadge) {
+                            countBadge.textContent = total + ' New';
+                        }
+
+                        // Update notification body content
+                        if (notificationBody) {
+                            notificationBody.innerHTML = `
+                                <div class="notification-item">
+                                    <i class="bi bi-chat-dots text-primary me-2"></i>
+                                    You have ${total} unread message${total > 1 ? 's' : ''} from stores
+                                </div>
+                            `;
+                        }
                     } else {
                         countEl.style.display = 'none';
                         countEl.classList.remove('animate__animated', 'animate__pulse');
+
+                        // Update dropdown badge
+                        if (countBadge) {
+                            countBadge.textContent = '0 New';
+                        }
+
+                        // Update notification body to empty state
+                        if (notificationBody) {
+                            notificationBody.innerHTML = `
+                                <div class="notification-empty">
+                                    <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
+                                    No new notifications
+                                </div>
+                            `;
+                        }
                     }
                 }
 
@@ -562,7 +593,48 @@ $changelogs = $showWhatsNew ? getChangelogSinceVersion($lastSeenVersion) : [];
             .catch(err => console.log('Notification check failed:', err));
     }
 
-    // Check notifications every 3 seconds for near real-time updates
+    // Notification offcanvas panel toggle
+    const notificationBtn = document.getElementById('notificationBtn');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationBackdrop = document.getElementById('notificationBackdrop');
+    const notifyCountEl = document.getElementById('notifyCount');
+
+    if (notificationBtn && notificationDropdown) {
+        notificationBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+
+            // Don't open if no notifications
+            const count = notifyCountEl ? parseInt(notifyCountEl.textContent) || 0 : 0;
+            if (count === 0) {
+                return; // Do nothing if no notifications
+            }
+
+            notificationDropdown.classList.toggle('show');
+            if (notificationBackdrop) {
+                notificationBackdrop.classList.toggle('show');
+            }
+        });
+
+        // Close on backdrop click
+        if (notificationBackdrop) {
+            notificationBackdrop.addEventListener('click', function() {
+                notificationDropdown.classList.remove('show');
+                notificationBackdrop.classList.remove('show');
+            });
+        }
+
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                notificationDropdown.classList.remove('show');
+                if (notificationBackdrop) {
+                    notificationBackdrop.classList.remove('show');
+                }
+            }
+        });
+    }
+
+    // Check notifications every 30 seconds for near real-time updates
     setInterval(checkNotifications, 30000);
     checkNotifications();
 
@@ -595,6 +667,16 @@ $changelogs = $showWhatsNew ? getChangelogSinceVersion($lastSeenVersion) : [];
         }
     });
     <?php endif; ?>
+
+    // Update CSS variable for header height
+    function updateHeaderHeight() {
+        const header = document.getElementById('adminNavbar');
+        if (header) {
+            document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
+        }
+    }
+    window.addEventListener('load', updateHeaderHeight);
+    window.addEventListener('resize', updateHeaderHeight);
 
     // Load theme on page load
     loadSavedTheme();
