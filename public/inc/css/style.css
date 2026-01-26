@@ -3470,7 +3470,7 @@ textarea.form-control-modern {
     .delay-100 { animation-delay: 1s !important; }
 
     .calendar-container {
-        padding: 1rem;
+        padding: 0.75rem;
     }
 
     .calendar-header {
@@ -3724,11 +3724,19 @@ textarea.form-control-modern {
     }
 
     .dashboard-container {
-        padding: 1rem;
+        padding: 0.75rem;
+    }
+
+    .left-column {
+        gap: 1rem;
+    }
+
+    .upload-section {
+        padding: 0.75rem;
     }
 
     .marketing-container {
-        padding: 1rem;
+        padding: 0.75rem;
     }
 
     .iframe-wrapper {
@@ -3740,7 +3748,7 @@ textarea.form-control-modern {
     }
 
     .upload-area {
-        padding: 2rem 1rem;
+        padding: 1.5rem 0.75rem;
     }
 
     .file-buttons {
@@ -3748,7 +3756,7 @@ textarea.form-control-modern {
     }
 
     .articles-container {
-        padding: 1rem;
+        padding: 0.75rem;
     }
 
     .articles-header {

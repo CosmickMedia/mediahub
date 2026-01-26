@@ -204,6 +204,20 @@ if (CSS.supports('padding-top: env(safe-area-inset-top)')) {
     document.body.classList.add('supports-safe-areas');
 }
 
+// Virtual keyboard detection - hide bottom nav when keyboard opens
+if ('visualViewport' in window) {
+    const viewport = window.visualViewport;
+    const initialHeight = viewport.height;
+
+    viewport.addEventListener('resize', () => {
+        if (initialHeight - viewport.height > 150) {
+            document.body.classList.add('keyboard-open');
+        } else {
+            document.body.classList.remove('keyboard-open');
+        }
+    });
+}
+
 // Show What's New modal if needed
 <?php if ($showWhatsNew && !empty($changelogs)): ?>
 setTimeout(function() {
