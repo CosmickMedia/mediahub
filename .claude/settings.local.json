@@ -3,7 +3,10 @@
     "allow": [
       "Bash(git show:*)",
       "Bash(grep:*)",
-      "Skill(frontend-design)"
+      "Skill(frontend-design)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(xxd:*)"
     ]
   }
 }

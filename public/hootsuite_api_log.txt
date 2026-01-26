@@ -534,3 +534,868 @@ Payload sent:
 Response received:
 {"error":"request_forbidden","error_description":"invalid_token"}
 ----------------------------------------
+2025-12-27 20:27:23 - All Profiles: 139926615,139926616,139926693,139926611 - Code: 400
+Payload sent:
+{
+    "text": "test sjdflkdslkfj dslkfjds lkjflskj flsdj flksdjf lkjsdlkf jsdl kfjsdlkfj lsdkjf lkjfl kjdlkfjsdlkfjlsdkjf lksdjflk sdjfl kjdslf jdslf jslkdjf lksdjflksdjf lksdjfl kdjsf lkjsdl kjd slfkjdsl kjflsdkfj lskdj flksj flkjdsl kfjsdlkfj sldkfj lsdk fjlsdkjf lsdkjf lksdj flkjsdlk fjsdlkf jlk jlk jsdlkfj sldkfj lksdj flksdjf lksdjfl kjsf lkjsd lfkjsd lfkjsdflkj sdlfkj slkdjf",
+    "socialProfileIds": [
+        "139926615",
+        "139926616",
+        "139926693",
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z"
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2025-12-27 20:27:23 - Profile: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "test sjdflkdslkfj dslkfjds lkjflskj flsdj flksdjf lkjsdlkf jsdl kfjsdlkfj lsdkjf lkjfl kjdlkfjsdlkfjlsdkjf lksdjflk sdjfl kjdslf jdslf jslkdjf lksdjflksdjf lksdjfl kdjsf lkjsdl kjd slfkjdsl kjflsdkfj lskdj flksj flkjdsl kfjsdlkfj sldkfj lsdk fjlsdkjf lsdkjf lksdj flkjsdlk fjsdlkf jlk jlk jsdlkfj sldkfj lksdj flksdjf lksdjfl kjsf lkjsd lfkjsd lfkjsdflkj sdlfkj slkdjf",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z"
+}
+Response received:
+{"data":[{"id":"13058948197","state":"SCHEDULED","text":"test sjdflkdslkfj dslkfjds lkjflskj flsdj flksdjf lkjsdlkf jsdl kfjsdlkfj lsdkjf lkjfl kjdlkfjsdlkfjlsdkjf lksdjflk sdjfl kjdslf jdslf jslkdjf lksdjflksdjf lksdjfl kdjsf lkjsdl kjd slfkjdsl kjflsdkfj lskdj flksj flkjdsl kfjsdlkfj sldkfj lsdk fjlsdkjf lsdkjf lksdj flkjsdlk fjsdlkf jlk jlk jsdlkfj sldkfj lksdj flksdjf lksdjfl kjsf lkjsd lfkjsd lfkjsdflkj sdlfkj slkdjf","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 20:27:24 - Profile: 139926616 - Code: 400
+Payload sent:
+{
+    "text": "test sjdflkdslkfj dslkfjds lkjflskj flsdj flksdjf lkjsdlkf jsdl kfjsdlkfj lsdkjf lkjfl kjdlkfjsdlkfjlsdkjf lksdjflk sdjfl kjdslf jdslf jslkdjf lksdjflksdjf lksdjfl kdjsf lkjsdl kjd slfkjdsl kjflsdkfj lskdj flksj flkjdsl kfjsdlkfj sldkfj lsdk fjlsdkjf lsdkjf lksdj flkjsdlk fjsdlkf jlk jlk jsdlkfj sldkfj lksdj flksdjf lksdjfl kjsf lkjsd lfkjsd lfkjsdflkj sdlfkj slkdjf",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z"
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2025-12-27 20:27:24 - Profile: 139926693 - Code: 200
+Payload sent:
+{
+    "text": "test sjdflkdslkfj dslkfjds lkjflskj flsdj flksdjf lkjsdlkf jsdl kfjsdlkfj lsdkjf lkjfl kjdlkfjsdlkfjlsdkjf lksdjflk sdjfl kjdslf jdslf jslkdjf lksdjflksdjf lksdjfl kdjsf lkjsdl kjd slfkjdsl kjflsdkfj lskdj flksj flkjdsl kfjsdlkfj sldkfj lsdk fjlsdkjf lsdkjf lksdj flkjsdlk fjsdlkf jlk jlk jsdlkfj sldkfj lksdj flksdjf lksdjfl kjsf lkjsd lfkjsd lfkjsdflkj sdlfkj slkdjf",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z"
+}
+Response received:
+{"data":[{"id":"13058948198","state":"SCHEDULED","text":"test sjdflkdslkfj dslkfjds lkjflskj flsdj flksdjf lkjsdlkf jsdl kfjsdlkfj lsdkjf lkjfl kjdlkfjsdlkfjlsdkjf lksdjflk sdjfl kjdslf jdslf jslkdjf lksdjflksdjf lksdjfl kdjsf lkjsdl kjd slfkjdsl kjflsdkfj lskdj flksj flkjdsl kfjsdlkfj sldkfj lsdk fjlsdkjf lsdkjf lksdj flkjsdlk fjsdlkf jlk jlk jsdlkfj sldkfj lksdj flksdjf lksdjfl kjsf lkjsd lfkjsd lfkjsdflkj sdlfkj slkdjf","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926693"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 20:27:24 - Profile: 139926611 - Code: 200
+Payload sent:
+{
+    "text": "test sjdflkdslkfj dslkfjds lkjflskj flsdj flksdjf lkjsdlkf jsdl kfjsdlkfj lsdkjf lkjfl kjdlkfjsdlkfjlsdkjf lksdjflk sdjfl kjdslf jdslf jslkdjf lksdjflksdjf lksdjfl kdjsf lkjsdl kjd slfkjdsl kjflsdkfj lskdj flksj flkjdsl kfjsdlkfj sldkfj lsdk fjlsdkjf lsdkjf lksdj flkjsdlk fjsdlkf jlk jlk jsdlkfj sldkfj lksdj flksdjf lksdjfl kjsf lkjsd lfkjsd lfkjsdflkj sdlfkj slkdjf",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z"
+}
+Response received:
+{"data":[{"id":"13058948199","state":"SCHEDULED","text":"test sjdflkdslkfj dslkfjds lkjflskj flsdj flksdjf lkjsdlkf jsdl kfjsdlkfj lsdkjf lkjfl kjdlkfjsdlkfjlsdkjf lksdjflk sdjfl kjdslf jdslf jslkdjf lksdjflksdjf lksdjfl kdjsf lkjsdl kjd slfkjdsl kjflsdkfj lskdj flksj flkjdsl kfjsdlkfj sldkfj lsdk fjlsdkjf lsdkjf lksdj flkjsdlk fjsdlkf jlk jlk jsdlkfj sldkfj lksdj flksdjf lksdjfl kjsf lkjsd lfkjsd lfkjsdflkj sdlfkj slkdjf","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926611"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 20:43:39 - All Profiles: 139926615,139926616,139926693,139926611 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926615",
+        "139926616",
+        "139926693",
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:39 - Profile: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:40 - Profile: 139926616 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:40 - Profile: 139926693 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:40 - Profile: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:48 - All Profiles: 139926615,139926693,139926611 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926615",
+        "139926693",
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:48 - Profile: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:48 - Profile: 139926693 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:48 - Profile: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:58 - All Profiles: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:43:59 - Profile: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "kljd flsjdl fjaslkd fjaskldfj lksdjlf jlaksdjf ldasj lkfjldsa jflkds",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2025-12-27 20:47:29 - All Profiles: 139926615,139926616,139926693,139926611 - Code: 400
+Payload sent:
+{
+    "text": ",sdf,sdflslkdfkjlks jlksj dlkfj slkdjflks djflsdj lksdj lfjsdl fjlks",
+    "socialProfileIds": [
+        "139926615",
+        "139926616",
+        "139926693",
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2025-12-27 20:47:29 - Profile: 139926615 - Code: 200
+Payload sent:
+{
+    "text": ",sdf,sdflslkdfkjlks jlksj dlkfj slkdjflks djflsdj lksdj lfjsdl fjlks",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"data":[{"id":"13058948632","state":"SCHEDULED","text":",sdf,sdflslkdfkjlks jlksj dlkfj slkdjflks djflsdj lksdj lfjsdl fjlks","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 20:47:29 - Profile: 139926616 - Code: 400
+Payload sent:
+{
+    "text": ",sdf,sdflslkdfkjlks jlksj dlkfj slkdjflks djflsdj lksdj lfjsdl fjlks",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2025-12-27 20:47:30 - Profile: 139926693 - Code: 200
+Payload sent:
+{
+    "text": ",sdf,sdflslkdfkjlks jlksj dlkfj slkdjflks djflsdj lksdj lfjsdl fjlks",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"data":[{"id":"13058948633","state":"SCHEDULED","text":",sdf,sdflslkdfkjlks jlksj dlkfj slkdjflks djflsdj lksdj lfjsdl fjlks","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926693"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 20:47:30 - Profile: 139926611 - Code: 200
+Payload sent:
+{
+    "text": ",sdf,sdflslkdfkjlks jlksj dlkfj slkdjflks djflsdj lksdj lfjsdl fjlks",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ]
+}
+Response received:
+{"data":[{"id":"13058948634","state":"SCHEDULED","text":",sdf,sdflslkdfkjlks jlksj dlkfj slkdjflks djflsdj lksdj lfjsdl fjlks","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926611"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:09:05 - All Profiles: 139926615,139926616,139926693,139926611 - Code: 400
+Payload sent:
+{
+    "text": "hjhjkhkjhkjhkjh kjhkj jk jkh jk",
+    "socialProfileIds": [
+        "139926615",
+        "139926616",
+        "139926693",
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5Xzg4ZmI1NWQ3LTI5NWUtNDk0OS05ZGVkLTIyZWVhZDFlYmNhOS5qcGc="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2025-12-27 21:09:08 - Profile: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "hjhjkhkjhkjhkjh kjhkj jk jkh jk",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzU0ZjMyMjdjLWFiYmUtNDQ3OS05YTYwLTlkYWJjMTJmYWExOS5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058949546","state":"SCHEDULED","text":"hjhjkhkjhkjhkjh kjhkj jk jkh jk","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_54f3227c-abbe-4479-9a60-9dabc12faa19.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766889548&Signature=JdSKAaFDY7oNig%2FnJoJjqhqD%2FAQ%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_54f3227c-abbe-4479-9a60-9dabc12faa19-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766889548&Signature=hAxYXVJWFF6heLwwpiFbK2yf7gI%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzU0ZjMyMjdjLWFiYmUtNDQ3OS05YTYwLTlkYWJjMTJmYWExOS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzU0ZjMyMjdjLWFiYmUtNDQ3OS05YTYwLTlkYWJjMTJmYWExOS10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:09:12 - Profile: 139926616 - Code: 200
+Payload sent:
+{
+    "text": "hjhjkhkjhkjhkjh kjhkj jk jkh jk",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzBkNTQwODBhLWM2YzYtNGJmZi1hNDgwLTcxYzFmNjg3Y2ZhOC5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058949559","state":"SCHEDULED","text":"hjhjkhkjhkjhkjh kjhkj jk jkh jk","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926616"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_0d54080a-c6c6-4bff-a480-71c1f687cfa8.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766889552&Signature=7NLEpasHJbwjGU%2FhI0wdEv50av4%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_0d54080a-c6c6-4bff-a480-71c1f687cfa8-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766889552&Signature=Dq90e9LTQl6xg2i9BUjRfr2lbL0%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzBkNTQwODBhLWM2YzYtNGJmZi1hNDgwLTcxYzFmNjg3Y2ZhOC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzBkNTQwODBhLWM2YzYtNGJmZi1hNDgwLTcxYzFmNjg3Y2ZhOC10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:09:15 - Profile: 139926693 - Code: 200
+Payload sent:
+{
+    "text": "hjhjkhkjhkjhkjh kjhkj jk jkh jk",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzgwY2NmMDU2LTM5YTQtNGRjOS04ZjVmLTE3ODc2YjJjOWIyNy5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058949560","state":"SCHEDULED","text":"hjhjkhkjhkjhkjh kjhkj jk jkh jk","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926693"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_80ccf056-39a4-4dc9-8f5f-17876b2c9b27.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766889555&Signature=4qr8qdGzoFg22zGJTsks6o5fN98%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_80ccf056-39a4-4dc9-8f5f-17876b2c9b27-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766889555&Signature=PpfzYu6YgeoQASwzqnqhoWa5gy4%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzgwY2NmMDU2LTM5YTQtNGRjOS04ZjVmLTE3ODc2YjJjOWIyNy5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzgwY2NmMDU2LTM5YTQtNGRjOS04ZjVmLTE3ODc2YjJjOWIyNy10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:09:19 - Profile: 139926611 - Code: 200
+Payload sent:
+{
+    "text": "hjhjkhkjhkjhkjh kjhkj jk jkh jk",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5Xzg2YWZhNDc2LTY5ZWQtNDAwZC05NmU2LTFiNGI4YjkwNTMwZS5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058949561","state":"SCHEDULED","text":"hjhjkhkjhkjhkjh kjhkj jk jkh jk","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926611"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_86afa476-69ed-400d-96e6-1b4b8b90530e.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766889559&Signature=44oQvRxOIe9O8E9JKVsM1LaVUR8%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_86afa476-69ed-400d-96e6-1b4b8b90530e-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766889559&Signature=f7NcNwimBlwZrCommLiJ7choBbg%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5Xzg2YWZhNDc2LTY5ZWQtNDAwZC05NmU2LTFiNGI4YjkwNTMwZS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5Xzg2YWZhNDc2LTY5ZWQtNDAwZC05NmU2LTFiNGI4YjkwNTMwZS10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:25:09 - All Profiles: 139926615,139926616,139926693,139926611 - Code: 400
+Payload sent:
+{
+    "text": "jkhkjhkj jkhjkh kjh",
+    "socialProfileIds": [
+        "139926615",
+        "139926616",
+        "139926693",
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2UxNWNiYmRlLWZhZWEtNDQzMy04ODQwLWZiOTM0NjdlODVmZS5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzhjZDZlYjcxLTVhNmYtNGMzZC1iYzRlLTE3ZjcwZDA3YzE1Ni5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzgxY2I5OTgzLWExYWUtNDc2Yi04MWY3LTEwZGFiYTEzZjM1MC5qcGc="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2025-12-27 21:25:24 - Profile: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "jkhkjhkj jkhjkh kjh",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzMyMTAzNjU0LWM2ZWItNDQyNy05NTdkLTdhMmE3MWZkMDRhYS5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2JlODU1OTZiLTY3NjgtNGQ4Zi04NTRmLTFiZWMyYzFiY2VkMS5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5Xzc4MzVkMGVkLTJmNzAtNDFlYi05ZGUwLWUzZDQxMzQ0ZGVlZi5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058950194","state":"SCHEDULED","text":"jkhkjhkj jkhjkh kjh","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_32103654-c6eb-4427-957d-7a2a71fd04aa.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890524&Signature=OpZLSF03qqJWw%2FjyvO9OzduNmk0%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_32103654-c6eb-4427-957d-7a2a71fd04aa-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890524&Signature=URka2kzWJBcYO%2FX0jCdRkedlXkY%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_be85596b-6768-4d8f-854f-1bec2c1bced1.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890524&Signature=UJNX23Hm9yV5QrRJ87rCz7abUYI%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_be85596b-6768-4d8f-854f-1bec2c1bced1-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890524&Signature=pnySnTp4PsEkHzxvPJsFSwJU9Yw%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_7835d0ed-2f70-41eb-9de0-e3d41344deef.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890524&Signature=qGQ2ZIBXH2k%2F1kI3LRsYTqBf2l4%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_7835d0ed-2f70-41eb-9de0-e3d41344deef-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890524&Signature=j42XfudNN6rwHuQjbxYfDKVWbuo%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzMyMTAzNjU0LWM2ZWItNDQyNy05NTdkLTdhMmE3MWZkMDRhYS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzMyMTAzNjU0LWM2ZWItNDQyNy05NTdkLTdhMmE3MWZkMDRhYS10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2JlODU1OTZiLTY3NjgtNGQ4Zi04NTRmLTFiZWMyYzFiY2VkMS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2JlODU1OTZiLTY3NjgtNGQ4Zi04NTRmLTFiZWMyYzFiY2VkMS10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5Xzc4MzVkMGVkLTJmNzAtNDFlYi05ZGUwLWUzZDQxMzQ0ZGVlZi5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5Xzc4MzVkMGVkLTJmNzAtNDFlYi05ZGUwLWUzZDQxMzQ0ZGVlZi10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:25:40 - Profile: 139926616 - Code: 200
+Payload sent:
+{
+    "text": "jkhkjhkj jkhjkh kjh",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzY1NmM0YWVjLTRhOTAtNGNiNy05ZGQ2LWFiNGE1ZDlkMWI4My5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2E5MzJmZTgzLTE0NzktNDE0Yy1iZWQxLWVmN2ExZmNkMDFhYi5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzZmMTY2YWRmLWNiMGYtNDE4ZC1iMGNkLTVmMTU1YThmMGJiYi5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058950200","state":"SCHEDULED","text":"jkhkjhkj jkhjkh kjh","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926616"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_656c4aec-4a90-4cb7-9dd6-ab4a5d9d1b83.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890540&Signature=PjuiSnuszIvBM8BuKv5EYqCpcoY%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_656c4aec-4a90-4cb7-9dd6-ab4a5d9d1b83-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890540&Signature=%2B4mTSHOPJyoCHyFZL1SlbsHXVKg%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_a932fe83-1479-414c-bed1-ef7a1fcd01ab.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890540&Signature=pSAWy%2FJbQEkfxHZ1%2BYFS8L00pZE%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_a932fe83-1479-414c-bed1-ef7a1fcd01ab-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890540&Signature=Cd7oTFBWKwiV59dLmO8tNTqvQgg%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_6f166adf-cb0f-418d-b0cd-5f155a8f0bbb.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890540&Signature=%2FCkK9DJ%2BPBLpKdyjGgRStIKG%2F0A%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_6f166adf-cb0f-418d-b0cd-5f155a8f0bbb-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890540&Signature=vjhNX41xcBAYfCJ7782PuwW2HZ0%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzY1NmM0YWVjLTRhOTAtNGNiNy05ZGQ2LWFiNGE1ZDlkMWI4My5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzY1NmM0YWVjLTRhOTAtNGNiNy05ZGQ2LWFiNGE1ZDlkMWI4My10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2E5MzJmZTgzLTE0NzktNDE0Yy1iZWQxLWVmN2ExZmNkMDFhYi5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2E5MzJmZTgzLTE0NzktNDE0Yy1iZWQxLWVmN2ExZmNkMDFhYi10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzZmMTY2YWRmLWNiMGYtNDE4ZC1iMGNkLTVmMTU1YThmMGJiYi5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzZmMTY2YWRmLWNiMGYtNDE4ZC1iMGNkLTVmMTU1YThmMGJiYi10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:25:56 - Profile: 139926693 - Code: 200
+Payload sent:
+{
+    "text": "jkhkjhkj jkhjkh kjh",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2I3NWQ3NGZjLWUyYjQtNGVhMS05NGMxLTFmNDczZjQ2M2UzYS5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzYyM2YyMTVlLTExMmUtNGZmOS1hZmRlLWIxYzc4OTIxOGQ4ZC5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2M1NDY1MTc5LTM2ZGQtNDA2MC05NzU5LWVmYmZlOTQ0NDU3MC5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058950207","state":"SCHEDULED","text":"jkhkjhkj jkhjkh kjh","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926693"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_b75d74fc-e2b4-4ea1-94c1-1f473f463e3a.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890556&Signature=zkoOuriMbUTRM8u%2F36aTNOx7BAo%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_b75d74fc-e2b4-4ea1-94c1-1f473f463e3a-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890556&Signature=B49%2Fko%2BXkf56zJn%2BIB44OeyB%2FME%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_623f215e-112e-4ff9-afde-b1c789218d8d.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890556&Signature=AuqDg4baN7knSeJKVNl%2FwOh52Kg%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_623f215e-112e-4ff9-afde-b1c789218d8d-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890556&Signature=m44TPumdcpSiRPlvUcAS%2BcLGtUU%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_c5465179-36dd-4060-9759-efbfe9444570.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890556&Signature=5hLmprCIMqAAFyxdjfkSNjMcigc%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_c5465179-36dd-4060-9759-efbfe9444570-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890556&Signature=GTc%2BlCgvXUmEt2vMtgP3mdrKB2I%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2I3NWQ3NGZjLWUyYjQtNGVhMS05NGMxLTFmNDczZjQ2M2UzYS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2I3NWQ3NGZjLWUyYjQtNGVhMS05NGMxLTFmNDczZjQ2M2UzYS10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzYyM2YyMTVlLTExMmUtNGZmOS1hZmRlLWIxYzc4OTIxOGQ4ZC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzYyM2YyMTVlLTExMmUtNGZmOS1hZmRlLWIxYzc4OTIxOGQ4ZC10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2M1NDY1MTc5LTM2ZGQtNDA2MC05NzU5LWVmYmZlOTQ0NDU3MC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2M1NDY1MTc5LTM2ZGQtNDA2MC05NzU5LWVmYmZlOTQ0NDU3MC10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:26:10 - Profile: 139926611 - Code: 200
+Payload sent:
+{
+    "text": "jkhkjhkj jkhjkh kjh",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2EzMjFlN2JjLTU3YjAtNDk2Ni1hODA0LTE4ZTVhM2Q5NzczMS5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzE5MmVlMTUzLWU4NGMtNGY4MS1hMDZlLTFlYzI2YzJiNTJlMS5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2M5MzRhNGIxLTFlYTEtNGFlYS1iOGFlLWVkN2Q3ZmZhNjk3Ni5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058950215","state":"SCHEDULED","text":"jkhkjhkj jkhjkh kjh","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926611"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_a321e7bc-57b0-4966-a804-18e5a3d97731.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890570&Signature=K%2BKkqwy5wFfs3B%2B09IicQJv1RtA%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_a321e7bc-57b0-4966-a804-18e5a3d97731-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890570&Signature=AYWT5eCYQi7MDjqaLhmXA2RSvgg%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_192ee153-e84c-4f81-a06e-1ec26c2b52e1.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890570&Signature=XHtlB8oL3znnOkXRaWbmdIxDec0%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_192ee153-e84c-4f81-a06e-1ec26c2b52e1-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890570&Signature=9%2B8ZKo2tvMHKj1KfkvmdkjYU2Vs%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_c934a4b1-1ea1-4aea-b8ae-ed7d7ffa6976.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890570&Signature=DfNld1h%2BlrSqCifafwWxQa4yc%2Bk%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_c934a4b1-1ea1-4aea-b8ae-ed7d7ffa6976-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766890570&Signature=W5okToU8BsSx8iwXkMeCOb0qnBs%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2EzMjFlN2JjLTU3YjAtNDk2Ni1hODA0LTE4ZTVhM2Q5NzczMS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2EzMjFlN2JjLTU3YjAtNDk2Ni1hODA0LTE4ZTVhM2Q5NzczMS10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzE5MmVlMTUzLWU4NGMtNGY4MS1hMDZlLTFlYzI2YzJiNTJlMS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzE5MmVlMTUzLWU4NGMtNGY4MS1hMDZlLTFlYzI2YzJiNTJlMS10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2M5MzRhNGIxLTFlYTEtNGFlYS1iOGFlLWVkN2Q3ZmZhNjk3Ni5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2M5MzRhNGIxLTFlYTEtNGFlYS1iOGFlLWVkN2Q3ZmZhNjk3Ni10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:35:19 - All Profiles: 139926615,139926616,139926693,139926611 - Code: 400
+Payload sent:
+{
+    "text": "s fasdf sdf dsf sdf afd",
+    "socialProfileIds": [
+        "139926615",
+        "139926616",
+        "139926693",
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test #none"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzhhNzllYjQwLTEwYzEtNDkzMS05NTBkLTc5NWRjM2QxMzU4OS5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzFkNjEzNTliLTMyZDctNDlmNy1iMTlmLWRiNGI2YmNiZDBmNS5qcGc="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2025-12-27 21:35:25 - Profile: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "s fasdf sdf dsf sdf afd",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test #none"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzM2NTQyMDI2LWZjMDYtNDM0NS1iMTZjLTZkNDM3ZDQ0OWY3ZC5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2E1MWU4MjBkLTNhOTMtNGEwNi1iYTMxLTZkNzFlMGQxZGY4Ny5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058950466","state":"SCHEDULED","text":"s fasdf sdf dsf sdf afd","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_36542026-fc06-4345-b16c-6d437d449f7d.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891125&Signature=6qQQ5cxS3eytJ4AxxdieljhCBpE%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_36542026-fc06-4345-b16c-6d437d449f7d-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891125&Signature=dueaF6%2Bt5e9toAl5zA2%2F3sK%2BSnc%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_a51e820d-3a93-4a06-ba31-6d71e0d1df87.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891125&Signature=UakqMTuQHyFijDWRURckGHNE9TY%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_a51e820d-3a93-4a06-ba31-6d71e0d1df87-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891125&Signature=SnSjbWA2Y0BZlodEy%2FUx0EbtEhk%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzM2NTQyMDI2LWZjMDYtNDM0NS1iMTZjLTZkNDM3ZDQ0OWY3ZC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzM2NTQyMDI2LWZjMDYtNDM0NS1iMTZjLTZkNDM3ZDQ0OWY3ZC10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2E1MWU4MjBkLTNhOTMtNGEwNi1iYTMxLTZkNzFlMGQxZGY4Ny5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2E1MWU4MjBkLTNhOTMtNGEwNi1iYTMxLTZkNzFlMGQxZGY4Ny10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test #none"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:35:34 - Profile: 139926616 - Code: 200
+Payload sent:
+{
+    "text": "s fasdf sdf dsf sdf afd",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test #none"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzgwOWE0Zjk4LWU4MWItNDE2Yy1iMjRmLWVkNDQ0MmU1NjgwNy5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2NjMjVkMmE3LWMxYzgtNGUxZC1hZDZiLTdkYTFmMTA0OGQ2OS5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058950472","state":"SCHEDULED","text":"s fasdf sdf dsf sdf afd","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926616"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_809a4f98-e81b-416c-b24f-ed4442e56807.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891134&Signature=RQwhtt2rOlzdTKPUZ8lfInEs9LQ%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_809a4f98-e81b-416c-b24f-ed4442e56807-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891134&Signature=WmaBa2NHvyB7ztftZ4g4L3xC1fs%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_cc25d2a7-c1c8-4e1d-ad6b-7da1f1048d69.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891134&Signature=ixtEbtw2MYKibhCQbsYZXv3HVkk%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_cc25d2a7-c1c8-4e1d-ad6b-7da1f1048d69-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891134&Signature=4aTd0HkQEx%2FDYvQfzCf%2FFi6dx7o%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzgwOWE0Zjk4LWU4MWItNDE2Yy1iMjRmLWVkNDQ0MmU1NjgwNy5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzgwOWE0Zjk4LWU4MWItNDE2Yy1iMjRmLWVkNDQ0MmU1NjgwNy10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2NjMjVkMmE3LWMxYzgtNGUxZC1hZDZiLTdkYTFmMTA0OGQ2OS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2NjMjVkMmE3LWMxYzgtNGUxZC1hZDZiLTdkYTFmMTA0OGQ2OS10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test #none"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:35:40 - Profile: 139926693 - Code: 200
+Payload sent:
+{
+    "text": "s fasdf sdf dsf sdf afd",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test #none"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzExYzg0ZmU5LTc4MmQtNGQxYS1iYWIyLTcyMTQ5MDZmYzEwZC5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzY4MGRmMTRmLTUyZTAtNDhiOC05YzVkLTkxOGQzMjUxNzRjMS5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058950473","state":"SCHEDULED","text":"s fasdf sdf dsf sdf afd","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926693"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_11c84fe9-782d-4d1a-bab2-7214906fc10d.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891140&Signature=Jeq%2FM%2Fvz4gnfPgwGrR1NJRCbu90%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_11c84fe9-782d-4d1a-bab2-7214906fc10d-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891140&Signature=1Ch0UOc0bPNuJbGWnogdLiODGqE%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_680df14f-52e0-48b8-9c5d-918d325174c1.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891140&Signature=PglGK7y%2BkuSkeIhKwPJmVKQs7Ek%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_680df14f-52e0-48b8-9c5d-918d325174c1-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891140&Signature=AopLIGWoLj29drzV9%2FwKxj8pjYc%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzExYzg0ZmU5LTc4MmQtNGQxYS1iYWIyLTcyMTQ5MDZmYzEwZC5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzExYzg0ZmU5LTc4MmQtNGQxYS1iYWIyLTcyMTQ5MDZmYzEwZC10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzY4MGRmMTRmLTUyZTAtNDhiOC05YzVkLTkxOGQzMjUxNzRjMS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzY4MGRmMTRmLTUyZTAtNDhiOC05YzVkLTkxOGQzMjUxNzRjMS10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test #none"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2025-12-27 21:35:46 - Profile: 139926611 - Code: 200
+Payload sent:
+{
+    "text": "s fasdf sdf dsf sdf afd",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2025-12-31T17:00:00Z",
+    "tags": [
+        "#test #none"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzZlZjY0ZGVlLWM3NDUtNGJjNi1hYzQ5LWQwYjUwZWNkMzhhMS5qcGc="
+        },
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2UyZDQ5MWM0LThiNDMtNDJlMy1iOGVmLTgyYWJkNDZiZmJiYy5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13058950475","state":"SCHEDULED","text":"s fasdf sdf dsf sdf afd","scheduledSendTime":"2025-12-31T17:00:00Z","socialProfile":{"id":"139926611"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_6ef64dee-c745-4bc6-ac49-d0b50ecd38a1.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891146&Signature=sq6UdCW28d%2B5u7r%2F6fZacUhy5IU%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_6ef64dee-c745-4bc6-ac49-d0b50ecd38a1-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891146&Signature=1hlDNzOvhYCwZL1mox2Bb%2FLafM0%3D"},{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_e2d491c4-8b43-42e3-b8ef-82abd46bfbbc.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891146&Signature=H%2BEuGJ0Fjhxad83zO7tFeMYtTes%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_e2d491c4-8b43-42e3-b8ef-82abd46bfbbc-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1766891146&Signature=68yQE%2FGO3bu3ha4TXXfAuMCApZY%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzZlZjY0ZGVlLWM3NDUtNGJjNi1hYzQ5LWQwYjUwZWNkMzhhMS5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzZlZjY0ZGVlLWM3NDUtNGJjNi1hYzQ5LWQwYjUwZWNkMzhhMS10aHVtYm5haWwuanBn"},{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2UyZDQ5MWM0LThiNDMtNDJlMy1iOGVmLTgyYWJkNDZiZmJiYy5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5X2UyZDQ5MWM0LThiNDMtNDJlMy1iOGVmLTgyYWJkNDZiZmJiYy10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":["#test #none"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-01-19 11:21:33 - All Profiles: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "We spent time inside Google NYC discussing how search and digital strategy are evolving in 2026. The shift is clear: quality, consistency, and intent now matter more than ever.\r\nFull recap \u2192 https:\/\/www.cosmickmedia.com\/winning-the-digital-evolution-inside-cosmick-media-strategic-visit-to-google-nyc-2026\/",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-20T17:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-01-19 11:21:33 - Profile: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "We spent time inside Google NYC discussing how search and digital strategy are evolving in 2026. The shift is clear: quality, consistency, and intent now matter more than ever.\r\nFull recap \u2192 https:\/\/www.cosmickmedia.com\/winning-the-digital-evolution-inside-cosmick-media-strategic-visit-to-google-nyc-2026\/",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-20T17:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-01-19 11:27:15 - All Profiles: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "We spent time inside Google NYC discussing how search and digital strategy are evolving in 2026. The shift is clear: quality, consistency, and intent now matter more than ever.\r\nFull recap \u2192 https:\/\/tinyurl.com\/msvhvhva",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-20T17:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-01-19 11:27:16 - Profile: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "We spent time inside Google NYC discussing how search and digital strategy are evolving in 2026. The shift is clear: quality, consistency, and intent now matter more than ever.\r\nFull recap \u2192 https:\/\/tinyurl.com\/msvhvhva",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-20T17:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-01-19 11:28:00 - All Profiles: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "We spent time inside Google NYC discussing how search and digital strategy are evolving in 2026. The shift is clear: quality, consistency, and intent now matter more than ever. https:\/\/tinyurl.com\/msvhvhva",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-20T17:30:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-01-19 11:28:00 - Profile: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "We spent time inside Google NYC discussing how search and digital strategy are evolving in 2026. The shift is clear: quality, consistency, and intent now matter more than ever. https:\/\/tinyurl.com\/msvhvhva",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-20T17:30:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-01-19 11:28:05 - All Profiles: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "We spent time inside Google NYC discussing how search and digital strategy are evolving in 2026. The shift is clear: quality, consistency, and intent now matter more than ever. https:\/\/tinyurl.com\/msvhvhva",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-20T17:30:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-01-19 11:28:06 - Profile: 139926611 - Code: 401
+Payload sent:
+{
+    "text": "We spent time inside Google NYC discussing how search and digital strategy are evolving in 2026. The shift is clear: quality, consistency, and intent now matter more than ever. https:\/\/tinyurl.com\/msvhvhva",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-20T17:30:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-01-21 14:39:44 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "TEST",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2026-01-22T17:00:00Z"
+}
+Response received:
+{"data":[{"id":"13063822218","state":"SCHEDULED","text":"TEST","scheduledSendTime":"2026-01-22T17:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-01-21 14:40:33 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2026-01-22T17:00:00Z",
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzQzZDkwOGM4LTc0ZDgtNGVlZS05ZmFjLTdhYWIxMGU5OGY5Zi5qcGc="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13063822460","state":"SCHEDULED","text":"test","scheduledSendTime":"2026-01-22T17:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049_43d908c8-74d8-4eee-9fac-7aab10e98f9f.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1769026233&Signature=4f%2BcDnkr23U8BCi%2BvEN9ZstJFvY%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/27546049_43d908c8-74d8-4eee-9fac-7aab10e98f9f-thumbnail.jpg?AWSAccessKeyId=AKIARUFKCQPWYQXGH7M7&Expires=1769026233&Signature=bOp%2Fy4wKz%2Faz8A4%2FO6MjcfDexPw%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzQzZDkwOGM4LTc0ZDgtNGVlZS05ZmFjLTdhYWIxMGU5OGY5Zi5qcGc=","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5XzQzZDkwOGM4LTc0ZDgtNGVlZS05ZmFjLTdhYWIxMGU5OGY5Zi10aHVtYm5haWwuanBn"}],"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-01-21 14:41:12 - All Profiles: 139926693 - Code: 200
+Payload sent:
+{
+    "text": "Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool.",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2026-01-22T17:00:00Z"
+}
+Response received:
+{"data":[{"id":"13063822683","state":"SCHEDULED","text":"Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel/story option\r\nPosts for brand content/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool.","scheduledSendTime":"2026-01-22T17:00:00Z","socialProfile":{"id":"139926693"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-01-21 14:42:40 - All Profiles: 139926615,139926616,139926693,139926611 - Code: 400
+Payload sent:
+{
+    "text": "Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X ...",
+    "socialProfileIds": [
+        "139926615",
+        "139926616",
+        "139926693",
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-22T17:00:00Z"
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-01-21 14:42:40 - Profile: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on a",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2026-01-22T17:00:00Z"
+}
+Response received:
+{"data":[{"id":"13063823102","state":"SCHEDULED","text":"Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel/story option\r\nPosts for brand content/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel/story option\r\nPosts for brand content/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel/story option\r\nPosts for brand content/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on a","scheduledSendTime":"2026-01-22T17:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-01-21 14:42:40 - Profile: 139926616 - Code: 400
+Payload sent:
+{
+    "text": "Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X ...",
+    "socialProfileIds": [
+        "139926616"
+    ],
+    "scheduledSendTime": "2026-01-22T17:00:00Z"
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-01-21 14:42:41 - Profile: 139926693 - Code: 200
+Payload sent:
+{
+    "text": "Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles...",
+    "socialProfileIds": [
+        "139926693"
+    ],
+    "scheduledSendTime": "2026-01-22T17:00:00Z"
+}
+Response received:
+{"data":[{"id":"13063823114","state":"SCHEDULED","text":"Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel/story option\r\nPosts for brand content/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel/story option\r\nPosts for brand content/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel/story option\r\nPosts for brand content/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles...","scheduledSendTime":"2026-01-22T17:00:00Z","socialProfile":{"id":"139926693"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-01-21 14:42:41 - Profile: 139926611 - Code: 400
+Payload sent:
+{
+    "text": "Character limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles Agao I can add for you, but with limitations on adding titles, let's post in platform on YT for now. \r\nTiktok - Charles Agao I can integrate this.\r\nX Charles Agao I can integrate this, but need time as I have to uniquely find Hootsuite API keys for each X account, and it makes the process of integrating VERY cumbersome right now as I cannot see X handles by NAME, only an external Hootsuite API ID which has to be found via using a Postman tool. \r\n\r\nCharacter limits\r\nPosts are limited to 500 characters only; would be great if users are allowed more flexibility and wiggle room with their posts\r\nLinkedIn allows up to 3,000 characters\r\nFacebook allows over 63,000 characters\r\nInstagram allows up to 2,200 characters\r\n\r\nLimited functionality for Facebook and Instagram\r\nLimited to feed posts; no reel\/story option\r\nPosts for brand content\/showcase for existing audience\r\nReels for engagement with newer audiences - Charles Agao If we post a VIDEO, does this go to Reels automatically? Can you test? \r\nStories for quick updates\/temporary content - Agreed on getting stories added as a feature!\r\n\r\nPlatforms not integrated\r\nYoutube, Shorts - Charles...",
+    "socialProfileIds": [
+        "139926611"
+    ],
+    "scheduledSendTime": "2026-01-22T17:00:00Z"
+}
+Response received:
+{"errors":[]}
+----------------------------------------
