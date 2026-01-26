@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] - 2026-01-26
+### Fixed
+- What's New modal not dismissing when closed via X button, backdrop click, or ESC key
+- Modal dismiss state now shared across browser tabs (switched from sessionStorage to localStorage)
+
 ## [2.4.0] - 2025-12-28
 ### Changed
 - Redesigned Broadcasts page with improved visual hierarchy

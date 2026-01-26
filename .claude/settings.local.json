@@ -6,7 +6,9 @@
       "Skill(frontend-design)",
       "Bash(fi)",
       "Bash(done)",
-      "Bash(xxd:*)"
+      "Bash(xxd:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)"
     ]
   }
 }

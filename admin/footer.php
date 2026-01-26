@@ -287,20 +287,20 @@ $changelogs = $showWhatsNew ? getChangelogSinceVersion($lastSeenVersion) : [];
         // Show What's New modal if needed
         <?php if ($showWhatsNew && !empty($changelogs)): ?>
         setTimeout(function() {
-            // Skip if already dismissed this session (prevents reappearing on page reloads)
-            if (sessionStorage.getItem('whats_new_dismissed') === '<?php echo $currentVersion; ?>') {
+            // Skip if already dismissed (localStorage is shared across tabs)
+            if (localStorage.getItem('whats_new_dismissed') === '<?php echo $currentVersion; ?>') {
                 return;
             }
 
             const whatsNewModal = new bootstrap.Modal(document.getElementById('whatsNewModal'));
             whatsNewModal.show();
 
-            // Only set cookie when "Got it!" button is clicked
-            document.getElementById('whatsNewDismiss').addEventListener('click', function() {
-                sessionStorage.setItem('whats_new_dismissed', '<?php echo $currentVersion; ?>');
+            // Mark as seen when modal is closed (any close method: button, X, backdrop, ESC)
+            document.getElementById('whatsNewModal').addEventListener('hidden.bs.modal', function() {
+                localStorage.setItem('whats_new_dismissed', '<?php echo $currentVersion; ?>');
                 document.cookie = 'whats_new_seen=<?php echo $currentVersion; ?>; path=/; max-age=31536000; SameSite=Lax';
                 fetch('../lib/mark_version_seen.php', { method: 'POST' }).catch(function() {});
-            });
+            }, { once: true });
         }, 1000);
         <?php endif; ?>
     });
