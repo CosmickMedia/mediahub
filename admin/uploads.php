@@ -577,7 +577,7 @@ include __DIR__.'/header.php';
             title.textContent = filename;
 
             if (type === 'video') {
-                content.innerHTML = `<video controls autoplay style="max-width:100%;max-height:70vh;"><source src="${url}" type="video/mp4">Your browser does not support video.</video>`;
+                content.innerHTML = `<video controls autoplay style="max-width:100%;max-height:70vh;"><source src="${url}" type="video/mp4"><source src="${url}" type="video/quicktime">Your browser does not support video.</video>`;
             } else {
                 content.innerHTML = `<img src="${url}" style="max-width:100%;max-height:70vh;object-fit:contain;">`;
             }

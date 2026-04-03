@@ -1399,3 +1399,4259 @@ Payload sent:
 Response received:
 {"errors":[]}
 ----------------------------------------
+2026-03-13 17:33:35 - All Profiles: 140206909,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Welcome to Dream Tails Boutique, where pets find their people!\r\n\r\nFind the puppy of your dreams today! https:\/\/www.dreamtailshenderson.com\/",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-15T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "dreamtailshenderson",
+        "hendersonnv",
+        "puppylove"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTNFSTRGcGhHLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-13 17:33:41 - Profile: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "Welcome to Dream Tails Boutique, where pets find their people!\r\n\r\nFind the puppy of your dreams today! https:\/\/www.dreamtailshenderson.com\/",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-15T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "dreamtailshenderson",
+        "hendersonnv",
+        "puppylove"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LW8yVFFVRFNYLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13075617177","state":"SCHEDULED","text":"Welcome to Dream Tails Boutique, where pets find their people!\r\n\r\nFind the puppy of your dreams today! https://www.dreamtailshenderson.com/","scheduledSendTime":"2026-03-15T16:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-o2TQUDSX.mp4?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1773439421&Signature=6KSxDepo9oNxJroMOZ%2F5g0Dprhg%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-o2TQUDSX.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1773439421&Signature=%2FxVqH%2FNJpMziCryDsylAHJStX0g%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LW8yVFFVRFNYLm1wNA==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktbzJUUVVEU1guanBlZw=="}],"webhookUrls":null,"tags":["petboutique","dreamtailshenderson","hendersonnv","puppylove"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-13 17:33:44 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Welcome to Dream Tails Boutique, where pets find their people!\r\n\r\nFind the puppy of your dreams today! https:\/\/www.dreamtailshenderson.com\/",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-15T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "dreamtailshenderson",
+        "hendersonnv",
+        "puppylove"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTNyVXJ0T0NqLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-13 17:33:45 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Welcome to Dream Tails Boutique, where pets find their people!\r\n\r\nFind the puppy of your dreams today! https:\/\/www.dreamtailshenderson.com\/",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-15T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "dreamtailshenderson",
+        "hendersonnv",
+        "puppylove"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-13 17:33:48 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Welcome to Dream Tails Boutique, where pets find their people!\r\n\r\nFind the puppy of your dreams today! https:\/\/www.dreamtailshenderson.com\/",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-15T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "dreamtailshenderson",
+        "hendersonnv",
+        "puppylove"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWxPaTdjQUY5Lm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-13 17:33:48 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Welcome to Dream Tails Boutique, where pets find their people!\r\n\r\nFind the puppy of your dreams today! https:\/\/www.dreamtailshenderson.com\/",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-15T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "dreamtailshenderson",
+        "hendersonnv",
+        "puppylove"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-15 18:39:00 - All Profiles: 140206909,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Coming soon! We will offer concierge delivery service for the benefit of out-of-town pet lovers. If you have spotted the puppy or kitten of your dreams on our website, but are unable to visit us at the Boutique, give us a call! Our Pet Concierge team will work with you to coordinate delivery of your dream pet to you",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-19T16:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "puppy"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVFXY2xGNlNiLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-15 18:39:07 - Profile: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "Coming soon! We will offer concierge delivery service for the benefit of out-of-town pet lovers. If you have spotted the puppy or kitten of your dreams on our website, but are unable to visit us at the Boutique, give us a call! Our Pet Concierge team will work with you to coordinate delivery of your dream pet to you",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-19T16:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "puppy"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWI2SHlja3RKLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13075796724","state":"SCHEDULED","text":"Coming soon! We will offer concierge delivery service for the benefit of out-of-town pet lovers. If you have spotted the puppy or kitten of your dreams on our website, but are unable to visit us at the Boutique, give us a call! Our Pet Concierge team will work with you to coordinate delivery of your dream pet to you","scheduledSendTime":"2026-03-19T16:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-b6HycktJ.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1773616147&Signature=vdUuTwVWQu3o9osFGPBl896jveY%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-b6HycktJ.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1773616147&Signature=6iZ28NvQ%2Fxc1O7MLbSbBkQtLtCk%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWI2SHlja3RKLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktYjZIeWNrdEouanBlZw=="}],"webhookUrls":null,"tags":["puppy"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-15 18:39:13 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Coming soon! We will offer concierge delivery service for the benefit of out-of-town pet lovers. If you have spotted the puppy or kitten of your dreams on our website, but are unable to visit us at the Boutique, give us a call! Our Pet Concierge team will work with you to coordinate delivery of your dream pet to you",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-19T16:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "puppy"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUtNdXBzOUlELm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-15 18:39:13 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Coming soon! We will offer concierge delivery service for the benefit of out-of-town pet lovers. If you have spotted the puppy or kitten of your dreams on our website, but are unable to visit us at the Boutique, give us a call! Our Pet Concierge team will work with you to coordinate delivery of your dream pet to you",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-19T16:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "puppy"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-15 18:39:20 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Coming soon! We will offer concierge delivery service for the benefit of out-of-town pet lovers. If you have spotted the puppy or kitten of your dreams on our website, but are unable to visit us at the Boutique, give us a call! Our Pet Concierge team will work with you to coordinate delivery of your dream pet to you",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-19T16:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "puppy"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTNBaTRmYnRPLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-15 18:39:20 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Coming soon! We will offer concierge delivery service for the benefit of out-of-town pet lovers. If you have spotted the puppy or kitten of your dreams on our website, but are unable to visit us at the Boutique, give us a call! Our Pet Concierge team will work with you to coordinate delivery of your dream pet to you",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-19T16:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "puppy"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-17 17:25:55 - All Profiles: 140206909,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-17T21:30:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:25:55 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-17T21:30:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:25:55 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-17T21:30:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:25:56 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-17T21:30:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:26:48 - All Profiles: 140206909,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-18T08:00:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:26:48 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-18T08:00:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:26:48 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-18T08:00:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:26:49 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-18T08:00:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:27:32 - All Profiles: 140206909,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-18T21:00:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:27:32 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-18T21:00:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:27:32 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-18T21:00:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-17 17:27:32 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "We\u2019re so lucky to be able to help you find the puppy of your dreams! Happy St. Patrick\u2019s Day from Dream Tails Henderson \r\n\r\nSee our available puppies at www.dreamtailshenderson.com \ud83c\udf40\u2728\ud83d\udc9a",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-18T21:00:00Z",
+    "tags": [
+        "Dachshundpuppy",
+        "cockapoo",
+        "Yorkiepoo",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-20 21:56:31 - All Profiles: 140206909,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Sundance the Calico Exotic Short Hair Kitten at Dream Tails Henderson \ud83d\udc31\ud83e\udd0d\r\n\r\nVisit www.dreamtailshenderson.com for our full list of available pets!",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-21T16:00:00Z",
+    "tags": [
+        "Kitten",
+        "exoticshorthair",
+        "dreamtailshenderson",
+        "calicokitten"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LThYU3ZzbXR5Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-20 21:56:38 - Profile: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "Meet Sundance the Calico Exotic Short Hair Kitten at Dream Tails Henderson \ud83d\udc31\ud83e\udd0d\r\n\r\nVisit www.dreamtailshenderson.com for our full list of available pets!",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-21T16:00:00Z",
+    "tags": [
+        "Kitten",
+        "exoticshorthair",
+        "dreamtailshenderson",
+        "calicokitten"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTRkVEdJMnM1Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13077171925","state":"SCHEDULED","text":"Meet Sundance the Calico Exotic Short Hair Kitten at Dream Tails Henderson 🐱🤍\r\n\r\nVisit www.dreamtailshenderson.com for our full list of available pets!","scheduledSendTime":"2026-03-21T16:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-4dTGI2s5.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774059998&Signature=SsF8nFnn0835IwKMoImI9HoUsUI%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-4dTGI2s5.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774059998&Signature=zmD323Ss5KaIe8pVA50YON2TnSM%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTRkVEdJMnM1Lm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktNGRUR0kyczUuanBlZw=="}],"webhookUrls":null,"tags":["Kitten","exoticshorthair","dreamtailshenderson","calicokitten"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-20 21:56:45 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Meet Sundance the Calico Exotic Short Hair Kitten at Dream Tails Henderson \ud83d\udc31\ud83e\udd0d\r\n\r\nVisit www.dreamtailshenderson.com for our full list of available pets!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-21T16:00:00Z",
+    "tags": [
+        "Kitten",
+        "exoticshorthair",
+        "dreamtailshenderson",
+        "calicokitten"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXF5dXlpUXR2Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-20 21:56:45 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Sundance the Calico Exotic Short Hair Kitten at Dream Tails Henderson \ud83d\udc31\ud83e\udd0d\r\n\r\nVisit www.dreamtailshenderson.com for our full list of available pets!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-21T16:00:00Z",
+    "tags": [
+        "Kitten",
+        "exoticshorthair",
+        "dreamtailshenderson",
+        "calicokitten"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-20 21:56:53 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Sundance the Calico Exotic Short Hair Kitten at Dream Tails Henderson \ud83d\udc31\ud83e\udd0d\r\n\r\nVisit www.dreamtailshenderson.com for our full list of available pets!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-21T16:00:00Z",
+    "tags": [
+        "Kitten",
+        "exoticshorthair",
+        "dreamtailshenderson",
+        "calicokitten"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXg0Q3ZIMmh2Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-20 21:56:53 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Sundance the Calico Exotic Short Hair Kitten at Dream Tails Henderson \ud83d\udc31\ud83e\udd0d\r\n\r\nVisit www.dreamtailshenderson.com for our full list of available pets!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-21T16:00:00Z",
+    "tags": [
+        "Kitten",
+        "exoticshorthair",
+        "dreamtailshenderson",
+        "calicokitten"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-21 17:24:05 - All Profiles: 140206909,139913211 - Code: 401
+Payload sent:
+{
+    "text": "Happy Saturday from Lindsay and Toast, the Havatzu! She\u2019s an adorable blend of Havanese and Shih Tzu. Meet her today at Dream Tails Henderson \ud83e\udd17\u2728",
+    "socialProfileIds": [
+        "140206909",
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shih Tzu",
+        "shihtzupuppy",
+        "dreamtailshenderson",
+        "puppylove"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-21 17:24:05 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "Happy Saturday from Lindsay and Toast, the Havatzu! She\u2019s an adorable blend of Havanese and Shih Tzu. Meet her today at Dream Tails Henderson \ud83e\udd17\u2728",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shih Tzu",
+        "shihtzupuppy",
+        "dreamtailshenderson",
+        "puppylove"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-21 17:24:05 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Happy Saturday from Lindsay and Toast, the Havatzu! She\u2019s an adorable blend of Havanese and Shih Tzu. Meet her today at Dream Tails Henderson \ud83e\udd17\u2728",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shih Tzu",
+        "shihtzupuppy",
+        "dreamtailshenderson",
+        "puppylove"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-21 17:25:04 - All Profiles: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "Happy Saturday from Lindsay and Toast, the Havatzu! She\u2019s an adorable blend of Havanese and Shih Tzu. Meet her today at Dream Tails Henderson \ud83e\udd17\u2728\r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shih Tzu",
+        "shihtzupuppy",
+        "dreamtailshenderson",
+        "puppylove"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-21 17:25:04 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "Happy Saturday from Lindsay and Toast, the Havatzu! She\u2019s an adorable blend of Havanese and Shih Tzu. Meet her today at Dream Tails Henderson \ud83e\udd17\u2728\r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shih Tzu",
+        "shihtzupuppy",
+        "dreamtailshenderson",
+        "puppylove"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-21 18:53:29 - All Profiles: 140206909,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "It\u2019s Pool Season! Make sure your pup is pool\/lake ready with the @zippypaws Pet Life Jacket, available at Dream Tails Henderson \u2600\ufe0f\ud83d\udc36",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "Zippypaws",
+        "dachshundpuppy",
+        "dreamtailshenderson",
+        "poolseason"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-21 18:53:29 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "It\u2019s Pool Season! Make sure your pup is pool\/lake ready with the @zippypaws Pet Life Jacket, available at Dream Tails Henderson \u2600\ufe0f\ud83d\udc36",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "Zippypaws",
+        "dachshundpuppy",
+        "dreamtailshenderson",
+        "poolseason"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-21 18:53:29 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "It\u2019s Pool Season! Make sure your pup is pool\/lake ready with the @zippypaws Pet Life Jacket, available at Dream Tails Henderson \u2600\ufe0f\ud83d\udc36",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "Zippypaws",
+        "dachshundpuppy",
+        "dreamtailshenderson",
+        "poolseason"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-21 18:53:30 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "It\u2019s Pool Season! Make sure your pup is pool\/lake ready with the @zippypaws Pet Life Jacket, available at Dream Tails Henderson \u2600\ufe0f\ud83d\udc36",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "Zippypaws",
+        "dachshundpuppy",
+        "dreamtailshenderson",
+        "poolseason"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-22 21:17:39 - All Profiles: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "Special order the puppy of your dreams at Dream Tails Henderson! We can\u2019t wait to help you find your next best friend. \u2728\r\n\r\nGive us a call at 702-728-4914 or visit us at www.dreamtailsbenderson.com",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-29T16:00:00Z",
+    "tags": [
+        "puppy",
+        "puppies",
+        "dreamtailahenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUc0SEF1MWMxLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13077338308","state":"SCHEDULED","text":"Special order the puppy of your dreams at Dream Tails Henderson! We can’t wait to help you find your next best friend. ✨\r\n\r\nGive us a call at 702-728-4914 or visit us at www.dreamtailsbenderson.com","scheduledSendTime":"2026-03-29T16:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-G4HAu1c1.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774230459&Signature=XXbt0BWeAPVIstqgUpUZwn9H0z0%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-G4HAu1c1.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774230459&Signature=rvCywRpkgFfZCLnipxw4N03i6Ns%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUc0SEF1MWMxLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktRzRIQXUxYzEuanBlZw=="}],"webhookUrls":null,"tags":["puppy","puppies","dreamtailahenderson"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-23 15:37:23 - All Profiles: 140206909,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Look at those ears! Meet Twix, the adorable dachshund puppy at Dream Tails Henderson today! \ud83d\udc36\u2728\ud83e\udd0d\r\n\r\nSee our full list of available puppies at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-24T17:00:00Z",
+    "tags": [
+        "Dachshund",
+        "dachshundpuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LThNU2FVZXRiLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 15:37:30 - Profile: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "Look at those ears! Meet Twix, the adorable dachshund puppy at Dream Tails Henderson today! \ud83d\udc36\u2728\ud83e\udd0d\r\n\r\nSee our full list of available puppies at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-24T17:00:00Z",
+    "tags": [
+        "Dachshund",
+        "dachshundpuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVpuRm9mQmg4Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13077554278","state":"SCHEDULED","text":"Look at those ears! Meet Twix, the adorable dachshund puppy at Dream Tails Henderson today! 🐶✨🤍\r\n\r\nSee our full list of available puppies at www.dreamtailshenderson.com","scheduledSendTime":"2026-03-24T17:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-ZnFofBh8.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774296450&Signature=%2BHox%2BkZ%2Bh8oI8WsXaB2QjiMc4Dg%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-ZnFofBh8.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774296450&Signature=ae15%2BTCFmVucH%2Fq%2Fi%2BPS808iPAE%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVpuRm9mQmg4Lm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktWm5Gb2ZCaDguanBlZw=="}],"webhookUrls":null,"tags":["Dachshund","dachshundpuppy","dreamtailshenderson"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-23 15:37:38 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Look at those ears! Meet Twix, the adorable dachshund puppy at Dream Tails Henderson today! \ud83d\udc36\u2728\ud83e\udd0d\r\n\r\nSee our full list of available puppies at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-24T17:00:00Z",
+    "tags": [
+        "Dachshund",
+        "dachshundpuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUw0aGtJZUhZLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 15:37:38 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Look at those ears! Meet Twix, the adorable dachshund puppy at Dream Tails Henderson today! \ud83d\udc36\u2728\ud83e\udd0d\r\n\r\nSee our full list of available puppies at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-24T17:00:00Z",
+    "tags": [
+        "Dachshund",
+        "dachshundpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 15:37:45 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Look at those ears! Meet Twix, the adorable dachshund puppy at Dream Tails Henderson today! \ud83d\udc36\u2728\ud83e\udd0d\r\n\r\nSee our full list of available puppies at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-24T17:00:00Z",
+    "tags": [
+        "Dachshund",
+        "dachshundpuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWxMSU9UZEY3Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 15:37:45 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Look at those ears! Meet Twix, the adorable dachshund puppy at Dream Tails Henderson today! \ud83d\udc36\u2728\ud83e\udd0d\r\n\r\nSee our full list of available puppies at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-24T17:00:00Z",
+    "tags": [
+        "Dachshund",
+        "dachshundpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 16:00:13 - All Profiles: 140206909,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "The love we have for puppies (and kittens) is what keeps us going every single day and we couldn\u2019t love what we do more! \r\n\r\nWe are so grateful to have been helping people find the puppy of their dreams for over 20 years; we can\u2019t wait to help you next \ud83d\udc36\ud83e\udd0d\u2728 \r\n\r\nVisit us at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-23T21:00:00Z",
+    "tags": [
+        "Puppyday",
+        "puppies",
+        "hendersonnv",
+        "Lasvegas",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUJnQ05US1U1Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 16:00:19 - Profile: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "The love we have for puppies (and kittens) is what keeps us going every single day and we couldn\u2019t love what we do more! \r\n\r\nWe are so grateful to have been helping people find the puppy of their dreams for over 20 years; we can\u2019t wait to help you next \ud83d\udc36\ud83e\udd0d\u2728 \r\n\r\nVisit us at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-23T21:00:00Z",
+    "tags": [
+        "Puppyday",
+        "puppies",
+        "hendersonnv",
+        "Lasvegas",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LU5SczB1RUNZLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13077560868","state":"SCHEDULED","text":"The love we have for puppies (and kittens) is what keeps us going every single day and we couldn’t love what we do more! \r\n\r\nWe are so grateful to have been helping people find the puppy of their dreams for over 20 years; we can’t wait to help you next 🐶🤍✨ \r\n\r\nVisit us at www.dreamtailshenderson.com","scheduledSendTime":"2026-03-23T21:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-NRs0uECY.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774297819&Signature=tFGWNnIjLvTjN2psn2T8Ty7iUc0%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-NRs0uECY.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774297819&Signature=BpqsazGdO2DQSIoP0%2FOOupb3jsE%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LU5SczB1RUNZLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktTlJzMHVFQ1kuanBlZw=="}],"webhookUrls":null,"tags":["hendersonnv","puppies","dreamtailshenderson","Puppyday","Lasvegas"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-23 16:00:26 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "The love we have for puppies (and kittens) is what keeps us going every single day and we couldn\u2019t love what we do more! \r\n\r\nWe are so grateful to have been helping people find the puppy of their dreams for over 20 years; we can\u2019t wait to help you next \ud83d\udc36\ud83e\udd0d\u2728 \r\n\r\nVisit us at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-23T21:00:00Z",
+    "tags": [
+        "Puppyday",
+        "puppies",
+        "hendersonnv",
+        "Lasvegas",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWU5U29pRElELm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 16:00:27 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "The love we have for puppies (and kittens) is what keeps us going every single day and we couldn\u2019t love what we do more! \r\n\r\nWe are so grateful to have been helping people find the puppy of their dreams for over 20 years; we can\u2019t wait to help you next \ud83d\udc36\ud83e\udd0d\u2728 \r\n\r\nVisit us at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-23T21:00:00Z",
+    "tags": [
+        "Puppyday",
+        "puppies",
+        "hendersonnv",
+        "Lasvegas",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 16:00:33 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "The love we have for puppies (and kittens) is what keeps us going every single day and we couldn\u2019t love what we do more! \r\n\r\nWe are so grateful to have been helping people find the puppy of their dreams for over 20 years; we can\u2019t wait to help you next \ud83d\udc36\ud83e\udd0d\u2728 \r\n\r\nVisit us at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-23T21:00:00Z",
+    "tags": [
+        "Puppyday",
+        "puppies",
+        "hendersonnv",
+        "Lasvegas",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTJySVJmd1NELm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-23 16:00:33 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "The love we have for puppies (and kittens) is what keeps us going every single day and we couldn\u2019t love what we do more! \r\n\r\nWe are so grateful to have been helping people find the puppy of their dreams for over 20 years; we can\u2019t wait to help you next \ud83d\udc36\ud83e\udd0d\u2728 \r\n\r\nVisit us at www.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-23T21:00:00Z",
+    "tags": [
+        "Puppyday",
+        "puppies",
+        "hendersonnv",
+        "Lasvegas",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-24 13:50:49 - All Profiles: 140206909,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Makes sense to us! Visit Dream Tails Boutique today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "puppycuddles",
+        "kittens",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-24 13:50:49 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "Makes sense to us! Visit Dream Tails Boutique today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "puppycuddles",
+        "kittens",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-24 13:50:49 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Makes sense to us! Visit Dream Tails Boutique today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "puppycuddles",
+        "kittens",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-24 13:50:50 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Makes sense to us! Visit Dream Tails Boutique today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "puppycuddles",
+        "kittens",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-24 13:51:16 - All Profiles: 140206909,139913211 - Code: 401
+Payload sent:
+{
+    "text": "Makes sense to us! Visit Dream Tails Boutique today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909",
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "puppycuddles",
+        "kittens",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-24 13:51:16 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "Makes sense to us! Visit Dream Tails Boutique today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "puppycuddles",
+        "kittens",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-24 13:51:17 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Makes sense to us! Visit Dream Tails Boutique today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-25T16:00:00Z",
+    "tags": [
+        "petboutique",
+        "puppycuddles",
+        "kittens",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-24 15:23:53 - All Profiles: 140206909,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Where are my corgi lovers at?! Meet the corgi of your dreams at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-24T21:00:00Z",
+    "tags": [
+        "Corgi",
+        "corgipuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWVKdUVVV3RNLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-24 15:24:00 - Profile: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "Where are my corgi lovers at?! Meet the corgi of your dreams at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-24T21:00:00Z",
+    "tags": [
+        "Corgi",
+        "corgipuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXhadXpmWVVxLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13077827093","state":"SCHEDULED","text":"Where are my corgi lovers at?! Meet the corgi of your dreams at Dream Tails Henderson ✨🤍 \r\n\r\nwww.dreamtailshenderson.com","scheduledSendTime":"2026-03-24T21:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-xZuzfYUq.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774382040&Signature=dyA%2F%2B8Qsg4lnSPRR08ASCVBFkeg%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-xZuzfYUq.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774382040&Signature=Bh0IhIxDtsGYsH0s2kqKIVGQqZU%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXhadXpmWVVxLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDkteFp1emZZVXEuanBlZw=="}],"webhookUrls":null,"tags":["Corgi","corgipuppy","dreamtailshenderson"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-24 15:24:10 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Where are my corgi lovers at?! Meet the corgi of your dreams at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-24T21:00:00Z",
+    "tags": [
+        "Corgi",
+        "corgipuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXllSTdpeXNSLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-24 15:24:10 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Where are my corgi lovers at?! Meet the corgi of your dreams at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-24T21:00:00Z",
+    "tags": [
+        "Corgi",
+        "corgipuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-24 15:24:17 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Where are my corgi lovers at?! Meet the corgi of your dreams at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-24T21:00:00Z",
+    "tags": [
+        "Corgi",
+        "corgipuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUIydG1jV1Q3Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-24 15:24:17 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Where are my corgi lovers at?! Meet the corgi of your dreams at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-24T21:00:00Z",
+    "tags": [
+        "Corgi",
+        "corgipuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-25 16:21:06 - All Profiles: 140206909,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Bocce\u2019s Bakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! @boccesbakery",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "dreamtailshenderson",
+        "healthydogtreats"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-25 16:21:07 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "Bocce\u2019s Bakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! @boccesbakery",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "dreamtailshenderson",
+        "healthydogtreats"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-25 16:21:07 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Bocce\u2019s Bakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! @boccesbakery",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "dreamtailshenderson",
+        "healthydogtreats"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-25 16:21:07 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Bocce\u2019s Bakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! @boccesbakery",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "dreamtailshenderson",
+        "healthydogtreats"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-25 16:21:54 - All Profiles: 140206909,139913211 - Code: 401
+Payload sent:
+{
+    "text": "Bocce\u2019s Bakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! @boccesbakery",
+    "socialProfileIds": [
+        "140206909",
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "dreamtailshenderson",
+        "healthydogtreats"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-25 16:21:54 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "Bocce\u2019s Bakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! @boccesbakery",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "dreamtailshenderson",
+        "healthydogtreats"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-25 16:21:55 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Bocce\u2019s Bakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! @boccesbakery",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "dreamtailshenderson",
+        "healthydogtreats"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-25 16:34:43 - All Profiles: 140206909,139913211,140296722,140296721,139926996 - Code: 400
+Payload sent:
+{
+    "text": "@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! \ud83d\udc36\ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "140296722",
+        "140296721",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "healthydogtreats",
+        "dreamtailshenderson",
+        "petboutique"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-25 16:34:43 - Profile: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! \ud83d\udc36\ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "healthydogtreats",
+        "dreamtailshenderson",
+        "petboutique"
+    ]
+}
+Response received:
+{"data":[{"id":"13078124111","state":"SCHEDULED","text":"@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog’s dreams today! 🐶🤍✨","scheduledSendTime":"2026-03-26T16:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["Boccesbakery","healthydogtreats","dreamtailshenderson","petboutique"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-25 16:34:43 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! \ud83d\udc36\ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "healthydogtreats",
+        "dreamtailshenderson",
+        "petboutique"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-25 16:34:44 - Profile: 140296722 - Code: 200
+Payload sent:
+{
+    "text": "@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! \ud83d\udc36\ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140296722"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "healthydogtreats",
+        "dreamtailshenderson",
+        "petboutique"
+    ]
+}
+Response received:
+{"data":[{"id":"13078124117","state":"SCHEDULED","text":"@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog’s dreams today! 🐶🤍✨","scheduledSendTime":"2026-03-26T16:00:00Z","socialProfile":{"id":"140296722"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["Boccesbakery","healthydogtreats","dreamtailshenderson","petboutique"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-25 16:34:44 - Profile: 140296721 - Code: 200
+Payload sent:
+{
+    "text": "@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! \ud83d\udc36\ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140296721"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "healthydogtreats",
+        "dreamtailshenderson",
+        "petboutique"
+    ]
+}
+Response received:
+{"data":[{"id":"13078124124","state":"SCHEDULED","text":"@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog’s dreams today! 🐶🤍✨","scheduledSendTime":"2026-03-26T16:00:00Z","socialProfile":{"id":"140296721"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["Boccesbakery","healthydogtreats","dreamtailshenderson","petboutique"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-25 16:34:44 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! \ud83d\udc36\ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "healthydogtreats",
+        "dreamtailshenderson",
+        "petboutique"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-25 16:38:55 - All Profiles: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog\u2019s dreams today! \ud83d\udc36\ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-26T16:00:00Z",
+    "tags": [
+        "Boccesbakery",
+        "healthydogtreats",
+        "dreamtailshenderson",
+        "petboutique"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWF3RkFUUkh6Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078125219","state":"SCHEDULED","text":"@boccesbakery is now available at Dream Tails Henderson! Stop by and find the treat of your dog’s dreams today! 🐶🤍✨","scheduledSendTime":"2026-03-26T16:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-awFATRHz.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774472935&Signature=J%2Fy1GsMTF%2FZmtjqHRe5cHJzoUFE%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-awFATRHz.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774472935&Signature=R880fqx1PSfm6TMimRS9d8r%2Ftjg%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWF3RkFUUkh6Lm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktYXdGQVRSSHouanBlZw=="}],"webhookUrls":null,"tags":["Boccesbakery","healthydogtreats","dreamtailshenderson","petboutique"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-26 15:55:08 - All Profiles: 140206909,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Fawn is loving this new #kong toy! Stop by Dream Tails Henderson to find a toy your dog will thank you for! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z",
+    "tags": [
+        "Petboutique",
+        "dreamtailshenderson",
+        "toysforpuppies"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-26 15:55:09 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "Fawn is loving this new #kong toy! Stop by Dream Tails Henderson to find a toy your dog will thank you for! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z",
+    "tags": [
+        "Petboutique",
+        "dreamtailshenderson",
+        "toysforpuppies"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-26 15:55:09 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Fawn is loving this new #kong toy! Stop by Dream Tails Henderson to find a toy your dog will thank you for! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z",
+    "tags": [
+        "Petboutique",
+        "dreamtailshenderson",
+        "toysforpuppies"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-26 15:55:09 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Fawn is loving this new #kong toy! Stop by Dream Tails Henderson to find a toy your dog will thank you for! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z",
+    "tags": [
+        "Petboutique",
+        "dreamtailshenderson",
+        "toysforpuppies"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-26 18:42:13 - All Profiles: 140206909,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Have peace of mind knowing that lifetime training assistance is included when you take home a puppy from Dream Tails Henderson! \u2728\ud83e\udd0d\ud83d\udc36\r\n\r\n\r\nWe\u2019ve partnered with @TenasityTraining to ensure each puppy goes home with the best support possible!",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-26T23:00:00Z",
+    "tags": [
+        "puppytraining",
+        "dreamtailshenderson",
+        "tenasitydogtraining"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTZMVUpjNnNKLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-26 18:42:21 - Profile: 140206909 - Code: 200
+Payload sent:
+{
+    "text": "Have peace of mind knowing that lifetime training assistance is included when you take home a puppy from Dream Tails Henderson! \u2728\ud83e\udd0d\ud83d\udc36\r\n\r\n\r\nWe\u2019ve partnered with @TenasityTraining to ensure each puppy goes home with the best support possible!",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-26T23:00:00Z",
+    "tags": [
+        "puppytraining",
+        "dreamtailshenderson",
+        "tenasitydogtraining"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVgzc1JmS1RCLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078432035","state":"SCHEDULED","text":"Have peace of mind knowing that lifetime training assistance is included when you take home a puppy from Dream Tails Henderson! ✨🤍🐶\r\n\r\n\r\nWe’ve partnered with @TenasityTraining to ensure each puppy goes home with the best support possible!","scheduledSendTime":"2026-03-26T23:00:00Z","socialProfile":{"id":"140206909"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-X3sRfKTB.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774566741&Signature=yf53qwSN8cZRJi4V3fLuXiLJXtU%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-X3sRfKTB.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774566741&Signature=DW5j0gWcvtbeJUHbWvTHo6SVkcA%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVgzc1JmS1RCLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktWDNzUmZLVEIuanBlZw=="}],"webhookUrls":null,"tags":["puppytraining","dreamtailshenderson","tenasitydogtraining"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-26 18:42:29 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Have peace of mind knowing that lifetime training assistance is included when you take home a puppy from Dream Tails Henderson! \u2728\ud83e\udd0d\ud83d\udc36\r\n\r\n\r\nWe\u2019ve partnered with @TenasityTraining to ensure each puppy goes home with the best support possible!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-26T23:00:00Z",
+    "tags": [
+        "puppytraining",
+        "dreamtailshenderson",
+        "tenasitydogtraining"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTgzQzJzNlVQLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-26 18:42:29 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Have peace of mind knowing that lifetime training assistance is included when you take home a puppy from Dream Tails Henderson! \u2728\ud83e\udd0d\ud83d\udc36\r\n\r\n\r\nWe\u2019ve partnered with @TenasityTraining to ensure each puppy goes home with the best support possible!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-26T23:00:00Z",
+    "tags": [
+        "puppytraining",
+        "dreamtailshenderson",
+        "tenasitydogtraining"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-26 18:42:36 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Have peace of mind knowing that lifetime training assistance is included when you take home a puppy from Dream Tails Henderson! \u2728\ud83e\udd0d\ud83d\udc36\r\n\r\n\r\nWe\u2019ve partnered with @TenasityTraining to ensure each puppy goes home with the best support possible!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-26T23:00:00Z",
+    "tags": [
+        "puppytraining",
+        "dreamtailshenderson",
+        "tenasitydogtraining"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LThrU2tpdlRZLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-26 18:42:36 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Have peace of mind knowing that lifetime training assistance is included when you take home a puppy from Dream Tails Henderson! \u2728\ud83e\udd0d\ud83d\udc36\r\n\r\n\r\nWe\u2019ve partnered with @TenasityTraining to ensure each puppy goes home with the best support possible!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-26T23:00:00Z",
+    "tags": [
+        "puppytraining",
+        "dreamtailshenderson",
+        "tenasitydogtraining"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 08:15:18 - All Profiles: 140206909,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140206909",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:15:18 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:15:19 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:15:19 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:16:02 - All Profiles: 140206909,139913211 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140206909",
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:16:02 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:16:03 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:16:08 - All Profiles: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:16:08 - Profile: 140206909 - Code: 401
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140206909"
+    ],
+    "scheduledSendTime": "2026-03-27T12:20:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:17:27 - All Profiles: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:17:27 - Profile: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:17:50 - All Profiles: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 08:17:50 - Profile: 139926615 - Code: 401
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z"
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-27 10:52:44 - All Profiles: 139926615 - Code: 200
+Payload sent:
+{
+    "text": "test",
+    "socialProfileIds": [
+        "139926615"
+    ],
+    "scheduledSendTime": "2026-03-27T16:00:00Z",
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTMzVWFmbXVwLmpwZw=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078568178","state":"SCHEDULED","text":"test","scheduledSendTime":"2026-03-27T16:00:00Z","socialProfile":{"id":"139926615"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-33Uafmup.jpg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774624964&Signature=SqfpgnYqsg5UhJval5uzXsP95Qs%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-0-27546049-33Uafmup.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774624964&Signature=eg%2FC60bF7hQTeLv4j%2FOB0533ul0%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTMzVWFmbXVwLmpwZw==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTAtMjc1NDYwNDktMzNVYWZtdXAuanBlZw=="}],"webhookUrls":null,"tags":null,"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-27 15:09:37 - All Profiles: 139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-27T22:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "toysfordogs",
+        "puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXpiaXZIT0k2Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 15:09:45 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-27T22:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "toysfordogs",
+        "puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWUzdGVDWUkyLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 15:09:45 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-27T22:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "toysfordogs",
+        "puppytoys"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 15:09:52 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-27T22:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "toysfordogs",
+        "puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWRNU2Jjb0ZiLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 15:09:52 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-27T22:00:00Z",
+    "tags": [
+        "Dreamtailshenderson",
+        "toysfordogs",
+        "puppytoys"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 16:53:27 - All Profiles: 139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "This is how your camera roll is going to look when we find you your dream puppy! Stop by Dream Tails Henderson today \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T00:00:00Z",
+    "tags": [
+        "Puppies",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LW5YVEdzM2NBLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 16:53:34 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "This is how your camera roll is going to look when we find you your dream puppy! Stop by Dream Tails Henderson today \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-28T00:00:00Z",
+    "tags": [
+        "Puppies",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWxPdWJJTWMyLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 16:53:34 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "This is how your camera roll is going to look when we find you your dream puppy! Stop by Dream Tails Henderson today \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-28T00:00:00Z",
+    "tags": [
+        "Puppies",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 16:53:40 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "This is how your camera roll is going to look when we find you your dream puppy! Stop by Dream Tails Henderson today \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T00:00:00Z",
+    "tags": [
+        "Puppies",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTFBdWFmbnNRLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-27 16:53:40 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "This is how your camera roll is going to look when we find you your dream puppy! Stop by Dream Tails Henderson today \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T00:00:00Z",
+    "tags": [
+        "Puppies",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 10:48:01 - All Profiles: 140317572,139913211,140296721,139926996 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "140296721",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LU04aWRTN1Q4Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 10:48:05 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTJ2SVpUM3U4Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078754185","state":"SCHEDULED","text":"This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog’s dreams toys!","scheduledSendTime":"2026-03-28T16:00:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-2vIZT3u8.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774711085&Signature=LhRB9lk3nuQV1OTz3w2ibSpg3J8%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-2vIZT3u8.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774711085&Signature=RbeNUvFb6Bi4roiV%2FixY7rcoLxo%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTJ2SVpUM3U4Lm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktMnZJWlQzdTguanBlZw=="}],"webhookUrls":null,"tags":["dreamtailshenderson toysfordogs puppytoys"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-28 10:48:08 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LW9XaFhDNFQwLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 10:48:08 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 10:48:12 - Profile: 140296721 - Code: 200
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140296721"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUU5Y2pzQnRHLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078754193","state":"SCHEDULED","text":"This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog’s dreams toys!","scheduledSendTime":"2026-03-28T16:00:00Z","socialProfile":{"id":"140296721"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-E9cjsBtG.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774711092&Signature=VsTnpHe8OadllR80gICtG7%2Ff1WA%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-E9cjsBtG.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774711092&Signature=s0p9HwRcuGdbZukgV%2F6M6jQ5afg%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUU5Y2pzQnRHLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktRTljanNCdEcuanBlZw=="}],"webhookUrls":null,"tags":["dreamtailshenderson toysfordogs puppytoys"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-28 10:48:15 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXAwSEFza2MyLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 10:48:15 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T16:00:00Z",
+    "tags": [
+        "dreamtailshenderson toysfordogs puppytoys"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 15:05:50 - All Profiles: 140317572,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T21:00:00Z",
+    "tags": [
+        "Dreamtailahenderson",
+        "toysfordogs",
+        "puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVZsY291NEhwLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 15:05:58 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-28T21:00:00Z",
+    "tags": [
+        "Dreamtailahenderson",
+        "toysfordogs",
+        "puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWdtU091a3R5Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078774293","state":"SCHEDULED","text":"This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog’s dreams toys!","scheduledSendTime":"2026-03-28T21:00:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-gmSOukty.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774726558&Signature=Xbvfl15kMttuMPqA1nv%2FwqFYcDY%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-gmSOukty.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774726558&Signature=g4MxtRCZOJg45eqSZc%2BbiCwo1eA%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWdtU091a3R5Lm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktZ21TT3VrdHkuanBlZw=="}],"webhookUrls":null,"tags":["toysfordogs","puppytoys"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-28 15:06:05 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-28T21:00:00Z",
+    "tags": [
+        "Dreamtailahenderson",
+        "toysfordogs",
+        "puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVZQQzBVbWhWLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 15:06:05 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-28T21:00:00Z",
+    "tags": [
+        "Dreamtailahenderson",
+        "toysfordogs",
+        "puppytoys"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 15:06:12 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T21:00:00Z",
+    "tags": [
+        "Dreamtailahenderson",
+        "toysfordogs",
+        "puppytoys"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTVFY0tGb0N3Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 15:06:12 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "This #kong toy was a hit! Stop by Dream Tails Henderson to find the toys of your dog\u2019s dreams toys!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-28T21:00:00Z",
+    "tags": [
+        "Dreamtailahenderson",
+        "toysfordogs",
+        "puppytoys"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 18:49:49 - All Profiles: 140317572,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Lambo the Alaskan Klee Kai puppy at Dream Tails Henderson today \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T00:00:00Z",
+    "tags": [
+        "Kleekai",
+        "dreamtailshenderson",
+        "alaskankleekai"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUpEdHZ1emNRLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 18:49:56 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "Meet Lambo the Alaskan Klee Kai puppy at Dream Tails Henderson today \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-29T00:00:00Z",
+    "tags": [
+        "Kleekai",
+        "dreamtailshenderson",
+        "alaskankleekai"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVBtdERGUnVlLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078788696","state":"SCHEDULED","text":"Meet Lambo the Alaskan Klee Kai puppy at Dream Tails Henderson today ✨🤍","scheduledSendTime":"2026-03-29T00:00:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-PmtDFRue.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774739996&Signature=GswMG1VZNrj8MOUO1D%2F0XwtufRg%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-PmtDFRue.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774739996&Signature=To3vd8myOE4G3Tpsr6YJ18vE90I%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVBtdERGUnVlLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktUG10REZSdWUuanBlZw=="}],"webhookUrls":null,"tags":["Kleekai","dreamtailshenderson","alaskankleekai"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-28 18:49:59 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Meet Lambo the Alaskan Klee Kai puppy at Dream Tails Henderson today \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T00:00:00Z",
+    "tags": [
+        "Kleekai",
+        "dreamtailshenderson",
+        "alaskankleekai"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTk4aU9VZENyLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 18:49:59 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Lambo the Alaskan Klee Kai puppy at Dream Tails Henderson today \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T00:00:00Z",
+    "tags": [
+        "Kleekai",
+        "dreamtailshenderson",
+        "alaskankleekai"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 18:50:03 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Lambo the Alaskan Klee Kai puppy at Dream Tails Henderson today \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T00:00:00Z",
+    "tags": [
+        "Kleekai",
+        "dreamtailshenderson",
+        "alaskankleekai"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVlSdW5jWlRPLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 18:50:03 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Lambo the Alaskan Klee Kai puppy at Dream Tails Henderson today \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T00:00:00Z",
+    "tags": [
+        "Kleekai",
+        "dreamtailshenderson",
+        "alaskankleekai"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 22:00:47 - All Profiles: 140317572,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Toast the Havanese\/Shih Tzu puppy at Dream Tails Henderson \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T03:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWwzSW9GWVU4Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 22:00:55 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "Meet Toast the Havanese\/Shih Tzu puppy at Dream Tails Henderson \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-29T03:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVAyYzdmRHRSLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078798319","state":"SCHEDULED","text":"Meet Toast the Havanese/Shih Tzu puppy at Dream Tails Henderson 🤍✨","scheduledSendTime":"2026-03-29T03:00:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-P2c7fDtR.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774751455&Signature=UBFst14KNJto%2FEQNIr7kFG9aTu4%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-P2c7fDtR.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774751455&Signature=MAW1KPWjOuwz1h7m5ZBLA1NLqvE%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVAyYzdmRHRSLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktUDJjN2ZEdFIuanBlZw=="}],"webhookUrls":null,"tags":["hendersonnv","Shihtzu","Havanese","dreamtailshenderson","puppy"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-28 22:01:02 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Meet Toast the Havanese\/Shih Tzu puppy at Dream Tails Henderson \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T03:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWtKaUJGUGg3Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 22:01:02 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Toast the Havanese\/Shih Tzu puppy at Dream Tails Henderson \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T03:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 22:01:10 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Toast the Havanese\/Shih Tzu puppy at Dream Tails Henderson \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T03:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTZuY05UYVNiLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-28 22:01:10 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Toast the Havanese\/Shih Tzu puppy at Dream Tails Henderson \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T03:00:00Z",
+    "tags": [
+        "Havanese",
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 12:55:03 - All Profiles: 140317572,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Lagoon, the gorgeous #pomsky puppy at Dream Tails Henderson!",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T18:00:00Z",
+    "tags": [
+        "Pomskypuppy",
+        "hendersonnv",
+        "puppylove",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTg2VHhmamg1Lm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 12:55:11 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "Meet Lagoon, the gorgeous #pomsky puppy at Dream Tails Henderson!",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-29T18:00:00Z",
+    "tags": [
+        "Pomskypuppy",
+        "hendersonnv",
+        "puppylove",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWwwSHppUmZELm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078844822","state":"SCHEDULED","text":"Meet Lagoon, the gorgeous #pomsky puppy at Dream Tails Henderson!","scheduledSendTime":"2026-03-29T18:00:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-l0HziRfD.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774805111&Signature=%2BGmav1je%2BsslDuhpbQVWOUNztR0%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-l0HziRfD.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774805111&Signature=8MexndfIajSOJ%2F2XPXcdyqPFSyU%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWwwSHppUmZELm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktbDBIemlSZkQuanBlZw=="}],"webhookUrls":null,"tags":["Pomskypuppy","hendersonnv","puppylove","dreamtailshenderson"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-29 12:55:18 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Meet Lagoon, the gorgeous #pomsky puppy at Dream Tails Henderson!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T18:00:00Z",
+    "tags": [
+        "Pomskypuppy",
+        "hendersonnv",
+        "puppylove",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTgyVDBmQXVqLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 12:55:19 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Lagoon, the gorgeous #pomsky puppy at Dream Tails Henderson!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T18:00:00Z",
+    "tags": [
+        "Pomskypuppy",
+        "hendersonnv",
+        "puppylove",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 12:55:26 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Lagoon, the gorgeous #pomsky puppy at Dream Tails Henderson!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T18:00:00Z",
+    "tags": [
+        "Pomskypuppy",
+        "hendersonnv",
+        "puppylove",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTBZSHJ1NUZrLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 12:55:26 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Lagoon, the gorgeous #pomsky puppy at Dream Tails Henderson!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T18:00:00Z",
+    "tags": [
+        "Pomskypuppy",
+        "hendersonnv",
+        "puppylove",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 17:01:58 - All Profiles: 140317572,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T21:30:00Z",
+    "tags": [
+        "Yorkiepoo",
+        "australianshepherd",
+        "cavalier",
+        "puppies",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 17:01:59 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-29T21:30:00Z",
+    "tags": [
+        "Yorkiepoo",
+        "australianshepherd",
+        "cavalier",
+        "puppies",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"data":[{"id":"13078863331","state":"SCHEDULED","text":"Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson ✨🤍🐶","scheduledSendTime":"2026-03-29T21:30:00Z","socialProfile":{"id":"140317572"},"mediaUrls":null,"media":null,"webhookUrls":null,"tags":["puppies","dreamtailshenderson","australianshepherd","cavalier","Yorkiepoo"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-29 17:01:59 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T21:30:00Z",
+    "tags": [
+        "Yorkiepoo",
+        "australianshepherd",
+        "cavalier",
+        "puppies",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 17:02:00 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T21:30:00Z",
+    "tags": [
+        "Yorkiepoo",
+        "australianshepherd",
+        "cavalier",
+        "puppies",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 17:03:24 - All Profiles: 140317572,139913211 - Code: 400
+Payload sent:
+{
+    "text": "Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "140317572",
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T21:30:00Z",
+    "tags": [
+        "Yorkiepoo",
+        "australianshepherd",
+        "cavalier",
+        "puppies",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWxRaDl1RGZqLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 17:03:32 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-29T21:30:00Z",
+    "tags": [
+        "Yorkiepoo",
+        "australianshepherd",
+        "cavalier",
+        "puppies",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTNqVFFIZWZlLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13078863407","state":"SCHEDULED","text":"Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson ✨🤍🐶","scheduledSendTime":"2026-03-29T21:30:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-3jTQHefe.mov?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774820012&Signature=h5Fh0EUCKoclJv7dP0Pyrrqb3Xc%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-3jTQHefe.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774820012&Signature=5Vr5THxr28XkStfQ%2BPzuyeKOBvY%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTNqVFFIZWZlLm1vdg==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktM2pUUUhlZmUuanBlZw=="}],"webhookUrls":null,"tags":["puppies","dreamtailshenderson","australianshepherd","cavalier","Yorkiepoo"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-29 17:03:39 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T21:30:00Z",
+    "tags": [
+        "Yorkiepoo",
+        "australianshepherd",
+        "cavalier",
+        "puppies",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWo1aEJzM0NkLm1vdg=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 17:03:40 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Our Pet Concierges show us their favorite puppies of the week! Meet them today at Dream Tails Henderson \u2728\ud83e\udd0d\ud83d\udc36",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T21:30:00Z",
+    "tags": [
+        "Yorkiepoo",
+        "australianshepherd",
+        "cavalier",
+        "puppies",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-29 18:18:24 - All Profiles: 140317572,139913211 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T22:30:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:18:24 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-29T22:30:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:18:24 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T22:30:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:18:35 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T23:30:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:18:35 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-29T23:30:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:18:36 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-29T23:30:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:18:36 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-29T23:30:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:19:13 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T12:00:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:19:13 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-30T12:00:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:19:13 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-30T12:00:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-29 18:19:14 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "We love them all! Meet our poodle, cavalier, and cavapoo at Dream Tails Henderson! \ud83d\udc36\u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T12:00:00Z",
+    "tags": [
+        "Cavalier",
+        "poodlepuppy",
+        "dreamtailshenderson",
+        "dreampuppy"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 13:45:22 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T18:30:00Z",
+    "tags": [
+        "Morkiepuppy",
+        "yorkie",
+        "toybreed",
+        "Maltese",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 13:45:22 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-30T18:30:00Z",
+    "tags": [
+        "Morkiepuppy",
+        "yorkie",
+        "toybreed",
+        "Maltese",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 13:45:22 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-30T18:30:00Z",
+    "tags": [
+        "Morkiepuppy",
+        "yorkie",
+        "toybreed",
+        "Maltese",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 13:45:22 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T18:30:00Z",
+    "tags": [
+        "Morkiepuppy",
+        "yorkie",
+        "toybreed",
+        "Maltese",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 14:11:30 - All Profiles: 140317572,139913211,140296721,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "140296721",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 14:11:30 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 14:11:31 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 14:11:32 - Profile: 140296721 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140296721"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 14:11:32 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-03-30 14:17:19 - All Profiles: 140317572,139913211,140296721,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "140296721",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUJQU1pzamhBLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 14:17:26 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTBhRjVzbVM3Lm1wNA=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13079096291","state":"SCHEDULED","text":"Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! ✨🤍","scheduledSendTime":"2026-03-30T19:00:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-0aF5smS7.mp4?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774896446&Signature=jlPx%2BNyjm4crhJtXeS8jpUJMijA%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-0aF5smS7.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774896446&Signature=a3F9MaY4y6%2BF1q9SPKd4%2Bsf%2B9Uk%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTBhRjVzbVM3Lm1wNA==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktMGFGNXNtUzcuanBlZw=="}],"webhookUrls":null,"tags":["Morkie","dreamtailshenderson","Yorkie","Maltese","toybreed"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-30 14:17:29 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LW9RY0x1a2Y5Lm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 14:17:29 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 14:17:36 - Profile: 140296721 - Code: 200
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140296721"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXJRSGxTR1RhLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13079096372","state":"SCHEDULED","text":"Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! ✨🤍","scheduledSendTime":"2026-03-30T19:00:00Z","socialProfile":{"id":"140296721"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-rQHlSGTa.mp4?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774896456&Signature=jMp4lqF8lqpSoC1p6w80J5bbKw8%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-rQHlSGTa.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774896456&Signature=VhSXkChuIV5P2jhunjwnL%2FXG8%2FQ%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXJRSGxTR1RhLm1wNA==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktclFIbFNHVGEuanBlZw=="}],"webhookUrls":null,"tags":["Morkie","dreamtailshenderson","Yorkie","Maltese","toybreed"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-30 14:17:39 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LXI4c1p0bVROLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 14:17:39 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Can you blame us? Venus the morkie puppy is just too cute! Meet her today at Dream Tails Henderson! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-30T19:00:00Z",
+    "tags": [
+        "Morkie",
+        "Maltese",
+        "Yorkie",
+        "toybreed",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 20:07:50 - All Profiles: 140317572,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Finley the adorable Mini Bernedoodle at Dream Tails Henderson!\r\n\r\nStill looking for the puppy to your dreams? Visit www.dreamtailshenderson.com for our full list of available puppies \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-31T01:00:00Z",
+    "tags": [
+        "Bernedoodle",
+        "Bernesemountaindog",
+        "poodle"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTltQ290UmM5Lm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 20:07:59 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "Meet Finley the adorable Mini Bernedoodle at Dream Tails Henderson!\r\n\r\nStill looking for the puppy to your dreams? Visit www.dreamtailshenderson.com for our full list of available puppies \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-03-31T01:00:00Z",
+    "tags": [
+        "Bernedoodle",
+        "Bernesemountaindog",
+        "poodle"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWxaczBUMHVSLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13079179847","state":"SCHEDULED","text":"Meet Finley the adorable Mini Bernedoodle at Dream Tails Henderson!\r\n\r\nStill looking for the puppy to your dreams? Visit www.dreamtailshenderson.com for our full list of available puppies 🤍✨","scheduledSendTime":"2026-03-31T01:00:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-lZs0T0uR.mp4?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774917479&Signature=%2BWD7Id4HlhXfdQkjPR7azYr0IQc%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-lZs0T0uR.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1774917479&Signature=F%2BsX%2B4ye3KW5gP4%2F41qHSqvQoV0%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWxaczBUMHVSLm1wNA==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktbFpzMFQwdVIuanBlZw=="}],"webhookUrls":null,"tags":["Bernedoodle","Bernesemountaindog","poodle"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-03-30 20:08:07 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Meet Finley the adorable Mini Bernedoodle at Dream Tails Henderson!\r\n\r\nStill looking for the puppy to your dreams? Visit www.dreamtailshenderson.com for our full list of available puppies \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-31T01:00:00Z",
+    "tags": [
+        "Bernedoodle",
+        "Bernesemountaindog",
+        "poodle"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWU5U0R0bGNCLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 20:08:07 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Finley the adorable Mini Bernedoodle at Dream Tails Henderson!\r\n\r\nStill looking for the puppy to your dreams? Visit www.dreamtailshenderson.com for our full list of available puppies \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-03-31T01:00:00Z",
+    "tags": [
+        "Bernedoodle",
+        "Bernesemountaindog",
+        "poodle"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 20:08:15 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet Finley the adorable Mini Bernedoodle at Dream Tails Henderson!\r\n\r\nStill looking for the puppy to your dreams? Visit www.dreamtailshenderson.com for our full list of available puppies \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-31T01:00:00Z",
+    "tags": [
+        "Bernedoodle",
+        "Bernesemountaindog",
+        "poodle"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVJOSHlTUGMxLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-03-30 20:08:15 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet Finley the adorable Mini Bernedoodle at Dream Tails Henderson!\r\n\r\nStill looking for the puppy to your dreams? Visit www.dreamtailshenderson.com for our full list of available puppies \ud83e\udd0d\u2728",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-03-31T01:00:00Z",
+    "tags": [
+        "Bernedoodle",
+        "Bernesemountaindog",
+        "poodle"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-04-01 14:14:59 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Bamboo is such a cutie! Meet her today at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 14:14:59 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Bamboo is such a cutie! Meet her today at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 14:14:59 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Bamboo is such a cutie! Meet her today at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 14:15:00 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Bamboo is such a cutie! Meet her today at Dream Tails Henderson \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "puppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 15:31:18 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "shihtzu",
+        "shihtzupuppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 15:31:18 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "shihtzu",
+        "shihtzupuppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 15:31:19 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "shihtzu",
+        "shihtzupuppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 15:31:19 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "shihtzu",
+        "shihtzupuppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 15:36:10 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "shihtzu",
+        "shihtzupuppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 15:36:10 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "shihtzu",
+        "shihtzupuppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 15:36:10 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "shihtzu",
+        "shihtzupuppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 15:36:11 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T20:00:00Z",
+    "tags": [
+        "shihtzu",
+        "shihtzupuppy",
+        "hendersonnv",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-01 18:06:28 - All Profiles: 140317572,139913211,139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d\r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T23:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "shihtzupuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LUdiSHJ1bkZyLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-04-01 18:06:32 - Profile: 140317572 - Code: 200
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d\r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-04-01T23:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "shihtzupuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTlFaDBGbWNHLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"data":[{"id":"13079782172","state":"SCHEDULED","text":"Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! ✨🤍\r\n\r\nwww.dreamtailshenderson.com","scheduledSendTime":"2026-04-01T23:00:00Z","socialProfile":{"id":"140317572"},"mediaUrls":[{"url":"https://hootsuite-video.s3.amazonaws.com/production/27546049-9Eh0FmcG.mp4?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1775082992&Signature=baH5yMvmEh56sRMs6f%2Bon83lm4U%3D","thumbnailUrl":"https://hootsuite-video.s3.amazonaws.com/production/thumb-1-27546049-9Eh0FmcG.jpeg?AWSAccessKeyId=AKIARUFKCQPW7647QDEE&Expires=1775082992&Signature=PJArJzvSneaUvVfsoIwgNRhzY%2Bg%3D"}],"media":[{"id":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LTlFaDBGbWNHLm1wNA==","thumbnailId":"aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uL3RodW1iLTEtMjc1NDYwNDktOUVoMEZtY0cuanBlZw=="}],"webhookUrls":null,"tags":["Shihtzu","shihtzupuppy","dreamtailshenderson"],"targeting":null,"privacy":null,"location":null,"emailNotification":false,"postUrl":null,"postId":null,"reviewers":null,"createdByMember":{"id":"27546049"},"lastUpdatedByMember":{"id":"27546049"},"extendedInfo":null,"sequenceNumber":null}]}
+----------------------------------------
+2026-04-01 18:06:35 - Profile: 139913211 - Code: 400
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d\r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-01T23:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "shihtzupuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LVBnU211R1Q3Lm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-04-01 18:06:35 - Profile: 139913211 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d\r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-01T23:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "shihtzupuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-04-01 18:06:38 - Profile: 139926996 - Code: 400
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d\r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T23:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "shihtzupuppy",
+        "dreamtailshenderson"
+    ],
+    "media": [
+        {
+            "id": "aHR0cHM6Ly9ob290c3VpdGUtdmlkZW8uczMuYW1hem9uYXdzLmNvbS9wcm9kdWN0aW9uLzI3NTQ2MDQ5LWtBSUtmeVRuLm1wNA=="
+        }
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-04-01 18:06:38 - Profile: 139926996 (RETRY WITHOUT MEDIA) - Code: 400
+Payload sent:
+{
+    "text": "Meet our sweet Shih Tzu, Bamboo, at Dream Tails Henderson today! \u2728\ud83e\udd0d\r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-01T23:00:00Z",
+    "tags": [
+        "Shihtzu",
+        "shihtzupuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"errors":[]}
+----------------------------------------
+2026-04-02 15:18:34 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier is ready to meet you at Dream Tails Henderson! Book an appointment to meet her today \ud83e\udd0d\u2728 \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier puppy dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:18:34 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier is ready to meet you at Dream Tails Henderson! Book an appointment to meet her today \ud83e\udd0d\u2728 \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier puppy dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:18:34 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier is ready to meet you at Dream Tails Henderson! Book an appointment to meet her today \ud83e\udd0d\u2728 \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier puppy dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:18:34 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier is ready to meet you at Dream Tails Henderson! Book an appointment to meet her today \ud83e\udd0d\u2728 \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier puppy dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:24:07 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:24:07 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:24:07 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:24:07 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:26:53 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:26:53 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:26:53 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:26:53 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today \u2728\ud83e\udd0d \r\n\r\nwww.dreamtailshenderson.com",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:28:25 - All Profiles: 140317572,139913211,139926996 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today!",
+    "socialProfileIds": [
+        "140317572",
+        "139913211",
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:28:25 - Profile: 140317572 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today!",
+    "socialProfileIds": [
+        "140317572"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:28:25 - Profile: 139913211 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today!",
+    "socialProfileIds": [
+        "139913211"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------
+2026-04-02 15:28:25 - Profile: 139926996 - Code: 401
+Payload sent:
+{
+    "text": "Juniper the Boston Terrier puppy is ready to meet you at Dream Tails Henderson! Book an appointment with us today!",
+    "socialProfileIds": [
+        "139926996"
+    ],
+    "scheduledSendTime": "2026-04-02T20:00:00Z",
+    "tags": [
+        "Bostonterrier",
+        "bostonpuppy",
+        "dreamtailshenderson"
+    ]
+}
+Response received:
+{"error":"request_forbidden","error_description":"invalid_token"}
+----------------------------------------

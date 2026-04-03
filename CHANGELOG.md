@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.4] - 2026-04-03
+### Added
+- MOV video format support across calendar, admin calendar, uploads, and Hootsuite posting
+- HEIC/HEIF image format support in file upload accept attributes
+- Dual `<source>` tags (MP4 + QuickTime) for broader browser video playback compatibility
+- Extended Hootsuite polling timeout for video uploads (~120s vs ~60s for images)
+
+### Changed
+- Media guidelines now list "Accepted formats: MP4, MOV" (was MP4-only)
+- Upload hints updated to "PNG, JPG, GIF, MP4 or MOV"
+- "Add More Images" button renamed to "Add More Media" on public calendar
+- Hootsuite S3 upload now streams files instead of loading into memory
+- Server-side MIME detection via `finfo` replaces browser-provided MIME type for Hootsuite uploads
+
+### Fixed
+- MOV and other video formats not detected as video in calendar views (PHP + JS regex)
+- Video files uploaded via Hootsuite could fail with incorrect MIME type from browser
+
 ## [2.4.3] - 2026-01-26
 ### Changed
 - Reduced container padding across all pages for tighter layout (0.5rem uniform padding)

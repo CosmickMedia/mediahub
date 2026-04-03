@@ -40,3 +40,6 @@ public/uploads/
 # PHP specific
 vendor/
 composer.lock
+.user.ini
+/assets/thumbs/
+/assets/thumbs/

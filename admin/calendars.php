@@ -200,7 +200,7 @@ foreach ($posts as $p) {
                 }
             }
             $media_urls[] = $u;
-            if (!$video && preg_match('/\.mp4(\?|$)/i', $orig)) {
+            if (!$video && preg_match('/\.(mp4|mov|m4v|webm|3gp|avi)(\?|$)/i', $orig)) {
                 $video = $u;
             } elseif (!$img) {
                 $img = $u;
@@ -1295,7 +1295,7 @@ include __DIR__.'/header.php';
                                             </ul>
                                             <strong class="d-block">Videos:</strong>
                                             <ul class="mb-0">
-                                                <li>Accepted format: MP4</li>
+                                                <li>Accepted formats: MP4, MOV</li>
                                                 <li>Maximum file size: 10MB</li>
                                                 <li>Duration: Under 60 seconds recommended</li>
                                                 <li>Recommended resolution: 1080x1080px or 1920x1080px</li>
@@ -1303,11 +1303,11 @@ include __DIR__.'/header.php';
                                         </div>
                                     </div>
                                     <div class="media-upload-area">
-                                        <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,video/*" multiple style="display: none;">
+                                        <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,image/heic,image/heif,video/*,video/quicktime,video/mp4" multiple style="display: none;">
                                         <div class="media-upload-content" id="mediaUploadContent">
                                             <i class="bi bi-cloud-arrow-up"></i>
                                             <p class="upload-text">Click to upload or drag and drop</p>
-                                            <p class="upload-subtext">PNG, JPG, GIF or MP4 (max. 10MB each, up to 4 files)</p>
+                                            <p class="upload-subtext">PNG, JPG, GIF, MP4 or MOV (max. 10MB each, up to 4 files)</p>
                                         </div>
                                         <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
                                             <!-- Media previews will be added here -->
@@ -1523,8 +1523,8 @@ include __DIR__.'/header.php';
                 if (event.extendedProps.media_urls && event.extendedProps.media_urls.length) {
                     html += '<div style="max-height: 60vh; overflow-y: auto;">';
                     event.extendedProps.media_urls.forEach(function(url) {
-                        if (/\.mp4(\?|$)/i.test(url)) {
-                            html += '<video controls style="max-width: 100%; max-height: 60vh;"><source src="' + url + '" type="video/mp4"></video>';
+                        if (/\.(mp4|mov|m4v|webm|3gp|avi)(\?|$)/i.test(url)) {
+                            html += '<video controls style="max-width: 100%; max-height: 60vh;"><source src="' + url + '" type="video/mp4"><source src="' + url + '" type="video/quicktime"></video>';
                         } else {
                             html += '<img src="' + url + '" style="max-width: 100%; max-height: 60vh; margin-bottom: 1rem;">';
                         }

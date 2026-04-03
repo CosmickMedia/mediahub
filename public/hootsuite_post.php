@@ -238,23 +238,29 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
 
     error_log("Got media ID: $mediaId");
 
-    // Step 2: Upload file to S3
-    $fileContent = file_get_contents($filePath);
+    // Step 2: Upload file to S3 (streaming to avoid loading entire file into memory)
+    $fh = fopen($filePath, 'rb');
+    if ($fh === false) {
+        error_log("Failed to open file for streaming: $filePath");
+        return null;
+    }
 
     $ch = curl_init($uploadUrl);
     curl_setopt_array($ch, [
-        CURLOPT_CUSTOMREQUEST => 'PUT',
+        CURLOPT_PUT => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POSTFIELDS => $fileContent,
+        CURLOPT_INFILE => $fh,
+        CURLOPT_INFILESIZE => $fileSize,
         CURLOPT_HTTPHEADER => [
             'Content-Type: ' . $mimeType,
-            'Content-Length: ' . strlen($fileContent)
+            'Content-Length: ' . $fileSize
         ]
     ]);
 
     $s3Response = curl_exec($ch);
     $s3Code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    fclose($fh);
 
     if ($s3Code !== 200) {
         error_log("S3 upload failed (code $s3Code): $s3Response");
@@ -269,7 +275,9 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
     // - Files <100KB: Process to READY in 2-4 seconds
     // - Files >1MB: Can take 30+ seconds or get stuck indefinitely
 
-    $maxAttempts = 20;  // Up to 60 seconds with exponential backoff
+    // Increase polling for video files which take longer to process
+    $isVideo = strpos($mimeType, 'video/') === 0;
+    $maxAttempts = $isVideo ? 40 : 20;  // ~120s for video, ~60s for images
     $attempt = 0;
     $mediaReady = false;
 
@@ -735,7 +743,6 @@ if ($action === 'create') {
             // Single file upload
             $fileName = $_FILES['media']['name'];
             $tmpName = $_FILES['media']['tmp_name'];
-            $mimeType = $_FILES['media']['type'];
 
             error_log("Processing single media upload: $fileName");
 
@@ -743,7 +750,12 @@ if ($action === 'create') {
             $localPath = $uploadDir . $savedFileName;
 
             if (move_uploaded_file($tmpName, $localPath)) {
-                error_log("File saved locally: $localPath");
+                // Detect MIME server-side instead of trusting browser
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mimeType = finfo_file($finfo, $localPath);
+                finfo_close($finfo);
+
+                error_log("File saved locally: $localPath (detected MIME: $mimeType)");
                 $localMediaPaths[] = [
                     'path' => $localPath,
                     'name' => $fileName,
@@ -762,7 +774,6 @@ if ($action === 'create') {
                 if (!empty($_FILES['media']['tmp_name'][$i])) {
                     $fileName = $_FILES['media']['name'][$i];
                     $tmpName = $_FILES['media']['tmp_name'][$i];
-                    $mimeType = $_FILES['media']['type'][$i];
 
                     error_log("Processing file $i: $fileName");
 
@@ -770,7 +781,12 @@ if ($action === 'create') {
                     $localPath = $uploadDir . $savedFileName;
 
                     if (move_uploaded_file($tmpName, $localPath)) {
-                        error_log("File $i saved locally: $localPath");
+                        // Detect MIME server-side instead of trusting browser
+                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                        $mimeType = finfo_file($finfo, $localPath);
+                        finfo_close($finfo);
+
+                        error_log("File $i saved locally: $localPath (detected MIME: $mimeType)");
 
                         // Add all files to localMediaPaths (not just the first file)
                         $localMediaPaths[] = [
@@ -999,8 +1015,8 @@ if ($action === 'create') {
                             'social_profile_id' => $profile_id,
                             'media_urls' => $mediaUrls,
                             'posted_by' => $user_name,
-                            'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-                            'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
+                            'image' => !empty($mediaUrls) && !preg_match('/\.(mp4|mov|m4v|webm|3gp|avi)(\?|$)/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
+                            'video' => !empty($mediaUrls) && preg_match('/\.(mp4|mov|m4v|webm|3gp|avi)(\?|$)/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
                             'icon' => $icon,
                             'network' => $networkName
                         ]
@@ -1240,8 +1256,8 @@ if ($action === 'create') {
                             'social_profile_id' => $profile_id,
                             'media_urls' => $mediaUrls,
                             'posted_by' => $user_name,
-                            'image' => !empty($mediaUrls) && !preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
-                            'video' => !empty($mediaUrls) && preg_match('/\.mp4$/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
+                            'image' => !empty($mediaUrls) && !preg_match('/\.(mp4|mov|m4v|webm|3gp|avi)(\?|$)/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
+                            'video' => !empty($mediaUrls) && preg_match('/\.(mp4|mov|m4v|webm|3gp|avi)(\?|$)/i', $mediaUrls[0]) ? $mediaUrls[0] : '',
                             'icon' => $icon,
                             'network' => $networkName
                         ]

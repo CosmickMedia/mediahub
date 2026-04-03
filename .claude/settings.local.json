@@ -11,7 +11,8 @@
       "Bash(ls:*)",
       "Bash(php -l:*)",
       "Bash(/usr/local/bin/php:*)",
-      "Bash(/opt/homebrew/bin/php:*)"
+      "Bash(/opt/homebrew/bin/php:*)",
+      "Bash(xargs cat:*)"
     ]
   }
 }
