@@ -111,8 +111,13 @@ function compressImageIfNeeded($filePath, $mimeType) {
         $image = @imagecreatefromwebp($filePath);
         $imageType = 'webp';
     } else {
-        error_log("Unsupported image type for compression: $mimeType");
-        return false;
+        // Try GD auto-detection for other formats (AVIF, BMP, GIF, TIFF, etc.)
+        $image = @imagecreatefromstring(file_get_contents($filePath));
+        if (!$image) {
+            error_log("Unsupported image type for compression: $mimeType");
+            return false;
+        }
+        $imageType = 'other';
     }
 
     if (!$image) {
@@ -573,8 +578,13 @@ function cropImageToAspectRatio($sourcePath, $targetWidth, $targetHeight, $outpu
             $srcImage = @imagecreatefromwebp($sourcePath);
             break;
         default:
-            error_log("Unsupported image type: $imageType");
-            return false;
+            // Try GD auto-detection for other formats
+            $srcImage = @imagecreatefromstring(file_get_contents($sourcePath));
+            if (!$srcImage) {
+                error_log("Unsupported image type: $imageType");
+                return false;
+            }
+            break;
     }
 
     if (!$srcImage) {
@@ -644,6 +654,50 @@ function cropImageToAspectRatio($sourcePath, $targetWidth, $targetHeight, $outpu
     }
 }
 
+/**
+ * Convert mobile image formats (HEIC/HEIF) to JPEG for processing
+ * Returns: [path, mime, was_converted]
+ */
+function convertImageForUpload($filePath, $mimeType) {
+    $heicMimes = ['image/heic', 'image/heif', 'image/x-heic', 'image/x-heif'];
+    if (in_array($mimeType, $heicMimes) || preg_match('/\.(heic|heif)$/i', $filePath)) {
+        if (function_exists('exec')) {
+            $tempJpg = $filePath . '.converted.jpg';
+            $cmd = '/usr/bin/sips -s format jpeg ' . escapeshellarg($filePath)
+                 . ' --out ' . escapeshellarg($tempJpg) . ' 2>/dev/null';
+            @exec($cmd, $output, $returnCode);
+            if ($returnCode === 0 && file_exists($tempJpg)) {
+                error_log("Converted HEIC to JPEG: $filePath → $tempJpg");
+                return [$tempJpg, 'image/jpeg', true];
+            }
+        }
+        // sips unavailable or failed — try imagecreatefromstring
+        $img = @imagecreatefromstring(file_get_contents($filePath));
+        if ($img) {
+            $tempJpg = $filePath . '.converted.jpg';
+            imagejpeg($img, $tempJpg, 90);
+            imagedestroy($img);
+            error_log("Converted image via GD: $filePath → $tempJpg");
+            return [$tempJpg, 'image/jpeg', true];
+        }
+        error_log("HEIC conversion failed for: $filePath");
+    }
+    return [$filePath, $mimeType, false];
+}
+
+if ($action === 'refresh_token') {
+    require_once __DIR__.'/../hootsuite/hootsuite_refresh_token.php';
+    $interval = (int)(get_setting('hootsuite_token_refresh_interval') ?: 45);
+    $last = get_setting('hootsuite_token_last_refresh');
+    if ($last && (time() - strtotime($last) < $interval * 60)) {
+        echo json_encode(['success' => true, 'refreshed' => false, 'message' => 'Token still valid']);
+        exit;
+    }
+    [$ok, $msg] = hootsuite_refresh_token(false);
+    echo json_encode(['success' => $ok, 'refreshed' => true, 'message' => $msg]);
+    exit;
+}
+
 if ($action === 'update') {
     // Hootsuite API does not support editing scheduled posts via PUT/PATCH
     // We must delete and recreate the post with updated content
@@ -695,6 +749,11 @@ if ($action === 'update') {
 }
 
 if ($action === 'create') {
+    // Extend execution time for video uploads
+    if (!empty($_FILES['media'])) {
+        set_time_limit(300);
+    }
+
     $text = trim($_POST['text'] ?? '');
     $scheduled = $_POST['scheduled_time'] ?? '';
     $profile_ids = $_POST['profile_ids'] ?? ($_POST['profile_id'] ?? []);
@@ -849,6 +908,8 @@ if ($action === 'create') {
         $mediaPayload = [];
         $mediaTimedOut = false;
 
+        $convertedFiles = []; // track converted files for cleanup
+
         if ($hasMedia) {
             // Upload all media files (with automatic compression)
             foreach ($localMediaPaths as $mediaFile) {
@@ -857,9 +918,17 @@ if ($action === 'create') {
                 $wasCompressed = false;
                 $compressionInfo = '';
 
+                // Convert mobile formats (HEIC/HEIF) to JPEG before processing
+                if (strpos($uploadMime, 'image/') === 0) {
+                    list($uploadPath, $uploadMime, $wasConverted) = convertImageForUpload($uploadPath, $uploadMime);
+                    if ($wasConverted) {
+                        $convertedFiles[] = $uploadPath;
+                    }
+                }
+
                 // Compress image if needed (only for images)
                 if (strpos($uploadMime, 'image/') === 0) {
-                    $compressionResult = compressImageIfNeeded($mediaFile['path'], $mediaFile['mime']);
+                    $compressionResult = compressImageIfNeeded($uploadPath, $uploadMime);
 
                     if ($compressionResult && $compressionResult !== false) {
                         list($compressedPath, $compressedSize, $wasCompressed) = $compressionResult;
@@ -898,6 +967,11 @@ if ($action === 'create') {
                     error_log("Media upload failed/timed out for: " . $mediaFile['name']);
                     $mediaTimedOut = true;
                 }
+            }
+
+            // Clean up converted files
+            foreach ($convertedFiles as $cf) {
+                if (file_exists($cf)) @unlink($cf);
             }
         }
 
@@ -1062,6 +1136,11 @@ if ($action === 'create') {
             // Upload media for this specific profile only if it supports it
             $profileMediaPayload = [];
             if ($hasMedia && $supportsMedia) {
+                if (!empty($mediaPayload)) {
+                    // Reuse media IDs from batch attempt — avoids re-uploading large videos
+                    $profileMediaPayload = $mediaPayload;
+                    error_log("Reusing batch media IDs for profile $profile_id");
+                } else {
                 // Get platform-specific image settings once for this profile
                 $platformSettings = getPlatformImageSettings($pdo, $networkName);
 
@@ -1072,6 +1151,11 @@ if ($action === 'create') {
                     $wasCompressed = false;
                     $wasCropped = false;
                     $croppedPath = null;
+
+                    // Convert mobile formats (HEIC/HEIF) to JPEG before processing
+                    if (strpos($uploadMime, 'image/') === 0) {
+                        list($uploadPath, $uploadMime, $wasConverted) = convertImageForUpload($uploadPath, $uploadMime);
+                    }
 
                     // Apply platform-specific cropping if enabled (only for images)
                     if (strpos($uploadMime, 'image/') === 0 && $platformSettings && !empty($platformSettings['enabled'])) {
@@ -1144,6 +1228,7 @@ if ($action === 'create') {
                 }
 
                 error_log("Total media uploaded for profile $profile_id: " . count($profileMediaPayload) . " of " . count($localMediaPaths));
+                }
             } else if ($hasMedia && !$supportsMedia) {
                 error_log("Skipping media upload for profile: $profile_id (platform restrictions detected)");
             }
@@ -1264,127 +1349,10 @@ if ($action === 'create') {
                     ];
                 }
             } else {
-                $failedProfiles[] = $profile_id;
                 $responseData = json_decode($profileResponse, true);
-                $errorCode = $responseData['errors'][0]['code'] ?? null;
                 $errorMsg = $responseData['errors'][0]['message'] ?? 'Unknown error';
-
-                // Check if it's a media-related error (5000 often indicates media issues)
-                if ($profileMediaPayload && !empty($profileMediaPayload[0]['id']) && ($errorCode == 5000 || $profileCode == 400)) {
-                    error_log("Retrying profile $profile_id without media due to error code $profileCode (error: $errorMsg)");
-
-                    unset($profilePayload['media']);
-
-                    $ch = curl_init('https://platform.hootsuite.com/v1/messages');
-                    curl_setopt_array($ch, [
-                        CURLOPT_HTTPHEADER => [
-                            "Authorization: Bearer $token",
-                            'Content-Type: application/json',
-                            'Accept: application/json'
-                        ],
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_POST => true,
-                        CURLOPT_POSTFIELDS => json_encode($profilePayload)
-                    ]);
-
-                    $retryResponse = curl_exec($ch);
-                    $retryCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                    curl_close($ch);
-
-                    // Log retry attempt
-                    $logEntry = date('Y-m-d H:i:s') . " - Profile: $profile_id (RETRY WITHOUT MEDIA) - Code: $retryCode\n";
-                    $logEntry .= "Payload sent:\n" . json_encode($profilePayload, JSON_PRETTY_PRINT) . "\n";
-                    $logEntry .= "Response received:\n" . $retryResponse . "\n";
-                    $logEntry .= "----------------------------------------\n";
-                    file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
-
-                    if ($retryCode >= 200 && $retryCode < 300) {
-                        error_log("Success without media for profile $profile_id");
-                        $successfulProfiles[] = $profile_id;
-
-                        // Process the response
-                        $data = json_decode($retryResponse, true);
-                        $messages = $data['data'] ?? [];
-
-                        foreach ($messages as $msg) {
-                            $postId = $msg['id'] ?? uniqid('post_');
-                            $state = $msg['state'] ?? 'SCHEDULED';
-                            $scheduledSendTime = $msg['scheduledSendTime'] ?? date('c', $ts);
-                            $scheduledSendTime = date('Y-m-d H:i:s', strtotime($scheduledSendTime));
-
-                            // Get network info
-                            $color = '#0d6efd';
-                            $icon = 'bi-share';
-                            $networkName = '';
-                            $profStmt = $pdo->prepare('SELECT network FROM hootsuite_profiles WHERE id=?');
-                            $profStmt->execute([$profile_id]);
-                            if ($netKey = strtolower($profStmt->fetchColumn() ?: '')) {
-                                $netStmt = $pdo->prepare('SELECT name, icon, color FROM social_networks WHERE LOWER(name)=?');
-                                $netStmt->execute([$netKey]);
-                                if ($n = $netStmt->fetch()) {
-                                    $networkName = $n['name'] ?? '';
-                                    $color = $n['color'] ?? $color;
-                                    $icon = $n['icon'] ?? $icon;
-                                }
-                            }
-
-                            // Save to database (without media)
-                            try {
-                                $stmt = $pdo->prepare('INSERT INTO hootsuite_posts (post_id, store_id, text, scheduled_send_time, raw_json, state, social_profile_id, tags, media, created_by_user_id, media_urls) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE text=VALUES(text), scheduled_send_time=VALUES(scheduled_send_time), raw_json=VALUES(raw_json), state=VALUES(state), social_profile_id=VALUES(social_profile_id), tags=VALUES(tags), media=VALUES(media), created_by_user_id=VALUES(created_by_user_id), media_urls=VALUES(media_urls)');
-                                $stmt->execute([
-                                    $postId,
-                                    $store_id,
-                                    $text,
-                                    $scheduledSendTime,
-                                    json_encode($msg),
-                                    $state,
-                                    $profile_id,
-                                    json_encode($tagsArr),
-                                    json_encode([]), // No media for this retry
-                                    $user_id,
-                                    json_encode($mediaUrls) // Still save local URLs for reference
-                                ]);
-                            } catch (Exception $e) {
-                                error_log("Database error: " . $e->getMessage());
-                            }
-
-                            $events[] = [
-                                'id' => $postId,
-                                'title' => $networkName ?: 'Post',
-                                'start' => str_replace(' ', 'T', $scheduledSendTime),
-                                'backgroundColor' => $color,
-                                'borderColor' => $color,
-                                'classNames' => ['social-' . ($networkName ? preg_replace('/[^a-z0-9]+/','-', strtolower($networkName)) : 'default')],
-                                'extendedProps' => [
-                                    'text' => $text,
-                                    'time' => str_replace(' ', 'T', $scheduledSendTime),
-                                    'tags' => $tagsArr,
-                                    'source' => 'API',
-                                    'post_id' => $postId,
-                                    'created_by_user_id' => $user_id,
-                                    'social_profile_id' => $profile_id,
-                                    'media_urls' => $mediaUrls,
-                                    'posted_by' => $user_name,
-                                    'image' => '', // No image since media failed
-                                    'video' => '',
-                                    'icon' => $icon,
-                                    'network' => $networkName,
-                                    'note' => 'Posted without media due to profile restrictions'
-                                ]
-                            ];
-                        }
-                    } else {
-                        $failedProfiles[] = $profile_id;
-                        $responseData = json_decode($retryResponse, true);
-                        $errorMsg = $responseData['errors'][0]['message'] ?? 'Unknown error';
-                        error_log("Failed for profile $profile_id even without media: $errorMsg");
-                    }
-                } else {
-                    $failedProfiles[] = $profile_id;
-                    $responseData = json_decode($profileResponse, true);
-                    $errorMsg = $responseData['errors'][0]['message'] ?? 'Unknown error';
-                    error_log("Failed for profile $profile_id: $errorMsg");
-                }
+                error_log("Failed for profile $profile_id: $errorMsg");
+                $failedProfiles[] = ['id' => $profile_id, 'name' => $networkName, 'error' => $errorMsg];
             }
         }
 
@@ -1395,7 +1363,11 @@ if ($action === 'create') {
         } else {
             $result = ['success' => true, 'events' => $events];
             if (!empty($failedProfiles)) {
-                $result['warnings'] = 'Some profiles failed: ' . implode(', ', $failedProfiles);
+                $failureDetails = [];
+                foreach ($failedProfiles as $fp) {
+                    $failureDetails[] = $fp['name'] . ': ' . $fp['error'];
+                }
+                $result['warning'] = 'Failed for: ' . implode('; ', $failureDetails);
             }
             // Clean up session variable
             unset($_SESSION['existing_media_urls_for_update']);

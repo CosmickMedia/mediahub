@@ -561,32 +561,140 @@ include __DIR__.'/header.php';
                                 </div>
                                 <div class="form-group">
                                     <div class="media-upload-info">
-                                        <div class="alert alert-info">
-                                            <i class="bi bi-info-circle"></i>
-                                            <strong>Media Guidelines:</strong>
-                                            <strong class="d-block mt-2">Images:</strong>
-                                            <ul class="mb-2">
-                                                <li>Accepted formats: JPG, PNG</li>
-                                                <li>Maximum file size: 10MB (5MB recommended)</li>
-                                                <li>Recommended: 1200x1200px square for best compatibility</li>
-                                                <li>Alternative sizes: 1200x630px (landscape) or 1080x1350px (portrait)</li>
-                                                <li><small class="text-muted">Note: Instagram requires square (1:1) or portrait (4:5) ratios</small></li>
-                                            </ul>
-                                            <strong class="d-block">Videos:</strong>
-                                            <ul class="mb-0">
-                                                <li>Accepted formats: MP4, MOV</li>
-                                                <li>Maximum file size: 10MB</li>
-                                                <li>Duration: Under 60 seconds recommended</li>
-                                                <li>Recommended resolution: 1080x1080px or 1920x1080px</li>
-                                            </ul>
+                                        <div class="accordion accordion-flush" id="mediaGuidelinesAccordion">
+                                            <div class="accordion-item border-0">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button collapsed py-2 px-3 bg-light rounded" type="button" data-bs-toggle="collapse" data-bs-target="#mediaGuidelinesBody" aria-expanded="false" aria-controls="mediaGuidelinesBody" style="font-size: 0.9rem;">
+                                                        <i class="bi bi-info-circle me-2"></i> <strong>Media Guidelines</strong>
+                                                    </button>
+                                                </h2>
+                                                <div id="mediaGuidelinesBody" class="accordion-collapse collapse" data-bs-parent="#mediaGuidelinesAccordion">
+                                                    <div class="accordion-body py-2 px-3" style="font-size: 0.85rem;">
+                                                        <div class="mb-2">
+                                                            <strong>Accepted Formats</strong><br>
+                                                            Images: JPG, PNG, WebP, HEIC (auto-converted) &bull; Max 10MB<br>
+                                                            Videos: MP4, MOV, WebM &bull; Max 10MB &bull; Under 60s recommended<br>
+                                                            Up to 4 files per post
+                                                        </div>
+                                                        <div class="accordion accordion-flush" id="platformGuidelinesAccordion">
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineFacebook" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-facebook me-1" style="color: #1877F2;"></i> Facebook
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineFacebook" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1200x630px (1.91:1), max 10MB<br>
+                                                                        Videos: 1080p, most durations, MP4/MOV<br>
+                                                                        <small>Auto-crops from center if needed</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineInstagram" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-instagram me-1" style="color: #E4405F;"></i> Instagram
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineInstagram" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1080x1080px (1:1) or 1080x1350 (4:5), max 5MB, JPG/PNG<br>
+                                                                        Videos: 1080x1080, max 60s, MP4/MOV<br>
+                                                                        <small class="text-warning">Strict aspect ratio requirements</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineYouTube" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-youtube me-1" style="color: #FF0000;"></i> YouTube
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineYouTube" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Videos: 1920x1080px (16:9), MP4/MOV<br>
+                                                                        <small>Best for landscape video content</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineTikTok" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-tiktok me-1" style="color: #000000;"></i> TikTok
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineTikTok" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Videos: 1080x1920px (9:16 vertical), MP4/MOV<br>
+                                                                        <small>Best for vertical video content</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineLinkedIn" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-linkedin me-1" style="color: #0A66C2;"></i> LinkedIn
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineLinkedIn" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1200x627px (1.91:1), max 10MB<br>
+                                                                        Videos: 1080p landscape, MP4/MOV
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineTwitter" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-twitter-x me-1" style="color: #000000;"></i> X / Twitter
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineTwitter" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1080x1080px (1:1), max 5MB<br>
+                                                                        Videos: 1080p, max 140s, MP4/MOV
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelinePinterest" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-pinterest me-1" style="color: #BD081C;"></i> Pinterest
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelinePinterest" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1000x1500px (2:3 vertical), max 20MB<br>
+                                                                        <small>Best for tall, vertical images</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineThreads" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-threads me-1" style="color: #000000;"></i> Threads
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineThreads" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1080x1920px (9:16 vertical), max 10MB<br>
+                                                                        Videos: 1080x1920, MP4/MOV
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="media-upload-area">
-                                        <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,image/heic,image/heif,video/*,video/quicktime,video/mp4" multiple style="display: none;">
+                                        <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,image/heic,image/heif,image/avif,video/*,video/quicktime,video/mp4,video/webm,video/3gpp" multiple style="display: none;">
                                         <div class="media-upload-content" id="mediaUploadContent">
                                             <i class="bi bi-cloud-arrow-up"></i>
                                             <p class="upload-text">Click to upload or drag and drop</p>
-                                            <p class="upload-subtext">PNG, JPG, GIF, MP4 or MOV (max. 10MB each, up to 4 files)</p>
+                                            <p class="upload-subtext">JPG, PNG, WebP, HEIC, MP4, MOV or WebM (max. 10MB each, up to 4 files)</p>
                                         </div>
                                         <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
                                             <!-- Media previews will be added here -->
@@ -664,6 +772,22 @@ include __DIR__.'/header.php';
                             Delete Post
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Error Modal -->
+    <div class="modal fade" id="scheduleErrorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="warning-animation">
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                    </div>
+                    <h4 class="mt-3">Unable to Schedule Post</h4>
+                    <p class="text-muted" id="errorMessage">...</p>
+                    <button type="button" class="btn btn-modern-primary mt-3" data-bs-dismiss="modal">OK</button>
                 </div>
             </div>
         </div>
@@ -905,7 +1029,17 @@ include __DIR__.'/header.php';
                             URL.revokeObjectURL(img.src);
                         };
                         img.onerror = function() {
-                            resolve(null);
+                            URL.revokeObjectURL(img.src);
+                            // Fallback for HEIC and other formats browsers can't render in <img>
+                            if (typeof createImageBitmap === 'function') {
+                                createImageBitmap(file).then(function(bitmap) {
+                                    resolve({ width: bitmap.width, height: bitmap.height, type: 'image' });
+                                }).catch(function() {
+                                    resolve({ width: 0, height: 0, type: 'image' });
+                                });
+                            } else {
+                                resolve({ width: 0, height: 0, type: 'image' });
+                            }
                         };
                         img.src = URL.createObjectURL(file);
                     });
@@ -967,8 +1101,17 @@ include __DIR__.'/header.php';
                         return;
                     }
 
-                    var mediaRatio = media.width / media.height;
                     var fileSizeMB = media.sizeMB || 0;
+
+                    // Handle unknown dimensions (e.g. HEIC files browsers can't decode)
+                    if (media.width === 0) {
+                        html += '<div class="alert alert-info mb-2 py-2 px-3">';
+                        html += '<i class="bi bi-info-circle me-1"></i>';
+                        html += 'Image format will be auto-converted for compatibility. Dimension checks skipped.';
+                        html += '</div>';
+                    }
+
+                    var mediaRatio = media.width && media.height ? media.width / media.height : 0;
 
                     selectedProfiles.forEach(function(checkbox) {
                         var platformType = checkbox.dataset.type;
@@ -981,8 +1124,8 @@ include __DIR__.'/header.php';
                         var outcomes = [];
                         var isWarning = false;
 
-                        // Check aspect ratio
-                        var ratioDiff = Math.abs(mediaRatio - req.ratioValue);
+                        // Check aspect ratio (skip if dimensions unknown)
+                        var ratioDiff = mediaRatio ? Math.abs(mediaRatio - req.ratioValue) : 0;
                         var ratioTolerance = req.ratioValue * 0.1; // 10% tolerance
 
                         if (ratioDiff > ratioTolerance) {
@@ -992,8 +1135,8 @@ include __DIR__.'/header.php';
                             isWarning = true;
                         }
 
-                        // Check minimum width
-                        if (media.width < req.minWidth) {
+                        // Check minimum width (skip if dimensions unknown)
+                        if (media.width > 0 && media.width < req.minWidth) {
                             issues.push(media.type.charAt(0).toUpperCase() + media.type.slice(1) + ' width (' + media.width + 'px) is below minimum (' + req.minWidth + 'px)');
                             outcomes.push('Media may be skipped for this platform');
                             isWarning = true;
@@ -1286,8 +1429,20 @@ include __DIR__.'/header.php';
 
             function openScheduleModal(eventObj){
                 if(!scheduleModal) return;
+
+                // Failsafe: ensure Hootsuite token is fresh
+                window._tokenRefreshOk = null;
+                fetch('hootsuite_post.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'action=refresh_token'
+                }).then(function(r) { return r.json(); })
+                  .then(function(data) { window._tokenRefreshOk = data.success; })
+                  .catch(function() { window._tokenRefreshOk = false; });
+
                 var form = document.getElementById('scheduleForm');
                 form.reset();
+                formDirty = false;
 
                 // Clear media
                 selectedFiles = [];
@@ -1354,8 +1509,28 @@ include __DIR__.'/header.php';
                 scheduleModal.show();
             }
 
+            function showScheduleError(msg) {
+                document.getElementById('errorMessage').textContent = msg;
+                new bootstrap.Modal(document.getElementById('scheduleErrorModal')).show();
+            }
+
             var scheduleForm = document.getElementById('scheduleForm');
+            var formDirty = false;
+
             if(scheduleForm){
+                scheduleForm.addEventListener('input', function() { formDirty = true; });
+                scheduleForm.addEventListener('change', function() { formDirty = true; });
+
+                document.getElementById('scheduleModal').addEventListener('hide.bs.modal', function(e) {
+                    if (formDirty) {
+                        if (!confirm('You have unsaved changes. Discard?')) {
+                            e.preventDefault();
+                        } else {
+                            formDirty = false;
+                        }
+                    }
+                });
+
                 scheduleForm.addEventListener('submit', function(e){
                     e.preventDefault();
 
@@ -1368,6 +1543,12 @@ include __DIR__.'/header.php';
                     } else {
                         var errorDiv = document.querySelector('.profiles-error');
                         if(errorDiv) errorDiv.style.display = 'none';
+                    }
+
+                    if (window._tokenRefreshOk === false) {
+                        if (!confirm('Hootsuite connection may have expired. Continue anyway?')) {
+                            return;
+                        }
                     }
 
                     // Update combined datetime field
@@ -1413,9 +1594,13 @@ include __DIR__.'/header.php';
 
                     var formData = new FormData(this);
 
-                    fetch('hootsuite_post.php', { method:'POST', body: formData })
+                    var controller = new AbortController();
+                    var timeoutId = setTimeout(function() { controller.abort(); }, 300000);
+
+                    fetch('hootsuite_post.php', { method:'POST', body: formData, signal: controller.signal })
                         .then(r=>r.json())
                         .then(function(res){
+                            clearTimeout(timeoutId);
                             // Complete progress bar
                             if (progressContainer && hasMedia) {
                                 progressFill.style.width = '100%';
@@ -1433,6 +1618,7 @@ include __DIR__.'/header.php';
                             }
 
                             if(res.success){
+                                formDirty = false;
                                 scheduleModal.hide();
 
                                 // Show success modal if it exists
@@ -1440,8 +1626,8 @@ include __DIR__.'/header.php';
                                 if(successModalEl) {
                                     // Update message if there's a warning about media timeout
                                     var successMsg = document.getElementById('successMessage');
-                                    if(res.warning && successMsg) {
-                                        successMsg.textContent = res.warning;
+                                    if((res.warning || res.warnings) && successMsg) {
+                                        successMsg.textContent = res.warning || res.warnings;
                                         successMsg.className = 'text-warning';
                                     } else if(successMsg) {
                                         successMsg.textContent = 'Your post has been scheduled and will be published automatically.';
@@ -1450,15 +1636,6 @@ include __DIR__.'/header.php';
 
                                     var successModal = new bootstrap.Modal(successModalEl);
                                     successModal.show();
-
-                                    // Force reload after modal is closed
-                                    successModalEl.addEventListener('hidden.bs.modal', function () {
-                                        // Force hard reload bypassing cache
-                                        window.location.href = window.location.href + '?t=' + Date.now();
-                                    }, { once: true });
-                                } else {
-                                    // If no modal, reload immediately
-                                    window.location.href = window.location.href + '?t=' + Date.now();
                                 }
 
                                 if(calendar && res.events){
@@ -1487,9 +1664,10 @@ include __DIR__.'/header.php';
                                     window.displayMediaPreviews();
                                 }
                             } else {
-                                alert(res.error || 'Unable to save post');
+                                showScheduleError(res.error || 'Unable to save post');
                             }
-                        }).catch(function(){
+                        }).catch(function(err){
+                        clearTimeout(timeoutId);
                         // Hide progress bar on error
                         if (progressContainer) {
                             progressContainer.style.display = 'none';
@@ -1499,7 +1677,11 @@ include __DIR__.'/header.php';
                             submitBtn.innerHTML = originalText;
                             submitBtn.disabled = false;
                         }
-                        alert('Unable to save post');
+                        if (err && err.name === 'AbortError') {
+                            showScheduleError('The request timed out. Your video may be too large or the server is busy. Please try again.');
+                        } else {
+                            showScheduleError('Unable to save post');
+                        }
                     });
                 });
             }

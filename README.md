@@ -55,12 +55,11 @@ Stores can be matched to scheduled Hootsuite posts using custom properties. In t
 
 Recent releases introduced several enhancements:
 
-- The admin uploads list now refreshes automatically so new content appears in
-  real time.
-- Admins receive email notifications when a store submits a quick upload.
-- Uploaded files can be downloaded directly from the content history page.
-- The chat interface shows each store user's full name and displays emoji
-  reactions.
-- A handy "Upload" button is available on the dashboard widget.
+- HEIC/HEIF image auto-conversion and MOV video support for Hootsuite uploads
+- Styled error modals and unsaved-changes warnings in the schedule post flow
+- Per-platform media guidelines accordion in the admin calendar
+- In-place calendar updates after scheduling (no full-page reload)
+- Hootsuite token refresh with interval-based caching and pre-submit warnings
+- Email notifications and real-time refresh for admin uploads
 
 See `CHANGELOG.md` for a complete history of changes.

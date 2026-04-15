@@ -12,7 +12,9 @@
       "Bash(php -l:*)",
       "Bash(/usr/local/bin/php:*)",
       "Bash(/opt/homebrew/bin/php:*)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(sqlite3 /Users/carleykuehner/www/mediahub/data.db \".schema social_network_image_settings\")",
+      "Bash(php:*)"
     ]
   }
 }

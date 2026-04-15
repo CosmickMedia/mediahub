@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.5] - 2026-04-15
+### Added
+- Styled error modal for schedule post failures (replaces raw browser `alert()`)
+- Unsaved changes warning when closing schedule modal with pending edits
+- Hootsuite token refresh failure warning before post submission
+- HEIC/HEIF image auto-conversion for Hootsuite uploads (via `sips` + GD fallback)
+- Per-platform media guidelines accordion in admin calendar (Facebook, Instagram, YouTube, etc.)
+- Token refresh endpoint with interval-based caching
+
+### Changed
+- Successful post scheduling no longer triggers full-page reload (calendar updates in-place)
+- Admin media guidelines collapsed into space-saving accordion
+- Image compression and cropping now handle non-standard formats via GD auto-detection
+
 ## [2.4.4] - 2026-04-03
 ### Added
 - MOV video format support across calendar, admin calendar, uploads, and Hootsuite posting

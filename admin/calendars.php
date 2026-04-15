@@ -1282,32 +1282,140 @@ include __DIR__.'/header.php';
                                 </div>
                                 <div class="form-group">
                                     <div class="media-upload-info">
-                                        <div class="alert alert-info">
-                                            <i class="bi bi-info-circle"></i>
-                                            <strong>Media Guidelines:</strong>
-                                            <strong class="d-block mt-2">Images:</strong>
-                                            <ul class="mb-2">
-                                                <li>Accepted formats: JPG, PNG</li>
-                                                <li>Maximum file size: 10MB (5MB recommended)</li>
-                                                <li>Recommended: 1200x1200px square for best compatibility</li>
-                                                <li>Alternative sizes: 1200x630px (landscape) or 1080x1350px (portrait)</li>
-                                                <li><small class="text-muted">Note: Instagram requires square (1:1) or portrait (4:5) ratios</small></li>
-                                            </ul>
-                                            <strong class="d-block">Videos:</strong>
-                                            <ul class="mb-0">
-                                                <li>Accepted formats: MP4, MOV</li>
-                                                <li>Maximum file size: 10MB</li>
-                                                <li>Duration: Under 60 seconds recommended</li>
-                                                <li>Recommended resolution: 1080x1080px or 1920x1080px</li>
-                                            </ul>
+                                        <div class="accordion accordion-flush" id="mediaGuidelinesAccordion">
+                                            <div class="accordion-item border-0">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button collapsed py-2 px-3 bg-light rounded" type="button" data-bs-toggle="collapse" data-bs-target="#mediaGuidelinesBody" aria-expanded="false" aria-controls="mediaGuidelinesBody" style="font-size: 0.9rem;">
+                                                        <i class="bi bi-info-circle me-2"></i> <strong>Media Guidelines</strong>
+                                                    </button>
+                                                </h2>
+                                                <div id="mediaGuidelinesBody" class="accordion-collapse collapse" data-bs-parent="#mediaGuidelinesAccordion">
+                                                    <div class="accordion-body py-2 px-3" style="font-size: 0.85rem;">
+                                                        <div class="mb-2">
+                                                            <strong>Accepted Formats</strong><br>
+                                                            Images: JPG, PNG, WebP, HEIC (auto-converted) &bull; Max 10MB<br>
+                                                            Videos: MP4, MOV, WebM &bull; Max 10MB &bull; Under 60s recommended<br>
+                                                            Up to 4 files per post
+                                                        </div>
+                                                        <div class="accordion accordion-flush" id="platformGuidelinesAccordion">
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineFacebook" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-facebook me-1" style="color: #1877F2;"></i> Facebook
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineFacebook" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1200x630px (1.91:1), max 10MB<br>
+                                                                        Videos: 1080p, most durations, MP4/MOV<br>
+                                                                        <small>Auto-crops from center if needed</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineInstagram" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-instagram me-1" style="color: #E4405F;"></i> Instagram
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineInstagram" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1080x1080px (1:1) or 1080x1350 (4:5), max 5MB, JPG/PNG<br>
+                                                                        Videos: 1080x1080, max 60s, MP4/MOV<br>
+                                                                        <small class="text-warning">Strict aspect ratio requirements</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineYouTube" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-youtube me-1" style="color: #FF0000;"></i> YouTube
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineYouTube" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Videos: 1920x1080px (16:9), MP4/MOV<br>
+                                                                        <small>Best for landscape video content</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineTikTok" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-tiktok me-1" style="color: #000000;"></i> TikTok
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineTikTok" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Videos: 1080x1920px (9:16 vertical), MP4/MOV<br>
+                                                                        <small>Best for vertical video content</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineLinkedIn" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-linkedin me-1" style="color: #0A66C2;"></i> LinkedIn
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineLinkedIn" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1200x627px (1.91:1), max 10MB<br>
+                                                                        Videos: 1080p landscape, MP4/MOV
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineTwitter" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-twitter-x me-1" style="color: #000000;"></i> X / Twitter
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineTwitter" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1080x1080px (1:1), max 5MB<br>
+                                                                        Videos: 1080p, max 140s, MP4/MOV
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelinePinterest" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-pinterest me-1" style="color: #BD081C;"></i> Pinterest
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelinePinterest" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1000x1500px (2:3 vertical), max 20MB<br>
+                                                                        <small>Best for tall, vertical images</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item border-0">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#guidelineThreads" style="font-size: 0.85rem;">
+                                                                        <i class="bi bi-threads me-1" style="color: #000000;"></i> Threads
+                                                                    </button>
+                                                                </h2>
+                                                                <div id="guidelineThreads" class="accordion-collapse collapse" data-bs-parent="#platformGuidelinesAccordion">
+                                                                    <div class="accordion-body py-1 px-2 text-muted">
+                                                                        Images: 1080x1920px (9:16 vertical), max 10MB<br>
+                                                                        Videos: 1080x1920, MP4/MOV
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="media-upload-area">
-                                        <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,image/heic,image/heif,video/*,video/quicktime,video/mp4" multiple style="display: none;">
+                                        <input type="file" class="form-control" id="postMedia" name="media[]" accept="image/*,image/heic,image/heif,image/avif,video/*,video/quicktime,video/mp4,video/webm,video/3gpp" multiple style="display: none;">
                                         <div class="media-upload-content" id="mediaUploadContent">
                                             <i class="bi bi-cloud-arrow-up"></i>
                                             <p class="upload-text">Click to upload or drag and drop</p>
-                                            <p class="upload-subtext">PNG, JPG, GIF, MP4 or MOV (max. 10MB each, up to 4 files)</p>
+                                            <p class="upload-subtext">JPG, PNG, WebP, HEIC, MP4, MOV or WebM (max. 10MB each, up to 4 files)</p>
                                         </div>
                                         <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
                                             <!-- Media previews will be added here -->
