@@ -8,9 +8,9 @@ if ($enabled !== '1') {
     exit;
 }
 
-$interval = (int)(get_setting('hootsuite_token_refresh_interval') ?: 24);
+$interval = (int)(get_setting('hootsuite_token_refresh_interval') ?: 45);
 $last = get_setting('hootsuite_token_last_refresh');
-if ($last && (time() - strtotime($last) < $interval * 3600)) {
+if ($last && (time() - strtotime($last) < $interval * 60)) {
     echo "Token refresh not required yet" . PHP_EOL;
     exit;
 }

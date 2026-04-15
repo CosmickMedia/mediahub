@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'hootsuite_enabled'       => isset($_POST['hootsuite_enabled']) ? '1' : '0',
         'hootsuite_display_customer' => isset($_POST['hootsuite_display_customer']) ? '1' : '0',
         'hootsuite_update_interval'=> trim($_POST['hootsuite_update_interval'] ?? '24'),
-        'hootsuite_token_refresh_interval'=> trim($_POST['hootsuite_token_refresh_interval'] ?? '1'),
+        'hootsuite_token_refresh_interval'=> trim($_POST['hootsuite_token_refresh_interval'] ?? '45'),
         'hootsuite_client_id'     => trim($_POST['hootsuite_client_id'] ?? ''),
         'hootsuite_client_secret' => trim($_POST['hootsuite_client_secret'] ?? ''),
         'hootsuite_redirect_uri'  => trim($_POST['hootsuite_redirect_uri'] ?? ''),
@@ -459,7 +459,7 @@ if ($hootsuite_display_customer === false) {
     $hootsuite_display_customer = '1';
 }
 $hootsuite_update_interval = get_setting('hootsuite_update_interval') ?: '24';
-$hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '1';
+$hootsuite_token_refresh_interval = get_setting('hootsuite_token_refresh_interval') ?: '45';
 $hootsuite_client_id = get_setting('hootsuite_client_id') ?: '';
 $hootsuite_client_secret = get_setting('hootsuite_client_secret') ?: '';
 $hootsuite_redirect_uri = get_setting('hootsuite_redirect_uri') ?: '';
@@ -1472,10 +1472,10 @@ include __DIR__.'/header.php';
                                     </div>
                                     <div class="col-md-4">
                                         <label for="hootsuite_token_refresh_interval" class="form-label-modern">
-                                            <i class="bi bi-arrow-clockwise"></i> Token Refresh Interval (hours)
+                                            <i class="bi bi-arrow-clockwise"></i> Token Refresh Interval (minutes)
                                         </label>
                                         <input type="number" name="hootsuite_token_refresh_interval" id="hootsuite_token_refresh_interval" class="form-control form-control-modern" value="<?php echo htmlspecialchars($hootsuite_token_refresh_interval); ?>" min="1">
-                                        <div class="form-text-modern">How often to automatically refresh the access token.</div>
+                                        <div class="form-text-modern">How often (in minutes) to automatically refresh the access token.</div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-check form-switch mt-4">
@@ -1538,6 +1538,32 @@ include __DIR__.'/header.php';
                                                 echo ' (' . round($time_diff / 3600) . ' hours ago)';
                                             } else {
                                                 echo ' (' . round($time_diff / 86400) . ' days ago)';
+                                            }
+                                        ?>
+                                    </div>
+                                    <?php
+                                        $next_refresh_time = $refresh_time + ((int)($hootsuite_token_refresh_interval ?: 45) * 60);
+                                        $time_until = $next_refresh_time - time();
+                                        $is_overdue = $time_until <= 0;
+                                    ?>
+                                    <div class="alert <?php echo $is_overdue ? 'alert-warning' : 'alert-success'; ?> mt-2 mb-0" style="font-size: 0.875rem;">
+                                        <i class="bi bi-<?php echo $is_overdue ? 'exclamation-triangle' : 'arrow-repeat'; ?>"></i>
+                                        <strong>Next Token Refresh:</strong>
+                                        <?php
+                                            echo date('F j, Y \a\t g:i A', $next_refresh_time);
+                                            if ($is_overdue) {
+                                                $overdue = abs($time_until);
+                                                if ($overdue < 3600) {
+                                                    echo ' (overdue by ' . round($overdue / 60) . ' minutes)';
+                                                } else {
+                                                    echo ' (overdue by ' . round($overdue / 3600) . ' hours)';
+                                                }
+                                            } else {
+                                                if ($time_until < 3600) {
+                                                    echo ' (in ' . round($time_until / 60) . ' minutes)';
+                                                } else {
+                                                    echo ' (in ' . round($time_until / 3600) . ' hours)';
+                                                }
                                             }
                                         ?>
                                     </div>
