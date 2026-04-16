@@ -861,6 +861,22 @@ if ($action === 'create') {
                 finfo_close($finfo);
                 $mimeType = normalizeMimeType($rawMime, $fileName);
 
+                // Hard-reject MOV: client-side transcoding should have
+                // converted any QuickTime container to MP4 before upload.
+                // If we still see one here, the in-browser transcode was
+                // skipped or failed — refusing now is better than letting
+                // Hootsuite reject the post after the fact.
+                $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                if ($mimeType === 'video/quicktime' || $ext === 'mov') {
+                    @unlink($localPath);
+                    error_log("Rejecting MOV upload: $fileName (MIME: $mimeType) — client-side transcode didn't run");
+                    echo json_encode([
+                        'success' => false,
+                        'error'   => 'MOV files must be converted to MP4 before posting. Please refresh the page and try again. If the issue persists, re-export the video from your phone or editor as MP4.'
+                    ]);
+                    exit;
+                }
+
                 error_log("File saved locally: $localPath (detected MIME: $rawMime, normalized to: $mimeType)");
                 $localMediaPaths[] = [
                     'path' => $localPath,
@@ -892,6 +908,23 @@ if ($action === 'create') {
                         $rawMime = finfo_file($finfo, $localPath);
                         finfo_close($finfo);
                         $mimeType = normalizeMimeType($rawMime, $fileName);
+
+                        // Hard-reject MOV: client-side transcoding should
+                        // have converted any QuickTime container to MP4
+                        // before upload. If we still see one here, the
+                        // in-browser transcode was skipped or failed —
+                        // refusing now is better than letting Hootsuite
+                        // reject the post after the fact.
+                        $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                        if ($mimeType === 'video/quicktime' || $ext === 'mov') {
+                            @unlink($localPath);
+                            error_log("Rejecting MOV upload: $fileName (MIME: $mimeType) — client-side transcode didn't run");
+                            echo json_encode([
+                                'success' => false,
+                                'error'   => 'MOV files must be converted to MP4 before posting. Please refresh the page and try again. If the issue persists, re-export the video from your phone or editor as MP4.'
+                            ]);
+                            exit;
+                        }
 
                         error_log("File $i saved locally: $localPath (detected MIME: $rawMime, normalized to: $mimeType)");
 

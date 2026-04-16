@@ -23,7 +23,19 @@
       "mcp__plugin_context7_context7__query-docs",
       "Bash(git -C /Users/carleykuehner/www/mediahub status)",
       "Bash(git -C /Users/carleykuehner/www/mediahub diff --stat)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(mkdir -p /Users/carleykuehner/www/mediahub/assets/vendor/ffmpeg)",
+      "Bash(curl -L -o ffmpeg.umd.js https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js)",
+      "Bash(curl -L -o util.umd.js https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/umd/index.js)",
+      "Bash(curl -L -o ffmpeg-core.js https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.js)",
+      "Bash(curl -L -o ffmpeg-core.wasm https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.wasm)",
+      "Bash(node --check /Users/carleykuehner/www/mediahub/assets/js/video-transcode.js)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "WebFetch(domain:data.jsdelivr.com)",
+      "Bash(curl -L -o assets/vendor/ffmpeg/util.umd.js https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js)",
+      "Bash(wc:*)",
+      "Bash(node --check /Users/carleykuehner/www/mediahub/public/service-worker.js)",
+      "Bash(node --check /Users/carleykuehner/www/mediahub/admin/service-worker.js)"
     ]
   }
 }

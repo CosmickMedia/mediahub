@@ -718,6 +718,7 @@ include __DIR__.'/header.php';
                                         </button>
                                     </div>
                                     <div id="mediaWarnings" class="media-platform-warnings mt-2"></div>
+                                    <div id="mediaConversionStatus" class="mt-2" style="display:none;"></div>
                                 </div>
                             </div>
                         </div>
@@ -976,9 +977,22 @@ include __DIR__.'/header.php';
             var scheduleBtn = document.getElementById('schedulePostBtn');
             var scheduleModalEl = document.getElementById('scheduleModal');
             var scheduleModal;
+            // True while a MOV→MP4 transcode is running. Guards the submit
+            // handler so the user can't post a half-converted file.
+            var transcodeInProgress = false;
 
             if(scheduleModalEl){
                 scheduleModal = new bootstrap.Modal(scheduleModalEl);
+
+                // Warm the ffmpeg.wasm cache as soon as the modal opens so
+                // the ~30 MB core is already loaded by the time the user
+                // picks a MOV. Fire-and-forget; errors are handled at
+                // transcode time.
+                scheduleModalEl.addEventListener('shown.bs.modal', function() {
+                    import('../assets/js/video-transcode.js')
+                        .then(function(mod) { if (mod && mod.preloadFFmpeg) mod.preloadFFmpeg(); })
+                        .catch(function() { /* ignore: real load will surface errors */ });
+                });
 
                 // Initialize date and time pickers separately
                 var datePicker = flatpickr("#postDate", {
@@ -1034,47 +1048,84 @@ include __DIR__.'/header.php';
                 // Store media dimensions for validation
                 var mediaMetadata = [];
 
-                // Get image dimensions from file
+                // Get image dimensions from file. Always settles within 10 s so
+                // an <img> or createImageBitmap hang (e.g. malformed HEIC) can't
+                // stall handleMultipleFiles' metadata loop and leave the
+                // Schedule button disabled forever.
                 function getImageDimensions(file) {
                     return new Promise(function(resolve) {
                         var img = new Image();
-                        img.onload = function() {
-                            resolve({ width: img.width, height: img.height, type: 'image' });
-                            URL.revokeObjectURL(img.src);
+                        var settled = false;
+                        var done = function(value) {
+                            if (settled) return;
+                            settled = true;
+                            clearTimeout(timer);
+                            try { URL.revokeObjectURL(img.src); } catch (e) {}
+                            resolve(value);
                         };
-                        img.onerror = function() {
-                            URL.revokeObjectURL(img.src);
+                        var timer = setTimeout(function() {
+                            console.warn('getImageDimensions: timeout after 10s for',
+                                (file && file.name) || '(unknown)');
+                            done({ width: 0, height: 0, type: 'image' });
+                        }, 10000);
+
+                        img.onload = function() {
+                            done({ width: img.width, height: img.height, type: 'image' });
+                        };
+                        img.onerror = function(e) {
+                            console.warn('getImageDimensions: <img> failed to load',
+                                (file && file.name) || '(unknown)', e);
                             // Fallback for HEIC and other formats browsers can't render in <img>
                             if (typeof createImageBitmap === 'function') {
                                 createImageBitmap(file).then(function(bitmap) {
-                                    resolve({ width: bitmap.width, height: bitmap.height, type: 'image' });
-                                }).catch(function() {
-                                    resolve({ width: 0, height: 0, type: 'image' });
+                                    done({ width: bitmap.width, height: bitmap.height, type: 'image' });
+                                }).catch(function(err) {
+                                    console.warn('getImageDimensions: createImageBitmap fallback failed for',
+                                        (file && file.name) || '(unknown)', err);
+                                    done({ width: 0, height: 0, type: 'image' });
                                 });
                             } else {
-                                resolve({ width: 0, height: 0, type: 'image' });
+                                done({ width: 0, height: 0, type: 'image' });
                             }
                         };
                         img.src = URL.createObjectURL(file);
                     });
                 }
 
-                // Get video dimensions and duration from file
+                // Get video dimensions and duration from file. Always settles
+                // within 10 s — a malformed MP4 can leave <video> with neither
+                // onloadedmetadata nor onerror ever firing, which would hang
+                // handleMultipleFiles and leave the Schedule button disabled.
                 function getVideoDimensions(file) {
                     return new Promise(function(resolve) {
                         var video = document.createElement('video');
+                        var settled = false;
+                        var done = function(value) {
+                            if (settled) return;
+                            settled = true;
+                            clearTimeout(timer);
+                            try { URL.revokeObjectURL(video.src); } catch (e) {}
+                            resolve(value);
+                        };
+                        var timer = setTimeout(function() {
+                            console.warn('getVideoDimensions: timeout after 10s for',
+                                (file && file.name) || '(unknown)');
+                            done(null);
+                        }, 10000);
+
                         video.preload = 'metadata';
                         video.onloadedmetadata = function() {
-                            resolve({
+                            done({
                                 width: video.videoWidth,
                                 height: video.videoHeight,
                                 duration: video.duration,
                                 type: 'video'
                             });
-                            URL.revokeObjectURL(video.src);
                         };
-                        video.onerror = function() {
-                            resolve(null);
+                        video.onerror = function(e) {
+                            console.warn('getVideoDimensions: failed to load metadata for',
+                                (file && file.name) || '(unknown)', e);
+                            done(null);
                         };
                         video.src = URL.createObjectURL(file);
                     });
@@ -1297,14 +1348,94 @@ include __DIR__.'/header.php';
                         this.classList.remove('dragging');
 
                         var files = Array.from(e.dataTransfer.files);
-                        handleMultipleFiles(files);
+                        // Outer safety net: any unhandled rejection here would
+                        // otherwise leave the submit button disabled forever.
+                        handleMultipleFiles(files).catch(function(err) {
+                            console.error('[MOV] handleMultipleFiles failed', err);
+                            var btn = document.getElementById('scheduleSubmitBtn');
+                            if (btn) btn.disabled = false;
+                            try { transcodeInProgress = false; } catch (e) {}
+                            showConversionError('Something went wrong handling the file. Please try again, or refresh the page if it keeps failing.');
+                        });
                     });
                 }
 
                 if (mediaInput) {
                     mediaInput.addEventListener('change', function() {
                         var files = Array.from(this.files);
-                        handleMultipleFiles(files);
+                        handleMultipleFiles(files).catch(function(err) {
+                            console.error('[MOV] handleMultipleFiles failed', err);
+                            var btn = document.getElementById('scheduleSubmitBtn');
+                            if (btn) btn.disabled = false;
+                            try { transcodeInProgress = false; } catch (e) {}
+                            showConversionError('Something went wrong handling the file. Please try again, or refresh the page if it keeps failing.');
+                        });
+                    });
+                }
+
+                // Render conversion progress as an inline Bootstrap-style row inside
+                // the schedule modal. Single source of truth for both per-file progress
+                // and "loading converter" indeterminate states. Replaces the fixed-
+                // position popup overlays, which could stack behind the modal.
+                function showConversionProgress(label, pct) {
+                    var el = document.getElementById('mediaConversionStatus');
+                    if (!el) return;
+                    var hasPct = (typeof pct === 'number' && pct >= 0);
+                    var pctVal = hasPct ? Math.max(0, Math.min(100, Math.round(pct))) : 0;
+                    var barCls = hasPct
+                        ? 'progress-bar bg-primary'
+                        : 'progress-bar progress-bar-striped progress-bar-animated bg-primary';
+                    el.style.display = 'block';
+                    el.innerHTML =
+                        '<div class="alert alert-info py-2 px-3 mb-0" role="status">' +
+                            '<div class="d-flex align-items-center justify-content-between mb-1">' +
+                                '<span><i class="bi bi-arrow-repeat me-2"></i>' +
+                                    (label || 'Converting video\u2026') +
+                                '</span>' +
+                                (hasPct ? '<small class="text-muted ms-2">' + pctVal + '%</small>' : '') +
+                            '</div>' +
+                            '<div class="progress" style="height:6px;border-radius:3px;">' +
+                                '<div class="' + barCls + '" role="progressbar" ' +
+                                'style="width:' + (hasPct ? pctVal : 100) + '%;height:100%;transition:width 0.2s;"></div>' +
+                            '</div>' +
+                        '</div>';
+                }
+
+                // Render an inline error inside the modal. Replaces alert() so users
+                // stay in flow and can read the message in context.
+                function showConversionError(message) {
+                    var el = document.getElementById('mediaConversionStatus');
+                    if (!el) return;
+                    el.style.display = 'block';
+                    el.innerHTML =
+                        '<div class="alert alert-danger py-2 px-3 mb-0 d-flex align-items-start" role="alert">' +
+                            '<i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>' +
+                            '<div class="flex-grow-1">' + message + '</div>' +
+                            '<button type="button" class="btn-close ms-2" aria-label="Close" ' +
+                                'onclick="document.getElementById(\'mediaConversionStatus\').style.display=\'none\';"></button>' +
+                        '</div>';
+                }
+
+                function clearConversionStatus() {
+                    var el = document.getElementById('mediaConversionStatus');
+                    if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+                }
+
+                // Race a dynamic import against a timeout. On timeout, throws an Error
+                // with name 'IMPORT_TIMEOUT' so callers can give a tailored message.
+                function importWithTimeout(spec, ms) {
+                    return new Promise(function (resolve, reject) {
+                        var timedOut = false;
+                        var timer = setTimeout(function () {
+                            timedOut = true;
+                            var err = new Error('Module import timed out after ' + ms + 'ms: ' + spec);
+                            err.name = 'IMPORT_TIMEOUT';
+                            reject(err);
+                        }, ms);
+                        import(spec).then(
+                            function (mod) { if (!timedOut) { clearTimeout(timer); resolve(mod); } },
+                            function (err) { if (!timedOut) { clearTimeout(timer); reject(err); } }
+                        );
                     });
                 }
 
@@ -1316,95 +1447,125 @@ include __DIR__.'/header.php';
                         if ((f.type || '').toLowerCase().indexOf('quicktime') !== -1) return true;
                         return /\.mov$/i.test(f.name || '');
                     }
-                    var hasMov = files.some(isMov);
-                    if (!hasMov) return files;
+                    if (!files.some(isMov)) return files;
 
-                    var mod, overlay;
+                    console.info('[MOV] transcodeMovFiles: hasMov=true');
+                    // Indeterminate progress bar while the 30 MB ffmpeg module downloads.
+                    showConversionProgress('Loading video converter\u2026');
+
+                    var mod;
                     try {
-                        mod = await import('../assets/js/video-transcode.js');
+                        mod = await importWithTimeout('../assets/js/video-transcode.js', 30000);
                     } catch (err) {
-                        console.warn('video-transcode module failed to load; uploading originals', err);
-                        return files;
+                        console.warn('[MOV] video-transcode module failed to load', err);
+                        var msg = (err && err.name === 'IMPORT_TIMEOUT')
+                            ? 'Video converter took too long to load. Please refresh and try again. If this keeps happening, clear site data in your browser settings.'
+                            : 'Video converter failed to load. Please refresh the page and try again.';
+                        showConversionError(msg);
+                        return files.filter(function(f) { return !isMov(f); });
                     }
+                    console.info('[MOV] video-transcode module loaded');
 
                     var out = [];
+                    var hadError = false;
                     try {
-                        overlay = mod.createTranscodeOverlay();
                         for (var i = 0; i < files.length; i++) {
                             var f = files[i];
                             if (!isMov(f)) { out.push(f); continue; }
-                            overlay.setProgress(0, 'Preparing ' + f.name + '…');
+                            console.info('[MOV] transcoding', f.name, 'size=', f.size);
+                            showConversionProgress('Converting "' + f.name + '" to MP4\u2026', 0);
                             try {
                                 var mp4 = await mod.transcodeMovToMp4(f, function(pct) {
-                                    overlay.setProgress(pct);
+                                    showConversionProgress('Converting "' + f.name + '" to MP4\u2026', pct);
                                 });
+                                console.info('[MOV] transcoded', f.name, '\u2192', mp4.size, 'bytes');
                                 out.push(mp4);
                             } catch (err) {
-                                console.warn('MOV transcode failed for ' + f.name + ':', err);
+                                hadError = true;
+                                console.warn('[MOV] transcode failed for ' + f.name + ':', err);
                                 if (err && err.name === 'FILE_TOO_LARGE') {
-                                    alert('"' + f.name + '" is too large for in-browser conversion. Please re-export from your phone as MP4 or trim the clip.');
-                                    continue;
+                                    showConversionError('"' + f.name + '" is too large for in-browser conversion. Please re-export from your phone as MP4 or trim the clip.');
+                                } else {
+                                    showConversionError('Couldn\u2019t convert "' + f.name + '" to MP4. Please re-export the video as MP4 and try again.');
                                 }
-                                // Fall back to the original file — the server's
-                                // MIME normalizer may still rescue it.
-                                out.push(f);
                             }
                         }
                     } finally {
-                        if (overlay) overlay.close();
+                        // Hide progress only if there was no error to surface; otherwise
+                        // leave the inline alert visible for the user to read & dismiss.
+                        if (!hadError) clearConversionStatus();
                     }
                     return out;
                 }
 
                 async function handleMultipleFiles(files) {
-                    // Filter and limit files
-                    var validFiles = files.filter(function(file) {
-                        return file.type.startsWith('image/') || file.type.startsWith('video/');
-                    });
+                    console.info('[MOV] handleMultipleFiles: received', files.length, 'file(s)');
+                    // Mark in-progress for the whole ingest (module import,
+                    // transcode, and metadata gathering) so the submit
+                    // handler can refuse to fire mid-conversion.
+                    transcodeInProgress = true;
+                    var submitBtn = document.getElementById('scheduleSubmitBtn');
+                    if (submitBtn) submitBtn.disabled = true;
+                    try {
+                        // Filter and limit files
+                        var validFiles = files.filter(function(file) {
+                            return file.type.startsWith('image/') || file.type.startsWith('video/');
+                        });
 
-                    // Limit to 4 files total
-                    if (selectedFiles.length + validFiles.length > 4) {
-                        alert('You can upload a maximum of 4 media files');
-                        validFiles = validFiles.slice(0, 4 - selectedFiles.length);
-                    }
-
-                    // Transcode any .mov files to .mp4 client-side so Hootsuite
-                    // only ever sees H.264 MP4 (handles HEVC iPhone clips +
-                    // container quirks that the server can't fix).
-                    validFiles = await transcodeMovFiles(validFiles);
-
-                    // Add new files to selected files
-                    selectedFiles = selectedFiles.concat(validFiles);
-
-                    // Update the file input
-                    var dt = new DataTransfer();
-                    selectedFiles.forEach(function(file) {
-                        dt.items.add(file);
-                    });
-                    mediaInput.files = dt.files;
-
-                    // Get media dimensions for validation
-                    mediaMetadata = [];
-                    for (var i = 0; i < selectedFiles.length; i++) {
-                        var file = selectedFiles[i];
-                        var metadata = null;
-                        if (file.type.startsWith('image/')) {
-                            metadata = await getImageDimensions(file);
-                        } else if (file.type.startsWith('video/')) {
-                            metadata = await getVideoDimensions(file);
+                        // Limit to 4 files total
+                        if (selectedFiles.length + validFiles.length > 4) {
+                            alert('You can upload a maximum of 4 media files');
+                            validFiles = validFiles.slice(0, 4 - selectedFiles.length);
                         }
-                        if (metadata) {
-                            metadata.sizeMB = file.size / (1024 * 1024);
-                            metadata.name = file.name;
-                            mediaMetadata.push(metadata);
+
+                        // Transcode any .mov files to .mp4 client-side so Hootsuite
+                        // only ever sees H.264 MP4 (handles HEVC iPhone clips +
+                        // container quirks that the server can't fix).
+                        console.info('[MOV] handleMultipleFiles: entering transcodeMovFiles');
+                        validFiles = await transcodeMovFiles(validFiles);
+                        console.info('[MOV] handleMultipleFiles: transcodeMovFiles done,', validFiles.length, 'file(s) remain');
+
+                        // Add new files to selected files
+                        selectedFiles = selectedFiles.concat(validFiles);
+
+                        // Update the file input
+                        var dt = new DataTransfer();
+                        selectedFiles.forEach(function(file) {
+                            dt.items.add(file);
+                        });
+                        mediaInput.files = dt.files;
+
+                        // Get media dimensions for validation
+                        console.info('[MOV] handleMultipleFiles: gathering metadata for', selectedFiles.length, 'file(s)');
+                        mediaMetadata = [];
+                        for (var i = 0; i < selectedFiles.length; i++) {
+                            var file = selectedFiles[i];
+                            var metadata = null;
+                            if (file.type.startsWith('image/')) {
+                                metadata = await getImageDimensions(file);
+                            } else if (file.type.startsWith('video/')) {
+                                metadata = await getVideoDimensions(file);
+                            }
+                            if (metadata) {
+                                metadata.sizeMB = file.size / (1024 * 1024);
+                                metadata.name = file.name;
+                                mediaMetadata.push(metadata);
+                            } else {
+                                console.warn('Media metadata unavailable for', file.name, '— file will not participate in platform validation.');
+                            }
                         }
+                        console.info('[MOV] handleMultipleFiles: metadata gathered');
+
+                        // Display previews
+                        displayMediaPreviews();
+
+                        // Validate media against selected platforms
+                        validateMediaForPlatforms();
+                    } finally {
+                        transcodeInProgress = false;
+                        if (submitBtn) submitBtn.disabled = false;
+                        console.info('[MOV] handleMultipleFiles: complete, button re-enabled');
                     }
-
-                    // Display previews
-                    displayMediaPreviews();
-
-                    // Validate media against selected platforms
-                    validateMediaForPlatforms();
                 }
 
                 function displayMediaPreviews() {
@@ -1600,6 +1761,16 @@ include __DIR__.'/header.php';
 
                 scheduleForm.addEventListener('submit', function(e){
                     e.preventDefault();
+
+                    // Reject the submit if a MOV→MP4 transcode is still
+                    // running. The fullscreen overlay blocks clicks during
+                    // ffmpeg.exec, but there's a gap during module import
+                    // and metadata gathering where the user could still
+                    // reach the submit button.
+                    if (transcodeInProgress) {
+                        alert('Video conversion is still in progress \u2014 please wait a moment and try again.');
+                        return;
+                    }
 
                     // Validate at least one profile is selected
                     var checkedProfiles = document.querySelectorAll('.profile-checkbox-input:checked');

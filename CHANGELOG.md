@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.8] - 2026-04-16
+### Fixed
+- MOV upload no longer hangs with the Schedule Post button silently disabled when a transcoded video's metadata never resolves (`getVideoDimensions()` and `getImageDimensions()` now time out after 10 s instead of waiting forever)
+- File-picker / drag-and-drop handlers now re-enable the submit button and surface an inline error if anything unexpected throws during ingest
+
+### Changed
+- Video conversion progress and errors now render inline inside the schedule modal (no more popup overlays that could flash behind the modal or get dismissed before the user sees them) — both public and admin composers
+- Service worker no longer emits "Failed to fetch" / "promise was rejected" noise when a PHP fetch fails; returns a 503 the page can handle (`public/service-worker.js`)
+- Service worker caches bumped to guarantee the new activate handler runs (public v6→v7, admin v4→v5)
+
+### Added
+- `[MOV]` `console.info` traces at every ingest state transition so the next upload-hang report is diagnosable from pasted logs alone
+
+## [2.4.7] - 2026-04-16
+### Fixed
+- MOV upload no longer hangs with a silently-disabled "Schedule Post" button (service worker was poisoning its cache with 206 Partial Content responses for the ffmpeg-core.wasm download)
+- Service worker `cache.put` failures no longer become unhandled promise rejections
+
+### Changed
+- Schedule modal now shows an immediate "Loading video converter…" overlay so users see feedback the moment they pick a MOV (was previously invisible until the 30 MB ffmpeg module finished downloading)
+- Video converter module load now times out after 30 seconds with a clear retry message instead of hanging indefinitely
+- Service workers only cache successful 200 responses (admin v3→v4, public v5→v6 — bumped to purge any poisoned entries)
+
+### Added
+- Console warnings when image or video metadata can't be read so dropped media is visible during development
+
 ## [2.4.6] - 2026-04-16
 ### Added
 - Client-side MOV→MP4 transcoding via ffmpeg.wasm so Hootsuite only sees H.264 MP4 (fixes HEVC iPhone clips and MOV container quirks)

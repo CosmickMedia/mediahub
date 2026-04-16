@@ -1,5 +1,5 @@
 // MediaHub Admin Service Worker
-const CACHE_NAME = 'mediahub-admin-v2';
+const CACHE_NAME = 'mediahub-admin-v5';
 const urlsToCache = [
   '/admin/index.php',
   '/assets/css/common.css',
@@ -56,13 +56,26 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone the response
-        const responseToCache = response.clone();
+        const req = event.request;
+        // Only cache GET responses with status 200. Range requests
+        // (e.g. for the 30 MB ffmpeg-core.wasm) return 206 Partial
+        // Content, which the Cache API rejects — caching that throws
+        // an unhandled rejection and poisons the cache entry.
+        const canCache =
+          req.method === 'GET' &&
+          response &&
+          response.ok &&
+          response.status === 200 &&
+          (req.url.startsWith('http:') || req.url.startsWith('https:'));
 
-        // Cache the fetched response for future use
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+        if (canCache) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(req, responseToCache).catch((err) => {
+              console.warn('SW cache.put failed for', req.url, err);
+            });
+          });
+        }
 
         return response;
       })

@@ -8,18 +8,23 @@
  *  - Even H.264 MOVs sometimes have container quirks that trip Hootsuite.
  *
  * The single-threaded ffmpeg-core is used so we don't require
- * Cross-Origin-Isolated headers. The ~30MB wasm core is lazy-loaded from
- * jsDelivr and cached by the browser after the first use.
+ * Cross-Origin-Isolated headers. The ~30MB wasm core is served from
+ * /assets/vendor/ffmpeg/ (vendored in-repo) so loading is not blocked
+ * by CDN outages, corporate firewalls, or browser extensions.
  *
  * Public API:
  *   transcodeMovToMp4(file, onProgress) => Promise<File>
  *   createTranscodeOverlay()            => { setProgress, close }
+ *   preloadFFmpeg()                     => Promise<void>   (warm the cache)
  */
 
-const FFMPEG_VERSION = '0.12.10';
-const UTIL_VERSION   = '0.12.2';
-const CORE_VERSION   = '0.12.10';
-const CDN            = 'https://cdn.jsdelivr.net/npm';
+// Resolve vendored assets relative to THIS module file, so the code works
+// regardless of which page imports it (admin vs public, different depths).
+const VENDOR_BASE       = new URL('../vendor/ffmpeg/', import.meta.url).href;
+const FFMPEG_UMD_URL    = VENDOR_BASE + 'ffmpeg.umd.js';
+const UTIL_UMD_URL      = VENDOR_BASE + 'util.umd.js';
+const CORE_JS_URL       = VENDOR_BASE + 'ffmpeg-core.js';
+const CORE_WASM_URL     = VENDOR_BASE + 'ffmpeg-core.wasm';
 
 // Mobile Safari can exhaust memory on very large clips. Skip transcoding
 // rather than crashing the tab; the server-side MIME normalization may
@@ -55,24 +60,24 @@ async function getFFmpeg() {
         }
 
         // Load the UMD bundles which attach globals. We use UMD (not ESM)
-        // because jsDelivr's ESM bundles contain bare specifiers which the
-        // browser can't resolve without an import map.
+        // because the ESM bundles contain bare specifiers which the browser
+        // can't resolve without an import map.
         if (!window.FFmpegUtil) {
-            await loadScript(`${CDN}/@ffmpeg/util@${UTIL_VERSION}/dist/umd/index.js`);
+            await loadScript(UTIL_UMD_URL);
         }
         if (!window.FFmpegWASM) {
-            await loadScript(`${CDN}/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/umd/ffmpeg.js`);
+            await loadScript(FFMPEG_UMD_URL);
         }
 
         const { FFmpeg }    = window.FFmpegWASM;
         const { toBlobURL } = window.FFmpegUtil;
-        const baseURL       = `${CDN}/@ffmpeg/core@${CORE_VERSION}/dist/umd`;
 
         const ffmpeg = new FFmpeg();
-        // toBlobURL sidesteps cross-origin WASM fetch restrictions.
+        // toBlobURL wraps the core assets in Blob URLs so they can be
+        // passed to the internal Worker without same-origin quirks.
         await ffmpeg.load({
-            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`,   'text/javascript'),
-            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+            coreURL: await toBlobURL(CORE_JS_URL,   'text/javascript'),
+            wasmURL: await toBlobURL(CORE_WASM_URL, 'application/wasm'),
         });
 
         ffmpegInstance = ffmpeg;
@@ -86,6 +91,19 @@ async function getFFmpeg() {
         ffmpegLoadPromise = null;
         throw err;
     }
+}
+
+/**
+ * Warm the ffmpeg.wasm cache without showing any UI. Safe to call on modal
+ * open — by the time the user picks a MOV, the ~30 MB core is already
+ * loaded, and the overlay skips straight to converting.
+ *
+ * Errors are swallowed: preloading is best-effort. A real transcode call
+ * will surface the same error to the user through the normal UI path.
+ * @returns {Promise<void>}
+ */
+export function preloadFFmpeg() {
+    return getFFmpeg().then(() => undefined, () => undefined);
 }
 
 /**
