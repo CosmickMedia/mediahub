@@ -39,6 +39,10 @@ public/uploads/
 
 # PHP specific
 vendor/
+# …but track our in-repo browser asset vendor dir (ffmpeg.wasm, etc.).
+# The production deploy needs these files; they aren't pulled by any
+# package manager. Without them the MOV→MP4 transcoder 404s at runtime.
+!assets/vendor/
 composer.lock
 .user.ini
 /assets/thumbs/
