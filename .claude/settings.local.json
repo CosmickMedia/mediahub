@@ -14,7 +14,16 @@
       "Bash(/opt/homebrew/bin/php:*)",
       "Bash(xargs cat:*)",
       "Bash(sqlite3 /Users/carleykuehner/www/mediahub/data.db \".schema social_network_image_settings\")",
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "Bash(git log:*)",
+      "Bash(/tmp/test_mime.php:*)",
+      "Read(//tmp/**)",
+      "Bash(ffmpeg -version)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(git -C /Users/carleykuehner/www/mediahub status)",
+      "Bash(git -C /Users/carleykuehner/www/mediahub diff --stat)",
+      "Bash(git:*)"
     ]
   }
 }

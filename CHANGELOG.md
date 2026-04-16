@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.6] - 2026-04-16
+### Added
+- Client-side MOV→MP4 transcoding via ffmpeg.wasm so Hootsuite only sees H.264 MP4 (fixes HEVC iPhone clips and MOV container quirks)
+- Progress overlay during in-browser video conversion with percent + estimated time
+- Friendly error when a video is too large (>200MB) for in-browser transcoding
+
+### Changed
+- Upload hints now note that MOV files are auto-converted to MP4
+- Server-side `normalizeMimeType()` is now a fallback path (client-side transcoding is primary)
+
 ## [2.4.5] - 2026-04-15
 ### Added
 - Styled error modal for schedule post failures (replaces raw browser `alert()`)

@@ -4,13 +4,26 @@ require_once __DIR__.'/../lib/calendar.php';
 require_once __DIR__.'/../lib/helpers.php';
 require_once __DIR__.'/../lib/auth.php';
 
-// Debug logging for redirect investigation
-error_log("Calendar DEBUG - Session status: " . session_status());
-error_log("Calendar DEBUG - store_id: " . (isset($_SESSION['store_id']) ? $_SESSION['store_id'] : 'NOT SET'));
-
 ensure_session();
 
+$sessName = session_name();
+error_log(sprintf(
+    'CalendarDBG uri=%s ref=%s sess=%s sid=%s cookie=%s store_id=%s remember=%s',
+    $_SERVER['REQUEST_URI']    ?? '-',
+    $_SERVER['HTTP_REFERER']   ?? '-',
+    $sessName,
+    session_id() ?: 'none',
+    isset($_COOKIE[$sessName]) ? 'present' : 'missing',
+    $_SESSION['store_id']      ?? 'NOT_SET',
+    isset($_COOKIE['cm_public_remember']) ? 'yes' : 'no'
+));
+
 if (!isset($_SESSION['store_id'])) {
+    // Make sure no edge or browser caches this redirect — even transient
+    // caching of a 302 would permanently break the page for the user.
+    header('Cache-Control: no-store, no-cache, must-revalidate, private, max-age=0');
+    header('Pragma: no-cache');
+    header('X-Kinsta-Cache: BYPASS');
     header('Location: index.php');
     exit;
 }
@@ -574,6 +587,7 @@ include __DIR__.'/header.php';
                                                             <strong>Accepted Formats</strong><br>
                                                             Images: JPG, PNG, WebP, HEIC (auto-converted) &bull; Max 10MB<br>
                                                             Videos: MP4, MOV, WebM &bull; Max 10MB &bull; Under 60s recommended<br>
+                                                            <span class="text-muted">MOV files are auto-converted to MP4 &mdash; may take a moment for longer clips.</span><br>
                                                             Up to 4 files per post
                                                         </div>
                                                         <div class="accordion accordion-flush" id="platformGuidelinesAccordion">
@@ -694,7 +708,7 @@ include __DIR__.'/header.php';
                                         <div class="media-upload-content" id="mediaUploadContent">
                                             <i class="bi bi-cloud-arrow-up"></i>
                                             <p class="upload-text">Click to upload or drag and drop</p>
-                                            <p class="upload-subtext">JPG, PNG, WebP, HEIC, MP4, MOV or WebM (max. 10MB each, up to 4 files)</p>
+                                            <p class="upload-subtext">JPG, PNG, WebP, HEIC, MP4, MOV or WebM (max. 10MB each, up to 4 files)<br><span class="text-muted" style="font-size:0.8em;">MOV files are auto-converted to MP4 in your browser &mdash; may take a moment.</span></p>
                                         </div>
                                         <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
                                             <!-- Media previews will be added here -->
@@ -1294,6 +1308,54 @@ include __DIR__.'/header.php';
                     });
                 }
 
+                async function transcodeMovFiles(files) {
+                    // Detect MOVs by extension OR MIME (video/quicktime and
+                    // vendor variants). Non-MOVs pass through untouched.
+                    function isMov(f) {
+                        if (!f) return false;
+                        if ((f.type || '').toLowerCase().indexOf('quicktime') !== -1) return true;
+                        return /\.mov$/i.test(f.name || '');
+                    }
+                    var hasMov = files.some(isMov);
+                    if (!hasMov) return files;
+
+                    var mod, overlay;
+                    try {
+                        mod = await import('../assets/js/video-transcode.js');
+                    } catch (err) {
+                        console.warn('video-transcode module failed to load; uploading originals', err);
+                        return files;
+                    }
+
+                    var out = [];
+                    try {
+                        overlay = mod.createTranscodeOverlay();
+                        for (var i = 0; i < files.length; i++) {
+                            var f = files[i];
+                            if (!isMov(f)) { out.push(f); continue; }
+                            overlay.setProgress(0, 'Preparing ' + f.name + '…');
+                            try {
+                                var mp4 = await mod.transcodeMovToMp4(f, function(pct) {
+                                    overlay.setProgress(pct);
+                                });
+                                out.push(mp4);
+                            } catch (err) {
+                                console.warn('MOV transcode failed for ' + f.name + ':', err);
+                                if (err && err.name === 'FILE_TOO_LARGE') {
+                                    alert('"' + f.name + '" is too large for in-browser conversion. Please re-export from your phone as MP4 or trim the clip.');
+                                    continue;
+                                }
+                                // Fall back to the original file — the server's
+                                // MIME normalizer may still rescue it.
+                                out.push(f);
+                            }
+                        }
+                    } finally {
+                        if (overlay) overlay.close();
+                    }
+                    return out;
+                }
+
                 async function handleMultipleFiles(files) {
                     // Filter and limit files
                     var validFiles = files.filter(function(file) {
@@ -1305,6 +1367,11 @@ include __DIR__.'/header.php';
                         alert('You can upload a maximum of 4 media files');
                         validFiles = validFiles.slice(0, 4 - selectedFiles.length);
                     }
+
+                    // Transcode any .mov files to .mp4 client-side so Hootsuite
+                    // only ever sees H.264 MP4 (handles HEVC iPhone clips +
+                    // container quirks that the server can't fix).
+                    validFiles = await transcodeMovFiles(validFiles);
 
                     // Add new files to selected files
                     selectedFiles = selectedFiles.concat(validFiles);

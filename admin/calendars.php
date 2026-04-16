@@ -1415,7 +1415,7 @@ include __DIR__.'/header.php';
                                         <div class="media-upload-content" id="mediaUploadContent">
                                             <i class="bi bi-cloud-arrow-up"></i>
                                             <p class="upload-text">Click to upload or drag and drop</p>
-                                            <p class="upload-subtext">JPG, PNG, WebP, HEIC, MP4, MOV or WebM (max. 10MB each, up to 4 files)</p>
+                                            <p class="upload-subtext">JPG, PNG, WebP, HEIC, MP4, MOV or WebM (max. 10MB each, up to 4 files)<br><span class="text-muted" style="font-size:0.8em;">MOV files are auto-converted to MP4 in your browser &mdash; may take a moment.</span></p>
                                         </div>
                                         <div class="media-preview-grid" id="mediaPreviewGrid" style="display: none;">
                                             <!-- Media previews will be added here -->
@@ -1931,7 +1931,50 @@ include __DIR__.'/header.php';
                 });
             }
 
-            function handleMultipleFiles(files) {
+            async function transcodeMovFiles(files) {
+                function isMov(f) {
+                    if (!f) return false;
+                    if ((f.type || '').toLowerCase().indexOf('quicktime') !== -1) return true;
+                    return /\.mov$/i.test(f.name || '');
+                }
+                if (!files.some(isMov)) return files;
+
+                var mod, overlay;
+                try {
+                    mod = await import('../assets/js/video-transcode.js');
+                } catch (err) {
+                    console.warn('video-transcode module failed to load; uploading originals', err);
+                    return files;
+                }
+
+                var out = [];
+                try {
+                    overlay = mod.createTranscodeOverlay();
+                    for (var i = 0; i < files.length; i++) {
+                        var f = files[i];
+                        if (!isMov(f)) { out.push(f); continue; }
+                        overlay.setProgress(0, 'Preparing ' + f.name + '…');
+                        try {
+                            var mp4 = await mod.transcodeMovToMp4(f, function(pct) {
+                                overlay.setProgress(pct);
+                            });
+                            out.push(mp4);
+                        } catch (err) {
+                            console.warn('MOV transcode failed for ' + f.name + ':', err);
+                            if (err && err.name === 'FILE_TOO_LARGE') {
+                                alert('"' + f.name + '" is too large for in-browser conversion. Please re-export from your phone as MP4 or trim the clip.');
+                                continue;
+                            }
+                            out.push(f); // fall back; MIME normalizer may still rescue it
+                        }
+                    }
+                } finally {
+                    if (overlay) overlay.close();
+                }
+                return out;
+            }
+
+            async function handleMultipleFiles(files) {
                 var validFiles = files.filter(function(file) {
                     return file.type.startsWith('image/') || file.type.startsWith('video/');
                 });
@@ -1940,6 +1983,11 @@ include __DIR__.'/header.php';
                     alert('You can upload a maximum of 4 media files');
                     validFiles = validFiles.slice(0, 4 - selectedFiles.length);
                 }
+
+                // Transcode any .mov files to .mp4 client-side so Hootsuite
+                // only ever sees H.264 MP4 (handles HEVC iPhone clips +
+                // container quirks that the server can't fix).
+                validFiles = await transcodeMovFiles(validFiles);
 
                 selectedFiles = selectedFiles.concat(validFiles);
 

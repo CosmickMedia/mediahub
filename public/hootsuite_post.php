@@ -194,6 +194,50 @@ function compressImageIfNeeded($filePath, $mimeType) {
 }
 
 /**
+ * Normalize MIME type by file extension.
+ *
+ * Note: client-side MOV→MP4 transcoding (assets/js/video-transcode.js) is the
+ * primary defense — most uploads reach us as MP4 already. This function stays
+ * as a fallback for the rare cases where transcoding fails or is skipped.
+ *
+ * finfo_file() can return non-standard MIME variants depending on the server's
+ * magic.mime DB version (e.g. "video/x-quicktime", "application/quicktime",
+ * or "application/octet-stream" for .mov files on Kinsta). Hootsuite's media
+ * validator only accepts the standard whitelist, so we coerce vendor variants
+ * back to their canonical form using the uploaded filename's extension.
+ */
+function normalizeMimeType(string $detectedMime, string $fileName): string {
+    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $extMap = [
+        'mov'  => 'video/quicktime',
+        'mp4'  => 'video/mp4',
+        'm4v'  => 'video/mp4',
+        'webm' => 'video/webm',
+        '3gp'  => 'video/3gpp',
+        'jpg'  => 'image/jpeg', 'jpeg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'gif'  => 'image/gif',
+        'webp' => 'image/webp',
+        'heic' => 'image/heic', 'heif' => 'image/heif',
+    ];
+    // Non-standard MIME types finfo returns on some server configs
+    $nonStandard = [
+        'application/octet-stream',
+        'application/quicktime',
+        'video/x-quicktime',
+        'image/x-ms-bmp',
+    ];
+    if (in_array($detectedMime, $nonStandard, true) && isset($extMap[$ext])) {
+        return $extMap[$ext];
+    }
+    // Also map if finfo returned something clearly wrong for a known video ext
+    if (isset($extMap[$ext]) && strpos($extMap[$ext], 'video/') === 0 && strpos($detectedMime, 'video/') !== 0) {
+        return $extMap[$ext];
+    }
+    return $detectedMime;
+}
+
+/**
  * Upload media to Hootsuite using their 3-step process
  * Step 1: Request upload URL (POST /v1/media)
  * Step 2: Upload to S3
@@ -203,7 +247,7 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
     error_log("Starting Hootsuite media upload for: $fileName");
 
     $fileSize = filesize($filePath);
-    error_log("File size: $fileSize bytes, MIME type: $mimeType");
+    error_log("File: $fileName, size: $fileSize bytes, MIME type: $mimeType");
 
     // Step 1: Request upload URL from Hootsuite
     $uploadRequestPayload = [
@@ -228,7 +272,8 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
     curl_close($ch);
 
     if ($code !== 200 && $code !== 201) {
-        error_log("Failed to get upload URL (code $code): $response");
+        error_log("Failed to get upload URL (code $code) for $fileName: $response");
+        error_log("Request payload sent to /v1/media: " . json_encode($uploadRequestPayload));
         return null;
     }
 
@@ -321,7 +366,8 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
                 $mediaReady = true;
                 break;
             } else if ($state === 'FAILED' || $state === 'ERROR') {
-                error_log("FAILED: Media processing failed (state: $state)");
+                error_log("FAILED: Media processing failed for $fileName (state: $state, MIME: $mimeType)");
+                error_log("Full verify response body: " . $verifyResponse);
                 return null;
             }
             // Continue polling if QUEUED or PROCESSING
@@ -331,8 +377,8 @@ function uploadMediaToHootsuite($token, $filePath, $fileName, $mimeType) {
     }
 
     if (!$mediaReady) {
-        error_log("TIMEOUT: Media did not reach READY state after $maxAttempts attempts");
-        error_log("File size was $fileSize bytes - large files may need manual upload");
+        error_log("TIMEOUT: Media did not reach READY state after $maxAttempts attempts for $fileName");
+        error_log("File size was $fileSize bytes, MIME: $mimeType - large files may need manual upload");
         return null;  // Return null to post without media
     }
 
@@ -811,10 +857,11 @@ if ($action === 'create') {
             if (move_uploaded_file($tmpName, $localPath)) {
                 // Detect MIME server-side instead of trusting browser
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                $mimeType = finfo_file($finfo, $localPath);
+                $rawMime = finfo_file($finfo, $localPath);
                 finfo_close($finfo);
+                $mimeType = normalizeMimeType($rawMime, $fileName);
 
-                error_log("File saved locally: $localPath (detected MIME: $mimeType)");
+                error_log("File saved locally: $localPath (detected MIME: $rawMime, normalized to: $mimeType)");
                 $localMediaPaths[] = [
                     'path' => $localPath,
                     'name' => $fileName,
@@ -842,10 +889,11 @@ if ($action === 'create') {
                     if (move_uploaded_file($tmpName, $localPath)) {
                         // Detect MIME server-side instead of trusting browser
                         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                        $mimeType = finfo_file($finfo, $localPath);
+                        $rawMime = finfo_file($finfo, $localPath);
                         finfo_close($finfo);
+                        $mimeType = normalizeMimeType($rawMime, $fileName);
 
-                        error_log("File $i saved locally: $localPath (detected MIME: $mimeType)");
+                        error_log("File $i saved locally: $localPath (detected MIME: $rawMime, normalized to: $mimeType)");
 
                         // Add all files to localMediaPaths (not just the first file)
                         $localMediaPaths[] = [
@@ -879,9 +927,11 @@ if ($action === 'create') {
 
                     // Get file info
                     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                    $mimeType = finfo_file($finfo, $localPath);
+                    $rawMime = finfo_file($finfo, $localPath);
                     finfo_close($finfo);
+                    $mimeType = normalizeMimeType($rawMime, $localPath);
 
+                    error_log("Existing media MIME: $rawMime, normalized to: $mimeType");
                     $localMediaPaths[] = [
                         'path' => $localPath,
                         'name' => basename($localPath),
@@ -1101,7 +1151,25 @@ if ($action === 'create') {
 
             // Warn user if media timed out even after compression attempt
             if ($mediaTimedOut && empty($mediaPayload)) {
-                $result['warning'] = 'Post created successfully, but the media could not be uploaded. The file may be too large or in an unsupported format. Try using a smaller image (<1MB) or manually add media in Hootsuite.';
+                $hadVideo = false;
+                $hadMov = false;
+                foreach ($localMediaPaths as $mf) {
+                    if (strpos($mf['mime'] ?? '', 'video/') === 0) {
+                        $hadVideo = true;
+                    }
+                    if (strtolower(pathinfo($mf['name'] ?? '', PATHINFO_EXTENSION)) === 'mov') {
+                        $hadMov = true;
+                    }
+                }
+                $msg = 'Post created successfully, but the media could not be uploaded. The file may be too large or in an unsupported format.';
+                if ($hadMov) {
+                    $msg .= ' If this was a .mov file, try exporting as .mp4 — most social platforms require MP4.';
+                } elseif ($hadVideo) {
+                    $msg .= ' For videos, MP4 (H.264) is the most reliable format.';
+                } else {
+                    $msg .= ' Try using a smaller image (<1MB) or manually add media in Hootsuite.';
+                }
+                $result['warning'] = $msg;
             }
 
             // Clean up session variable
