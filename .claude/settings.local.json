@@ -39,7 +39,8 @@
       "Bash(python3 -c \"import json; print\\(json.dumps\\({''summary'': ''ffmpeg.wasm misconfiguration''}\\)\\)\")",
       "WebFetch(domain:unpkg.com)",
       "WebFetch(domain:app.unpkg.com)",
-      "Bash(curl -fsSL -o /Users/carleykuehner/www/mediahub/assets/vendor/ffmpeg/814.ffmpeg.js \"https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/814.ffmpeg.js\")"
+      "Bash(curl -fsSL -o /Users/carleykuehner/www/mediahub/assets/vendor/ffmpeg/814.ffmpeg.js \"https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/814.ffmpeg.js\")",
+      "Bash(node --check /Users/carleykuehner/www/mediahub/assets/vendor/ffmpeg/814.ffmpeg.js)"
     ]
   }
 }
