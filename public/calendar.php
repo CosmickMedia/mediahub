@@ -1483,7 +1483,9 @@ include __DIR__.'/header.php';
                             } catch (err) {
                                 hadError = true;
                                 console.warn('[MOV] transcode failed for ' + f.name + ':', err);
-                                if (err && err.name === 'FILE_TOO_LARGE') {
+                                if (err && err.name === 'FFMPEG_LOAD_TIMEOUT') {
+                                    showConversionError('Video converter didn\u2019t start within 60 seconds. Please refresh and try again. If this keeps happening, clear site data.');
+                                } else if (err && err.name === 'FILE_TOO_LARGE') {
                                     showConversionError('"' + f.name + '" is too large for in-browser conversion. Please re-export from your phone as MP4 or trim the clip.');
                                 } else {
                                     showConversionError('Couldn\u2019t convert "' + f.name + '" to MP4. Please re-export the video as MP4 and try again.');

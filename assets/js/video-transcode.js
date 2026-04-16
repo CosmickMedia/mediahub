@@ -75,10 +75,26 @@ async function getFFmpeg() {
         const ffmpeg = new FFmpeg();
         // toBlobURL wraps the core assets in Blob URLs so they can be
         // passed to the internal Worker without same-origin quirks.
-        await ffmpeg.load({
-            coreURL: await toBlobURL(CORE_JS_URL,   'text/javascript'),
-            wasmURL: await toBlobURL(CORE_WASM_URL, 'application/wasm'),
-        });
+        //
+        // Defense in depth: ffmpeg.wasm's UMD bundle spawns an internal
+        // Worker (from the webpack-split 814.ffmpeg.js chunk) and never
+        // installs onerror. If that chunk 404s or the Worker otherwise
+        // fails to start, ffmpeg.load() sits in a pending promise
+        // forever. A 60 s race turns that silent hang into a visible
+        // FFMPEG_LOAD_TIMEOUT error the UI can surface.
+        await Promise.race([
+            ffmpeg.load({
+                coreURL: await toBlobURL(CORE_JS_URL,   'text/javascript'),
+                wasmURL: await toBlobURL(CORE_WASM_URL, 'application/wasm'),
+            }),
+            new Promise(function(_resolve, reject) {
+                setTimeout(function() {
+                    var err = new Error('ffmpeg.load() did not complete within 60 s');
+                    err.name = 'FFMPEG_LOAD_TIMEOUT';
+                    reject(err);
+                }, 60000);
+            }),
+        ]);
 
         ffmpegInstance = ffmpeg;
         return ffmpeg;

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.9] - 2026-04-16
+### Fixed
+- MOV transcoding no longer hangs at 0% — vendored the missing ffmpeg.wasm worker chunk (`814.ffmpeg.js`); without it, `ffmpeg.load()` spawned a Worker against a 404 URL and sat in a pending promise forever because the UMD bundle only installs `onmessage`, never `onerror`
+- Public service worker no longer produces 503 noise for `.php` URLs — it now ignores them entirely and lets the browser handle them natively (bfcache probes and SW update checks no longer collide with the 32 MB wasm download)
+
+### Added
+- 60-second safety timeout on `ffmpeg.load()` so any future worker-load regression surfaces as an inline `FFMPEG_LOAD_TIMEOUT` error rather than a silent hang
+
+### Changed
+- Public service worker cache bumped (v7 → v8) so the new fetch handler installs on next visit
+
 ## [2.4.8] - 2026-04-16
 ### Fixed
 - MOV upload no longer hangs with the Schedule Post button silently disabled when a transcoded video's metadata never resolves (`getVideoDimensions()` and `getImageDimensions()` now time out after 10 s instead of waiting forever)
